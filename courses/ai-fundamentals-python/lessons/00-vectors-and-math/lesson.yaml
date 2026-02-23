@@ -1,0 +1,31 @@
+id: vectors-and-math
+title: "Vectors and Math Foundations"
+description: "Lists as vectors, dot products, magnitudes, normalization, and matrix multiplication — the building blocks of AI"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - check-python
+  - run-a-script
+  - vector-add
+  - dot-product
+  - magnitude
+  - normalize
+  - matrix-vector
+  - weighted-sum
+teaches:
+  - vectors
+  - vector-addition
+  - dot-product
+  - magnitude
+  - normalization
+  - matrix-vector-multiply
+  - weighted-sum
+recap: |
+  You learned:
+  - Vectors are just Python lists of numbers
+  - Vector addition adds corresponding elements
+  - The dot product multiplies pairs and sums the results
+  - Magnitude is the square root of the sum of squares (the vector's "length")
+  - Normalization divides by magnitude to get a unit vector
+  - Matrix-vector multiplication applies each row's dot product
+  - Weighted sums are the foundation of how neurons compute

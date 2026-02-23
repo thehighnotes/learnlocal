@@ -1,0 +1,45 @@
+id: find-files
+title: "Find Files by Name"
+type: command
+prompt: |
+  Your workspace contains this file structure:
+    docs/readme.txt
+    docs/notes.txt
+    src/main.sh
+    src/lib.sh
+    src/utils/helper.sh
+  Use find starting from ./src to list all .sh files, sorted.
+starter: |
+  # Find all .sh files under the src/ directory
+environment:
+  dirs:
+    - docs
+    - src
+    - src/utils
+  files:
+    - path: docs/readme.txt
+      content: ""
+    - path: docs/notes.txt
+      content: ""
+    - path: src/main.sh
+      content: ""
+    - path: src/lib.sh
+      content: ""
+    - path: src/utils/helper.sh
+      content: ""
+validation:
+  method: output
+  expected_output: |
+    ./src/lib.sh
+    ./src/main.sh
+    ./src/utils/helper.sh
+hints:
+  - 'find ./src -name "*.sh" searches recursively under src/'
+  - "Pipe to sort for consistent ordering"
+  - 'find ./src -name "*.sh" | sort'
+solution: |
+  find ./src -name "*.sh" | sort
+explanation: |
+  find ./src -name "*.sh" recursively searches from the src/ directory
+  for files matching the glob pattern *.sh. Sorting ensures consistent
+  output regardless of filesystem order.

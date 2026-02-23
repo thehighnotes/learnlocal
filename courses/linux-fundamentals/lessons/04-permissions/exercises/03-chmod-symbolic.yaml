@@ -1,0 +1,30 @@
+id: chmod-symbolic
+title: "Set Permissions (Symbolic)"
+type: command
+prompt: |
+  A file called file.txt already exists in your workspace.
+  1. Remove all permissions (chmod a-rwx)
+  2. Add read+write for user (chmod u+rw)
+  3. Add read for group (chmod g+r)
+  Then print the final octal permissions with stat.
+
+  Chain all commands with && so the final stat output is your answer.
+starter: |
+  # file.txt already exists — change permissions step by step
+environment:
+  files:
+    - path: file.txt
+      content: ""
+validation:
+  method: output
+  expected_output: "640"
+hints:
+  - "chmod a-rwx file.txt removes everything first"
+  - "chmod u+rw file.txt adds read and write for the user"
+  - "chmod g+r file.txt adds read for the group"
+  - "rw- = 6, r-- = 4, --- = 0, so 640"
+solution: |
+  chmod a-rwx file.txt && chmod u+rw file.txt && chmod g+r file.txt && stat --format='%a' file.txt
+explanation: |
+  Symbolic mode modifies permissions incrementally. a-rwx clears all,
+  u+rw adds user read/write, g+r adds group read. Result: 640 (rw-r-----).

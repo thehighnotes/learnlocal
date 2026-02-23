@@ -1,0 +1,32 @@
+id: list-files
+title: "List Directory Contents"
+type: command
+prompt: |
+  Three .txt files already exist in your workspace: alpha.txt, beta.txt,
+  and gamma.txt. Use `ls -1` with a glob pattern to list only the
+  .txt files, one per line.
+starter: |
+  # Three .txt files exist — list them with ls -1
+environment:
+  files:
+    - path: alpha.txt
+      content: ""
+    - path: beta.txt
+      content: ""
+    - path: gamma.txt
+      content: ""
+validation:
+  method: output
+  expected_output: |
+    alpha.txt
+    beta.txt
+    gamma.txt
+hints:
+  - "ls -1 lists one file per line, sorted alphabetically by default"
+  - "Use a glob: ls -1 *.txt to match only .txt files"
+solution: |
+  ls -1 *.txt
+explanation: |
+  ls -1 lists files one per line. The glob *.txt matches only files
+  ending in .txt. By default ls sorts alphabetically, so alpha.txt
+  comes first.

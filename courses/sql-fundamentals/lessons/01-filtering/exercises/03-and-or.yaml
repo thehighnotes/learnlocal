@@ -1,0 +1,74 @@
+id: and-or
+title: "Combining Conditions with AND / OR"
+type: write
+
+prompt: |
+  Write a query that finds employees who are either:
+  - In the 'Engineering' department with a salary over 80000, OR
+  - In the 'Sales' department
+
+  Select name, department, and salary. Order by department, then by name.
+
+  Be careful with operator precedence -- you will need parentheses to group
+  the Engineering conditions together.
+
+starter: |
+  -- Find: (Engineering AND salary > 80000) OR Sales
+  -- Select name, department, salary
+  -- Order by department, then name
+  SELECT name, department, salary
+  FROM employees;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          department TEXT NOT NULL,
+          salary REAL NOT NULL,
+          hire_date TEXT NOT NULL,
+          manager_id INTEGER
+        );
+        INSERT INTO employees VALUES (1, 'Alice Johnson', 'Engineering', 85000.0, '2020-03-15', NULL);
+        INSERT INTO employees VALUES (2, 'Bob Smith', 'Engineering', 72000.0, '2021-06-01', 1);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Sales', 55000.0, '2019-11-20', 1);
+        INSERT INTO employees VALUES (4, 'David Lee', 'Marketing', 62000.0, '2022-01-10', 1);
+        INSERT INTO employees VALUES (5, 'Eva Martinez', 'Engineering', 95000.0, '2018-07-22', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Wilson', 'Sales', 48000.0, '2023-04-05', 3);
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Marketing', 67000.0, '2021-09-14', 4);
+        INSERT INTO employees VALUES (8, 'Henry Brown', 'Engineering', 78000.0, '2022-08-30', 5);
+        INSERT INTO employees VALUES (9, 'Ivy Chen', 'Sales', 51000.0, '2023-01-18', 3);
+        INSERT INTO employees VALUES (10, 'Jack Taylor', 'Marketing', 58000.0, '2024-02-01', NULL);
+
+validation:
+  method: output
+  expected_output: |
+    Alice Johnson|Engineering|85000.0
+    Eva Martinez|Engineering|95000.0
+    Carol Davis|Sales|55000.0
+    Frank Wilson|Sales|48000.0
+    Ivy Chen|Sales|51000.0
+
+hints:
+  - "You need a WHERE clause with both AND and OR. AND binds tighter than OR, so use parentheses."
+  - "The structure is: WHERE (condition1 AND condition2) OR condition3"
+  - "WHERE (department = 'Engineering' AND salary > 80000) OR department = 'Sales'"
+
+solution: |
+  SELECT name, department, salary
+  FROM employees
+  WHERE (department = 'Engineering' AND salary > 80000)
+     OR department = 'Sales'
+  ORDER BY department, name;
+
+explanation: |
+  Without parentheses, `WHERE department = 'Engineering' AND salary > 80000 OR
+  department = 'Sales'` would actually produce the same result here because AND
+  binds tighter than OR. But relying on precedence is fragile and hard to read.
+
+  Parentheses make the intent explicit: first check if the employee is a
+  high-earning engineer, then OR that with the Sales check. The result includes
+  Alice and Eva (engineers above 80k) plus all three Sales employees, ordered
+  first by department then by name within each department.

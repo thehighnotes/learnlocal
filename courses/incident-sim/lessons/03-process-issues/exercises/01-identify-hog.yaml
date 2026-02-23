@@ -1,0 +1,45 @@
+id: identify-hog
+title: "Identify the Resource Hog"
+type: command
+prompt: |
+  ALERT: Production server response times have spiked to 30 seconds. The
+  monitoring dashboard shows CPU pinned at 100%. You've pulled a snapshot
+  of `ps aux` output — it's in `ps_output.txt`.
+
+  Find the process consuming the most CPU. Write its **process name** and
+  **PID** to `answer.txt`, one per line:
+
+  ```
+  <process_name>
+  <pid>
+  ```
+starter: |
+  # Examine ps_output.txt, find the CPU hog
+  # Write the process name and PID to answer.txt
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > ps_output.txt << 'PSEOF'\nUSER       PID %CPU %MEM    VSZ   RSS TTY  STAT START   TIME COMMAND\nroot         1  0.0  0.1 169344 11200 ?    Ss   08:00   0:03 /sbin/init\nroot       142  0.0  0.0  47852  3840 ?    Ss   08:00   0:00 /usr/sbin/sshd\nwww-data   387  0.5  1.8 412000 36864 ?    S    08:01   0:12 nginx: worker process\nwww-data   388  0.4  1.7 410000 34816 ?    S    08:01   0:11 nginx: worker process\npostgres   512  1.2  3.5 620000 71680 ?    S    08:02   0:45 postgres: writer process\npostgres   513  0.3  0.8 580000 16384 ?    S    08:02   0:08 postgres: stats collector\nroot       744  0.0  0.0  26000  2048 ?    Ss   08:03   0:00 /usr/sbin/cron\nappuser   1023  2.1  4.2 890000 86016 ?    S    08:05   1:30 java -jar api-server.jar\nappuser   1401 98.3  0.5  58000 10240 ?    R    09:15  47:22 python3 data_crunch.py\nroot      1502  0.1  0.0  12000  1536 ?    S    09:20   0:01 /usr/sbin/rsyslogd\nnobody    1611  0.0  0.1  32000  2560 ?    S    09:22   0:00 dnsmasq\nappuser   1720  0.8  2.1 450000 43008 ?    S    09:25   0:15 node web-frontend.js\nroot      1835  0.0  0.0  18000  1280 ?    S    09:28   0:00 /usr/sbin/atd\nappuser   1944  0.2  0.6 120000 12288 ?    S    09:30   0:03 redis-server *:6379\nnobody    2056  0.0  0.0   8000  1024 ?    S    09:32   0:00 /usr/sbin/irqbalance\nPSEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_contains:
+        path: answer.txt
+        content: "data_crunch.py"
+    - file_contains:
+        path: answer.txt
+        content: "1401"
+hints:
+  - "Look at the %CPU column — one process is way above the rest."
+  - "The process using 98.3% CPU has PID 1401 and is running `python3 data_crunch.py`."
+  - "echo 'data_crunch.py' > answer.txt && echo '1401' >> answer.txt"
+solution: |
+  echo 'data_crunch.py' > answer.txt
+  echo '1401' >> answer.txt
+explanation: |
+  In a real incident, `ps aux --sort=-%cpu | head` instantly shows the top CPU
+  consumers. Here, `python3 data_crunch.py` (PID 1401) was eating 98.3% CPU —
+  a classic runaway data processing script. The process name comes from the
+  COMMAND column, and the PID from the PID column.

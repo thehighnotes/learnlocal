@@ -1,0 +1,50 @@
+id: branch-from-commit
+title: "Branch from a Specific Commit"
+type: command
+golf: true
+prompt: |
+  A critical bug was found in production. The current main branch has
+  moved on with experimental work, so you need to branch from the
+  stable release commit -- not from the tip.
+
+  The repo has 5 commits. The 3rd commit (with message "v1.0 release")
+  is the one you need. A file called `TARGET_COMMIT` contains its
+  hash.
+
+  Create a branch called `hotfix` that starts from that commit.
+starter: |
+  #!/bin/bash
+  # Read the target commit hash from TARGET_COMMIT
+  # Create a branch called "hotfix" pointing to that commit
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'v0.1' > version.txt && git add version.txt && git commit -m 'First version' && echo 'v0.9' > version.txt && git add version.txt && git commit -m 'Beta release' && echo 'v1.0' > version.txt && git add version.txt && git commit -m 'v1.0 release' && TARGET=$(git rev-parse HEAD) && echo $TARGET > TARGET_COMMIT && echo 'v1.1-dev' > version.txt && git add version.txt && git commit -m 'Start v1.1 development' && echo 'v1.1-exp' > version.txt && git add version.txt && git commit -m 'Experimental feature'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && HOTFIX=$(git rev-parse hotfix 2>/dev/null) && TARGET=$(cat {dir}/repo/TARGET_COMMIT | tr -d '\\n') && if [ \"$HOTFIX\" = \"$TARGET\" ]; then echo 'CORRECT_COMMIT' > {dir}/repo/result.txt; else echo \"WRONG: hotfix=$HOTFIX target=$TARGET\" > {dir}/repo/result.txt; fi"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/result.txt
+    - file_contains:
+        path: repo/result.txt
+        content: "CORRECT_COMMIT"
+hints:
+  - "Read the hash first: HASH=$(cat TARGET_COMMIT)"
+  - "git branch hotfix <commit-hash> creates a branch at a specific commit"
+  - "Full solution: HASH=$(cat TARGET_COMMIT) && git branch hotfix $HASH"
+solution: |
+  #!/bin/bash
+  git branch hotfix $(cat TARGET_COMMIT)
+explanation: |
+  `git branch <name> <commit>` creates a branch pointing to any
+  commit, not just the current one. This is essential for hotfixes:
+  you branch from the last stable release, fix the bug there, and
+  merge it back -- without dragging in any unstable development work.
+  The $(cat TARGET_COMMIT) reads the hash from the file we provided.

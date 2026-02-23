@@ -1,0 +1,36 @@
+id: teardown-capture
+title: "Teardown Capture"
+type: write
+prompt: |
+  Write "captured output" to a file called `result.txt`. After your script
+  runs, a teardown command will read that file and capture its output
+  to `captured.txt`. State validation checks that `captured.txt` exists
+  and contains the right content.
+starter: |
+  #!/bin/bash
+  # Write the text "captured output" to result.txt
+environment:
+  teardown:
+    - name: capture-result
+      command: cat
+      args: ["{dir}/result.txt"]
+      capture_to: captured.txt
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: captured.txt
+    - file_contains:
+        path: captured.txt
+        content: "captured output"
+hints:
+  - "Use echo to write text to a file"
+  - "echo 'captured output' > result.txt"
+solution: |
+  #!/bin/bash
+  echo "captured output" > result.txt
+explanation: |
+  Your script writes to result.txt. The teardown command then runs
+  `cat result.txt` and its stdout is captured to captured.txt via
+  the capture_to field. State validation confirms captured.txt exists
+  and contains the expected text.

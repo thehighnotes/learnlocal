@@ -1,0 +1,18 @@
+id: processes
+title: "Processes & Jobs"
+description: "Understand exit codes, signals, /proc, background processes, and trap."
+estimated_minutes: 30
+content: content.md
+teaches: [exit-codes, signals, trap, proc, background, wait]
+exercises:
+  - exit-codes
+  - custom-exit
+  - trap-signal
+  - proc-info
+  - background-wait
+  - predict-exit
+  - subshell-exit
+recap: |
+  You learned about exit codes ($?), signals (trap), the /proc filesystem,
+  and running background processes with & and wait. These concepts are
+  fundamental to shell scripting and system administration.

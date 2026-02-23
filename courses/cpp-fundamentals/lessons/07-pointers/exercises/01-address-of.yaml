@@ -1,0 +1,49 @@
+id: address-of
+title: "Address-Of and Pointer Basics"
+type: write
+
+prompt: |
+  Create an integer variable `x` with the value `42`.
+  Then create a pointer `ptr` that points to `x`.
+  Print the value that `ptr` points to (using dereference) to verify
+  they share the same value.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Create an int x with value 42
+
+      // Create a pointer ptr that points to x
+
+      // Print the dereferenced value of ptr
+      std::cout << /* your code here */ << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "42"
+
+hints:
+  - "Declare the pointer with: int* ptr = &x;"
+  - "To get the value a pointer points to, use the dereference operator: *ptr"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int x = 42;
+      int* ptr = &x;
+
+      std::cout << *ptr << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  `int* ptr = &x;` creates a pointer that stores the address of `x`.
+  `*ptr` dereferences the pointer, giving us the value stored at that
+  address -- which is `42`, the same value as `x`. The pointer and the
+  variable are linked: they refer to the same location in memory.

@@ -1,0 +1,71 @@
+id: slices
+title: "Fruit Basket Slice"
+type: write
+
+prompt: |
+  Create a slice of strings containing three fruits: "apple", "banana",
+  and "cherry". Print the slice's length and capacity on one line, then
+  print each fruit on its own line.
+
+  Expected output:
+  ```
+  len=3 cap=3
+  apple
+  banana
+  cherry
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      // Create a slice with: "apple", "banana", "cherry"
+      // Print len and cap: fmt.Printf("len=%d cap=%d\n", ...)
+      // Print each fruit on its own line
+  }
+
+validation:
+  method: output
+  expected_output: |
+    len=3 cap=3
+    apple
+    banana
+    cherry
+
+hints:
+  - "Use a slice literal: fruits := []string{\"apple\", \"banana\", \"cherry\"}"
+  - "len(fruits) gives the length, cap(fruits) gives the capacity."
+  - |
+    fruits := []string{"apple", "banana", "cherry"}
+    fmt.Printf("len=%d cap=%d\n", len(fruits), cap(fruits))
+    for _, f := range fruits {
+        fmt.Println(f)
+    }
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      fruits := []string{"apple", "banana", "cherry"}
+      fmt.Printf("len=%d cap=%d\n", len(fruits), cap(fruits))
+      for _, f := range fruits {
+          fmt.Println(f)
+      }
+  }
+
+explanation: |
+  This exercise introduces slices:
+
+  1. `[]string{"apple", "banana", "cherry"}` creates a slice literal. Notice
+     there is no number between the brackets -- that is what makes it a slice
+     rather than an array.
+  2. `len(fruits)` returns 3 (the number of elements).
+  3. `cap(fruits)` also returns 3 here. Capacity equals length when created
+     from a literal. Capacity grows when you append beyond it.
+  4. `fmt.Printf` with `%d` formats integers. The `\n` at the end is needed
+     because Printf does not add a newline automatically (unlike Println).
+  5. `range` iterates over the slice, giving index and value each time.

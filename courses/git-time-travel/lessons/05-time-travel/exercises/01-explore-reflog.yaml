@@ -1,0 +1,50 @@
+id: explore-reflog
+title: "Explore the Reflog"
+type: command
+prompt: |
+  Something terrible happened. A developer ran `git reset --hard` and the
+  last two commits vanished from `git log`. The history looks like they never
+  existed.
+
+  But git remembers. The reflog knows where every commit went.
+
+  Use `git reflog` to find the hash of the commit with the message
+  "add feature-b". Write JUST the short hash (first 7 characters) to
+  a file called `answer.txt`.
+starter: |
+  #!/bin/bash
+  # Use git reflog to find the lost commit
+  # Write the 7-character short hash to answer.txt
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base' > base.txt && git add base.txt && git commit -m 'initial commit' && echo 'feature a' > a.txt && git add a.txt && git commit -m 'add feature-a' && echo 'feature b' > b.txt && git add b.txt && git commit -m 'add feature-b' && echo 'feature c' > c.txt && git add c.txt && git commit -m 'add feature-c' && git log --format='%h %s' | grep 'add feature-b' | awk '{print $1}' > {dir}/__expected_hash.txt && git reset --hard HEAD~2"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-answer
+      command: sh
+      args: ["-c", "cd {dir}/repo && cat answer.txt 2>/dev/null | tr -d '[:space:]' > {dir}/__answer.txt"]
+      capture_to: teardown.log
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/answer.txt
+    - file_matches:
+        path: __answer.txt
+        pattern: "^[0-9a-f]{7}$"
+hints:
+  - "Run `git reflog` to see every recent HEAD movement."
+  - "Look for the entry with 'add feature-b' in the message — the hash is the first column."
+  - "Write just the 7-character hash: `echo 'abc1234' > answer.txt`"
+solution: |
+  #!/bin/bash
+  HASH=$(git reflog --format='%h %s' | grep 'add feature-b' | head -1 | awk '{print $1}')
+  echo "$HASH" > answer.txt
+explanation: |
+  `git reflog` records every time HEAD moves. Even after `git reset --hard`,
+  the old commits still exist in git's object database — they're just not
+  reachable from any branch. The reflog entries point to them, letting you
+  find and recover "lost" work. Reflog entries expire after 90 days by default.

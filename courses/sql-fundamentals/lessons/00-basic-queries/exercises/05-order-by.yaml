@@ -1,0 +1,54 @@
+id: order-by
+title: "Sorting Results"
+type: write
+
+prompt: |
+  Write a query that selects the `name` and `price` columns from the
+  `products` table, sorted by price from highest to lowest.
+
+  Table schema: products (id INTEGER, name TEXT, price REAL, category TEXT)
+
+starter: |
+  -- Select name and price, sorted by price descending
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE products (id INTEGER, name TEXT, price REAL, category TEXT);
+        INSERT INTO products VALUES (1, 'Laptop', 999.99, 'Electronics');
+        INSERT INTO products VALUES (2, 'Headphones', 49.99, 'Electronics');
+        INSERT INTO products VALUES (3, 'T-Shirt', 19.99, 'Clothing');
+        INSERT INTO products VALUES (4, 'Novel', 12.99, 'Books');
+        INSERT INTO products VALUES (5, 'Jeans', 39.99, 'Clothing');
+        INSERT INTO products VALUES (6, 'Tablet', 299.99, 'Electronics');
+
+validation:
+  method: output
+  expected_output: |
+    Laptop|999.99
+    Tablet|299.99
+    Headphones|49.99
+    Jeans|39.99
+    T-Shirt|19.99
+    Novel|12.99
+
+hints:
+  - "Use ORDER BY to sort results. Put it after the FROM clause."
+  - "DESC sorts in descending order (highest first). ASC is the default (lowest first)."
+  - "The full query is: SELECT name, price FROM products ORDER BY price DESC;"
+
+solution: |
+  SELECT name, price FROM products ORDER BY price DESC;
+
+explanation: |
+  `ORDER BY price DESC` sorts the result rows by the price column in
+  descending order — from the most expensive to the cheapest.
+
+  Without `DESC`, the default is ascending (ASC), which would put Novel
+  (12.99) first and Laptop (999.99) last.
+
+  You can sort by any column, even one you did not SELECT. For example,
+  `SELECT name FROM products ORDER BY price DESC` would show only names
+  but still sorted by price. The sort column does not have to appear in
+  the output.

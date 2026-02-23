@@ -1,0 +1,29 @@
+id: predict-exit
+title: "Predict Exit Code"
+type: predict
+prompt: |
+  What does this script print?
+  ```bash
+  true && echo "yes" || echo "no"
+  false && echo "yes" || echo "no"
+  ```
+  Write a script that prints the exact same output.
+starter: |
+  #!/bin/bash
+  # Predict the output of && and || chains
+validation:
+  method: output
+  expected_output: |
+    yes
+    no
+hints:
+  - "&& runs the next command only if the previous succeeded"
+  - "|| runs the next command only if the previous failed"
+  - "true succeeds (exit 0), false fails (exit 1)"
+solution: |
+  #!/bin/bash
+  echo "yes"
+  echo "no"
+explanation: |
+  true succeeds, so && runs echo "yes". false fails, so && skips
+  echo "yes" and || runs echo "no".

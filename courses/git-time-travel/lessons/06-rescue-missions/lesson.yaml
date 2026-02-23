@@ -1,0 +1,18 @@
+id: rescue-missions
+title: "Rescue Missions"
+description: "Complex real-world git disasters. Each exercise is a scenario that went wrong — fix it."
+estimated_minutes: 35
+content: content.md
+teaches: [git-bisect, complex-recovery, force-push-recovery, rebase-recovery]
+exercises:
+  - force-push-disaster
+  - find-bug-bisect
+  - untangle-commits
+  - wrong-branch
+  - recover-overwritten
+  - merge-hell
+  - the-ultimate-rescue
+recap: |
+  You've faced real git disasters and survived. Force pushes, lost work,
+  tangled histories — you now have the skills to handle anything git
+  throws at you. Welcome to git mastery.

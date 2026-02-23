@@ -1,0 +1,50 @@
+id: fix-bounds
+title: "Fix the Loop Bounds"
+type: fix
+
+prompt: |
+  This code tries to print all 5 elements of an array but the loop goes
+  one past the end. Fix the loop bounds so it only accesses valid indices.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      int nums[] = {2, 4, 6, 8, 10};
+
+      for (int i = 0; i <= 5; i++) {
+          std::cout << nums[i] << std::endl;
+      }
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "2\n4\n6\n8\n10"
+
+hints:
+  - "An array of 5 elements has valid indices 0, 1, 2, 3, 4. Index 5 is out of bounds."
+  - "The loop condition `i <= 5` runs when i is 5, which accesses nums[5] -- one past the end."
+  - "Change `<= 5` to `< 5` so the loop stops at i = 4, the last valid index."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int nums[] = {2, 4, 6, 8, 10};
+
+      for (int i = 0; i < 5; i++) {
+          std::cout << nums[i] << std::endl;
+      }
+      return 0;
+  }
+
+explanation: |
+  The bug was an **off-by-one error**: `i <= 5` allows the loop to run with
+  `i = 5`, accessing `nums[5]`. But an array of 5 elements only has valid
+  indices 0 through 4. Accessing `nums[5]` is **undefined behavior** --
+  the program might print garbage, crash, or appear to work but corrupt
+  other data.
+
+  The fix is `i < 5`. This is the standard idiom: for an array of size N,
+  loop with `i < N`. You'll see this pattern thousands of times in C++.

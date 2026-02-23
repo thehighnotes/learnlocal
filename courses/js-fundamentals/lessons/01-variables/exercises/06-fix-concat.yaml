@@ -1,0 +1,41 @@
+id: fix-concat
+title: "Fix String Concatenation"
+type: fix
+
+prompt: |
+  The starter code is supposed to print: Age: 25 Type: number
+
+  But it has spacing errors in the string concatenation. Fix the code so
+  the output is exactly right, with proper spaces.
+
+starter: |
+  const age = 25;
+  console.log("Age:" + age + "Type:" + typeof age);
+
+validation:
+  method: output
+  expected_output: "Age: 25 Type: number"
+
+hints:
+  - "Look at the spaces between words and values. \"Age:\" needs a space after the colon."
+  - "Each concatenated piece needs appropriate spacing. Add spaces after colons and before words."
+  - "Fix to: console.log(\"Age: \" + age + \" Type: \" + typeof age);"
+
+solution: |
+  const age = 25;
+  console.log("Age: " + age + " Type: " + typeof age);
+
+explanation: |
+  String concatenation with + joins strings exactly as they are — it does
+  not add any spaces automatically. You must include spaces in your string
+  literals where needed:
+
+  - `"Age:"` needs to become `"Age: "` (space after the colon)
+  - `"Type:"` needs to become `" Type: "` (space before Type and after colon)
+
+  This is one reason template literals are preferred over concatenation.
+  The same thing with a template literal is clearer:
+
+      console.log(`Age: ${age} Type: ${typeof age}`);
+
+  With template literals, you see the spaces naturally in the template.

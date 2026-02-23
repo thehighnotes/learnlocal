@@ -1,0 +1,51 @@
+id: dynamic-typing
+title: "Dynamic Typing"
+type: write
+
+prompt: |
+  Demonstrate Python's dynamic typing.
+
+  1. Create a variable `x` with the integer value `10`
+  2. Print `x`
+  3. Reassign `x` to the string `"ten"`
+  4. Print `x` again
+
+  The output should be:
+
+  10
+  ten
+
+starter: |
+  # Create x with the value 10 and print it
+
+  # Reassign x to the string "ten" and print it again
+
+validation:
+  method: output
+  expected_output: "10\nten"
+
+hints:
+  - "Start by assigning x = 10 and printing it with print(x)."
+  - "Then reassign the same variable to a string: x = \"ten\" and print it again."
+  - "The full solution: x = 10, print(x), x = \"ten\", print(x) — each on its own line."
+
+solution: |
+  x = 10
+  print(x)
+  x = "ten"
+  print(x)
+
+explanation: |
+  In Python, a variable is just a name that refers to a value. It has no fixed
+  type. When you write `x = 10`, the name `x` points to the integer `10`. When
+  you then write `x = "ten"`, the name `x` now points to the string `"ten"`.
+
+  This is called **dynamic typing** — the type is associated with the value,
+  not with the variable name. In statically typed languages like C++ or Java,
+  this would be a compile error because you cannot assign a string to an `int`
+  variable.
+
+  Dynamic typing makes Python flexible and concise, but it also means you need
+  to be more careful. Python will not warn you if you accidentally reassign a
+  variable to the wrong type — you will only find out when something crashes
+  at runtime.

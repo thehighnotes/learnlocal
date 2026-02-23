@@ -1,0 +1,64 @@
+id: or-gate
+title: "OR Gate Perceptron"
+type: write
+
+prompt: |
+  Find weights and a bias for a perceptron that computes the OR logic gate.
+
+  OR truth table:
+  - (0,0) → 0
+  - (0,1) → 1
+  - (1,0) → 1
+  - (1,1) → 1
+
+  Print each output on its own line.
+
+starter: |
+  def step(x):
+      return 1 if x >= 0 else 0
+
+  def perceptron(inputs, weights, bias):
+      z = sum(inputs[i] * weights[i] for i in range(len(inputs))) + bias
+      return step(z)
+
+  # Set weights and bias for OR gate
+  weights = [0, 0]   # change these
+  bias = 0            # change this
+
+  test_inputs = [[0, 0], [0, 1], [1, 0], [1, 1]]
+  for inp in test_inputs:
+      print(perceptron(inp, weights, bias))
+
+validation:
+  method: output
+  expected_output: "0\n1\n1\n1"
+
+hints:
+  - "The weighted sum must be >= 0 when at least one input is 1. Use a bias that only goes negative when no inputs are active."
+  - "Use weights = [1, 1] and bias = -0.5. With any single 1: 1-0.5 = 0.5 >= 0 → 1. With both 0: 0-0.5 = -0.5 < 0 → 0."
+
+solution: |
+  def step(x):
+      return 1 if x >= 0 else 0
+
+  def perceptron(inputs, weights, bias):
+      z = sum(inputs[i] * weights[i] for i in range(len(inputs))) + bias
+      return step(z)
+
+  weights = [1, 1]
+  bias = -0.5
+
+  test_inputs = [[0, 0], [0, 1], [1, 0], [1, 1]]
+  for inp in test_inputs:
+      print(perceptron(inp, weights, bias))
+
+explanation: |
+  With weights [1, 1] and bias -0.5:
+  - (0,0): 0+0-0.5 = -0.5 → step → 0
+  - (0,1): 0+1-0.5 = 0.5 → step → 1
+  - (1,0): 1+0-0.5 = 0.5 → step → 1
+  - (1,1): 1+1-0.5 = 1.5 → step → 1
+
+  Compared to AND (bias -1.5), OR uses a lower threshold (-0.5). Just one
+  active input is enough to cross the threshold. This is also linearly
+  separable: a single line separates (0,0) from the other three cases.

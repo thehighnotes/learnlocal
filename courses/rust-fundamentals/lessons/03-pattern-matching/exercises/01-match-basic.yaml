@@ -1,0 +1,67 @@
+id: match-basic
+title: "Match an Integer"
+type: write
+
+prompt: |
+  Write a program that assigns the integer `3` to a variable called `day`.
+  Use a `match` expression to print the day of the week:
+
+  1 => "Monday", 2 => "Tuesday", 3 => "Wednesday", 4 => "Thursday",
+  5 => "Friday", 6 => "Saturday", 7 => "Sunday"
+
+  For any other value, print "Invalid day".
+
+  Expected output: Wednesday
+
+starter: |
+  fn main() {
+      let day = 3;
+
+      // Use a match expression on `day` to print the day name
+  }
+
+validation:
+  method: output
+  expected_output: "Wednesday"
+
+hints:
+  - "Start with `match day {` and list each arm like `1 => println!(\"Monday\"),`"
+  - "Use `_` as the final catch-all arm for values outside 1-7."
+  - |
+    The full structure looks like:
+    match day {
+        1 => println!("Monday"),
+        2 => println!("Tuesday"),
+        ...
+        _ => println!("Invalid day"),
+    }
+
+solution: |
+  fn main() {
+      let day = 3;
+
+      match day {
+          1 => println!("Monday"),
+          2 => println!("Tuesday"),
+          3 => println!("Wednesday"),
+          4 => println!("Thursday"),
+          5 => println!("Friday"),
+          6 => println!("Saturday"),
+          7 => println!("Sunday"),
+          _ => println!("Invalid day"),
+      }
+  }
+
+explanation: |
+  The `match` expression compares `day` against each pattern in order:
+
+  1. Patterns `1` through `7` are literal integer patterns.
+  2. The `_` wildcard at the end catches anything not matched above.
+  3. Since `day` is `3`, the third arm fires and prints "Wednesday".
+
+  Without the wildcard `_`, the compiler would reject this code because `i32`
+  has billions of possible values and only 7 are listed. The wildcard makes
+  the match exhaustive.
+
+  Each arm uses `=>` (fat arrow) to separate the pattern from the expression.
+  The comma after each arm is required when using single expressions.

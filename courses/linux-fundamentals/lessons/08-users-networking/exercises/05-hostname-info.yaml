@@ -1,0 +1,22 @@
+id: hostname-info
+title: "System Information"
+type: command
+prompt: |
+  Use hostname and uname to print two lines of system information:
+  1. The machine's hostname
+  2. The kernel architecture (e.g., x86_64)
+starter: |
+  # Print hostname and architecture
+validation:
+  method: regex
+  pattern: "(?s)^.+\n.+$"
+hints:
+  - "hostname prints the machine name"
+  - "uname -m prints the architecture"
+solution: |
+  hostname
+  uname -m
+explanation: |
+  hostname shows the system's network name. uname -m shows the
+  hardware architecture. These are useful in scripts that need to
+  behave differently on different systems.

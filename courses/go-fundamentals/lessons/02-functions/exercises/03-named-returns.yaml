@@ -1,0 +1,73 @@
+id: named-returns
+title: "Named Return Values"
+type: fill-blank
+
+prompt: |
+  The function `rectInfo` calculates the area and perimeter of a rectangle.
+  It uses named return values, but the names are missing from the signature.
+
+  Fill in the two blanks (___) with the correct named return values so the
+  bare `return` at the end sends back the right results.
+
+  Expected output:
+  area=50 perimeter=30
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func rectInfo(width, height float64) (___ float64, ___ float64) {
+      area = width * height
+      perimeter = 2 * (width + height)
+      return
+  }
+
+  func main() {
+      a, p := rectInfo(5, 10)
+      fmt.Printf("area=%.0f perimeter=%.0f\n", a, p)
+  }
+
+validation:
+  method: output
+  expected_output: "area=50 perimeter=30"
+
+hints:
+  - "Named return values are declared in the function signature. The function body assigns to `area` and `perimeter`, so those must be the names."
+  - "Each blank should be a variable name that matches what the function body assigns to."
+  - "The signature should be: func rectInfo(width, height float64) (area float64, perimeter float64)"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func rectInfo(width, height float64) (area float64, perimeter float64) {
+      area = width * height
+      perimeter = 2 * (width + height)
+      return
+  }
+
+  func main() {
+      a, p := rectInfo(5, 10)
+      fmt.Printf("area=%.0f perimeter=%.0f\n", a, p)
+  }
+
+explanation: |
+  Named return values let you declare variables right in the function
+  signature. They are initialized to their zero value (0.0 for float64) and
+  can be assigned anywhere in the function body.
+
+  A bare `return` (with no values) sends back whatever the named return
+  variables currently hold. In this function:
+
+  1. `area` starts at 0.0, then gets assigned `width * height` (5 * 10 = 50).
+  2. `perimeter` starts at 0.0, then gets assigned `2 * (width + height)` (30).
+  3. The bare `return` sends back both values.
+
+  Named returns serve double duty: they act as documentation (the caller can
+  see what each return value means) and as pre-declared local variables.
+
+  Use named returns for short functions where they improve clarity. In longer
+  functions, explicit `return area, perimeter` is usually clearer than a bare
+  `return`.

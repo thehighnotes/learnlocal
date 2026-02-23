@@ -1,0 +1,60 @@
+id: channels
+title: "Sending Multiple Values"
+type: write
+
+prompt: |
+  Create an unbuffered channel of type int. Launch a goroutine that sends the
+  values 1, 2, and 3 on the channel (in that order). In main, receive all three
+  values and print each one on its own line using fmt.Println.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      // Create an unbuffered channel of int
+
+      // Launch a goroutine that sends 1, 2, 3
+
+      // Receive and print each value
+      _ = fmt.Println
+  }
+
+validation:
+  method: output
+  expected_output: "1\n2\n3\n"
+
+hints:
+  - "Create the channel with: ch := make(chan int)"
+  - "In the goroutine, send three times: ch <- 1; ch <- 2; ch <- 3"
+  - "In main, receive three times: fmt.Println(<-ch) repeated three times"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      ch := make(chan int)
+      go func() {
+          ch <- 1
+          ch <- 2
+          ch <- 3
+      }()
+      fmt.Println(<-ch)
+      fmt.Println(<-ch)
+      fmt.Println(<-ch)
+  }
+
+explanation: |
+  The goroutine sends three values sequentially on the channel. Since the
+  channel is unbuffered, each send blocks until main receives the previous
+  value.
+
+  The order is guaranteed: channels are FIFO (first in, first out). The
+  goroutine sends 1 first, main receives 1 first. Then 2, then 3.
+
+  This lock-step behavior is what makes unbuffered channels predictable.
+  The sender and receiver must rendezvous at each transfer -- one cannot
+  get ahead of the other.

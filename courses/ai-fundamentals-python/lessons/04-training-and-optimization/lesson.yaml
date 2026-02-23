@@ -1,0 +1,30 @@
+id: training-and-optimization
+title: "Training and Optimization"
+description: "Design training pipelines — gradient descent, learning rates, batching, data splits, and the training loop"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - gradient-step
+  - learning-rate-effects
+  - batch-split
+  - train-val-split
+  - shuffle-and-batch
+  - lr-schedule
+  - training-step
+teaches:
+  - gradient-descent
+  - learning-rate
+  - mini-batch
+  - train-val-split
+  - data-shuffling
+  - lr-schedule
+  - training-loop-design
+recap: |
+  You learned:
+  - Gradient descent moves parameters in the direction that reduces loss
+  - The learning rate controls step size: too small is slow, too large overshoots
+  - Batching splits data into smaller groups processed one at a time
+  - Train/validation splits let you measure generalization vs memorization
+  - Shuffling data each epoch prevents the model from learning order instead of patterns
+  - Learning rate schedules reduce the rate over time for finer convergence
+  - A training step has four stages: forward, loss, backward, update

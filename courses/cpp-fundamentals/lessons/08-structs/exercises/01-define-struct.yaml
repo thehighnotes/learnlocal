@@ -1,0 +1,54 @@
+id: define-struct
+title: "Define a Struct"
+type: write
+
+prompt: |
+  Define a struct called `Student` with two members: `std::string name` and
+  `int age`. In `main`, create a `Student` with name `"Alice"` and age `20`.
+  Print the name and age separated by a space.
+
+starter: |
+  #include <iostream>
+  #include <string>
+
+  // Define your Student struct here
+
+  int main() {
+      // Create a Student with name "Alice" and age 20
+
+      // Print: name age (separated by a space)
+      std::cout << /* your code here */ << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Alice 20"
+
+hints:
+  - "Define the struct above main: struct Student { std::string name; int age; }; -- don't forget the semicolon after the closing brace."
+  - "Create a variable with brace initialization: Student s{\"Alice\", 20}; -- values match the order members are declared."
+  - "Access members with the dot operator: s.name and s.age. Print them with std::cout << s.name << \" \" << s.age << std::endl;"
+
+solution: |
+  #include <iostream>
+  #include <string>
+
+  struct Student {
+      std::string name;
+      int age;
+  };
+
+  int main() {
+      Student s{"Alice", 20};
+      std::cout << s.name << " " << s.age << std::endl;
+      return 0;
+  }
+
+explanation: |
+  `struct Student { ... };` defines a new type with two members. The semicolon
+  after the closing brace is required -- it is one of the most common syntax
+  errors when defining structs. `Student s{"Alice", 20};` creates a variable
+  and initializes both members in declaration order. The dot operator (`.`)
+  accesses individual members: `s.name` gives the string, `s.age` gives the int.

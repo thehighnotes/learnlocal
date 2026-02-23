@@ -1,0 +1,102 @@
+id: nested-collections
+title: "People and Hobbies"
+type: write
+
+prompt: |
+  Create a `map[string][]string` that maps a person's name to their list
+  of hobbies. Add two entries:
+  - "Alice" with hobbies "coding" and "reading"
+  - "Bob" with hobbies "gaming" and "hiking"
+
+  Print each person and their hobbies, sorted alphabetically by name.
+  Format each line as: Name: [hobby1 hobby2]
+
+  Expected output:
+  ```
+  Alice: [coding reading]
+  Bob: [gaming hiking]
+  ```
+
+starter: |
+  package main
+
+  import (
+      "fmt"
+      "sort"
+  )
+
+  func main() {
+      // Create a map[string][]string
+      // Add entries for Alice and Bob
+      // Collect keys, sort them, then print each person's hobbies
+      _ = sort.Strings  // remove this line when you use sort
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Alice: [coding reading]
+    Bob: [gaming hiking]
+
+hints:
+  - "Create with a literal: hobbies := map[string][]string{\"Alice\": {\"coding\", \"reading\"}, ...}"
+  - "To sort map keys: collect them into a []string, call sort.Strings(), then range over the sorted keys."
+  - |
+    hobbies := map[string][]string{
+        "Alice": {"coding", "reading"},
+        "Bob":   {"gaming", "hiking"},
+    }
+    names := make([]string, 0, len(hobbies))
+    for name := range hobbies {
+        names = append(names, name)
+    }
+    sort.Strings(names)
+    for _, name := range names {
+        fmt.Printf("%s: %v\n", name, hobbies[name])
+    }
+
+solution: |
+  package main
+
+  import (
+      "fmt"
+      "sort"
+  )
+
+  func main() {
+      hobbies := map[string][]string{
+          "Alice": {"coding", "reading"},
+          "Bob":   {"gaming", "hiking"},
+      }
+
+      names := make([]string, 0, len(hobbies))
+      for name := range hobbies {
+          names = append(names, name)
+      }
+      sort.Strings(names)
+
+      for _, name := range names {
+          fmt.Printf("%s: %v\n", name, hobbies[name])
+      }
+  }
+
+explanation: |
+  This exercise combines maps, slices, sorting, and range:
+
+  1. `map[string][]string` declares a map where each key is a string and
+     each value is a slice of strings. This is a very common pattern for
+     grouping related items.
+  2. The map literal uses `{"coding", "reading"}` for the slice values --
+     Go infers the type from the map declaration.
+  3. Map iteration order is random in Go, so we must sort the keys for
+     consistent output. We collect keys with `for name := range hobbies`
+     (only one variable = key only), sort them with `sort.Strings`, and
+     iterate over the sorted slice.
+  4. `%v` prints the string slice as [coding reading] -- Go's default
+     format for slices.
+  5. `make([]string, 0, len(hobbies))` pre-allocates capacity equal to the
+     number of map entries, avoiding any reallocation during the appends.
+
+  Sorted map iteration is a pattern you will use frequently in Go. There is
+  no built-in sorted map type, so this collect-sort-iterate approach is the
+  standard idiom.

@@ -1,0 +1,77 @@
+id: force-push-disaster
+title: "MISSION: Force Push Disaster"
+type: command
+prompt: |
+  --- INCOMING TRANSMISSION ---
+
+  ALERT: An intern ran `git push --force` on main and overwrote the last
+  two commits. Your carefully written authentication module and the database
+  migration are GONE from the branch history.
+
+  But you had the branch checked out. Your local reflog still remembers.
+
+  MISSION: Recover the lost commits. Create a branch called `recovered`
+  that contains the overwritten commits. The `auth.py` and `migration.sql`
+  files must be on that branch.
+
+  Stay on `main` when you're done. The recovered branch is your proof
+  that the work wasn't lost.
+
+  --- END TRANSMISSION ---
+starter: |
+  #!/bin/bash
+  # The reflog remembers what main looked like before the force push
+  # Find the old tip and create a "recovered" branch there
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base app' > app.py && git add app.py && git commit -m 'initial app' && echo 'config setup' > config.py && git add config.py && git commit -m 'add config' && echo 'def authenticate(): pass' > auth.py && git add auth.py && git commit -m 'add authentication module' && echo 'CREATE TABLE users;' > migration.sql && git add migration.sql && git commit -m 'add database migration' && git reset --hard HEAD~2"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-recovered-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline recovered 2>/dev/null > {dir}/__recovered_log.txt || echo 'NO_BRANCH' > {dir}/__recovered_log.txt"]
+      timeout_seconds: 5
+    - name: capture-recovered-files
+      command: sh
+      args: ["-c", "cd {dir}/repo && git ls-tree --name-only recovered 2>/dev/null > {dir}/__recovered_files.txt || echo 'NO_BRANCH' > {dir}/__recovered_files.txt"]
+      timeout_seconds: 5
+    - name: capture-current
+      command: sh
+      args: ["-c", "cd {dir}/repo && git branch --show-current > {dir}/__current.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __recovered_log.txt
+        content: "add authentication module"
+    - file_contains:
+        path: __recovered_log.txt
+        content: "add database migration"
+    - file_contains:
+        path: __recovered_files.txt
+        content: "auth.py"
+    - file_contains:
+        path: __recovered_files.txt
+        content: "migration.sql"
+    - file_contains:
+        path: __current.txt
+        content: "main"
+hints:
+  - "`git reflog` shows where HEAD was before the force push wiped things."
+  - "Find the commit hash for 'add database migration' — that was the tip before the reset."
+  - "`git branch recovered <hash>` creates the rescue branch at that commit."
+solution: |
+  #!/bin/bash
+  HASH=$(git reflog --format='%h %s' | grep 'add database migration' | head -1 | awk '{print $1}')
+  git branch recovered "$HASH"
+explanation: |
+  A force push (or `git reset --hard`) makes commits unreachable from branch
+  pointers, but the commits still exist in git's object database. The reflog
+  tracks where HEAD pointed before the destructive operation. By finding the
+  old commit hash and creating a new branch there, you restore full access
+  to the "lost" history. In a real scenario, you'd then force-push the
+  recovered branch back to the remote.

@@ -1,0 +1,88 @@
+id: most-similar
+title: "Find the Most Similar"
+type: write
+
+prompt: |
+  Given a query vector and a list of document vectors, find the most similar
+  document by cosine similarity. Print which document is most similar.
+
+  ```
+  query     = [1, 0, 1]
+  documents = [
+      [0, 1, 0],   # document 0
+      [1, 0, 0],   # document 1
+      [1, 0, 1],   # document 2
+  ]
+  ```
+
+  Print the result in the format: `document N`
+
+starter: |
+  import math
+
+  query = [1, 0, 1]
+  documents = [
+      [0, 1, 0],
+      [1, 0, 0],
+      [1, 0, 1],
+  ]
+
+  def dot(a, b):
+      return sum(a[i] * b[i] for i in range(len(a)))
+
+  def mag(v):
+      return math.sqrt(sum(x**2 for x in v))
+
+  def cosine_sim(a, b):
+      return dot(a, b) / (mag(a) * mag(b))
+
+  # Find the index of the most similar document to the query
+
+
+  print(f"document {best_idx}")
+
+validation:
+  method: output
+  expected_output: "document 2"
+
+hints:
+  - "Loop through each document, compute cosine similarity with the query, and keep track of which index has the highest similarity."
+  - "Initialize `best_idx = 0` and `best_sim = -2`. For each index i, if `cosine_sim(query, documents[i]) > best_sim`, update both variables."
+
+solution: |
+  import math
+
+  query = [1, 0, 1]
+  documents = [
+      [0, 1, 0],
+      [1, 0, 0],
+      [1, 0, 1],
+  ]
+
+  def dot(a, b):
+      return sum(a[i] * b[i] for i in range(len(a)))
+
+  def mag(v):
+      return math.sqrt(sum(x**2 for x in v))
+
+  def cosine_sim(a, b):
+      return dot(a, b) / (mag(a) * mag(b))
+
+  best_idx = 0
+  best_sim = -2
+  for i, doc in enumerate(documents):
+      sim = cosine_sim(query, doc)
+      if sim > best_sim:
+          best_sim = sim
+          best_idx = i
+
+  print(f"document {best_idx}")
+
+explanation: |
+  Document 0 [0,1,0] has cosine similarity 0.0 with query [1,0,1] (perpendicular).
+  Document 1 [1,0,0] has similarity ~0.71 (shares the first dimension).
+  Document 2 [1,0,1] has similarity 1.0 (identical direction).
+
+  Document 2 is the most similar because it points in exactly the same
+  direction as the query. This pattern — computing similarity scores and picking
+  the highest — is the foundation of search and recommendation systems.

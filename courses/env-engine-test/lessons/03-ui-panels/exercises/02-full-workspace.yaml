@@ -1,0 +1,51 @@
+id: full-workspace
+title: "Full Workspace Panel"
+type: write
+prompt: |
+  The WORKSPACE panel should show every element type:
+  - 📄 config.ini (file with content)
+  - 📁 output/ and logs/ (directories)
+  - 🔗 latest → output (symlink)
+  - 🔌 idle-worker (service)
+  - 🌐 2 dynamic ports
+  - ⚙️ 1 setup step
+
+  Confirm you can see all of them, then print "all systems go".
+starter: |
+  #!/bin/bash
+  # Print "all systems go"
+environment:
+  files:
+    - path: config.ini
+      content: |
+        [settings]
+        debug=true
+  dirs:
+    - output
+    - logs
+  symlinks:
+    - link: latest
+      target: output
+  ports: 2
+  setup:
+    - name: init-log
+      command: sh
+      args: ["-c", "echo 'started' > {dir}/logs/init.log"]
+      timeout_seconds: 5
+  services:
+    - name: idle-worker
+      command: sleep
+      args: ["60"]
+      ready_delay_ms: 100
+validation:
+  method: output
+  expected_output: "all systems go"
+hints:
+  - "Just echo the expected string"
+solution: |
+  #!/bin/bash
+  echo "all systems go"
+explanation: |
+  This exercise exists to verify that the WORKSPACE panel renders
+  all environment element types: files, directories, symlinks,
+  services, dynamic ports, and setup command summaries.

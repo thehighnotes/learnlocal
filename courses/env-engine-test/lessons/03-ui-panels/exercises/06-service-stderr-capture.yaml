@@ -1,0 +1,53 @@
+id: service-stderr-capture
+title: "Service Stderr & Capture"
+type: write
+prompt: |
+  A service prints its ready message to stderr (not stdout).
+  The engine uses `ready_stream: stderr` to detect readiness.
+  The service's stdout is captured to `service-out.log`.
+
+  Create a symlink `log-link` pointing to `service-out.log`,
+  then print "captured". Check the RESULTS panel for the
+  Symlink assertion.
+starter: |
+  #!/bin/bash
+  # Create a symlink: log-link -> service-out.log
+environment:
+  files:
+    - path: service.sh
+      content: |
+        #!/bin/bash
+        echo "ready: listening" >&2
+        echo "stdout data from service"
+        sleep 60
+      permissions: "755"
+  services:
+    - name: stderr-service
+      command: bash
+      args: ["{dir}/service.sh"]
+      ready_pattern: "ready: listening"
+      ready_stream: stderr
+      ready_timeout_seconds: 5
+      capture_stdout: service-out.log
+validation:
+  method: state
+  assertions:
+    - file_exists: service-out.log
+    - file_contains:
+        path: service-out.log
+        content: "stdout data from service"
+    - symlink:
+        path: log-link
+        target: service-out.log
+hints:
+  - "ln -s target linkname creates a symlink"
+  - "ln -s service-out.log log-link"
+solution: |
+  #!/bin/bash
+  ln -s service-out.log log-link
+  echo "captured"
+explanation: |
+  The service printed its ready message to stderr, and the engine
+  watched stderr specifically (ready_stream: stderr). The service's
+  stdout was captured to service-out.log via capture_stdout. The
+  Symlink assertion verified that log-link points to service-out.log.

@@ -1,0 +1,46 @@
+id: if-else
+title: "Classify a Number"
+type: write
+
+prompt: |
+  Read an integer from standard input. Print "positive" if it is greater
+  than zero, "negative" if it is less than zero, or "zero" if it is
+  exactly zero.
+
+starter: |
+  # Read an integer from input
+  # Print "positive", "negative", or "zero"
+
+input: "7\n"
+
+validation:
+  method: output
+  expected_output: "positive"
+
+hints:
+  - "Use int(input()) to read an integer from stdin."
+  - "You need an if/elif/else chain to check three conditions: > 0, < 0, and exactly 0."
+  - "n = int(input()), then if n > 0: print(\"positive\"), elif n < 0: print(\"negative\"), else: print(\"zero\")"
+
+solution: |
+  n = int(input())
+
+  if n > 0:
+      print("positive")
+  elif n < 0:
+      print("negative")
+  else:
+      print("zero")
+
+explanation: |
+  This exercise uses an if/elif/else chain to classify a number:
+
+  1. `int(input())` reads a line from stdin and converts it to an integer.
+  2. `if n > 0` checks the positive case.
+  3. `elif n < 0` checks the negative case.
+  4. `else` catches the only remaining possibility: zero.
+
+  The three conditions are mutually exclusive -- a number is either positive,
+  negative, or zero. The `else` at the end acts as a catch-all, so you do not
+  need to write `elif n == 0`. This is a common pattern: check specific
+  conditions first, and use `else` for the last case.

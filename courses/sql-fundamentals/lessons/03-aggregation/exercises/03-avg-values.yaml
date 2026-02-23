@@ -1,0 +1,59 @@
+id: avg-values
+title: "Compute an Average"
+type: write
+
+prompt: |
+  Write a query that computes the average quantity sold per sale.
+
+  The `quantity` column contains integers, but AVG always returns a real
+  (floating-point) number. Your result should be a single value.
+
+  Table schema: sales (id INTEGER, product TEXT, category TEXT, quantity INTEGER,
+  price REAL, sale_date TEXT, region TEXT)
+
+starter: |
+  -- Compute the average quantity across all sales
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE sales (id INTEGER, product TEXT, category TEXT, quantity INTEGER, price REAL, sale_date TEXT, region TEXT);
+        INSERT INTO sales VALUES (1, 'Laptop', 'Electronics', 3, 999.99, '2024-01-15', 'North');
+        INSERT INTO sales VALUES (2, 'Headphones', 'Electronics', 5, 49.99, '2024-01-20', 'South');
+        INSERT INTO sales VALUES (3, 'T-Shirt', 'Clothing', 8, 19.99, '2024-02-01', 'North');
+        INSERT INTO sales VALUES (4, 'Novel', 'Books', 4, 12.99, '2024-02-10', 'East');
+        INSERT INTO sales VALUES (5, 'Jeans', 'Clothing', 6, 39.99, '2024-02-15', 'South');
+        INSERT INTO sales VALUES (6, 'Tablet', 'Electronics', 2, 299.99, '2024-03-01', 'North');
+        INSERT INTO sales VALUES (7, 'Cookbook', 'Books', 7, 24.99, '2024-03-05', 'South');
+        INSERT INTO sales VALUES (8, 'Jacket', 'Clothing', 10, 89.99, '2024-03-10', 'East');
+        INSERT INTO sales VALUES (9, 'Phone', 'Electronics', 3, 699.99, '2024-03-15', 'South');
+        INSERT INTO sales VALUES (10, 'Shorts', 'Clothing', 1, 24.99, '2024-03-20', 'North');
+        INSERT INTO sales VALUES (11, 'Textbook', 'Books', 6, 59.99, '2024-04-01', 'North');
+        INSERT INTO sales VALUES (12, 'Sneakers', 'Clothing', 5, 79.99, '2024-04-05', 'East');
+
+validation:
+  method: output
+  expected_output: |
+    5.0
+
+hints:
+  - "Use the AVG function to compute the arithmetic mean of a column"
+  - "The syntax is: SELECT AVG(column_name) FROM table_name;"
+  - "The full query is: SELECT AVG(quantity) FROM sales;"
+
+solution: |
+  SELECT AVG(quantity) FROM sales;
+
+explanation: |
+  `AVG(quantity)` computes the arithmetic mean: SUM(quantity) / COUNT(quantity).
+  That is 60 / 12 = 5.0.
+
+  Notice the result is `5.0`, not `5`. AVG always returns a REAL (floating-
+  point) value, even when the result happens to be a whole number. This is
+  different from COUNT and SUM, which return integers when applied to integer
+  columns.
+
+  This type distinction matters when you compare outputs or use the result in
+  further calculations. If you need an integer, you could wrap it:
+  `CAST(AVG(quantity) AS INTEGER)`.

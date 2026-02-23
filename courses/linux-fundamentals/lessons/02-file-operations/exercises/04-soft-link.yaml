@@ -1,0 +1,33 @@
+id: soft-link
+title: "Create a Symlink"
+type: command
+prompt: |
+  A file called target.txt containing "link works" already exists.
+  Use `ln -s` to create a symbolic link called shortcut.txt pointing
+  to target.txt. Print three lines:
+  1. The output of `readlink shortcut.txt` (shows what it points to)
+  2. The contents of shortcut.txt (read through the link)
+  3. "is_link: yes" (verify it's a symlink with test -L)
+starter: |
+  # target.txt exists — create a symlink and verify
+environment:
+  files:
+    - path: target.txt
+      content: |
+        link works
+validation:
+  method: regex
+  pattern: "(?s).*target\\.txt.*\nlink works\nis_link: yes"
+hints:
+  - "ln -s target.txt shortcut.txt"
+  - "readlink shows the target of a symlink"
+  - "cat shortcut.txt reads through the link to the target"
+solution: |
+  ln -s target.txt shortcut.txt
+  readlink shortcut.txt
+  cat shortcut.txt
+  test -L shortcut.txt && echo "is_link: yes" || echo "is_link: no"
+explanation: |
+  ln -s creates a symbolic link. readlink shows the target path.
+  Reading the symlink transparently accesses the target file.
+  test -L checks if something is a symbolic link.

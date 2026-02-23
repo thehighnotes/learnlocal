@@ -1,0 +1,58 @@
+id: disparate-impact
+title: "Disparate Impact Ratio"
+type: write
+
+prompt: |
+  Compute the disparate impact ratio: the lower positive rate divided by the
+  higher positive rate.
+
+      ratio = min(rate_a, rate_b) / max(rate_a, rate_b)
+
+  If the ratio is below 0.80, there is potential discrimination (the 4/5ths
+  rule from US employment law).
+
+  Using the rates from the previous exercise (group_a: 0.70, group_b: 0.30),
+  compute and print the ratio and whether disparate impact exists.
+
+starter: |
+  rate_a = 0.7
+  rate_b = 0.3
+
+  # Compute disparate impact ratio
+
+
+  # Check if ratio is below 0.8 (the 4/5ths rule)
+
+
+  print(f"ratio: {round(ratio, 2)}")
+  print(f"disparate_impact: {disparate}")
+
+validation:
+  method: output
+  expected_output: "ratio: 0.43\ndisparate_impact: True"
+
+hints:
+  - "Divide the smaller rate by the larger rate: `ratio = min(rate_a, rate_b) / max(rate_a, rate_b)`."
+  - "Check if the ratio is below the threshold: `disparate = ratio < 0.8`"
+
+solution: |
+  rate_a = 0.7
+  rate_b = 0.3
+
+  ratio = min(rate_a, rate_b) / max(rate_a, rate_b)
+
+  disparate = ratio < 0.8
+
+  print(f"ratio: {round(ratio, 2)}")
+  print(f"disparate_impact: {disparate}")
+
+explanation: |
+  Ratio = 0.3 / 0.7 = 0.4286, rounded to 0.43.
+
+  This is well below 0.80, indicating significant disparate impact. Under the
+  4/5ths rule, if the selection rate for any group is less than 80% of the
+  rate for the most favored group, there is evidence of adverse impact.
+
+  A ratio of 0.43 means group B is approved at less than half the rate of
+  group A. This would trigger investigation in employment, lending, or any
+  regulated domain.

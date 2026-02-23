@@ -1,0 +1,56 @@
+id: missing-dependency
+title: "Missing Dependency"
+type: command
+prompt: |
+  ALERT: Worker service crashed on startup. Severity: MEDIUM.
+
+  The worker process needs a local cache database file to operate. It
+  expects `data/cache.db` to exist, but the file is missing — probably
+  deleted during a cleanup script that got too aggressive.
+
+  The error log is in `error.log`. The worker just needs the file to exist
+  (it will initialize the schema itself on the next start).
+
+  Create the missing file so the worker can start.
+starter: |
+  # The worker needs data/cache.db to exist
+  # Read error.log, then create the missing file
+environment:
+  dirs:
+    - data
+  files:
+    - path: start_worker.sh
+      content: |
+        #!/bin/bash
+        # Worker startup script
+        CACHE_DB="data/cache.db"
+        if [ ! -f "$CACHE_DB" ]; then
+            echo "FATAL: Cache database not found: $CACHE_DB" >&2
+            exit 1
+        fi
+        echo "Worker started successfully"
+      permissions: "755"
+    - path: error.log
+      content: |
+        2024-03-15 04:10:00 [worker] Starting worker process v2.1.0
+        2024-03-15 04:10:00 [worker] Checking dependencies...
+        2024-03-15 04:10:00 [worker] ERROR FileNotFoundError: data/cache.db
+        2024-03-15 04:10:00 [worker] FATAL: Cache database not found: data/cache.db
+        2024-03-15 04:10:00 [worker] Worker cannot start without cache database
+        2024-03-15 04:10:01 [systemd] worker.service: Main process exited, code=exited, status=1/FAILURE
+        2024-03-15 04:10:01 [systemd] worker.service: Failed with result 'exit-code'
+validation:
+  method: state
+  assertions:
+    - file_exists: data/cache.db
+hints:
+  - "Read error.log — the worker is looking for `data/cache.db` and it doesn't exist."
+  - "Create the file: `touch data/cache.db`"
+solution: |
+  touch data/cache.db
+explanation: |
+  Sometimes the fix really is this simple. The worker only needed the file to
+  exist — it handles initialization itself. In production, this often happens
+  after someone runs a cleanup cron job that's too aggressive, or after a
+  fresh deploy to a new server where the data directory wasn't pre-populated.
+  The lesson: always check what files a service depends on before cleaning up.

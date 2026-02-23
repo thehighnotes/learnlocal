@@ -1,0 +1,53 @@
+id: sigmoid
+title: "Sigmoid Function"
+type: write
+
+prompt: |
+  Implement the sigmoid activation function:
+
+      sigmoid(x) = 1 / (1 + e^(-x))
+
+  Use `math.exp()` for e^(-x). Test with three inputs and print each result
+  rounded to 2 decimal places, one per line:
+  - sigmoid(0) → 0.5
+  - sigmoid(1) → 0.73
+  - sigmoid(-1) → 0.27
+
+starter: |
+  import math
+
+  # Implement the sigmoid function
+  def sigmoid(x):
+      pass
+
+  print(round(sigmoid(0), 2))
+  print(round(sigmoid(1), 2))
+  print(round(sigmoid(-1), 2))
+
+validation:
+  method: output
+  expected_output: "0.5\n0.73\n0.27"
+
+hints:
+  - "The formula is `1 / (1 + math.exp(-x))`. `math.exp(-x)` computes e raised to the power of -x."
+  - "Return `1 / (1 + math.exp(-x))` from the function."
+
+solution: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  print(round(sigmoid(0), 2))
+  print(round(sigmoid(1), 2))
+  print(round(sigmoid(-1), 2))
+
+explanation: |
+  sigmoid(0) = 1/(1+e^0) = 1/2 = 0.5 (the midpoint).
+  sigmoid(1) = 1/(1+e^-1) ≈ 1/1.37 ≈ 0.73.
+  sigmoid(-1) = 1/(1+e^1) ≈ 1/3.72 ≈ 0.27.
+
+  Notice the symmetry: sigmoid(-x) = 1 - sigmoid(x). The function smoothly
+  maps any real number to the range (0, 1). Large positive inputs approach 1,
+  large negative inputs approach 0. This makes it useful for outputting
+  probabilities. You will use sigmoid extensively in the neural network lessons.

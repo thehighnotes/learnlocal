@@ -1,0 +1,67 @@
+id: drop-table
+title: "Drop a Table"
+type: write
+
+prompt: |
+  Three tables exist: `temp_logs`, `archive`, and `users`. Your task:
+
+  1. Drop the `temp_logs` table (it definitely exists, no need for IF EXISTS).
+  2. Drop a table called `phantom` that may or may not exist — use IF EXISTS
+     to avoid an error.
+  3. Select all rows from `users` to prove it was not affected.
+
+  Only `temp_logs` and `phantom` should be removed. The `users` and `archive`
+  tables must remain untouched.
+
+starter: |
+  -- Drop temp_logs (it exists for sure)
+  -- Drop phantom safely (it may not exist)
+  -- Select all from users to verify it still exists
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE temp_logs (id INTEGER, message TEXT);
+        INSERT INTO temp_logs VALUES (1, 'debug info');
+        CREATE TABLE archive (id INTEGER, data TEXT);
+        INSERT INTO archive VALUES (1, 'old record');
+        CREATE TABLE users (id INTEGER, name TEXT);
+        INSERT INTO users VALUES (1, 'Alice');
+        INSERT INTO users VALUES (2, 'Bob');
+
+validation:
+  method: output
+  expected_output: |
+    1|Alice
+    2|Bob
+
+hints:
+  - "Use DROP TABLE table_name; to remove a table that you know exists"
+  - "Use DROP TABLE IF EXISTS table_name; to safely remove a table that might not exist"
+  - |
+    Full solution:
+    DROP TABLE temp_logs;
+    DROP TABLE IF EXISTS phantom;
+    SELECT * FROM users;
+
+solution: |
+  DROP TABLE temp_logs;
+  DROP TABLE IF EXISTS phantom;
+  SELECT * FROM users;
+
+explanation: |
+  `DROP TABLE temp_logs;` permanently deletes the temp_logs table and all its
+  data. Since we know the table exists (setup.sql created it), this is safe.
+
+  `DROP TABLE IF EXISTS phantom;` attempts to drop a table called phantom. Since
+  it does not exist, the IF EXISTS clause prevents an error — the statement
+  silently does nothing. Without IF EXISTS, SQLite would raise "no such table:
+  phantom."
+
+  The users table and archive table are completely unaffected. DROP TABLE only
+  removes the specific table you name.
+
+  In practice, IF EXISTS is the safer choice. You typically use plain DROP TABLE
+  only when you are certain the table exists and want an error if something is
+  wrong (for example, in a migration script where the table must exist).

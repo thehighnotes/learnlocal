@@ -1,0 +1,31 @@
+id: joins
+title: "Joining Tables"
+description: "Combine data from multiple tables using INNER JOIN, LEFT JOIN, self-joins, and more"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - inner-join
+  - left-join
+  - multiple-joins
+  - self-join
+  - join-aliases
+  - join-conditions
+  - cross-join
+teaches:
+  - inner-join
+  - left-join
+  - multiple-joins
+  - self-join
+  - table-aliases
+  - complex-join-conditions
+  - cross-join
+  - null-in-joins
+recap: |
+  You learned:
+  - INNER JOIN returns only rows that match in both tables
+  - LEFT JOIN returns all rows from the left table, NULLs for non-matches
+  - You can chain multiple JOINs in a single query
+  - Self-joins let a table reference itself (useful for hierarchies)
+  - Table aliases (AS) keep multi-table queries readable
+  - ON conditions can use any comparison, not just equality
+  - CROSS JOIN produces every combination of rows (Cartesian product)

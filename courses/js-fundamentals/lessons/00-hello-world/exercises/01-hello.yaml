@@ -1,0 +1,37 @@
+id: hello
+title: "Hello, World!"
+type: write
+
+prompt: |
+  Write a JavaScript program that prints exactly: Hello, World!
+
+  JavaScript's console.log() function sends text to the terminal. You call it
+  with parentheses and pass a string inside.
+
+starter: |
+  // Your first JavaScript program!
+  // Print: Hello, World!
+
+validation:
+  method: output
+  expected_output: "Hello, World!"
+
+hints:
+  - "The console.log() function displays text. Call it with parentheses: console.log(...)"
+  - "Put your text inside quotes: console.log(\"Hello, World!\")"
+  - "The complete solution is: console.log(\"Hello, World!\")"
+
+solution: |
+  console.log("Hello, World!");
+
+explanation: |
+  `console.log("Hello, World!")` sends the string "Hello, World!" to the
+  terminal, followed by a newline.
+
+  Breaking it down:
+
+  - `console` is a built-in global object that provides output methods.
+  - `.log()` is a method on that object — it prints its arguments to stdout.
+  - `"Hello, World!"` is a **string literal** enclosed in double quotes.
+    Single quotes (`'Hello, World!'`) would work identically.
+  - The semicolon at the end is optional in JavaScript but considered good practice.

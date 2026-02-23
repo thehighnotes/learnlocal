@@ -1,0 +1,51 @@
+id: constants
+title: "Constants and Circle Area"
+type: write
+
+prompt: |
+  Declare a `const double` named `PI` with value `3.14` and an `int` named
+  `radius` with value `5`. Compute the area of a circle (`PI * radius * radius`)
+  and print it.
+
+  The expected output is exactly: `78.5`
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Declare PI as a const double with value 3.14
+      // Declare radius as an int with value 5
+      // Compute and print the area (PI * radius * radius)
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "78.5"
+
+hints:
+  - "Use `const double` to declare a constant: `const double PI = 3.14;`"
+  - "The area formula is PI * radius * radius. Store it in a double variable, or print the expression directly."
+  - "Make sure you print the result with std::cout and std::endl."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      const double PI = 3.14;
+      int radius = 5;
+      double area = PI * radius * radius;
+
+      std::cout << area << std::endl;
+      return 0;
+  }
+
+explanation: |
+  `const double PI = 3.14;` declares PI as a constant — the compiler will
+  reject any later attempt to change its value. This is good practice for
+  values that should never be modified.
+
+  The expression `PI * radius * radius` mixes a `double` (PI) with `int`
+  values (radius). C++ automatically promotes the integers to doubles before
+  multiplying, so the result is a `double`: 3.14 * 25 = 78.5.

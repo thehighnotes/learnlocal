@@ -1,0 +1,52 @@
+id: fix-keyerror
+title: "Fix the KeyError"
+type: fix
+
+prompt: |
+  This program tries to access a key that does not exist in the dictionary,
+  which causes a KeyError crash.
+
+  Fix the code so that it prints "dark" for the theme (which exists) and
+  "en" as a default value for the missing "language" key.
+
+  Use the `.get()` method with a default value to avoid the crash.
+
+starter: |
+  settings = {"theme": "dark", "font_size": 14}
+  print(settings["theme"])
+  print(settings["language"])
+
+validation:
+  method: output
+  expected_output: |
+    dark
+    en
+
+hints:
+  - "The crash happens on the last line because \"language\" is not a key in the dictionary"
+  - "The .get() method returns a default value instead of crashing: dict.get(key, default)"
+  - "Replace settings[\"language\"] with settings.get(\"language\", \"en\")"
+
+solution: |
+  settings = {"theme": "dark", "font_size": 14}
+  print(settings["theme"])
+  print(settings.get("language", "en"))
+
+explanation: |
+  The bug is on the last line: `settings["language"]` raises a `KeyError`
+  because "language" is not a key in the dictionary. Bracket notation assumes
+  the key exists and crashes if it does not.
+
+  The fix is to use `.get("language", "en")` instead. The `.get()` method
+  takes two arguments:
+
+  1. The key to look up
+  2. A default value to return if the key is missing
+
+  Since "language" is not in `settings`, `.get()` returns "en" instead of
+  crashing. The first print still uses bracket notation because "theme"
+  definitely exists — there is no risk of a KeyError there.
+
+  **Rule of thumb:** Use bracket notation when you are certain the key exists
+  (or want an error if it does not). Use `.get()` when the key might be
+  missing and you have a sensible default.

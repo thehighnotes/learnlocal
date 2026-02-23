@@ -1,0 +1,119 @@
+id: multi-head
+title: "Multi-Head Attention"
+type: write
+
+prompt: |
+  Implement 2-head attention: split the vectors in half, run attention
+  independently on each half, then concatenate the results.
+
+  Given:
+  - query = [1, 1, 0, 1]
+  - keys = [[0, 1, 1, 0], [1, 1, 0, 1], [0.5, 0, 1, 0.5]]
+  - values = [[1, 0, 0, 1], [0, 1, 1, 0], [1, 1, 0, 0]]
+
+  Head 1 uses the first 2 dimensions of each vector.
+  Head 2 uses the last 2 dimensions.
+
+  Print each head's output and the concatenated result.
+
+starter: |
+  import math
+
+  def softmax(xs):
+      exps = [math.exp(x) for x in xs]
+      total = sum(exps)
+      return [e / total for e in exps]
+
+  def single_attention(q, keys, values):
+      d = len(q)
+      scale = math.sqrt(d)
+      scores = [sum(q[i] * k[i] for i in range(d)) / scale for k in keys]
+      weights = softmax(scores)
+      out = [0] * len(values[0])
+      for i in range(len(values)):
+          for j in range(len(values[0])):
+              out[j] += weights[i] * values[i][j]
+      return [round(x, 2) for x in out]
+
+  query = [1, 1, 0, 1]
+  keys_full = [[0, 1, 1, 0], [1, 1, 0, 1], [0.5, 0, 1, 0.5]]
+  values_full = [[1, 0, 0, 1], [0, 1, 1, 0], [1, 1, 0, 0]]
+
+  # Split into 2 heads (first half and second half of each vector)
+  half = len(query) // 2
+
+  # Head 1: first 2 dimensions
+
+  # Head 2: last 2 dimensions
+
+  # Concatenate results
+
+  print(f"head_1: {head_1}")
+  print(f"head_2: {head_2}")
+  print(f"combined: {combined}")
+
+validation:
+  method: output
+  expected_output: "head_1: [0.46, 0.73]\nhead_2: [0.46, 0.22]\ncombined: [0.46, 0.73, 0.46, 0.22]"
+
+hints:
+  - "Split each vector at the midpoint. For the query: `q1 = query[:half]`, `q2 = query[half:]`. Do the same for each key and value."
+  - |
+    q1, q2 = query[:half], query[half:]
+    k1 = [k[:half] for k in keys_full]
+    k2 = [k[half:] for k in keys_full]
+    v1 = [v[:half] for v in values_full]
+    v2 = [v[half:] for v in values_full]
+    head_1 = single_attention(q1, k1, v1)
+    head_2 = single_attention(q2, k2, v2)
+    combined = head_1 + head_2
+
+solution: |
+  import math
+
+  def softmax(xs):
+      exps = [math.exp(x) for x in xs]
+      total = sum(exps)
+      return [e / total for e in exps]
+
+  def single_attention(q, keys, values):
+      d = len(q)
+      scale = math.sqrt(d)
+      scores = [sum(q[i] * k[i] for i in range(d)) / scale for k in keys]
+      weights = softmax(scores)
+      out = [0] * len(values[0])
+      for i in range(len(values)):
+          for j in range(len(values[0])):
+              out[j] += weights[i] * values[i][j]
+      return [round(x, 2) for x in out]
+
+  query = [1, 1, 0, 1]
+  keys_full = [[0, 1, 1, 0], [1, 1, 0, 1], [0.5, 0, 1, 0.5]]
+  values_full = [[1, 0, 0, 1], [0, 1, 1, 0], [1, 1, 0, 0]]
+
+  half = len(query) // 2
+  q1, q2 = query[:half], query[half:]
+  k1 = [k[:half] for k in keys_full]
+  k2 = [k[half:] for k in keys_full]
+  v1 = [v[:half] for v in values_full]
+  v2 = [v[half:] for v in values_full]
+
+  head_1 = single_attention(q1, k1, v1)
+  head_2 = single_attention(q2, k2, v2)
+  combined = head_1 + head_2
+
+  print(f"head_1: {head_1}")
+  print(f"head_2: {head_2}")
+  print(f"combined: {combined}")
+
+explanation: |
+  Head 1 uses dimensions [0,1]: query [1,1] attends to keys [0,1], [1,1], [0.5,0].
+  It focuses most on key [1,1] → output [0.46, 0.73].
+
+  Head 2 uses dimensions [2,3]: query [0,1] attends to keys [1,0], [0,1], [1,0.5].
+  It focuses most on key [0,1] → output [0.46, 0.22].
+
+  The heads produce different outputs because they see different parts of the
+  vectors. Each head can capture different relationships. In GPT-style models,
+  there are typically 12-96 heads running in parallel, each learning to focus
+  on different linguistic patterns.

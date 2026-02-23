@@ -1,0 +1,40 @@
+id: comparison
+title: "Comparison Operators"
+type: write
+
+prompt: |
+  Print the result of four comparisons, each on its own line:
+  1. 10 > 5
+  2. 3 <= 3
+  3. "apple" < "banana" (string comparison)
+  4. "abc".length === 3
+
+  Each should print true.
+
+starter: |
+  // Print four comparison results (all should be true)
+
+validation:
+  method: output
+  expected_output: "true\ntrue\ntrue\ntrue"
+
+hints:
+  - "Comparison operators return boolean values: true or false."
+  - "Strings are compared character by character using Unicode values. \"apple\" < \"banana\" because 'a' < 'b'."
+  - "Use console.log() for each comparison: console.log(10 > 5);"
+
+solution: |
+  console.log(10 > 5);
+  console.log(3 <= 3);
+  console.log("apple" < "banana");
+  console.log("abc".length === 3);
+
+explanation: |
+  Comparison operators always return a boolean (true or false):
+
+  - `10 > 5` → true (greater than)
+  - `3 <= 3` → true (less than or equal — 3 equals 3)
+  - `"apple" < "banana"` → true (string comparison is lexicographic,
+    character by character. 'a' (97) < 'b' (98), so "apple" comes first)
+  - `"abc".length === 3` → true (.length returns the number of characters,
+    and === checks strict equality)

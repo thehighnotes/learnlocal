@@ -1,0 +1,63 @@
+id: shadowing
+title: "Shadowing"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```rust
+  fn main() {
+      let x = 5;
+      let x = x + 3;
+      let x = x * 2;
+      println!("{}", x);
+  }
+  ```
+
+  Think through each `let x` statement. Each one creates a new variable that
+  shadows the previous one.
+
+starter: |
+  fn main() {
+      let x = 5;
+      let x = x + 3;
+      let x = x * 2;
+      println!("{}", x);
+  }
+
+validation:
+  method: output
+  expected_output: "16"
+
+hints:
+  - "Start with x = 5. The next let creates a NEW x equal to the old x + 3."
+  - "After the second let, x is 5 + 3 = 8. The third let creates another new x equal to the old x * 2."
+  - "After the third let, x is 8 * 2 = 16. The println! prints 16."
+
+solution: |
+  fn main() {
+      let x = 5;
+      let x = x + 3;
+      let x = x * 2;
+      println!("{}", x);
+  }
+
+explanation: |
+  Trace through it step by step:
+
+  1. `let x = 5;` — x is 5.
+  2. `let x = x + 3;` — a new x is created with value 5 + 3 = 8. The old x
+     is shadowed (effectively gone).
+  3. `let x = x * 2;` — another new x is created with value 8 * 2 = 16. The
+     previous x is shadowed.
+  4. `println!("{}", x);` — prints 16.
+
+  Shadowing is not the same as mutation. Each `let x` creates a brand new
+  variable. The old variable is no longer accessible. This means you can even
+  change the type when shadowing:
+
+      let x = "hello";   // &str
+      let x = x.len();   // usize — different type, same name
+
+  With `mut`, you can change the value but not the type. With shadowing, you
+  can change both.

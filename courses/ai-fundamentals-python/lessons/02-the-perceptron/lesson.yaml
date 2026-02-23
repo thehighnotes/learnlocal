@@ -1,0 +1,29 @@
+id: the-perceptron
+title: "The Perceptron"
+description: "Build the simplest neural network — a single neuron with weights, bias, and activation functions"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - step-function
+  - sigmoid
+  - relu
+  - neuron-forward
+  - and-gate
+  - or-gate
+  - xor-fails
+teaches:
+  - step-activation
+  - sigmoid-activation
+  - relu-activation
+  - neuron-computation
+  - perceptron
+  - logic-gates
+  - linear-separability
+recap: |
+  You learned:
+  - The step function outputs 1 if input >= 0, else 0 — the simplest decision maker
+  - Sigmoid squishes any number into the range (0, 1) — smooth and differentiable
+  - ReLU returns max(0, x) — the most common modern activation function
+  - A neuron computes: activate(dot(inputs, weights) + bias)
+  - A perceptron can learn AND and OR (linearly separable problems)
+  - A single perceptron cannot learn XOR — you need multiple layers

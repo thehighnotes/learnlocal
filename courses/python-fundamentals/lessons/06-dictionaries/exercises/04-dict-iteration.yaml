@@ -1,0 +1,50 @@
+id: dict-iteration
+title: "Iterate Over a Dictionary"
+type: write
+
+prompt: |
+  Given `inventory = {"apples": 5, "bananas": 3, "oranges": 8}`, loop over
+  the dictionary and print each item in the format "item: count", one per
+  line.
+
+  Use the `.items()` method to get both keys and values.
+
+  Expected output:
+  apples: 5
+  bananas: 3
+  oranges: 8
+
+starter: |
+  inventory = {"apples": 5, "bananas": 3, "oranges": 8}
+  # Loop over the dictionary and print each item as "item: count"
+
+validation:
+  method: output
+  expected_output: |
+    apples: 5
+    bananas: 3
+    oranges: 8
+
+hints:
+  - "The .items() method returns (key, value) pairs you can unpack in a for loop"
+  - "Use tuple unpacking: for item, count in inventory.items()"
+  - "Inside the loop, use an f-string: print(f\"{item}: {count}\")"
+
+solution: |
+  inventory = {"apples": 5, "bananas": 3, "oranges": 8}
+  for item, count in inventory.items():
+      print(f"{item}: {count}")
+
+explanation: |
+  The `.items()` method returns a view of `(key, value)` tuples. In the for
+  loop, we unpack each tuple into two variables: `item` and `count`.
+
+  - `for item, count in inventory.items():` — on each iteration, `item` gets
+    the key (e.g., "apples") and `count` gets the value (e.g., 5).
+  - `print(f"{item}: {count}")` — the f-string formats them with a colon and
+    space in between.
+
+  This is the most common pattern for iterating over a dictionary when you
+  need both the key and the value. If you only need the keys, you can loop
+  directly: `for item in inventory:`. If you only need the values, use
+  `for count in inventory.values():`.

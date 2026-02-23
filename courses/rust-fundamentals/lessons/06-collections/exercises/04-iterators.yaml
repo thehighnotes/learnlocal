@@ -1,0 +1,64 @@
+id: iterators
+title: "Iterator Basics"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```rust
+  fn main() {
+      let v = vec![10, 20, 30];
+      let mut iter = v.iter();
+
+      println!("{:?}", iter.next());
+      println!("{:?}", iter.next());
+      println!("{:?}", iter.next());
+      println!("{:?}", iter.next());
+  }
+  ```
+
+  Enter the four lines of output exactly as they would appear.
+
+starter: |
+  fn main() {
+      let v = vec![10, 20, 30];
+      let mut iter = v.iter();
+
+      println!("{:?}", iter.next());
+      println!("{:?}", iter.next());
+      println!("{:?}", iter.next());
+      println!("{:?}", iter.next());
+  }
+
+validation:
+  method: output
+  expected_output: "Some(10)\nSome(20)\nSome(30)\nNone"
+
+hints:
+  - "An iterator's .next() method returns Option<&T> -- Some(&value) when there are elements left, None when exhausted."
+  - "The vector has 3 elements, so the first three .next() calls return Some(10), Some(20), and Some(30)."
+  - "The fourth .next() call finds no more elements and returns None. The {:?} debug format prints the Option variants as-is."
+
+solution: |
+  fn main() {
+      let v = vec![10, 20, 30];
+      let mut iter = v.iter();
+
+      println!("{:?}", iter.next());
+      println!("{:?}", iter.next());
+      println!("{:?}", iter.next());
+      println!("{:?}", iter.next());
+  }
+
+explanation: |
+  Every Rust iterator implements the `Iterator` trait, which has a single
+  required method: `next() -> Option<Self::Item>`. Each call advances the
+  iterator by one position and returns `Some(element)` or `None` when done.
+
+  `.iter()` creates an iterator that borrows each element, so `next()`
+  returns `Option<&i32>`. The `{:?}` debug format prints the full `Option`
+  value -- `Some(10)` rather than just `10`. After the third element, the
+  iterator is exhausted and every subsequent `next()` call returns `None`.
+
+  In practice you rarely call `next()` directly. Instead, for loops and
+  adapter methods like `map` and `filter` call it internally.

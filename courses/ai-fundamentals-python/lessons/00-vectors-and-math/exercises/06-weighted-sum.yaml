@@ -1,0 +1,49 @@
+id: weighted-sum
+title: "Weighted Sum"
+type: write
+
+prompt: |
+  Compute a weighted sum. Given values and their corresponding weights,
+  multiply each value by its weight and sum the results.
+
+  ```
+  values  = [2, 4, 6]
+  weights = [0.5, 0.25, 0.25]
+  ```
+
+  Weighted sum: 2*0.5 + 4*0.25 + 6*0.25 = 1.0 + 1.0 + 1.5 = 3.5
+
+  This is exactly how a neuron in a neural network computes its output.
+
+starter: |
+  values = [2, 4, 6]
+  weights = [0.5, 0.25, 0.25]
+
+  # Compute the weighted sum
+
+
+  print(result)
+
+validation:
+  method: output
+  expected_output: "3.5"
+
+hints:
+  - "This is the same as a dot product! Multiply corresponding elements from values and weights, then sum."
+  - "Try: `result = sum(values[i] * weights[i] for i in range(len(values)))`"
+
+solution: |
+  values = [2, 4, 6]
+  weights = [0.5, 0.25, 0.25]
+
+  result = sum(values[i] * weights[i] for i in range(len(values)))
+
+  print(result)
+
+explanation: |
+  The weighted sum is `2*0.5 + 4*0.25 + 6*0.25 = 1.0 + 1.0 + 1.5 = 3.5`.
+
+  Notice this is just the dot product of values and weights. A weighted sum
+  is a dot product where the "other vector" represents how much each value
+  matters. This is exactly what a neuron does: it takes inputs (values),
+  multiplies by learned weights, and sums. You will build neurons in lesson 02.

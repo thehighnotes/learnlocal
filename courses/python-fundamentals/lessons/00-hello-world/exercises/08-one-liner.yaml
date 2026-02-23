@@ -1,0 +1,18 @@
+id: one-liner
+title: "Python One-Liner"
+type: command
+prompt: |
+  Use python3 -c to print the result of 6 * 7 without creating a file.
+starter: |
+  # Use python3 -c to evaluate an expression
+validation:
+  method: output
+  expected_output: "42"
+hints:
+  - "python3 -c lets you run Python code from the command line"
+  - "python3 -c \"print(6 * 7)\""
+solution: |
+  python3 -c "print(6 * 7)"
+explanation: |
+  The -c flag runs a Python statement directly from the command line.
+  It's perfect for quick calculations and one-off scripts.

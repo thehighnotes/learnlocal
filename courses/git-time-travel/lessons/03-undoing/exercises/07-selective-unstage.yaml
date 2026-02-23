@@ -1,0 +1,60 @@
+id: selective-unstage
+title: "Selective Unstage"
+type: command
+prompt: |
+  You ran `git add .` and accidentally staged three files: `a.txt`, `b.txt`,
+  and `c.txt`. You actually only want to commit `a.txt` and `c.txt`.
+
+  Unstage ONLY `b.txt` — leave `a.txt` and `c.txt` staged.
+starter: |
+  #!/bin/bash
+  # Unstage only b.txt — keep a.txt and c.txt staged
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'init' > init.txt && git add init.txt && git commit -m 'initial' && echo 'alpha' > a.txt && echo 'beta' > b.txt && echo 'gamma' > c.txt && git add a.txt b.txt c.txt"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-staged
+      command: sh
+      args: ["-c", "cd {dir}/repo && git diff --cached --name-only | sort > {dir}/staged.txt"]
+      timeout_seconds: 5
+      capture_to: staged.log
+    - name: check-b-not-staged
+      command: sh
+      args: ["-c", "cd {dir}/repo && git diff --cached --name-only | grep -c b.txt > {dir}/b_staged_count.txt 2>&1 || echo '0' > {dir}/b_staged_count.txt"]
+      timeout_seconds: 5
+      capture_to: b_staged.log
+    - name: capture-file-exists
+      command: sh
+      args: ["-c", "cd {dir}/repo && test -f b.txt && echo 'EXISTS' > {dir}/b_check.txt || echo 'MISSING' > {dir}/b_check.txt"]
+      timeout_seconds: 5
+      capture_to: b_check.log
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: staged.txt
+        content: "a.txt"
+    - file_contains:
+        path: staged.txt
+        content: "c.txt"
+    - file_contains:
+        path: b_staged_count.txt
+        content: "0"
+    - file_contains:
+        path: b_check.txt
+        content: "EXISTS"
+hints:
+  - "git restore --staged takes a specific filename"
+  - "git restore --staged b.txt"
+solution: |
+  #!/bin/bash
+  git restore --staged b.txt
+explanation: |
+  git restore --staged operates on individual files. By specifying only b.txt,
+  you remove it from the staging area while leaving a.txt and c.txt staged.
+  The file b.txt still exists in the working directory — only its staging
+  status changed.

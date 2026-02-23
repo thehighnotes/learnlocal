@@ -1,0 +1,17 @@
+id: file-emergencies
+title: "File System Emergencies"
+description: "Wrong permissions. Missing configs. Corrupted files. Fix the filesystem before the app comes back up."
+estimated_minutes: 25
+content: content.md
+teaches: [chmod, chown, cp, mv, ln, find, permissions-repair]
+exercises:
+  - fix-permissions
+  - restore-config
+  - fix-symlink
+  - wrong-owner
+  - missing-directory
+  - readonly-fix
+  - emergency-backup
+recap: |
+  File system issues are the #1 cause of "it works on my machine" incidents.
+  Permissions, ownership, symlinks, and missing files — now you can fix them all.

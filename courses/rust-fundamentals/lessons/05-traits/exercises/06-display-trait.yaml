@@ -1,0 +1,78 @@
+id: display-trait
+title: "Implement Display"
+type: write
+
+prompt: |
+  Create a struct `Color` with three `u8` fields: `r`, `g`, `b`.
+
+  Implement `std::fmt::Display` for `Color` so that printing it with `{}`
+  produces the format `rgb(R, G, B)` where R, G, B are the field values.
+
+  In `main`, create two colors and print them:
+  - Color { r: 255, g: 128, b: 0 }
+  - Color { r: 0, g: 0, b: 255 }
+
+starter: |
+  use std::fmt;
+
+  struct Color {
+      r: u8,
+      g: u8,
+      b: u8,
+  }
+
+  // Implement fmt::Display for Color here
+
+  fn main() {
+      let orange = Color { r: 255, g: 128, b: 0 };
+      let blue = Color { r: 0, g: 0, b: 255 };
+      println!("{}", orange);
+      println!("{}", blue);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    rgb(255, 128, 0)
+    rgb(0, 0, 255)
+
+hints:
+  - "You need: impl fmt::Display for Color { fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { ... } }"
+  - "Inside fmt, use the write! macro: write!(f, \"rgb({}, {}, {})\", self.r, self.g, self.b)"
+  - "The full impl block: impl fmt::Display for Color { fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { write!(f, \"rgb({}, {}, {})\", self.r, self.g, self.b) } }"
+
+solution: |
+  use std::fmt;
+
+  struct Color {
+      r: u8,
+      g: u8,
+      b: u8,
+  }
+
+  impl fmt::Display for Color {
+      fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+          write!(f, "rgb({}, {}, {})", self.r, self.g, self.b)
+      }
+  }
+
+  fn main() {
+      let orange = Color { r: 255, g: 128, b: 0 };
+      let blue = Color { r: 0, g: 0, b: 255 };
+      println!("{}", orange);
+      println!("{}", blue);
+  }
+
+explanation: |
+  `std::fmt::Display` is the trait behind the `{}` format specifier in
+  `println!`. It has one required method: `fmt`, which takes a mutable
+  reference to a `Formatter` and returns a `fmt::Result`.
+
+  Inside `fmt`, you use the `write!` macro to write formatted output into
+  the formatter. The `write!` macro works like `format!` but writes to a
+  destination instead of creating a new String.
+
+  Unlike Debug (which can be derived), Display must always be implemented
+  manually. This gives you full control over how your type looks when printed.
+  Implementing Display also gives you `.to_string()` for free, since the
+  standard library blanket-implements `ToString` for all `Display` types.

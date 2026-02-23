@@ -1,0 +1,28 @@
+id: setup-creates-data
+title: "Setup Creates Data"
+type: write
+prompt: |
+  A setup command has already created a file called `data.txt` in the
+  sandbox. Read and print its contents.
+starter: |
+  #!/bin/bash
+  # The file data.txt was created by a setup command before your code runs.
+  # Print its contents.
+environment:
+  setup:
+    - name: create-data
+      command: sh
+      args: ["-c", "echo 'Setup data: 42' > {dir}/data.txt"]
+      timeout_seconds: 5
+validation:
+  method: output
+  expected_output: "Setup data: 42"
+hints:
+  - "Use cat to read a file"
+  - "cat data.txt"
+solution: |
+  #!/bin/bash
+  cat data.txt
+explanation: |
+  The environment setup command ran `echo 'Setup data: 42' > data.txt`
+  before your script executed. Your script simply reads that file.

@@ -1,0 +1,69 @@
+id: define-trait
+title: "Define a Trait"
+type: write
+
+prompt: |
+  Define a trait called `Greetable` with one required method:
+  `fn greet(&self) -> String`
+
+  Then create a struct `Person` with a `name: String` field and implement
+  `Greetable` for it. The `greet` method should return "Hello, I'm <name>"
+  where <name> is the person's name.
+
+  In `main`, create a Person with the name "Alice" and print the result
+  of calling `.greet()` on it.
+
+starter: |
+  // Define the Greetable trait here
+
+  struct Person {
+      name: String,
+  }
+
+  // Implement Greetable for Person here
+
+  fn main() {
+      let alice = Person { name: String::from("Alice") };
+      println!("{}", alice.greet());
+  }
+
+validation:
+  method: output
+  expected_output: "Hello, I'm Alice"
+
+hints:
+  - "A trait is defined with: trait Greetable { fn greet(&self) -> String; }"
+  - "Implement it with: impl Greetable for Person { fn greet(&self) -> String { ... } }"
+  - "Use format! to build the string: format!(\"Hello, I'm {}\", self.name)"
+
+solution: |
+  trait Greetable {
+      fn greet(&self) -> String;
+  }
+
+  struct Person {
+      name: String,
+  }
+
+  impl Greetable for Person {
+      fn greet(&self) -> String {
+          format!("Hello, I'm {}", self.name)
+      }
+  }
+
+  fn main() {
+      let alice = Person { name: String::from("Alice") };
+      println!("{}", alice.greet());
+  }
+
+explanation: |
+  The `trait Greetable` block declares a method signature without a body ---
+  the semicolon after `-> String` means "implementors must provide this."
+
+  `impl Greetable for Person` provides the concrete implementation. Inside,
+  `self.name` accesses the struct's field, and `format!` builds a new String
+  with the name interpolated.
+
+  Traits separate the *interface* (what methods exist) from the *implementation*
+  (what they do for each type). Any number of types can implement `Greetable`,
+  each with their own version of `greet`.

@@ -1,0 +1,51 @@
+id: augmented-assign
+title: "Augmented Assignment"
+type: write
+
+prompt: |
+  Start with let x = 10, then apply three augmented assignment operations,
+  printing the value after each:
+  1. x += 5 (add 5), then print x
+  2. x *= 2 (multiply by 2), then print x
+  3. x %= 4 (modulo 4), then print x
+
+  Expected output:
+  15
+  30
+  2
+
+starter: |
+  let x = 10;
+  // Apply += 5, print, then *= 2, print, then %= 4, print
+
+validation:
+  method: output
+  expected_output: "15\n30\n2"
+
+hints:
+  - "+= adds and assigns: x += 5 is the same as x = x + 5."
+  - "After x += 5, x is 15. After x *= 2, x is 30. After x %= 4, x is 2 (30 mod 4 = 2)."
+  - "Each operation modifies x in place. Print after each one."
+
+solution: |
+  let x = 10;
+  x += 5;
+  console.log(x);
+  x *= 2;
+  console.log(x);
+  x %= 4;
+  console.log(x);
+
+explanation: |
+  Augmented assignment operators combine an operation with assignment:
+
+  - `x += 5` is shorthand for `x = x + 5` → 10 + 5 = 15
+  - `x *= 2` is shorthand for `x = x * 2` → 15 * 2 = 30
+  - `x %= 4` is shorthand for `x = x % 4` → 30 % 4 = 2
+
+  These operators work with all arithmetic operations: +=, -=, *=, /=, %=,
+  and **=. They save typing and make the intent clearer: "modify this
+  variable" rather than "compute something and store it".
+
+  Note: the variable must be declared with `let`, not `const`, since
+  augmented assignment modifies the value.

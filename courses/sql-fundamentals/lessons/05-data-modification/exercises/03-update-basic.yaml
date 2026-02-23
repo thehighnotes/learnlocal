@@ -1,0 +1,57 @@
+id: update-basic
+title: "Update a Row"
+type: write
+
+prompt: |
+  Alice (id 1) has moved from Portland to Denver and changed her email to
+  alice.new@example.com. Update her row to reflect both changes.
+
+  After the UPDATE, write a SELECT that shows all columns for Alice (where
+  id = 1) so you can verify the changes.
+
+starter: |
+  -- Update Alice's email and city, then SELECT to verify
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT, phone TEXT, city TEXT);
+        INSERT INTO contacts VALUES (1, 'Alice', 'alice@example.com', '555-0101', 'Portland');
+        INSERT INTO contacts VALUES (2, 'Bob', 'bob@example.com', '555-0102', 'Seattle');
+        INSERT INTO contacts VALUES (3, 'Charlie', 'charlie@example.com', '555-0103', 'Portland');
+        INSERT INTO contacts VALUES (4, 'Diana', 'diana@example.com', '555-0104', 'Austin');
+        INSERT INTO contacts VALUES (5, 'Eve', 'eve@example.com', '555-0105', 'Seattle');
+
+validation:
+  method: output
+  expected_output: |
+    1|Alice|alice.new@example.com|555-0101|Denver
+
+hints:
+  - "Use UPDATE contacts SET column = value WHERE ... to change a row"
+  - "You can update multiple columns in one SET clause: SET email = '...', city = '...'"
+  - "The full solution is: UPDATE contacts SET email = 'alice.new@example.com', city = 'Denver' WHERE id = 1; SELECT * FROM contacts WHERE id = 1;"
+
+solution: |
+  UPDATE contacts
+  SET email = 'alice.new@example.com', city = 'Denver'
+  WHERE id = 1;
+
+  SELECT * FROM contacts WHERE id = 1;
+
+explanation: |
+  The UPDATE statement changes two columns in one go:
+
+      UPDATE contacts
+      SET email = 'alice.new@example.com', city = 'Denver'
+      WHERE id = 1;
+
+  - `SET email = '...', city = '...'` — comma-separated assignments update
+    multiple columns in a single statement.
+  - `WHERE id = 1` — targets only Alice's row. Without this, every contact
+    would get the new email and city.
+
+  Columns you do not mention in the SET clause (name, phone) keep their
+  original values. This is one of the key differences between UPDATE and
+  REPLACE — UPDATE preserves unmentioned columns, REPLACE does not.

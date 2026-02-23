@@ -1,0 +1,62 @@
+id: comparison
+title: "Fix the Comparison"
+type: fix
+
+prompt: |
+  The code below is supposed to check whether `a` and `b` are equal and print
+  "equal" or "not equal". But it has a bug -- it always prints "equal" regardless
+  of the values.
+
+  Find and fix the bug.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      int a = 5;
+      int b = 10;
+      if (a = b) {
+          std::cout << "equal" << std::endl;
+      } else {
+          std::cout << "not equal" << std::endl;
+      }
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "not equal"
+
+hints:
+  - "Look carefully at the operator inside the if condition. Is it checking equality, or doing something else?"
+  - "In C++, `=` is assignment and `==` is comparison. Assignment inside an if condition assigns the value and then tests whether the result is non-zero."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int a = 5;
+      int b = 10;
+      if (a == b) {
+          std::cout << "equal" << std::endl;
+      } else {
+          std::cout << "not equal" << std::endl;
+      }
+      return 0;
+  }
+
+explanation: |
+  The bug was using `=` (assignment) instead of `==` (equality comparison).
+
+  `if (a = b)` does two things:
+  1. Assigns the value of `b` (10) to `a`
+  2. Tests whether the result (10) is non-zero -- it is, so the condition is true
+
+  This means the `if` branch always executes (as long as `b` is not zero),
+  and `a` gets silently overwritten.
+
+  The fix is `if (a == b)`, which compares without modifying either variable.
+  Since 5 != 10, the else branch runs and prints "not equal".
+
+  This is one of the most classic C++ bugs. The compiler flag `-Wall` will
+  warn about this, which is why we compile with it.

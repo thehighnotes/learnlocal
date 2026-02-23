@@ -1,0 +1,96 @@
+id: basic-interface
+title: "Basic Interface"
+type: write
+
+prompt: |
+  Define a `Shape` interface with a single method `Area() float64`. Then create
+  two structs — `Circle` (with a `Radius float64` field) and `Rectangle` (with
+  `Width` and `Height float64` fields) — and implement `Area()` for both.
+
+  In `main`, create a `Circle` with radius 5 and a `Rectangle` with width 5 and
+  height 3. Print their areas using `fmt.Printf` with the format `"circle: %.2f\n"`
+  and `"rectangle: %.2f\n"`.
+
+starter: |
+  package main
+
+  import (
+  	"fmt"
+  	"math"
+  )
+
+  // Define the Shape interface with Area() float64
+
+
+  // Define Circle struct with Radius float64
+
+
+  // Implement Area() for Circle
+
+
+  // Define Rectangle struct with Width, Height float64
+
+
+  // Implement Area() for Rectangle
+
+
+  func main() {
+  	// Create a Circle with radius 5 and print its area
+  	_ = fmt.Println
+  	_ = math.Pi
+
+  	// Create a Rectangle with width 5, height 3 and print its area
+
+  }
+
+validation:
+  method: output
+  expected_output: "circle: 78.54\nrectangle: 15.00\n"
+
+hints:
+  - "Define the interface: `type Shape interface { Area() float64 }`."
+  - "Circle's area is `math.Pi * c.Radius * c.Radius`. Rectangle's area is `r.Width * r.Height`."
+  - "Use `fmt.Printf(\"circle: %.2f\\n\", c.Area())` to print with two decimal places."
+
+solution: |
+  package main
+
+  import (
+  	"fmt"
+  	"math"
+  )
+
+  type Shape interface {
+  	Area() float64
+  }
+
+  type Circle struct {
+  	Radius float64
+  }
+
+  func (c Circle) Area() float64 {
+  	return math.Pi * c.Radius * c.Radius
+  }
+
+  type Rectangle struct {
+  	Width, Height float64
+  }
+
+  func (r Rectangle) Area() float64 {
+  	return r.Width * r.Height
+  }
+
+  func main() {
+  	c := Circle{Radius: 5}
+  	r := Rectangle{Width: 5, Height: 3}
+
+  	fmt.Printf("circle: %.2f\n", c.Area())
+  	fmt.Printf("rectangle: %.2f\n", r.Area())
+  }
+
+explanation: |
+  The `Shape` interface declares a single method: `Area() float64`. Any type that
+  has this method automatically satisfies the interface. `Circle` computes area
+  using `math.Pi * r^2`, and `Rectangle` uses `width * height`. Both types
+  implement `Area()` with a value receiver, so both are `Shape` values. The
+  `fmt.Printf` call with `%.2f` formats the float to two decimal places.

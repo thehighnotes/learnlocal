@@ -1,0 +1,58 @@
+id: logical
+title: "Logical AND"
+type: write
+
+prompt: |
+  Given `int x = 5` and `int y = 10`, check whether `x` is greater than 0
+  AND `y` is less than 20. Print "true" if both conditions hold, or "false"
+  otherwise.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      int x = 5;
+      int y = 10;
+
+      // Check if x > 0 AND y < 20
+      // Print "true" or "false"
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "true"
+
+hints:
+  - "The logical AND operator in C++ is `&&`. It returns true only when both sides are true."
+  - "Use an if/else statement: `if (condition) { print true } else { print false }`"
+  - "The full condition is: `x > 0 && y < 20`"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int x = 5;
+      int y = 10;
+
+      if (x > 0 && y < 20) {
+          std::cout << "true" << std::endl;
+      } else {
+          std::cout << "false" << std::endl;
+      }
+      return 0;
+  }
+
+explanation: |
+  The `&&` (logical AND) operator requires both conditions to be true:
+  - `x > 0` evaluates to `true` (5 > 0)
+  - `y < 20` evaluates to `true` (10 < 20)
+  - `true && true` evaluates to `true`
+
+  C++ uses **short-circuit evaluation** with `&&`: if the left side is false,
+  the right side is never evaluated (because the result must be false regardless).
+  Similarly, `||` short-circuits when the left side is true.
+
+  This behavior matters when the right side has side effects, such as a function
+  call. For now, just remember that `&&` means "both must be true."

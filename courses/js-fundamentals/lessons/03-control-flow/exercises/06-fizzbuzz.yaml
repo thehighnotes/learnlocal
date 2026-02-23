@@ -1,0 +1,55 @@
+id: fizzbuzz
+title: "FizzBuzz"
+type: write
+
+prompt: |
+  Write FizzBuzz for numbers 1 through 15.
+
+  For each number:
+  - If divisible by both 3 and 5, print "FizzBuzz"
+  - If divisible by 3 only, print "Fizz"
+  - If divisible by 5 only, print "Buzz"
+  - Otherwise, print the number itself
+
+starter: |
+  // FizzBuzz from 1 to 15
+  // Check divisibility with the % (modulo) operator
+
+validation:
+  method: output
+  expected_output: "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz"
+
+hints:
+  - "Use a for loop from 1 to 15. Check divisibility with %: if (i % 3 === 0)."
+  - "Check the combined condition first (divisible by both 3 AND 5), then by 3, then by 5, then the default."
+  - "The order matters: if (i % 3 === 0 && i % 5 === 0) must come before the individual checks."
+
+solution: |
+  for (let i = 1; i <= 15; i++) {
+    if (i % 3 === 0 && i % 5 === 0) {
+      console.log("FizzBuzz");
+    } else if (i % 3 === 0) {
+      console.log("Fizz");
+    } else if (i % 5 === 0) {
+      console.log("Buzz");
+    } else {
+      console.log(i);
+    }
+  }
+
+explanation: |
+  FizzBuzz is a classic programming exercise that combines loops with
+  conditional logic.
+
+  The key insight is checking the combined condition (divisible by both
+  3 and 5) first. If you checked for 3 first, then 15 would print "Fizz"
+  instead of "FizzBuzz" because the first matching branch wins.
+
+  An alternative is to check `i % 15 === 0` since 15 is the least common
+  multiple of 3 and 5. Both approaches work.
+
+  You could also build the string incrementally:
+      let result = "";
+      if (i % 3 === 0) result += "Fizz";
+      if (i % 5 === 0) result += "Buzz";
+      console.log(result || i);

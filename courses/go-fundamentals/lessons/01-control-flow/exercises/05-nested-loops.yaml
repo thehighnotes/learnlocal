@@ -1,0 +1,81 @@
+id: nested-loops
+title: "Predict the Labeled Break"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```go
+  package main
+
+  import "fmt"
+
+  func main() {
+  outer:
+      for i := 1; i <= 3; i++ {
+          for j := 1; j <= 3; j++ {
+              if i == 2 && j == 2 {
+                  break outer
+              }
+              fmt.Printf("[%d,%d]", i, j)
+          }
+          fmt.Println()
+      }
+      fmt.Println("done")
+  }
+  ```
+
+  Type the exact output. Hint: `break outer` exits the outer loop,
+  not just the inner one.
+
+validation:
+  method: output
+  expected_output: |
+    [1,1][1,2][1,3]
+    [2,1]done
+
+hints:
+  - "Trace the outer loop: i=1, then i=2. For each i, the inner loop runs j from 1 to 3."
+  - "When i=1, the inner loop runs fully (j=1,2,3), then fmt.Println() adds a newline after the row."
+  - "When i=2 and j=2, `break outer` fires — this exits the OUTER loop, skipping fmt.Println() for row 2. The next thing that runs is fmt.Println(\"done\"), which prints on the same line as [2,1]."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+  outer:
+      for i := 1; i <= 3; i++ {
+          for j := 1; j <= 3; j++ {
+              if i == 2 && j == 2 {
+                  break outer
+              }
+              fmt.Printf("[%d,%d]", i, j)
+          }
+          fmt.Println()
+      }
+      fmt.Println("done")
+  }
+
+explanation: |
+  The key is understanding what `break outer` does:
+
+  - i=1: inner loop runs fully (j=1,2,3). Printf prints [1,1][1,2][1,3]
+    with no newline. Then fmt.Println() adds a newline. Row 1 is complete.
+
+  - i=2, j=1: Printf prints [2,1]. Then j increments to 2: the condition
+    `i == 2 && j == 2` is true, so `break outer` executes. This exits
+    the OUTER loop entirely — not just the inner one. The fmt.Println()
+    after the inner loop never runs for this row.
+
+  - Execution jumps to after the outer loop: fmt.Println("done") prints
+    "done" on the same line as [2,1], because no newline was printed
+    between them.
+
+  Final output: line 1 is "[1,1][1,2][1,3]", line 2 is "[2,1]done".
+
+  Without the label, a plain `break` would only exit the inner loop,
+  the Println() would add a newline after [2,1], and the outer loop
+  would continue to i=3. Labels give you precise control over which
+  loop to break from.

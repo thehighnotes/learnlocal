@@ -1,0 +1,69 @@
+id: group-by
+title: "Group and Count"
+type: write
+
+prompt: |
+  Write a query that counts how many sales are in each category.
+
+  Select the `category` and the count, grouped by category. Sort the results
+  alphabetically by category name.
+
+  The result should have one row per category with two columns: the category
+  name and the count.
+
+  Table schema: sales (id INTEGER, product TEXT, category TEXT, quantity INTEGER,
+  price REAL, sale_date TEXT, region TEXT)
+
+starter: |
+  -- Count sales per category, sorted alphabetically
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE sales (id INTEGER, product TEXT, category TEXT, quantity INTEGER, price REAL, sale_date TEXT, region TEXT);
+        INSERT INTO sales VALUES (1, 'Laptop', 'Electronics', 3, 999.99, '2024-01-15', 'North');
+        INSERT INTO sales VALUES (2, 'Headphones', 'Electronics', 5, 49.99, '2024-01-20', 'South');
+        INSERT INTO sales VALUES (3, 'T-Shirt', 'Clothing', 8, 19.99, '2024-02-01', 'North');
+        INSERT INTO sales VALUES (4, 'Novel', 'Books', 4, 12.99, '2024-02-10', 'East');
+        INSERT INTO sales VALUES (5, 'Jeans', 'Clothing', 6, 39.99, '2024-02-15', 'South');
+        INSERT INTO sales VALUES (6, 'Tablet', 'Electronics', 2, 299.99, '2024-03-01', 'North');
+        INSERT INTO sales VALUES (7, 'Cookbook', 'Books', 7, 24.99, '2024-03-05', 'South');
+        INSERT INTO sales VALUES (8, 'Jacket', 'Clothing', 10, 89.99, '2024-03-10', 'East');
+        INSERT INTO sales VALUES (9, 'Phone', 'Electronics', 3, 699.99, '2024-03-15', 'South');
+        INSERT INTO sales VALUES (10, 'Shorts', 'Clothing', 1, 24.99, '2024-03-20', 'North');
+        INSERT INTO sales VALUES (11, 'Textbook', 'Books', 6, 59.99, '2024-04-01', 'North');
+        INSERT INTO sales VALUES (12, 'Sneakers', 'Clothing', 5, 79.99, '2024-04-05', 'East');
+
+validation:
+  method: output
+  expected_output: |
+    Books|3
+    Clothing|5
+    Electronics|4
+
+hints:
+  - "Use GROUP BY category to create one group per category, then COUNT(*) to count rows in each"
+  - "Add ORDER BY category to sort alphabetically. The full structure is: SELECT ..., COUNT(*) FROM sales GROUP BY ... ORDER BY ..."
+  - "The full query is: SELECT category, COUNT(*) FROM sales GROUP BY category ORDER BY category;"
+
+solution: |
+  SELECT category, COUNT(*) FROM sales GROUP BY category ORDER BY category;
+
+explanation: |
+  `GROUP BY category` splits the 12 rows into three groups:
+
+  - Books: rows 4, 7, 11 (Novel, Cookbook, Textbook) — 3 rows
+  - Clothing: rows 3, 5, 8, 10, 12 (T-Shirt, Jeans, Jacket, Shorts, Sneakers) — 5 rows
+  - Electronics: rows 1, 2, 6, 9 (Laptop, Headphones, Tablet, Phone) — 4 rows
+
+  `COUNT(*)` is then applied to each group independently, returning the number
+  of rows in that group.
+
+  `ORDER BY category` sorts the groups alphabetically. Without it, the order
+  would depend on which category SQLite encountered first during processing —
+  not guaranteed to be alphabetical.
+
+  Every non-aggregated column in SELECT (here, `category`) must appear in the
+  GROUP BY clause. This is what tells the database: "I want one row per unique
+  category value."

@@ -1,0 +1,82 @@
+id: like-pattern
+title: "Pattern Matching with LIKE"
+type: predict
+
+prompt: |
+  Given this employees table:
+
+  | name           | department  |
+  |----------------|-------------|
+  | Alice Johnson  | Engineering |
+  | Bob Smith      | Engineering |
+  | Carol Davis    | Sales       |
+  | David Lee      | Marketing   |
+  | Eva Martinez   | Engineering |
+  | Frank Wilson   | Sales       |
+  | Grace Kim      | Marketing   |
+  | Henry Brown    | Engineering |
+  | Ivy Chen       | Sales       |
+  | Jack Taylor    | Marketing   |
+
+  What does this query output?
+
+  ```sql
+  SELECT name
+  FROM employees
+  WHERE name LIKE '%son%'
+  ORDER BY name;
+  ```
+
+  Enter the exact output, one name per line.
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          department TEXT NOT NULL,
+          salary REAL NOT NULL,
+          hire_date TEXT NOT NULL,
+          manager_id INTEGER
+        );
+        INSERT INTO employees VALUES (1, 'Alice Johnson', 'Engineering', 85000.0, '2020-03-15', NULL);
+        INSERT INTO employees VALUES (2, 'Bob Smith', 'Engineering', 72000.0, '2021-06-01', 1);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Sales', 55000.0, '2019-11-20', 1);
+        INSERT INTO employees VALUES (4, 'David Lee', 'Marketing', 62000.0, '2022-01-10', 1);
+        INSERT INTO employees VALUES (5, 'Eva Martinez', 'Engineering', 95000.0, '2018-07-22', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Wilson', 'Sales', 48000.0, '2023-04-05', 3);
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Marketing', 67000.0, '2021-09-14', 4);
+        INSERT INTO employees VALUES (8, 'Henry Brown', 'Engineering', 78000.0, '2022-08-30', 5);
+        INSERT INTO employees VALUES (9, 'Ivy Chen', 'Sales', 51000.0, '2023-01-18', 3);
+        INSERT INTO employees VALUES (10, 'Jack Taylor', 'Marketing', 58000.0, '2024-02-01', NULL);
+
+validation:
+  method: output
+  expected_output: |
+    Alice Johnson
+    Frank Wilson
+
+hints:
+  - "The % wildcard matches zero or more characters. '%son%' matches any name containing 'son' anywhere."
+  - "Look for names that contain the letters 'son' in sequence. Remember LIKE is case-insensitive in SQLite."
+  - "Alice Johnson contains 'son' (John-son). Frank Wilson contains 'son' (Wil-son). Both match."
+
+solution: |
+  SELECT name
+  FROM employees
+  WHERE name LIKE '%son%'
+  ORDER BY name;
+
+explanation: |
+  The pattern `%son%` matches any string that contains 'son' anywhere:
+  - `%` before 'son' allows any characters (or none) before it
+  - `%` after 'son' allows any characters (or none) after it
+
+  Scanning the names: "Alice John**son**" contains 'son', and "Frank Wil**son**"
+  contains 'son'. No other names have the sequence 'son' in them.
+
+  Note: In SQLite, LIKE is case-insensitive by default, so '%SON%' would also
+  match these names. The `_` wildcard (not used here) matches exactly one
+  character, useful for fixed-length patterns.

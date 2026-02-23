@@ -1,0 +1,48 @@
+id: keep-ours
+title: "Keep Ours — Main Wins"
+type: command
+prompt: |
+  Sometimes you know your branch is right and don't need to look at
+  the incoming changes at all. The `-s ours` merge strategy tells Git:
+  "merge the branch for history, but keep OUR content."
+
+  The `feature` branch has changes you don't want. Merge it using
+  the `ours` strategy so that main's version of `app.txt` is preserved,
+  but the merge commit still records that `feature` was merged.
+
+  After the merge, `app.txt` should still contain: `stable release`
+starter: |
+  # Merge the feature branch using the "ours" strategy.
+  # Main's content should be preserved.
+
+environment:
+  setup:
+    - name: create-ours-scenario
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'initial' > app.txt && git add app.txt && git commit -m 'initial' && git checkout -b feature && echo 'experimental release' > app.txt && git add app.txt && git commit -m 'experimental' && git checkout main && echo 'stable release' > app.txt && git add app.txt && git commit -m 'stable'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && echo \"parents=$(git log -1 --format=%P | wc -w | tr -d ' ')\" > {dir}/result.txt && echo \"content=$(cat app.txt)\" >> {dir}/result.txt && echo \"branch=$(git branch --show-current)\" >> {dir}/result.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: repo/app.txt
+        content: "stable release"
+    - file_matches:
+        path: result.txt
+        pattern: "parents=2"
+hints:
+  - "The merge strategy flag is -s (lowercase s), not to be confused with -X"
+  - "git merge -s ours feature"
+solution: |
+  git merge -s ours feature
+explanation: |
+  The -s ours strategy performs the merge (creating a merge commit with two
+  parents) but completely ignores the other branch's content. The result is
+  identical to your current branch. This is useful when you want to record
+  that a branch was merged (for history) without accepting any of its changes.

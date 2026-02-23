@@ -1,0 +1,44 @@
+id: recursive
+title: "Recursion"
+type: write
+
+prompt: |
+  Write a recursive function `factorial(n)` that returns n factorial (n!).
+
+  - Base case: if `n <= 1`, return 1
+  - Recursive case: return `n * factorial(n - 1)`
+
+  Print the result of `factorial(5)`.
+
+starter: |
+  # Define factorial(n) recursively
+  # Remember: every recursive function needs a base case
+
+
+  # Print factorial(5)
+
+validation:
+  method: output
+  expected_output: "120"
+
+hints:
+  - "Start with the base case: `if n <= 1: return 1`. This stops the recursion."
+  - "The recursive case is `return n * factorial(n - 1)`. Each call reduces n by 1, getting closer to the base case."
+  - "In the main code: `print(factorial(5))` computes 5 * 4 * 3 * 2 * 1 = 120."
+
+solution: |
+  def factorial(n):
+      if n <= 1:
+          return 1
+      return n * factorial(n - 1)
+
+  print(factorial(5))
+
+explanation: |
+  `factorial(5)` calls `factorial(4)`, which calls `factorial(3)`, and so on
+  until `factorial(1)` hits the base case and returns 1. Then the results
+  unwind: 2*1=2, 3*2=6, 4*6=24, 5*24=120. The base case `if n <= 1: return 1`
+  is essential — without it, the function would call itself forever until Python
+  raises a `RecursionError`. Every recursive function needs a base case that
+  stops the recursion, and each recursive call must move closer to that base
+  case.

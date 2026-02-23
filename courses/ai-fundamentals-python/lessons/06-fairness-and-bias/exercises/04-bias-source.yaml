@@ -1,0 +1,75 @@
+id: bias-source
+title: "Fix the Bias Source"
+type: fix
+
+prompt: |
+  This code trains a simple classifier on biased historical data. Group A has
+  many more positive examples in the training data, causing the model to favor
+  group A in its predictions.
+
+  Fix the training data by rebalancing: give both groups equal representation
+  of positive and negative examples. Then recompute the disparate impact ratio.
+
+  The "before" ratio is 0.43 (biased). After rebalancing, the ratio should
+  improve significantly.
+
+starter: |
+  # Biased training data: group A has mostly positive, group B mostly negative
+  train_a = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0]  # 70% positive
+  train_b = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0]  # 30% positive
+
+  # Simple "model": predict 1 if group's training positive rate > 0.5
+  rate_a = sum(train_a) / len(train_a)
+  rate_b = sum(train_b) / len(train_b)
+
+  # Compute disparate impact before fix
+  ratio_before = round(min(rate_a, rate_b) / max(rate_a, rate_b), 2)
+  print(f"before: {ratio_before}")
+
+  # TODO: Fix the training data by rebalancing
+  # Make both groups have equal positive/negative representation
+  # For example, use 5 positive and 5 negative for each group
+
+  # Recompute rates and disparate impact after fix
+  rate_a = sum(train_a) / len(train_a)
+  rate_b = sum(train_b) / len(train_b)
+  ratio_after = round(min(rate_a, rate_b) / max(rate_a, rate_b), 2)
+  print(f"after: {ratio_after}")
+
+validation:
+  method: output
+  expected_output: "before: 0.43\nafter: 1.0"
+
+hints:
+  - "Rebalance both training sets to have the same number of positive and negative examples. The simplest fix: `train_a = [1,1,1,1,1,0,0,0,0,0]` and `train_b = [1,1,1,1,1,0,0,0,0,0]`."
+  - "When both groups have 50% positive rate, the disparate impact ratio becomes 0.5/0.5 = 1.0 (perfect parity)."
+
+solution: |
+  train_a = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
+  train_b = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+
+  rate_a = sum(train_a) / len(train_a)
+  rate_b = sum(train_b) / len(train_b)
+
+  ratio_before = round(min(rate_a, rate_b) / max(rate_a, rate_b), 2)
+  print(f"before: {ratio_before}")
+
+  # Fix: rebalance both groups to equal positive/negative representation
+  train_a = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+  train_b = [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
+
+  rate_a = sum(train_a) / len(train_a)
+  rate_b = sum(train_b) / len(train_b)
+  ratio_after = round(min(rate_a, rate_b) / max(rate_a, rate_b), 2)
+  print(f"after: {ratio_after}")
+
+explanation: |
+  Before: group A rate 0.70, group B rate 0.30. Ratio = 0.43 (severe bias).
+
+  After rebalancing both groups to 50/50: rate A = 0.50, rate B = 0.50.
+  Ratio = 1.0 (perfect demographic parity).
+
+  In practice, rebalancing is more nuanced — you might oversample the minority
+  class, undersample the majority, or use synthetic data generation (SMOTE).
+  But the principle is the same: biased training data produces biased models,
+  and fixing the data is the most direct remedy.

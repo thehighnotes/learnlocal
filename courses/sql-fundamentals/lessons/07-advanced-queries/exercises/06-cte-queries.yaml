@@ -1,0 +1,103 @@
+id: cte-queries
+title: "Common Table Expressions"
+type: predict
+
+prompt: |
+  What does this query output?
+
+  ```sql
+  WITH dept_totals AS (
+      SELECT department, SUM(salary) AS total_salary, COUNT(*) AS headcount
+      FROM employees
+      GROUP BY department
+  )
+  SELECT department, total_salary, headcount
+  FROM dept_totals
+  WHERE headcount = 3
+  ORDER BY total_salary DESC;
+  ```
+
+  The employees table has 9 rows across 3 departments (Engineering, Marketing,
+  Sales), each with exactly 3 employees.
+
+  Engineering salaries: 92000, 85000, 95000
+  Marketing salaries: 78000, 72000, 82000
+  Sales salaries: 68000, 71000, 74000
+
+  Think through the CTE result first, then apply the WHERE and ORDER BY.
+
+starter: |
+  WITH dept_totals AS (
+      SELECT department, SUM(salary) AS total_salary, COUNT(*) AS headcount
+      FROM employees
+      GROUP BY department
+  )
+  SELECT department, total_salary, headcount
+  FROM dept_totals
+  WHERE headcount = 3
+  ORDER BY total_salary DESC;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+            id INTEGER, name TEXT, department TEXT,
+            salary INTEGER, hire_date TEXT, email TEXT
+        );
+        INSERT INTO employees VALUES (1, 'Alice Chen', 'Engineering', 92000, '2020-03-15', 'alice@company.com');
+        INSERT INTO employees VALUES (2, 'Bob Martinez', 'Engineering', 85000, '2021-07-01', NULL);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Marketing', 78000, '2019-11-20', 'carol@company.com');
+        INSERT INTO employees VALUES (4, 'Dan Wilson', 'Marketing', 72000, '2022-01-10', 'dan@company.com');
+        INSERT INTO employees VALUES (5, 'Eve Johnson', 'Sales', 68000, '2023-06-01', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Lee', 'Engineering', 95000, '2018-09-12', 'frank@company.com');
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Sales', 71000, '2021-04-05', 'grace@company.com');
+        INSERT INTO employees VALUES (8, 'Hank Brown', 'Marketing', 82000, '2020-08-30', NULL);
+        INSERT INTO employees VALUES (9, 'Iris Patel', 'Sales', 74000, '2022-12-15', 'iris@company.com');
+
+validation:
+  method: output
+  expected_output: |
+    Engineering|272000|3
+    Marketing|232000|3
+    Sales|213000|3
+
+hints:
+  - "The CTE groups by department and computes SUM(salary) and COUNT(*) for each. All three departments have exactly 3 employees, so the WHERE headcount = 3 keeps all three rows"
+  - "Engineering total: 92000+85000+95000 = 272000. Marketing: 78000+72000+82000 = 232000. Sales: 68000+71000+74000 = 213000"
+  - "ORDER BY total_salary DESC puts Engineering first (272000), then Marketing (232000), then Sales (213000). The output has no column headers — just three rows of pipe-separated values"
+
+solution: |
+  WITH dept_totals AS (
+      SELECT department, SUM(salary) AS total_salary, COUNT(*) AS headcount
+      FROM employees
+      GROUP BY department
+  )
+  SELECT department, total_salary, headcount
+  FROM dept_totals
+  WHERE headcount = 3
+  ORDER BY total_salary DESC;
+
+explanation: |
+  The CTE (WITH ... AS) creates a temporary result called dept_totals with one
+  row per department:
+
+    Engineering | 272000 | 3
+    Marketing   | 232000 | 3
+    Sales       | 213000 | 3
+
+  The main query then selects from this CTE, filtering to departments with
+  exactly 3 employees (all of them, in this case) and ordering by total salary
+  descending.
+
+  The CTE does not create a permanent table — it exists only for the duration
+  of this query. It is equivalent to using a subquery in the FROM clause:
+
+    SELECT department, total_salary, headcount
+    FROM (SELECT department, SUM(salary) AS total_salary, COUNT(*) AS headcount
+          FROM employees GROUP BY department)
+    WHERE headcount = 3
+    ORDER BY total_salary DESC;
+
+  CTEs are more readable, especially when you need to reference the same
+  derived table multiple times or chain several transformations together.

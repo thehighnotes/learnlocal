@@ -1,0 +1,90 @@
+id: window-functions
+title: "Window Functions"
+type: write
+
+prompt: |
+  Write a query that selects each employee's name, department, salary, and two
+  window function columns:
+
+  1. `dept_rank` — the employee's rank within their department by salary
+     (highest salary = rank 1). Use ROW_NUMBER() with PARTITION BY department.
+  2. `dept_total` — the total salary in their department, computed as a window
+     function (not GROUP BY). Use SUM() with PARTITION BY department.
+
+  Order the final results by department, then by dept_rank.
+
+  Table schema: employees (id INTEGER, name TEXT, department TEXT, salary INTEGER,
+  hire_date TEXT, email TEXT)
+
+starter: |
+  -- Select name, department, salary, dept_rank, and dept_total
+  -- dept_rank: ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)
+  -- dept_total: SUM(salary) OVER (PARTITION BY ...)
+  -- Order by department, dept_rank
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+            id INTEGER, name TEXT, department TEXT,
+            salary INTEGER, hire_date TEXT, email TEXT
+        );
+        INSERT INTO employees VALUES (1, 'Alice Chen', 'Engineering', 92000, '2020-03-15', 'alice@company.com');
+        INSERT INTO employees VALUES (2, 'Bob Martinez', 'Engineering', 85000, '2021-07-01', NULL);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Marketing', 78000, '2019-11-20', 'carol@company.com');
+        INSERT INTO employees VALUES (4, 'Dan Wilson', 'Marketing', 72000, '2022-01-10', 'dan@company.com');
+        INSERT INTO employees VALUES (5, 'Eve Johnson', 'Sales', 68000, '2023-06-01', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Lee', 'Engineering', 95000, '2018-09-12', 'frank@company.com');
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Sales', 71000, '2021-04-05', 'grace@company.com');
+        INSERT INTO employees VALUES (8, 'Hank Brown', 'Marketing', 82000, '2020-08-30', NULL);
+        INSERT INTO employees VALUES (9, 'Iris Patel', 'Sales', 74000, '2022-12-15', 'iris@company.com');
+
+validation:
+  method: output
+  expected_output: |
+    Frank Lee|Engineering|95000|1|272000
+    Alice Chen|Engineering|92000|2|272000
+    Bob Martinez|Engineering|85000|3|272000
+    Hank Brown|Marketing|82000|1|232000
+    Carol Davis|Marketing|78000|2|232000
+    Dan Wilson|Marketing|72000|3|232000
+    Iris Patel|Sales|74000|1|213000
+    Grace Kim|Sales|71000|2|213000
+    Eve Johnson|Sales|68000|3|213000
+
+hints:
+  - "ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) assigns rank 1 to the highest salary in each department"
+  - "SUM(salary) OVER (PARTITION BY department) computes the department total without collapsing rows"
+  - |
+    The full query is:
+    SELECT name, department, salary,
+           ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank,
+           SUM(salary) OVER (PARTITION BY department) AS dept_total
+    FROM employees
+    ORDER BY department, dept_rank;
+
+solution: |
+  SELECT name, department, salary,
+         ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank,
+         SUM(salary) OVER (PARTITION BY department) AS dept_total
+  FROM employees
+  ORDER BY department, dept_rank;
+
+explanation: |
+  This query demonstrates two types of window functions on the same data:
+
+  ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) splits the
+  employees into groups by department, sorts each group by salary descending,
+  and assigns sequential numbers 1, 2, 3 within each group. Frank Lee gets
+  rank 1 in Engineering (highest salary 95000), Hank Brown gets rank 1 in
+  Marketing (82000), and Iris Patel gets rank 1 in Sales (74000).
+
+  SUM(salary) OVER (PARTITION BY department) computes the total salary per
+  department and attaches it to every row in that department. Engineering
+  totals 95000+92000+85000 = 272000, Marketing totals 82000+78000+72000 =
+  232000, and Sales totals 74000+71000+68000 = 213000.
+
+  Unlike GROUP BY, window functions keep every individual row visible. You can
+  see each employee alongside their department statistics — no information is
+  lost.

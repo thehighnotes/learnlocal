@@ -1,0 +1,50 @@
+id: compile-multiple
+title: "Compile Multiple Files"
+type: command
+prompt: |
+  Two files are provided: main.cpp calls functions defined in math_utils.cpp.
+  Compile both files together into an executable named 'calculator', then run it.
+environment:
+  files:
+    - path: math_utils.h
+      content: |
+        #ifndef MATH_UTILS_H
+        #define MATH_UTILS_H
+        int add(int a, int b);
+        int multiply(int a, int b);
+        #endif
+    - path: math_utils.cpp
+      content: |
+        #include "math_utils.h"
+        int add(int a, int b) {
+            return a + b;
+        }
+        int multiply(int a, int b) {
+            return a * b;
+        }
+    - path: main.cpp
+      content: |
+        #include <iostream>
+        #include "math_utils.h"
+        int main() {
+            std::cout << add(3, 4) << std::endl;
+            std::cout << multiply(5, 6) << std::endl;
+            return 0;
+        }
+starter: |
+  # Compile main.cpp and math_utils.cpp together, then run
+validation:
+  method: output
+  expected_output: |
+    7
+    30
+hints:
+  - "List all .cpp files: g++ -o calculator main.cpp math_utils.cpp"
+  - "Then run: ./calculator"
+solution: |
+  g++ -o calculator main.cpp math_utils.cpp
+  ./calculator
+explanation: |
+  Real C++ projects split code across multiple files. You compile all
+  source files together and the linker combines them into one executable.
+  Header files (.h) declare functions so files can reference each other.

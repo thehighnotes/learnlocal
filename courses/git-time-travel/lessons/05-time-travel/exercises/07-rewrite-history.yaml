@@ -1,0 +1,69 @@
+id: rewrite-history
+title: "Squash Messy Commits"
+type: command
+golf: true
+prompt: |
+  Your commit history is embarrassing. The last three commits are:
+
+    - "fix typo"
+    - "forgot to save"
+    - "actually fix the bug this time"
+
+  They should really be a single commit. Squash all three into one commit
+  with the message "fix login validation bug".
+
+  The repo should end up with 3 commits total (2 original + 1 squashed)
+  instead of the current 5, and all the file changes should still be present.
+starter: |
+  #!/bin/bash
+  # Squash the last 3 commits into one
+  # Hint: git reset --soft keeps changes staged
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'app v1' > app.py && git add app.py && git commit -m 'initial app' && echo 'module loaded' > module.py && git add module.py && git commit -m 'add module' && echo 'fixing typo' >> app.py && git add app.py && git commit -m 'fix typo' && echo 'oops forgot' >> module.py && git add module.py && git commit -m 'forgot to save' && echo 'real fix' >> app.py && git add app.py && git commit -m 'actually fix the bug this time'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline > {dir}/__log.txt"]
+      timeout_seconds: 5
+    - name: capture-count
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline | wc -l | tr -d ' ' > {dir}/__count.txt"]
+      timeout_seconds: 5
+    - name: capture-files
+      command: sh
+      args: ["-c", "cd {dir}/repo && cat app.py > {dir}/__app.txt && cat module.py > {dir}/__module.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __count.txt
+        content: "3"
+    - file_contains:
+        path: __log.txt
+        content: "fix login validation bug"
+    - file_contains:
+        path: __app.txt
+        content: "real fix"
+    - file_contains:
+        path: __module.txt
+        content: "oops forgot"
+hints:
+  - "`git reset --soft HEAD~3` undoes the last 3 commits but keeps all changes staged."
+  - "After the soft reset, just commit again: `git commit -m \"fix login validation bug\"`"
+  - "Two commands total: `git reset --soft HEAD~3` then `git commit -m \"fix login validation bug\"`"
+solution: |
+  #!/bin/bash
+  git reset --soft HEAD~3
+  git commit -m "fix login validation bug"
+explanation: |
+  `git reset --soft HEAD~3` moves HEAD back three commits but leaves all the
+  changes from those commits in the staging area. Then a single `git commit`
+  packages them all into one clean commit. This is the simplest way to squash
+  commits — no interactive rebase needed. The three original commits become
+  unreachable (but remain in the reflog for 90 days if you need them back).

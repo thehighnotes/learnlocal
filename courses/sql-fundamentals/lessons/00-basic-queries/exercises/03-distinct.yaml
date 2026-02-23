@@ -1,0 +1,53 @@
+id: distinct
+title: "Remove Duplicates"
+type: write
+
+prompt: |
+  The `products` table has several items across different categories.
+
+  Write a query that returns only the unique category values. The result
+  should have no duplicate categories.
+
+  Table schema: products (id INTEGER, name TEXT, price REAL, category TEXT)
+
+starter: |
+  -- Get the unique categories from the products table
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE products (id INTEGER, name TEXT, price REAL, category TEXT);
+        INSERT INTO products VALUES (1, 'Laptop', 999.99, 'Electronics');
+        INSERT INTO products VALUES (2, 'Headphones', 49.99, 'Electronics');
+        INSERT INTO products VALUES (3, 'T-Shirt', 19.99, 'Clothing');
+        INSERT INTO products VALUES (4, 'Novel', 12.99, 'Books');
+        INSERT INTO products VALUES (5, 'Jeans', 39.99, 'Clothing');
+        INSERT INTO products VALUES (6, 'Tablet', 299.99, 'Electronics');
+        INSERT INTO products VALUES (7, 'Cookbook', 24.99, 'Books');
+
+validation:
+  method: output
+  expected_output: |
+    Electronics
+    Clothing
+    Books
+
+hints:
+  - "You only want category values, so select just that one column"
+  - "The DISTINCT keyword removes duplicate rows: SELECT DISTINCT ..."
+  - "The full query is: SELECT DISTINCT category FROM products;"
+
+solution: |
+  SELECT DISTINCT category FROM products;
+
+explanation: |
+  `SELECT DISTINCT category FROM products;` scans all seven rows but returns
+  only three — one for each unique category value.
+
+  Without DISTINCT, you would get seven rows: Electronics three times, Clothing
+  twice, and Books twice. DISTINCT collapses those duplicates.
+
+  The order of the results reflects the order SQLite first encounters each
+  unique value (insertion order in this case). If you needed a specific order,
+  you would add ORDER BY, which is covered in a later exercise.

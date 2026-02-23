@@ -1,0 +1,30 @@
+id: fairness-and-bias
+title: "Fairness and Bias"
+description: "Detect algorithmic bias using demographic parity, disparate impact, equalized odds, and confusion matrices"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - group-accuracy
+  - demographic-parity
+  - disparate-impact
+  - bias-source
+  - confusion-matrix
+  - equalized-odds
+  - fairness-report
+teaches:
+  - per-group-accuracy
+  - demographic-parity
+  - disparate-impact-ratio
+  - bias-detection
+  - confusion-matrix
+  - equalized-odds
+  - fairness-metrics
+recap: |
+  You learned:
+  - Accuracy can differ dramatically between demographic groups
+  - Demographic parity checks if positive prediction rates are equal across groups
+  - The 4/5ths rule: disparate impact ratio below 0.80 signals potential discrimination
+  - Biased training data produces biased models — rebalancing data improves fairness
+  - Confusion matrices (TP, FP, TN, FN) reveal where errors concentrate
+  - Equalized odds requires equal TPR and FPR across groups
+  - A fairness report combines multiple metrics for a complete picture

@@ -1,0 +1,31 @@
+id: go-fmt
+title: "Format and Run"
+type: command
+prompt: |
+  A messy.go file has bad formatting but valid code. Use gofmt to fix the
+  formatting, save the result as clean.go, then run it.
+environment:
+  files:
+    - path: messy.go
+      content: |
+        package main
+        import "fmt"
+        func main(){
+        x:=42
+        fmt.Println(x)
+        }
+starter: |
+  # Format messy.go, save as clean.go, then run it
+validation:
+  method: output
+  expected_output: "42"
+hints:
+  - "gofmt messy.go > clean.go redirects formatted output to a file"
+  - "go run clean.go runs the formatted file"
+solution: |
+  gofmt messy.go > clean.go
+  go run clean.go
+explanation: |
+  gofmt is Go's official code formatter. Unlike other languages where
+  formatting is debated, Go has one style. Running gofmt is standard
+  practice — most editors do it automatically on save.

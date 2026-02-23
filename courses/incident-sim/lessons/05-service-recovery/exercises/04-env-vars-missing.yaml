@@ -1,0 +1,74 @@
+id: env-vars-missing
+title: "Missing Environment Variables"
+type: command
+golf: true
+prompt: |
+  ALERT: Application failing on startup. Severity: HIGH.
+
+  The new application server reads its configuration from environment
+  variables, loaded from a `.env` file. But someone deployed to a fresh
+  server and forgot to create the `.env` file.
+
+  The error log shows which variables are missing. The startup script in
+  `app/start.sh` shows what the app expects. Create an `app/.env` file
+  with the required variables.
+
+  The database runs on `db.internal:5432`, the database name is `appdb`,
+  and the secret key should be `supersecret42`.
+starter: |
+  # Create app/.env with the required environment variables
+  # Check error.log and app/start.sh to see what's needed
+environment:
+  dirs:
+    - app
+  files:
+    - path: app/start.sh
+      content: |
+        #!/bin/bash
+        # Load environment from .env
+        if [ -f .env ]; then
+            export $(grep -v '^#' .env | xargs)
+        fi
+
+        # Validate required env vars
+        : "${DATABASE_URL:?ERROR: DATABASE_URL not set}"
+        : "${SECRET_KEY:?ERROR: SECRET_KEY not set}"
+
+        echo "Starting application..."
+        echo "DB: $DATABASE_URL"
+        echo "Ready."
+      permissions: "755"
+    - path: error.log
+      content: |
+        2024-03-15 05:00:00 [app] Starting order-service v3.4.1
+        2024-03-15 05:00:00 [app] Loading environment from .env
+        2024-03-15 05:00:00 [app] WARNING: .env file not found
+        2024-03-15 05:00:00 [app] ERROR: DATABASE_URL not set
+        2024-03-15 05:00:00 [app] Environment validation failed
+        2024-03-15 05:00:00 [app] Required variables: DATABASE_URL, SECRET_KEY
+        2024-03-15 05:00:01 [systemd] order-service.service: Main process exited, code=exited, status=1/FAILURE
+validation:
+  method: state
+  assertions:
+    - file_exists: app/.env
+    - file_contains:
+        path: app/.env
+        content: "DATABASE_URL="
+    - file_contains:
+        path: app/.env
+        content: "SECRET_KEY="
+hints:
+  - "Check `error.log` — it says `DATABASE_URL not set` and lists the required variables."
+  - "Create `app/.env` with lines like `DATABASE_URL=postgres://db.internal:5432/appdb`."
+solution: |
+  cat > app/.env << 'EOF'
+  DATABASE_URL=postgres://db.internal:5432/appdb
+  SECRET_KEY=supersecret42
+  EOF
+explanation: |
+  The `.env` file pattern is extremely common in modern applications. The
+  app's startup script loads it with `export $(grep -v '^#' .env | xargs)`,
+  which reads each `KEY=VALUE` line and exports it as an environment variable.
+  On fresh deploys, the `.env` file is often missing because it's (correctly)
+  excluded from version control via `.gitignore`. Deployment checklists
+  should always include "verify .env file exists."

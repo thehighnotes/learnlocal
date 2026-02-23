@@ -1,0 +1,75 @@
+id: cross-join
+title: "CROSS JOIN — All Combinations"
+type: predict
+
+prompt: |
+  The database has two small tables: `colors` (3 rows) and `sizes` (3 rows).
+
+  The query below performs a CROSS JOIN between them. A CROSS JOIN produces
+  every possible combination of rows from both tables — the Cartesian product.
+
+  Predict the exact output. Remember:
+  - Every color is paired with every size.
+  - The result is ordered by color name, then size name.
+  - SQLite uses pipe (|) to separate columns.
+
+  How many rows will the result have? (3 colors x 3 sizes = ?)
+
+starter: |
+  SELECT colors.name, sizes.name
+  FROM colors
+  CROSS JOIN sizes
+  ORDER BY colors.name, sizes.name;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE colors (id INTEGER, name TEXT);
+        INSERT INTO colors VALUES (1, 'Blue');
+        INSERT INTO colors VALUES (2, 'Green');
+        INSERT INTO colors VALUES (3, 'Red');
+
+        CREATE TABLE sizes (id INTEGER, name TEXT);
+        INSERT INTO sizes VALUES (1, 'Large');
+        INSERT INTO sizes VALUES (2, 'Medium');
+        INSERT INTO sizes VALUES (3, 'Small');
+
+validation:
+  method: output
+  expected_output: |
+    Blue|Large
+    Blue|Medium
+    Blue|Small
+    Green|Large
+    Green|Medium
+    Green|Small
+    Red|Large
+    Red|Medium
+    Red|Small
+
+hints:
+  - "CROSS JOIN has no ON condition — it pairs every row from the left table with every row from the right table"
+  - "3 colors x 3 sizes = 9 rows. Each color appears with all three sizes"
+  - "Ordered alphabetically: Blue comes first (with Large, Medium, Small), then Green, then Red"
+
+solution: |
+  SELECT colors.name, sizes.name
+  FROM colors
+  CROSS JOIN sizes
+  ORDER BY colors.name, sizes.name;
+
+explanation: |
+  A CROSS JOIN produces the Cartesian product — every combination of rows from
+  both tables. With 3 colors and 3 sizes, the result has 3 x 3 = 9 rows.
+
+  There is no ON clause because CROSS JOIN does not filter — it intentionally
+  produces all combinations. This is useful when you need to generate a matrix
+  of all possibilities (color-size pairs, date-product combinations, etc.).
+
+  The ORDER BY sorts alphabetically: Blue before Green before Red, and within
+  each color, Large before Medium before Small.
+
+  Be cautious with CROSS JOIN on large tables. Two 1000-row tables would
+  produce 1,000,000 rows. A missing ON clause in a regular JOIN is effectively
+  an accidental cross join — a common source of unexpectedly huge result sets.

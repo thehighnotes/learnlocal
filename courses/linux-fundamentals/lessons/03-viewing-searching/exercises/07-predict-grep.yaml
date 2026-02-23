@@ -1,0 +1,28 @@
+id: predict-grep
+title: "Predict grep Output"
+type: predict
+prompt: |
+  Given this file (log.txt):
+    INFO: server started
+    ERROR: disk full
+    INFO: request received
+    WARNING: slow query
+    ERROR: timeout
+
+  What does `grep -c "ERROR" log.txt` output?
+  Write a script that prints the answer.
+starter: |
+  #!/bin/bash
+  # What does grep -c "ERROR" output for this file?
+validation:
+  method: output
+  expected_output: "2"
+hints:
+  - "grep -c counts matching lines (not occurrences within lines)"
+  - "How many lines contain 'ERROR'?"
+solution: |
+  #!/bin/bash
+  echo "2"
+explanation: |
+  grep -c counts the number of lines that match. There are two lines
+  containing "ERROR": "ERROR: disk full" and "ERROR: timeout".

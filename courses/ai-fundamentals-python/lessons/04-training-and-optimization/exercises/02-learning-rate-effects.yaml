@@ -1,0 +1,47 @@
+id: learning-rate-effects
+title: "Learning Rate Effects"
+type: predict
+
+prompt: |
+  What does this code print? It takes one gradient descent step on
+  `f(x) = (x-3)²` starting from x=0 with three different learning rates.
+
+  ```python
+  for lr in [0.1, 0.5, 1.0]:
+      gradient = 2 * (0.0 - 3)
+      x_new = round(0.0 - lr * gradient, 1)
+      print(f"lr={lr}: {x_new}")
+  ```
+
+  Think about what happens as the learning rate increases. The minimum is at
+  x=3. Which learning rate steps too far?
+
+starter: |
+  for lr in [0.1, 0.5, 1.0]:
+      gradient = 2 * (0.0 - 3)
+      x_new = round(0.0 - lr * gradient, 1)
+      print(f"lr={lr}: {x_new}")
+
+validation:
+  method: output
+  expected_output: "lr=0.1: 0.6\nlr=0.5: 3.0\nlr=1.0: 6.0"
+
+hints:
+  - "The gradient is always -6.0 (computed at x=0). For each lr, compute: 0.0 - lr * (-6.0) = 0.0 + 6*lr."
+  - "lr=0.1: x=0.6 (small step), lr=0.5: x=3.0 (perfect!), lr=1.0: x=6.0 (overshot the minimum at 3)."
+
+solution: |
+  for lr in [0.1, 0.5, 1.0]:
+      gradient = 2 * (0.0 - 3)
+      x_new = round(0.0 - lr * gradient, 1)
+      print(f"lr={lr}: {x_new}")
+
+explanation: |
+  lr=0.1: x moves to 0.6 — a small cautious step toward the minimum at 3.
+  lr=0.5: x lands exactly at 3.0 — perfect for this problem but lucky.
+  lr=1.0: x jumps to 6.0 — past the minimum to the other side!
+
+  With lr=1.0, the next step would overshoot back, and the parameter would
+  oscillate around the minimum forever. In higher dimensions, too-large
+  learning rates cause the loss to explode. This is why learning rate
+  selection is so critical.

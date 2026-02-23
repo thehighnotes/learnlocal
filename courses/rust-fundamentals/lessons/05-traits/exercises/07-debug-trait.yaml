@@ -1,0 +1,92 @@
+id: debug-trait
+title: "Derive and Implement Debug"
+type: predict
+
+prompt: |
+  Read the code below carefully. It defines two structs:
+
+  - `Point` uses `#[derive(Debug)]` for automatic debug formatting
+  - `Secret` has a manual `Debug` implementation that hides the value
+
+  What will this program print? Type the exact output (two lines).
+
+  Remember: `{:?}` uses the Debug trait. The derived Debug for a struct
+  prints `StructName { field: value, ... }`. The manual impl for Secret
+  prints `Secret { value: [REDACTED] }` regardless of the actual value.
+
+starter: |
+  use std::fmt;
+
+  #[derive(Debug)]
+  struct Point {
+      x: i32,
+      y: i32,
+  }
+
+  struct Secret {
+      value: String,
+  }
+
+  impl fmt::Debug for Secret {
+      fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+          write!(f, "Secret {{ value: [REDACTED] }}")
+      }
+  }
+
+  fn main() {
+      let p = Point { x: 3, y: 7 };
+      let s = Secret { value: String::from("hunter2") };
+      println!("{:?}", p);
+      println!("{:?}", s);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Point { x: 3, y: 7 }
+    Secret { value: [REDACTED] }
+
+hints:
+  - "#[derive(Debug)] prints the struct name followed by the field names and values in curly braces."
+  - "The manual Debug impl for Secret always prints the same thing, ignoring the actual value of self.value."
+  - "Line 1: Point { x: 3, y: 7 } — Line 2: Secret { value: [REDACTED] }"
+
+solution: |
+  use std::fmt;
+
+  #[derive(Debug)]
+  struct Point {
+      x: i32,
+      y: i32,
+  }
+
+  struct Secret {
+      value: String,
+  }
+
+  impl fmt::Debug for Secret {
+      fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+          write!(f, "Secret {{ value: [REDACTED] }}")
+      }
+  }
+
+  fn main() {
+      let p = Point { x: 3, y: 7 };
+      let s = Secret { value: String::from("hunter2") };
+      println!("{:?}", p);
+      println!("{:?}", s);
+  }
+
+explanation: |
+  `#[derive(Debug)]` is a derive macro that auto-generates a Debug
+  implementation. For `Point { x: 3, y: 7 }`, the derived version prints
+  exactly that: the struct name, then each field with its value.
+
+  `Secret` has a manual `Debug` impl that ignores `self.value` entirely and
+  always prints `Secret { value: [REDACTED] }`. This pattern is useful for
+  types containing passwords, tokens, or other sensitive data — you get
+  the structure of debug output without leaking secrets into logs.
+
+  Note the `{{ }}` in the `write!` format string: since `{` and `}` are
+  special characters in format strings, you double them to produce literal
+  braces in the output.

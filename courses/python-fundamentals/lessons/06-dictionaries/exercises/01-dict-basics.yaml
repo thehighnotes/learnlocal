@@ -1,0 +1,47 @@
+id: dict-basics
+title: "Create and Access a Dictionary"
+type: write
+
+prompt: |
+  Create a dictionary called `person` with three key-value pairs:
+  - "name" mapped to "Alice"
+  - "age" mapped to 30
+  - "city" mapped to "Paris"
+
+  Then print each value on its own line: the name, the age, and the city.
+
+starter: |
+  # Create a dictionary with keys: "name", "age", "city"
+  # Values: "Alice", 30, "Paris"
+  # Print each value on its own line
+
+validation:
+  method: output
+  expected_output: |
+    Alice
+    30
+    Paris
+
+hints:
+  - "Dictionaries use curly braces with key: value pairs: {\"name\": \"Alice\", \"age\": 30}"
+  - "Access values with square brackets: person[\"name\"] returns \"Alice\""
+  - "Print each value separately: print(person[\"name\"]), print(person[\"age\"]), print(person[\"city\"])"
+
+solution: |
+  person = {"name": "Alice", "age": 30, "city": "Paris"}
+  print(person["name"])
+  print(person["age"])
+  print(person["city"])
+
+explanation: |
+  This exercise creates a dictionary with three key-value pairs and accesses
+  each one using bracket notation.
+
+  - `person = {"name": "Alice", "age": 30, "city": "Paris"}` creates the
+    dictionary with string keys and mixed-type values (two strings, one int).
+  - `person["name"]` retrieves the value associated with the key "name".
+  - Each `print()` call outputs one value on its own line.
+
+  The keys are strings, but the values do not all have to be the same type.
+  Here "name" and "city" map to strings while "age" maps to an integer.
+  Dictionaries are flexible about value types.

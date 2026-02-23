@@ -1,0 +1,60 @@
+id: find-max
+title: "Find the Maximum Value"
+type: write
+
+prompt: |
+  Create an array with the values {14, 3, 27, 8, 19} and find the maximum
+  value using a loop. Print the maximum.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Declare an int array with values 14, 3, 27, 8, 19
+
+      // Initialize max with the first element
+
+      // Loop through the rest, updating max when you find something larger
+
+      // Print the maximum
+      std::cout << /* your code here */ << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "27"
+
+hints:
+  - "Start with `int max = data[0];` -- assume the first element is the largest."
+  - "Loop from index 1 (not 0) and compare: `if (data[i] > max) { max = data[i]; }`"
+  - "After the loop, `max` holds the largest value. Don't forget to start the loop at i = 1 since you already used index 0."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int data[] = {14, 3, 27, 8, 19};
+      int max = data[0];
+
+      for (int i = 1; i < 5; i++) {
+          if (data[i] > max) {
+              max = data[i];
+          }
+      }
+
+      std::cout << max << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  The find-max algorithm initializes `max` with the first element, then
+  scans the remaining elements. Whenever an element is larger than the
+  current `max`, we update `max`. After checking all elements, `max`
+  holds the largest value.
+
+  We start the loop at index 1 because index 0 is already our initial
+  `max`. Starting at 0 would also work -- it would just compare `data[0]`
+  against itself on the first iteration, which is harmless but unnecessary.

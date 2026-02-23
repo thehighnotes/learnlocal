@@ -1,0 +1,36 @@
+id: redirect-stderr
+title: "Separate stdout and stderr"
+type: command
+prompt: |
+  A script called helper.sh already exists. It prints "output" to
+  stdout and "error" to stderr. Run it and redirect stdout to out.txt
+  and stderr to err.txt. Then print:
+    stdout: output
+    stderr: error
+starter: |
+  # helper.sh exists — separate its stdout and stderr
+environment:
+  files:
+    - path: helper.sh
+      content: |
+        #!/bin/bash
+        echo "output"
+        echo "error" >&2
+      permissions: "755"
+validation:
+  method: output
+  expected_output: |
+    stdout: output
+    stderr: error
+hints:
+  - "> out.txt captures stdout, 2> err.txt captures stderr"
+  - "./helper.sh > out.txt 2> err.txt"
+  - 'echo "stdout: $(cat out.txt)"'
+solution: |
+  ./helper.sh > out.txt 2> err.txt
+  echo "stdout: $(cat out.txt)"
+  echo "stderr: $(cat err.txt)"
+explanation: |
+  > redirects file descriptor 1 (stdout), 2> redirects file descriptor 2
+  (stderr). This separates normal output from error messages, useful
+  for logging and debugging.

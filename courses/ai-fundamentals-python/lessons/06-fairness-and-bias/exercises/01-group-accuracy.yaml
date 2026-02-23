@@ -1,0 +1,55 @@
+id: group-accuracy
+title: "Per-Group Accuracy"
+type: write
+
+prompt: |
+  Given predictions and true labels for two demographic groups, compute
+  the accuracy for each group separately.
+
+  Group A has 20 predictions and 18 are correct → 0.90.
+  Group B has 20 predictions and 13 are correct → 0.65.
+
+  Print each group's accuracy on its own line.
+
+starter: |
+  group_a_pred = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  group_a_true = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+
+  group_b_pred = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  group_b_true = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0]
+
+  # Compute accuracy for each group
+  # accuracy = number of correct predictions / total predictions
+
+validation:
+  method: output
+  expected_output: "group_a: 0.9\ngroup_b: 0.65"
+
+hints:
+  - "Count how many predictions match the true labels: `sum(1 for p, t in zip(preds, trues) if p == t)`. Then divide by the total number of items."
+  - "For group A: `correct = sum(1 for i in range(len(group_a_pred)) if group_a_pred[i] == group_a_true[i])`, then `round(correct / len(group_a_pred), 2)`"
+
+solution: |
+  group_a_pred = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  group_a_true = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+
+  group_b_pred = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  group_b_true = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0]
+
+  correct_a = sum(1 for i in range(len(group_a_pred)) if group_a_pred[i] == group_a_true[i])
+  acc_a = round(correct_a / len(group_a_pred), 2)
+
+  correct_b = sum(1 for i in range(len(group_b_pred)) if group_b_pred[i] == group_b_true[i])
+  acc_b = round(correct_b / len(group_b_pred), 2)
+
+  print(f"group_a: {acc_a}")
+  print(f"group_b: {acc_b}")
+
+explanation: |
+  Group A has 18 out of 20 correct predictions → 0.90 accuracy.
+  Group B has 13 out of 20 correct predictions → 0.65 accuracy.
+
+  A 25-point accuracy gap between groups is a major red flag. The model works
+  well for group A but poorly for group B. If this were a loan approval system,
+  group B would be incorrectly denied far more often. The next exercises
+  measure this disparity formally.

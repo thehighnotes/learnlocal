@@ -1,0 +1,26 @@
+id: filtering
+title: "Filtering Data"
+description: "Use WHERE clauses to select specific rows with comparison, logical, range, set, pattern, and NULL operators."
+estimated_minutes: 25
+content: content.md
+teaches:
+  - where-clause
+  - comparison-operators
+  - logical-operators
+  - between
+  - in-operator
+  - like-pattern
+  - null-handling
+exercises:
+  - where-basic
+  - comparison-ops
+  - and-or
+  - between
+  - in-operator
+  - like-pattern
+  - null-handling
+recap: |
+  You learned to filter rows with WHERE, compare values using =, !=, <, >, <=, >=,
+  combine conditions with AND, OR, and NOT, select ranges with BETWEEN, check set
+  membership with IN, match text patterns with LIKE (% and _), and handle missing
+  data with IS NULL and IS NOT NULL.

@@ -1,0 +1,70 @@
+id: references
+title: "Borrowing with References"
+type: write
+
+prompt: |
+  Write a function `string_length` that takes a reference to a String (`&String`)
+  and returns its length as a `usize`.
+
+  In main:
+  1. Create a String `greeting` with the value "Hello, Rust!"
+  2. Call `string_length` with a reference to `greeting`
+  3. Print the greeting and its length
+
+  Expected output:
+
+  ```
+  'Hello, Rust!' has length 12
+  ```
+
+  The key point: `greeting` must still be usable after calling the function,
+  because the function only borrows it.
+
+starter: |
+  // Define the string_length function here.
+  // It should take a &String parameter and return usize.
+
+  fn main() {
+      let greeting = String::from("Hello, Rust!");
+
+      // Call string_length with a reference to greeting
+
+      // Print: 'Hello, Rust!' has length 12
+  }
+
+validation:
+  method: output
+  expected_output: "'Hello, Rust!' has length 12"
+
+hints:
+  - "The function signature is: fn string_length(s: &String) -> usize — the & means it borrows the String without taking ownership."
+  - "Inside the function, call s.len() to get the length. Return it directly (no semicolon at the end of the expression)."
+  - "In main, call it as: let len = string_length(&greeting); — the & creates a reference. Then print with: println!(\"'{}' has length {}\", greeting, len);"
+
+solution: |
+  fn string_length(s: &String) -> usize {
+      s.len()
+  }
+
+  fn main() {
+      let greeting = String::from("Hello, Rust!");
+      let len = string_length(&greeting);
+      println!("'{}' has length {}", greeting, len);
+  }
+
+explanation: |
+  The `&` in the parameter type `&String` means the function borrows the String
+  rather than taking ownership of it. When main calls `string_length(&greeting)`,
+  it passes a reference — a pointer to the data that does not transfer ownership.
+
+  Because `string_length` only borrows `greeting`, the String is still owned by
+  main after the call returns. This is why the `println!` on the next line can
+  still use `greeting` without any error.
+
+  If the function took `s: String` (without the `&`), ownership would move into
+  the function. The String would be dropped when the function returns, and
+  `greeting` would be invalid in main.
+
+  References are one of Rust's core tools for sharing data without copying or
+  transferring ownership. They are the idiomatic way to "read" data that
+  someone else owns.

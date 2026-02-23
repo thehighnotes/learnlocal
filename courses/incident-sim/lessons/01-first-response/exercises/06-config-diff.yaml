@@ -1,0 +1,70 @@
+id: config-diff
+title: "Config Diff"
+type: command
+golf: true
+prompt: |
+  INCIDENT: App started returning 502 errors right after a config deploy.
+
+  Two config files exist: config/current.conf (the live config) and
+  config/last-working.conf (the last known good version). Something
+  changed that broke things.
+
+  Find the difference and write the CHANGED LINE from current.conf
+  to answer.txt (just the line itself, not the diff markers).
+starter: |
+  # Compare the two config files and find what changed
+  # Write the changed line from current.conf to answer.txt
+environment:
+  dirs:
+    - config
+  files:
+    - path: config/last-working.conf
+      content: |
+        # Application Configuration
+        server.host=0.0.0.0
+        server.port=8080
+        server.workers=4
+        database.host=db-primary.internal
+        database.port=5432
+        database.pool_size=20
+        database.timeout=30
+        cache.backend=redis
+        cache.host=redis.internal
+        cache.port=6379
+        log.level=info
+        log.format=json
+    - path: config/current.conf
+      content: |
+        # Application Configuration
+        server.host=0.0.0.0
+        server.port=8080
+        server.workers=4
+        database.host=db-primary.internal
+        database.port=5432
+        database.pool_size=20
+        database.timeout=3
+        cache.backend=redis
+        cache.host=redis.internal
+        cache.port=6379
+        log.level=info
+        log.format=json
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_contains:
+        path: answer.txt
+        content: "database.timeout=3"
+hints:
+  - "`diff config/last-working.conf config/current.conf` shows the differences."
+  - "Look for a line that changed — a number got shorter."
+  - "The database timeout was changed from 30 to 3 — that is a 10x reduction."
+solution: |
+  diff config/last-working.conf config/current.conf | grep "^>" | sed 's/^> //' > answer.txt
+explanation: |
+  The database timeout was changed from 30 seconds to 3 seconds. This
+  means any database query taking more than 3 seconds now fails — and
+  under load, many queries take longer than that. This is a classic
+  "one character" config change that takes down production. The fix is
+  to revert the timeout to 30. Always diff configs when an incident
+  starts right after a deployment.

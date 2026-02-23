@@ -1,0 +1,108 @@
+id: midnight-pager
+title: "The Midnight Pager"
+type: command
+prompt: |
+  3 AM. Your pager goes off.
+
+  Three services are firing alerts simultaneously: the API gateway, the
+  user service, and the order service. All three error logs are screaming.
+  But this is a cascade — they all connect to the same database, and the
+  database config has the wrong hostname.
+
+  The correct database hostname is `db-primary.internal`. Find which
+  config files have the wrong hostname and fix ALL of them.
+
+  Check `services/*/config.yaml` for each service's database setting.
+  The error logs are in `services/*/error.log`.
+starter: |
+  # 3 AM. Multiple alerts. Find the root cause.
+  # All three services connect to the same database
+  # Fix the database hostname in ALL configs
+environment:
+  dirs:
+    - services/api-gateway
+    - services/user-service
+    - services/order-service
+  files:
+    - path: services/api-gateway/config.yaml
+      content: |
+        service: api-gateway
+        port: 8080
+        database:
+          host: db-standby.internal
+          port: 5432
+          name: gateway_db
+        log_level: info
+    - path: services/api-gateway/error.log
+      content: |
+        2024-03-15 03:00:01 [api-gateway] Connecting to db-standby.internal:5432
+        2024-03-15 03:00:04 [api-gateway] ERROR: Connection refused: db-standby.internal:5432
+        2024-03-15 03:00:04 [api-gateway] FATAL: database unreachable — all requests failing
+        2024-03-15 03:00:05 [api-gateway] ERROR: GET /api/health — 503 Service Unavailable
+        2024-03-15 03:00:06 [api-gateway] ERROR: POST /api/auth — 503 Service Unavailable
+    - path: services/user-service/config.yaml
+      content: |
+        service: user-service
+        port: 8081
+        database:
+          host: db-standby.internal
+          port: 5432
+          name: users_db
+        log_level: info
+    - path: services/user-service/error.log
+      content: |
+        2024-03-15 03:00:02 [user-service] Connecting to db-standby.internal:5432
+        2024-03-15 03:00:05 [user-service] ERROR: Connection refused: db-standby.internal:5432
+        2024-03-15 03:00:05 [user-service] FATAL: cannot reach database
+        2024-03-15 03:00:06 [user-service] ERROR: GET /users/me — 503
+        2024-03-15 03:00:07 [user-service] ERROR: POST /users/login — 503
+    - path: services/order-service/config.yaml
+      content: |
+        service: order-service
+        port: 8082
+        database:
+          host: db-standby.internal
+          port: 5432
+          name: orders_db
+        log_level: info
+    - path: services/order-service/error.log
+      content: |
+        2024-03-15 03:00:03 [order-service] Connecting to db-standby.internal:5432
+        2024-03-15 03:00:06 [order-service] ERROR: Connection refused: db-standby.internal:5432
+        2024-03-15 03:00:06 [order-service] FATAL: database connection failed
+        2024-03-15 03:00:07 [order-service] ERROR: POST /orders — 503
+        2024-03-15 03:00:08 [order-service] ERROR: GET /orders/recent — 503
+    - path: alert.txt
+      content: |
+        === PAGERDUTY ALERT ===
+        Time: 2024-03-15 03:00:10 UTC
+        Severity: CRITICAL
+        Services affected: api-gateway, user-service, order-service
+        Summary: Multiple 503 errors across all customer-facing services
+        Runbook: Check database connectivity first — all services share db-primary.internal
+        On-call: YOU
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: services/api-gateway/config.yaml
+        content: "host: db-primary.internal"
+    - file_contains:
+        path: services/user-service/config.yaml
+        content: "host: db-primary.internal"
+    - file_contains:
+        path: services/order-service/config.yaml
+        content: "host: db-primary.internal"
+hints:
+  - "Read the alert and error logs — all three services are failing to connect to `db-standby.internal`. The runbook says the correct host is `db-primary.internal`."
+  - "All three configs have `host: db-standby.internal`. Change each one to `host: db-primary.internal`."
+  - "`sed -i 's/db-standby.internal/db-primary.internal/' services/*/config.yaml`"
+solution: |
+  sed -i 's/db-standby.internal/db-primary.internal/' services/*/config.yaml
+explanation: |
+  All three services were pointing at `db-standby.internal` — the standby
+  database that was decommissioned during a maintenance window. The root
+  cause was a single config change (the database hostname) that cascaded
+  across every service. When you see multiple services failing simultaneously,
+  look for the common dependency. In this case, the PagerDuty alert even
+  included a runbook hint. Read your alerts — they often contain the answer.

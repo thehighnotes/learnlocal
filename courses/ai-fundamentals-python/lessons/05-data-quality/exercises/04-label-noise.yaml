@@ -1,0 +1,82 @@
+id: label-noise
+title: "Label Noise"
+type: write
+
+prompt: |
+  Simulate label noise and show how it degrades accuracy.
+
+  Start with 100 labels: 90 positive (1) and 10 negative (0). A "majority
+  class" classifier simply predicts the most common label for every item.
+
+  For each noise level (0%, 10%, 25%), randomly flip that percentage of labels
+  using `random.seed(42)` before each flip, then compute the majority
+  classifier's accuracy.
+
+  Print results in the format shown below.
+
+starter: |
+  import random
+
+  labels = [1] * 90 + [0] * 10
+
+  def accuracy_with_noise(labels, noise_pct):
+      random.seed(42)
+      noisy = labels[:]
+      # Flip noise_pct% of labels randomly
+      n_flip = int(len(noisy) * noise_pct / 100)
+      if n_flip > 0:
+          indices = random.sample(range(len(noisy)), n_flip)
+          for i in indices:
+              noisy[i] = 1 - noisy[i]
+      # Majority classifier: predict the most common label
+      ones = sum(noisy)
+      zeros = len(noisy) - ones
+      majority = 1 if ones >= zeros else 0
+      correct = sum(1 for x in noisy if x == majority)
+      return round(correct / len(noisy), 2)
+
+  # Test with 0%, 10%, and 25% noise
+  print(f"0% noise: {accuracy_with_noise(labels, 0)}")
+  print(f"10% noise: {accuracy_with_noise(labels, 10)}")
+  print(f"25% noise: {accuracy_with_noise(labels, 25)}")
+
+validation:
+  method: output
+  expected_output: "0% noise: 0.9\n10% noise: 0.82\n25% noise: 0.69"
+
+hints:
+  - "The starter code is almost complete. You just need to fill in the body of accuracy_with_noise. The key steps: flip random labels, find the majority class, count correct predictions."
+  - "This exercise has most of the code provided — read through it carefully and make sure the logic matches: flip labels, compute majority, measure accuracy."
+
+solution: |
+  import random
+
+  labels = [1] * 90 + [0] * 10
+
+  def accuracy_with_noise(labels, noise_pct):
+      random.seed(42)
+      noisy = labels[:]
+      n_flip = int(len(noisy) * noise_pct / 100)
+      if n_flip > 0:
+          indices = random.sample(range(len(noisy)), n_flip)
+          for i in indices:
+              noisy[i] = 1 - noisy[i]
+      ones = sum(noisy)
+      zeros = len(noisy) - ones
+      majority = 1 if ones >= zeros else 0
+      correct = sum(1 for x in noisy if x == majority)
+      return round(correct / len(noisy), 2)
+
+  print(f"0% noise: {accuracy_with_noise(labels, 0)}")
+  print(f"10% noise: {accuracy_with_noise(labels, 10)}")
+  print(f"25% noise: {accuracy_with_noise(labels, 25)}")
+
+explanation: |
+  With 0% noise: 90 positive, 10 negative → majority predicts 1 → 90% accuracy.
+  With 10% noise: 10 labels flipped → distribution shifts → accuracy drops to 82%.
+  With 25% noise: 25 labels flipped → even more confusion → accuracy drops to 69%.
+
+  Each mislabeled example hurts twice: it is counted as wrong (even though the
+  model predicts correctly for the original label) AND it pulls the model toward
+  the wrong answer. In real datasets, label noise of 5-15% is common. Cleaning
+  labels is often the single most impactful thing you can do.

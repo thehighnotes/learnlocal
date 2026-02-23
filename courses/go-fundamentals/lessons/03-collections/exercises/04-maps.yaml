@@ -1,0 +1,92 @@
+id: maps
+title: "Country Capitals"
+type: write
+
+prompt: |
+  Create a map from country names (strings) to their capitals (strings).
+  Add three entries: France→Paris, Japan→Tokyo, Brazil→Brasilia.
+
+  Then:
+  1. Look up "France" and print it as: France: Paris
+  2. Check if "Japan" exists, print: Found: true
+  3. Check if "Mars" exists, print: Missing: false
+
+  Expected output:
+  ```
+  France: Paris
+  Found: true
+  Missing: false
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      // Create a map[string]string with three countries and capitals
+      // Look up "France" and print: France: <capital>
+      // Use comma-ok to check "Japan", print: Found: <ok>
+      // Use comma-ok to check "Mars", print: Missing: <ok>
+  }
+
+validation:
+  method: output
+  expected_output: |
+    France: Paris
+    Found: true
+    Missing: false
+
+hints:
+  - "Create with a literal: capitals := map[string]string{\"France\": \"Paris\", ...}"
+  - "Use the comma-ok idiom: _, ok := capitals[\"Japan\"] to check existence."
+  - |
+    capitals := map[string]string{
+        "France": "Paris",
+        "Japan":  "Tokyo",
+        "Brazil": "Brasilia",
+    }
+    fmt.Println("France:", capitals["France"])
+    _, ok := capitals["Japan"]
+    fmt.Println("Found:", ok)
+    _, ok = capitals["Mars"]
+    fmt.Println("Missing:", ok)
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      capitals := map[string]string{
+          "France": "Paris",
+          "Japan":  "Tokyo",
+          "Brazil": "Brasilia",
+      }
+
+      fmt.Println("France:", capitals["France"])
+
+      _, ok := capitals["Japan"]
+      fmt.Println("Found:", ok)
+
+      _, ok = capitals["Mars"]
+      fmt.Println("Missing:", ok)
+  }
+
+explanation: |
+  This exercise introduces maps:
+
+  1. `map[string]string{...}` creates a map literal with string keys and
+     string values. Note the trailing comma after the last entry -- Go
+     requires this when the closing brace is on a separate line.
+  2. `capitals["France"]` looks up the value for key "France".
+  3. The comma-ok idiom `_, ok := capitals["Japan"]` returns two values:
+     the value (discarded with `_`) and a boolean indicating whether the
+     key was found.
+  4. For "Mars", ok is false because the key does not exist.
+  5. Notice `_, ok =` (no colon) for the second lookup because `ok` was
+     already declared by the first `:=`.
+
+  The comma-ok pattern avoids ambiguity: looking up a missing key returns
+  the zero value ("" for strings, 0 for ints), which could be a legitimate
+  value. The ok boolean tells you definitively whether the key existed.

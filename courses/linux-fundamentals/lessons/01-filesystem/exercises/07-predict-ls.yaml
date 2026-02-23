@@ -1,0 +1,32 @@
+id: predict-ls
+title: "Predict ls Output"
+type: predict
+prompt: |
+  Given this script:
+  ```bash
+  mkdir -p /tmp/pred
+  touch /tmp/pred/cherry.txt /tmp/pred/apple.txt /tmp/pred/banana.txt
+  ls -1 /tmp/pred
+  ```
+  What will `ls -1` print? (ls sorts alphabetically by default)
+  Write a script that prints the exact same output.
+starter: |
+  #!/bin/bash
+  # Print what ls -1 would output for: cherry.txt, apple.txt, banana.txt
+validation:
+  method: output
+  expected_output: |
+    apple.txt
+    banana.txt
+    cherry.txt
+hints:
+  - "ls -1 lists one file per line, sorted alphabetically"
+  - "a < b < c, so apple comes first"
+solution: |
+  #!/bin/bash
+  echo "apple.txt"
+  echo "banana.txt"
+  echo "cherry.txt"
+explanation: |
+  ls sorts entries alphabetically by default. The -1 flag ensures one
+  entry per line. So apple.txt, banana.txt, cherry.txt.

@@ -1,0 +1,69 @@
+id: fizzbuzz
+title: "FizzBuzz"
+type: write
+
+prompt: |
+  Print the numbers 1 to 15, one per line. But for multiples of 3, print
+  "Fizz" instead of the number. For multiples of 5, print "Buzz" instead.
+  For numbers that are multiples of both 3 and 5, print "FizzBuzz".
+
+starter: |
+  # Loop from 1 to 15
+  # For each number:
+  #   - divisible by both 3 and 5? Print "FizzBuzz"
+  #   - divisible by 3? Print "Fizz"
+  #   - divisible by 5? Print "Buzz"
+  #   - otherwise? Print the number
+
+validation:
+  method: output
+  expected_output: |
+    1
+    2
+    Fizz
+    4
+    Buzz
+    Fizz
+    7
+    8
+    Fizz
+    Buzz
+    11
+    Fizz
+    13
+    14
+    FizzBuzz
+
+hints:
+  - "Use the modulo operator (%) to check divisibility. `i % 3 == 0` means i is divisible by 3."
+  - "Check the 'both' case first: if i % 3 == 0 and i % 5 == 0. If you check for 3 or 5 first, you'll never reach the FizzBuzz case."
+  - "for i in range(1, 16): then an if/elif/elif/else chain checking both, then 3, then 5, then default."
+
+solution: |
+  for i in range(1, 16):
+      if i % 3 == 0 and i % 5 == 0:
+          print("FizzBuzz")
+      elif i % 3 == 0:
+          print("Fizz")
+      elif i % 5 == 0:
+          print("Buzz")
+      else:
+          print(i)
+
+explanation: |
+  FizzBuzz combines a for loop with an if/elif/else chain:
+
+  1. `for i in range(1, 16)` iterates through 1 to 15. The stop value is 16
+     because range() excludes it.
+  2. Check the most specific condition first: `i % 3 == 0 and i % 5 == 0`.
+     This catches multiples of 15 (only 15 in this range).
+  3. Then check `i % 3 == 0` for Fizz and `i % 5 == 0` for Buzz.
+  4. The `else` handles all remaining numbers.
+
+  The critical lesson is **condition ordering**. If you checked `i % 3 == 0`
+  before the combined check, the number 15 would print "Fizz" instead of
+  "FizzBuzz" because the first matching branch executes and the rest are
+  skipped.
+
+  An alternative for the combined check uses `i % 15 == 0`, since 15 is
+  the least common multiple of 3 and 5.

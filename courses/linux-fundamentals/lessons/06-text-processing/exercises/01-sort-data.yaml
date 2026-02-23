@@ -1,0 +1,32 @@
+id: sort-data
+title: "Sort Lines"
+type: command
+prompt: |
+  A file called data.txt already exists with these lines: cherry,
+  apple, banana, date (one per line). Use sort to print them in
+  alphabetical order.
+starter: |
+  # data.txt exists — sort its lines
+environment:
+  files:
+    - path: data.txt
+      content: |
+        cherry
+        apple
+        banana
+        date
+validation:
+  method: output
+  expected_output: |
+    apple
+    banana
+    cherry
+    date
+hints:
+  - "sort file.txt prints sorted lines"
+  - "Just run: sort data.txt"
+solution: |
+  sort data.txt
+explanation: |
+  sort reads lines and outputs them in alphabetical order by default.
+  It's one of the most commonly used text tools in Unix.

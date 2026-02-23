@@ -1,0 +1,63 @@
+id: xor-fails
+title: "XOR Cannot Be Solved"
+type: fix
+
+prompt: |
+  This code tries to implement XOR with a single perceptron. But no matter what
+  weights and bias you choose, a single perceptron cannot compute XOR.
+
+  XOR truth table:
+  - (0,0) → 0
+  - (0,1) → 1
+  - (1,0) → 1
+  - (1,1) → 0
+
+  Try changing the weights and bias. You will find it is impossible — you cannot
+  get all four outputs correct with one neuron.
+
+  Fix the code to acknowledge this: instead of trying to compute XOR, print
+  the word "impossible".
+
+starter: |
+  def step(x):
+      return 1 if x >= 0 else 0
+
+  def perceptron(inputs, weights, bias):
+      z = sum(inputs[i] * weights[i] for i in range(len(inputs))) + bias
+      return step(z)
+
+  # Try to find weights and bias for XOR
+  # (hint: you can't — a single perceptron can't do this)
+  weights = [1, 1]
+  bias = -0.5
+
+  test_inputs = [[0, 0], [0, 1], [1, 0], [1, 1]]
+  for inp in test_inputs:
+      print(perceptron(inp, weights, bias))
+
+validation:
+  method: output
+  expected_output: "impossible"
+
+hints:
+  - "Try different weights and biases. You will find that getting (0,0)→0 and (1,1)→0 while also getting (0,1)→1 and (1,0)→1 is impossible with a single linear boundary."
+  - "The exercise wants you to recognize the limitation. Remove the perceptron loop and just print \"impossible\"."
+
+solution: |
+  # A single perceptron cannot compute XOR.
+  # XOR is not linearly separable — no single straight line
+  # can separate the 0 outputs from the 1 outputs.
+  # You need at least two layers (covered in the next lesson).
+  print("impossible")
+
+explanation: |
+  XOR is the classic example of a problem that is NOT linearly separable. If
+  you plot the four input combinations on a 2D grid, the 0s are at (0,0) and
+  (1,1) while the 1s are at (0,1) and (1,0) — they are diagonally opposite.
+  No single straight line can separate them.
+
+  This limitation was famously demonstrated by Minsky and Papert in 1969 and
+  nearly killed neural network research for a decade. The solution, discovered
+  in the 1980s, is to use multiple layers: each layer draws its own line, and
+  together they can carve out complex regions. You will solve XOR with a
+  two-layer network in the next lesson.

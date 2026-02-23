@@ -1,0 +1,66 @@
+id: nested-struct
+title: "Nested Structs"
+type: write
+
+prompt: |
+  Define a struct `Address` with two members: `std::string city` and
+  `std::string country`. Define a struct `Person` with two members:
+  `std::string name` and `Address address`.
+
+  In `main`, create a `Person` with name `"Alice"`, city `"Tokyo"`, and
+  country `"Japan"`. Print: "Alice lives in Tokyo, Japan"
+
+starter: |
+  #include <iostream>
+  #include <string>
+
+  // Define your Address struct here
+
+  // Define your Person struct here (it uses Address as a member)
+
+  int main() {
+      // Create a Person with name "Alice", city "Tokyo", country "Japan"
+
+      // Print: Alice lives in Tokyo, Japan
+      std::cout << /* your code here */ << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Alice lives in Tokyo, Japan"
+
+hints:
+  - "Define Address first, then Person. The compiler needs to know what Address is before it can be used as a member of Person."
+  - "Use nested brace initialization: Person p{\"Alice\", {\"Tokyo\", \"Japan\"}}; -- the inner braces initialize the Address member."
+  - "Access nested members by chaining the dot operator: p.address.city and p.address.country."
+
+solution: |
+  #include <iostream>
+  #include <string>
+
+  struct Address {
+      std::string city;
+      std::string country;
+  };
+
+  struct Person {
+      std::string name;
+      Address address;
+  };
+
+  int main() {
+      Person p{"Alice", {"Tokyo", "Japan"}};
+      std::cout << p.name << " lives in " << p.address.city << ", " << p.address.country << std::endl;
+      return 0;
+  }
+
+explanation: |
+  Structs can contain other structs as members. `Address` is defined first so
+  the compiler knows its layout when it encounters `Person`. The nested brace
+  initialization `{"Alice", {"Tokyo", "Japan"}}` fills the outer struct and
+  its inner `Address` member in one expression. To access nested members, you
+  chain the dot operator: `p.address` gives the `Address` sub-object, and
+  `p.address.city` drills into its `city` member. This pattern scales to any
+  depth of nesting.

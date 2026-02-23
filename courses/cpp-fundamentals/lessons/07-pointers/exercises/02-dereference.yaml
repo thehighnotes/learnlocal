@@ -1,0 +1,47 @@
+id: dereference
+title: "Fix the Dereference"
+type: fix
+
+prompt: |
+  This code creates a pointer to a variable and tries to print the value
+  through the pointer, but it forgot to dereference. Fix the print
+  statement so it prints the value, not the address.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      int value = 100;
+      int* ptr = &value;
+
+      // BUG: This prints the address, not the value!
+      std::cout << ptr << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "100"
+
+hints:
+  - "Printing a pointer directly gives you the memory address, not the stored value."
+  - "Use the dereference operator * before the pointer name to access the value it points to."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int value = 100;
+      int* ptr = &value;
+
+      std::cout << *ptr << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  The bug was `std::cout << ptr` -- printing the pointer itself outputs the
+  raw memory address (something like `0x7ffd...`). Adding the dereference
+  operator (`*ptr`) tells C++ to follow the pointer and retrieve the value
+  stored at that address, which is `100`.

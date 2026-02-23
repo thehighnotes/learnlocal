@@ -1,0 +1,18 @@
+id: check-python
+title: "Check Your Python"
+type: command
+prompt: |
+  Print your Python version.
+starter: |
+  # Print your Python version
+validation:
+  method: regex
+  pattern: "Python 3\\.\\d+"
+hints:
+  - "Run: python3 --version"
+solution: |
+  python3 --version
+explanation: |
+  Python 3 is the current version of Python. The --version flag confirms
+  it's installed and shows which version you have. Python 3.6+ is
+  recommended for modern Python.

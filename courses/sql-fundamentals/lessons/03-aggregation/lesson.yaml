@@ -1,0 +1,33 @@
+id: aggregation
+title: "Aggregation & Grouping"
+description: "Summarize data with COUNT, SUM, AVG, MIN, MAX — then slice it with GROUP BY and HAVING"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - count-rows
+  - sum-values
+  - avg-values
+  - min-max
+  - group-by
+  - group-by-multiple
+  - having
+teaches:
+  - count-function
+  - count-star-vs-column
+  - sum-function
+  - avg-function
+  - min-max-functions
+  - group-by-clause
+  - group-by-multiple-columns
+  - having-clause
+  - having-vs-where
+recap: |
+  You learned:
+  - COUNT(*) counts all rows; COUNT(column) counts non-NULL values in that column
+  - SUM adds up numeric values; returns INTEGER for integer columns, REAL for real columns
+  - AVG computes the arithmetic mean and always returns REAL
+  - MIN and MAX find the smallest and largest values in a column
+  - GROUP BY splits rows into groups and applies aggregates per group
+  - GROUP BY with multiple columns creates a group for each unique combination
+  - HAVING filters groups after aggregation (vs WHERE which filters rows before)
+  - Combine GROUP BY with ORDER BY to sort aggregated results

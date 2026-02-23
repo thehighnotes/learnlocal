@@ -1,0 +1,48 @@
+id: for-range
+title: "Even Numbers"
+type: write
+
+prompt: |
+  Print the even numbers from 2 to 10 (inclusive), each on its own line.
+  Use a `for` loop with `range()`.
+
+starter: |
+  # Use for and range() to print even numbers from 2 to 10
+  # Each number on its own line
+
+validation:
+  method: output
+  expected_output: |
+    2
+    4
+    6
+    8
+    10
+
+hints:
+  - "range() can take a start, stop, and step: range(start, stop, step). Remember stop is exclusive."
+  - "To include 10, your stop value must be 11: range(2, 11, 2)."
+  - "for i in range(2, 11, 2): print(i)"
+
+solution: |
+  for i in range(2, 11, 2):
+      print(i)
+
+explanation: |
+  `range(2, 11, 2)` generates the sequence 2, 4, 6, 8, 10:
+
+  - `2` is the start value.
+  - `11` is the stop value (exclusive -- range never includes it).
+  - `2` is the step (increment by 2 each time).
+
+  To include 10 in the output, the stop must be at least 11. This is a
+  common source of off-by-one errors -- always remember that `range()` stops
+  *before* the stop value.
+
+  An alternative approach without using step:
+  ```python
+  for i in range(2, 11):
+      if i % 2 == 0:
+          print(i)
+  ```
+  But using the step parameter is cleaner and more Pythonic.

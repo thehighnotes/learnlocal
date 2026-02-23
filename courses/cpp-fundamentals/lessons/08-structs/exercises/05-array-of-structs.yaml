@@ -1,0 +1,74 @@
+id: array-of-structs
+title: "Array of Structs"
+type: write
+
+prompt: |
+  Define a struct `Score` with two members: `std::string name` and `int points`.
+  In `main`, create an array of 3 scores:
+  - {"Alice", 95}
+  - {"Bob", 87}
+  - {"Charlie", 92}
+
+  Loop through the array and find the one with the highest points.
+  Print the winner in the format: "name points" (e.g., "Alice 95").
+
+starter: |
+  #include <iostream>
+  #include <string>
+
+  // Define your Score struct here
+
+  int main() {
+      // Create an array of 3 Score values
+
+      // Find the one with the highest points
+
+      // Print: name points
+      std::cout << /* your code here */ << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Alice 95"
+
+hints:
+  - "Initialize the array: Score scores[3] = {{\"Alice\", 95}, {\"Bob\", 87}, {\"Charlie\", 92}};"
+  - "Track the best index: start with int best = 0; then loop from 1 to 2 and update best whenever scores[i].points > scores[best].points."
+  - "After the loop, print: std::cout << scores[best].name << \" \" << scores[best].points << std::endl;"
+
+solution: |
+  #include <iostream>
+  #include <string>
+
+  struct Score {
+      std::string name;
+      int points;
+  };
+
+  int main() {
+      Score scores[3] = {
+          {"Alice", 95},
+          {"Bob", 87},
+          {"Charlie", 92}
+      };
+
+      int best = 0;
+      for (int i = 1; i < 3; i++) {
+          if (scores[i].points > scores[best].points) {
+              best = i;
+          }
+      }
+
+      std::cout << scores[best].name << " " << scores[best].points << std::endl;
+      return 0;
+  }
+
+explanation: |
+  An array of structs stores multiple structured records. We initialize all three
+  entries with brace-enclosed values. To find the highest score, we track the
+  index of the current best and compare each element's `points` member. This is
+  the same find-max pattern used with plain arrays, but now each element has
+  named fields instead of just a single value. After the loop, `scores[best]`
+  gives us the winning entry, and we access `.name` and `.points` to print it.

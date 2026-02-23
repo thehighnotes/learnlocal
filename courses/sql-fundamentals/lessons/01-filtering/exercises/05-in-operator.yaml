@@ -1,0 +1,69 @@
+id: in-operator
+title: "The IN Operator"
+type: write
+
+prompt: |
+  Write a query that finds employees in the 'Engineering' or 'Marketing'
+  departments using the IN operator (not OR).
+
+  Select name and department, ordered by name.
+
+starter: |
+  -- Use IN to check department membership
+  -- Select name and department, order by name
+  SELECT name, department
+  FROM employees;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          department TEXT NOT NULL,
+          salary REAL NOT NULL,
+          hire_date TEXT NOT NULL,
+          manager_id INTEGER
+        );
+        INSERT INTO employees VALUES (1, 'Alice Johnson', 'Engineering', 85000.0, '2020-03-15', NULL);
+        INSERT INTO employees VALUES (2, 'Bob Smith', 'Engineering', 72000.0, '2021-06-01', 1);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Sales', 55000.0, '2019-11-20', 1);
+        INSERT INTO employees VALUES (4, 'David Lee', 'Marketing', 62000.0, '2022-01-10', 1);
+        INSERT INTO employees VALUES (5, 'Eva Martinez', 'Engineering', 95000.0, '2018-07-22', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Wilson', 'Sales', 48000.0, '2023-04-05', 3);
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Marketing', 67000.0, '2021-09-14', 4);
+        INSERT INTO employees VALUES (8, 'Henry Brown', 'Engineering', 78000.0, '2022-08-30', 5);
+        INSERT INTO employees VALUES (9, 'Ivy Chen', 'Sales', 51000.0, '2023-01-18', 3);
+        INSERT INTO employees VALUES (10, 'Jack Taylor', 'Marketing', 58000.0, '2024-02-01', NULL);
+
+validation:
+  method: output
+  expected_output: |
+    Alice Johnson|Engineering
+    Bob Smith|Engineering
+    David Lee|Marketing
+    Eva Martinez|Engineering
+    Grace Kim|Marketing
+    Henry Brown|Engineering
+    Jack Taylor|Marketing
+
+hints:
+  - "IN checks if a value matches any item in a list: column IN ('value1', 'value2')"
+  - "WHERE department IN ('Engineering', 'Marketing') filters to those two departments."
+  - "Don't forget ORDER BY name at the end."
+
+solution: |
+  SELECT name, department
+  FROM employees
+  WHERE department IN ('Engineering', 'Marketing')
+  ORDER BY name;
+
+explanation: |
+  `IN ('Engineering', 'Marketing')` is equivalent to writing
+  `department = 'Engineering' OR department = 'Marketing'`, but cleaner and
+  easier to extend. If you later need to add a third department, just add
+  another item to the list.
+
+  The result includes all four engineers and all three marketing employees,
+  sorted alphabetically by name. The three Sales employees are excluded.

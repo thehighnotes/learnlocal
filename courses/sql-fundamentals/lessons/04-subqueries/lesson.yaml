@@ -1,0 +1,31 @@
+id: subqueries
+title: "Subqueries"
+description: "Write queries inside queries — scalar subqueries, IN, EXISTS, correlated references, and derived tables"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - scalar-subquery
+  - in-subquery
+  - exists-subquery
+  - correlated-subquery
+  - from-subquery
+  - nested-subquery
+  - not-in-subquery
+teaches:
+  - scalar-subqueries
+  - in-with-subquery
+  - exists-subquery
+  - correlated-subqueries
+  - subqueries-in-from
+  - nested-subqueries
+  - not-in-vs-not-exists
+recap: |
+  You learned:
+  - A subquery is a SELECT inside another statement, wrapped in parentheses
+  - Scalar subqueries return a single value and can appear in WHERE or SELECT
+  - IN (subquery) checks whether a value belongs to a set of rows
+  - EXISTS (subquery) returns true if the subquery produces any rows at all
+  - Correlated subqueries reference the outer query and run once per outer row
+  - Subqueries in FROM create derived tables you can query like regular tables
+  - Nesting subqueries inside subqueries solves multi-step lookup problems
+  - NOT IN excludes rows matching a set; watch out for NULLs in the subquery

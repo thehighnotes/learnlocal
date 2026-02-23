@@ -1,0 +1,48 @@
+id: case-methods
+title: "Case Conversion"
+type: write
+
+prompt: |
+  Given `text = "hello, World!"`, print three transformed versions on
+  separate lines:
+  1. The text converted to all uppercase
+  2. The text converted to all lowercase
+  3. The text converted to title case (first letter of each word capitalized)
+
+starter: |
+  text = "hello, World!"
+  # Print the uppercase version
+  # Print the lowercase version
+  # Print the title case version
+
+validation:
+  method: output
+  expected_output: |
+    HELLO, WORLD!
+    hello, world!
+    Hello, World!
+
+hints:
+  - "Use the .upper() method to convert to uppercase: text.upper()"
+  - "Use .lower() for lowercase and .title() for title case"
+  - "Print each result: print(text.upper()), print(text.lower()), print(text.title())"
+
+solution: |
+  text = "hello, World!"
+  print(text.upper())
+  print(text.lower())
+  print(text.title())
+
+explanation: |
+  Each string method returns a new string with the transformation applied:
+
+  - `text.upper()` converts every character to uppercase: "HELLO, WORLD!"
+  - `text.lower()` converts every character to lowercase: "hello, world!"
+  - `text.title()` capitalizes the first letter of each word: "Hello, World!"
+
+  The original `text` variable is never changed — strings are immutable in
+  Python. Each method creates and returns a brand new string.
+
+  Note the difference between `title()` and `capitalize()`:
+  - `title()` capitalizes the first letter of *every* word
+  - `capitalize()` only capitalizes the first character of the *entire* string

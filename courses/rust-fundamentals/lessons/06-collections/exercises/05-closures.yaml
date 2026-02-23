@@ -1,0 +1,57 @@
+id: closures
+title: "Closures"
+type: fill-blank
+
+prompt: |
+  Fill in the blanks to create two closures: one that doubles a number, and
+  one that checks if a number is positive. Then use them to transform and
+  test values.
+
+  Expected output:
+  ```
+  doubled: 14
+  is 5 positive? true
+  is -3 positive? false
+  ```
+
+starter: |
+  fn main() {
+      let double = |x: i32| ___;
+      let is_positive = |x: i32| ___;
+
+      println!("doubled: {}", double(7));
+      println!("is 5 positive? {}", is_positive(5));
+      println!("is -3 positive? {}", is_positive(-3));
+  }
+
+validation:
+  method: output
+  expected_output: "doubled: 14\nis 5 positive? true\nis -3 positive? false"
+
+hints:
+  - "The first closure should multiply its argument by 2. Think: |x: i32| x * 2"
+  - "The second closure should return a bool: true if x is greater than 0. Think: |x: i32| x > 0"
+  - "Replace the first ___ with `x * 2` and the second ___ with `x > 0`."
+
+solution: |
+  fn main() {
+      let double = |x: i32| x * 2;
+      let is_positive = |x: i32| x > 0;
+
+      println!("doubled: {}", double(7));
+      println!("is 5 positive? {}", is_positive(5));
+      println!("is -3 positive? {}", is_positive(-3));
+  }
+
+explanation: |
+  Closures in Rust use `|params| body` syntax. For single-expression closures
+  you don't need curly braces or a return statement -- the expression's value
+  is returned automatically.
+
+  `|x: i32| x * 2` takes an i32 and returns an i32 (the doubled value).
+  `|x: i32| x > 0` takes an i32 and returns a bool (true if positive).
+
+  Type annotations on closure parameters are optional when the compiler can
+  infer them from usage, but they make the code clearer for learning. Unlike
+  regular functions, closures can also capture variables from the enclosing
+  scope -- though these two examples don't need to.

@@ -1,0 +1,30 @@
+id: error-handling
+title: "Error Handling"
+description: "Handle errors gracefully with Result, the ? operator, and custom error types"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - result-type
+  - question-mark
+  - unwrap-expect
+  - custom-errors
+  - from-trait
+  - error-propagation
+  - matching-errors
+teaches:
+  - result-type
+  - question-mark-operator
+  - unwrap-expect
+  - custom-error-types
+  - from-trait
+  - error-propagation
+  - matching-errors
+recap: |
+  You learned:
+  - Result<T, E> represents success (Ok) or failure (Err) — Rust has no exceptions
+  - The ? operator propagates errors up to the caller, reducing boilerplate
+  - unwrap() panics on Err; expect("msg") panics with a message — use sparingly
+  - Custom error enums let you represent domain-specific failure modes
+  - impl Display + impl Debug + impl Error make your error type a proper Rust error
+  - The From trait lets ? automatically convert between error types
+  - match on Result to handle Ok and Err variants with full control

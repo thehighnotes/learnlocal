@@ -1,0 +1,49 @@
+id: grep-for-errors
+title: "Grep for Errors"
+type: command
+golf: true
+prompt: |
+  INCIDENT: Users are reporting intermittent failures. The app log is a wall
+  of text — hundreds of lines of INFO, DEBUG, WARN, and ERROR. You need to
+  isolate just the errors.
+
+  Extract all lines containing `ERROR` from `app.log` and write them to
+  `errors.txt`. Nothing else — no INFO, no WARN, no DEBUG.
+starter: |
+  # Extract ERROR lines from app.log to errors.txt
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > app.log << 'LOGEOF'\n2024-03-15 14:30:01 [INFO] Application started on port 8080\n2024-03-15 14:30:01 [INFO] Connected to database at db-primary:5432\n2024-03-15 14:30:02 [DEBUG] Loading configuration from /etc/app/config.yaml\n2024-03-15 14:30:05 [INFO] Health check passed\n2024-03-15 14:30:12 [INFO] Request GET /api/users completed in 23ms\n2024-03-15 14:30:15 [WARN] Slow query detected: 850ms for user_lookup\n2024-03-15 14:30:18 [INFO] Request POST /api/orders completed in 45ms\n2024-03-15 14:30:22 [ERROR] Connection refused to cache-01:6379\n2024-03-15 14:30:22 [WARN] Falling back to database for session data\n2024-03-15 14:30:25 [INFO] Request GET /api/products completed in 112ms\n2024-03-15 14:30:30 [DEBUG] GC pause: 12ms\n2024-03-15 14:30:33 [INFO] Request GET /api/users/42 completed in 18ms\n2024-03-15 14:30:35 [ERROR] Timeout waiting for response from payment-service\n2024-03-15 14:30:35 [ERROR] Failed to process order ord-7891: payment timeout\n2024-03-15 14:30:36 [WARN] Circuit breaker OPEN for payment-service\n2024-03-15 14:30:40 [INFO] Request GET /api/health completed in 2ms\n2024-03-15 14:30:42 [DEBUG] Session cleanup: removed 15 expired sessions\n2024-03-15 14:30:45 [INFO] Request GET /api/orders/latest completed in 34ms\n2024-03-15 14:30:48 [ERROR] NullPointerException in OrderService.getTotal()\n2024-03-15 14:30:50 [INFO] Request GET /api/users completed in 21ms\n2024-03-15 14:30:55 [WARN] Memory usage at 78%\n2024-03-15 14:31:01 [INFO] Scheduled task: cleanup_temp_files started\n2024-03-15 14:31:05 [INFO] Request POST /api/users completed in 67ms\n2024-03-15 14:31:08 [ERROR] Disk write failed: /var/log/app/audit.log (No space left on device)\n2024-03-15 14:31:10 [WARN] Audit logging disabled due to disk error\n2024-03-15 14:31:12 [INFO] Request GET /api/products/search completed in 89ms\n2024-03-15 14:31:15 [DEBUG] Cache hit ratio: 67%\n2024-03-15 14:31:18 [INFO] Request DELETE /api/sessions/expired completed in 5ms\n2024-03-15 14:31:20 [INFO] Health check passed\n2024-03-15 14:31:22 [ERROR] Connection reset by peer: db-replica-02:5432\n2024-03-15 14:31:22 [WARN] Database replica db-replica-02 removed from pool\n2024-03-15 14:31:25 [INFO] Request GET /api/orders completed in 156ms\n2024-03-15 14:31:30 [DEBUG] Thread pool stats: active=12, idle=8, queued=0\nLOGEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: errors.txt
+    - file_contains:
+        path: errors.txt
+        content: "Connection refused to cache-01:6379"
+    - file_contains:
+        path: errors.txt
+        content: "payment timeout"
+    - file_contains:
+        path: errors.txt
+        content: "NullPointerException"
+    - file_contains:
+        path: errors.txt
+        content: "Disk write failed"
+    - file_contains:
+        path: errors.txt
+        content: "Connection reset by peer"
+hints:
+  - "grep 'ERROR' app.log will match lines containing ERROR."
+  - "Redirect the output: grep 'ERROR' app.log > errors.txt"
+solution: |
+  grep 'ERROR' app.log > errors.txt
+explanation: |
+  grep is the fastest way to filter log files. In this case, all error lines
+  contained the literal string [ERROR], so a simple grep was enough. There
+  were 6 errors: a cache connection failure, payment service timeout, a failed
+  order, a NullPointerException, a disk full error, and a database replica
+  disconnect. In a real incident, these errors together tell a story — the
+  system is degrading across multiple components.

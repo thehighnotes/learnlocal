@@ -1,0 +1,45 @@
+id: obj-keys-values
+title: "Keys and Values"
+type: write
+
+prompt: |
+  Given the inventory object, print:
+  1. The keys joined with ", "
+  2. The values joined with ", "
+
+  Expected output:
+  apple, banana, cherry
+  3, 5, 12
+
+starter: |
+  const inventory = { apple: 3, banana: 5, cherry: 12 };
+  // Print keys joined with ", "
+  // Print values joined with ", "
+
+validation:
+  method: output
+  expected_output: "apple, banana, cherry\n3, 5, 12"
+
+hints:
+  - "Object.keys(inventory) returns [\"apple\", \"banana\", \"cherry\"]"
+  - "Object.values(inventory) returns [3, 5, 12]"
+  - "Join each with .join(\", \") and print."
+
+solution: |
+  const inventory = { apple: 3, banana: 5, cherry: 12 };
+  console.log(Object.keys(inventory).join(", "));
+  console.log(Object.values(inventory).join(", "));
+
+explanation: |
+  Three static methods give you arrays from an object:
+
+  - `Object.keys(obj)` → array of property names (strings)
+  - `Object.values(obj)` → array of property values
+  - `Object.entries(obj)` → array of [key, value] pairs
+
+  These are essential for working with objects programmatically. Since
+  they return arrays, you can use all array methods (.map, .filter,
+  .join, etc.) on the results.
+
+  Note: `.join(", ")` on numbers automatically converts them to strings.
+  [3, 5, 12].join(", ") produces "3, 5, 12".

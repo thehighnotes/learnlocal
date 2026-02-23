@@ -1,0 +1,17 @@
+id: first-steps
+title: "First Steps"
+description: "Initialize repos, track files, and build your first commit history."
+estimated_minutes: 25
+content: content.md
+teaches: [git-init, git-add, git-commit, git-status, git-log, git-diff]
+exercises:
+  - init-repo
+  - first-commit
+  - multi-file-commit
+  - check-status
+  - view-history
+  - selective-staging
+  - amend-message
+recap: |
+  You can now create repos, stage files, commit changes, and inspect history.
+  These are the building blocks for everything that follows.

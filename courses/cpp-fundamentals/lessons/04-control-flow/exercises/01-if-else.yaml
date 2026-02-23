@@ -1,0 +1,58 @@
+id: if-else
+title: "Classify a Number"
+type: write
+
+prompt: |
+  Read an integer from standard input. Print "positive" if it is greater
+  than zero, "negative" if it is less than zero, or "zero" if it is exactly
+  zero. Print the result followed by a newline.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Read an integer from stdin
+      // Print "positive", "negative", or "zero"
+
+      return 0;
+  }
+
+input: "7\n"
+
+validation:
+  method: output
+  expected_output: "positive"
+
+hints:
+  - "Use std::cin >> variable to read an integer from stdin."
+  - "You need an if/else if/else chain to check three conditions: > 0, < 0, and == 0."
+  - "Declare an int variable first, read into it with std::cin, then use if/else if/else."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int n;
+      std::cin >> n;
+
+      if (n > 0) {
+          std::cout << "positive" << std::endl;
+      } else if (n < 0) {
+          std::cout << "negative" << std::endl;
+      } else {
+          std::cout << "zero" << std::endl;
+      }
+
+      return 0;
+  }
+
+explanation: |
+  This exercise uses an if/else if/else chain to classify a number:
+
+  1. `std::cin >> n` reads an integer from standard input.
+  2. `if (n > 0)` checks the positive case first.
+  3. `else if (n < 0)` checks the negative case.
+  4. `else` catches the only remaining possibility: zero.
+
+  The order matters -- because the conditions are mutually exclusive, exactly
+  one branch executes. The `else` at the end acts as a catch-all.

@@ -1,0 +1,54 @@
+id: cherry-pick
+title: "Cherry-Pick a Commit"
+type: command
+prompt: |
+  The `feature` branch has three commits. The second one — "add validation
+  logic" — contains a critical bugfix you need on `main` right now. But the
+  other two commits aren't ready for production.
+
+  You're on `main`. Cherry-pick ONLY the "add validation logic" commit.
+  After cherry-picking, `main` should have `validate.py` but should NOT
+  have `experiment.txt`.
+starter: |
+  #!/bin/bash
+  # Cherry-pick the "add validation logic" commit from feature onto main
+  # Don't bring over the other commits
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base' > base.txt && git add base.txt && git commit -m 'initial commit' && git checkout -b feature && echo 'wip stuff' > wip.txt && git add wip.txt && git commit -m 'work in progress' && echo 'def validate(): return True' > validate.py && git add validate.py && git commit -m 'add validation logic' && echo 'testing random idea' > experiment.txt && git add experiment.txt && git commit -m 'experimental changes' && git checkout main"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline main > {dir}/__main_log.txt"]
+      timeout_seconds: 5
+    - name: capture-files
+      command: sh
+      args: ["-c", "cd {dir}/repo && ls > {dir}/__filelist.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/validate.py
+    - file_not_exists: repo/wip.txt
+    - file_not_exists: repo/experiment.txt
+    - file_contains:
+        path: __main_log.txt
+        content: "add validation logic"
+hints:
+  - "First find the commit hash: `git log --oneline feature`"
+  - "Look for the 'add validation logic' commit — note its hash."
+  - "`git cherry-pick <hash>` applies that single commit to your current branch."
+solution: |
+  #!/bin/bash
+  HASH=$(git log --oneline feature | grep 'add validation logic' | awk '{print $1}')
+  git cherry-pick "$HASH"
+explanation: |
+  `git cherry-pick` takes the diff introduced by a specific commit and replays
+  it as a new commit on your current branch. The original commit stays on its
+  branch unchanged. This is surgical — you get exactly one commit's changes
+  without anything before or after it. The new commit gets a new hash but
+  carries the same changes and message.

@@ -1,0 +1,81 @@
+id: left-join
+title: "LEFT JOIN — Keep All Customers"
+type: write
+
+prompt: |
+  Some customers have never placed an order. Write a query using LEFT JOIN
+  to show every customer's name alongside their product (if any).
+
+  Customers without orders should still appear in the result, with an empty
+  value where the product would be.
+
+  Expected columns: customer name, product (or empty if no orders).
+  Order by: customers.id, then orders.id.
+
+starter: |
+  -- Show ALL customers with their orders (if any)
+  -- Customers with no orders should still appear
+  -- Order by: customers.id, orders.id
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE customers (id INTEGER, name TEXT, city TEXT);
+        INSERT INTO customers VALUES (1, 'Alice', 'Portland');
+        INSERT INTO customers VALUES (2, 'Bob', 'Seattle');
+        INSERT INTO customers VALUES (3, 'Charlie', 'Portland');
+        INSERT INTO customers VALUES (4, 'Diana', 'Chicago');
+        INSERT INTO customers VALUES (5, 'Eve', 'Seattle');
+        INSERT INTO customers VALUES (6, 'Frank', 'Denver');
+
+        CREATE TABLE orders (id INTEGER, customer_id INTEGER, product TEXT, amount REAL, order_date TEXT);
+        INSERT INTO orders VALUES (1, 1, 'Laptop', 999.99, '2024-01-15');
+        INSERT INTO orders VALUES (2, 1, 'Mouse', 29.99, '2024-01-15');
+        INSERT INTO orders VALUES (3, 2, 'Keyboard', 79.99, '2024-02-01');
+        INSERT INTO orders VALUES (4, 3, 'Monitor', 349.99, '2024-02-10');
+        INSERT INTO orders VALUES (5, 2, 'Webcam', 59.99, '2024-02-15');
+        INSERT INTO orders VALUES (6, 4, 'Headphones', 149.99, '2024-03-01');
+        INSERT INTO orders VALUES (7, 1, 'USB Cable', 12.99, '2024-03-05');
+        INSERT INTO orders VALUES (8, 5, 'Tablet', 499.99, '2024-03-10');
+        INSERT INTO orders VALUES (9, 3, 'Charger', 24.99, '2024-03-15');
+
+validation:
+  method: output
+  expected_output: |
+    Alice|Laptop
+    Alice|Mouse
+    Alice|USB Cable
+    Bob|Keyboard
+    Bob|Webcam
+    Charlie|Monitor
+    Charlie|Charger
+    Diana|Headphones
+    Eve|Tablet
+    Frank|
+
+hints:
+  - "LEFT JOIN keeps all rows from the left table (customers), even without matches"
+  - "Use: FROM customers LEFT JOIN orders ON customers.id = orders.customer_id"
+  - "The full query is: SELECT customers.name, orders.product FROM customers LEFT JOIN orders ON customers.id = orders.customer_id ORDER BY customers.id, orders.id;"
+
+solution: |
+  SELECT customers.name, orders.product
+  FROM customers
+  LEFT JOIN orders ON customers.id = orders.customer_id
+  ORDER BY customers.id, orders.id;
+
+explanation: |
+  `LEFT JOIN` returns every row from the left table (`customers`), whether or
+  not a matching row exists in the right table (`orders`).
+
+  The key difference from INNER JOIN: Frank appears in the result even though
+  he has no orders. His product column is NULL (displayed as empty in the
+  pipe-separated output).
+
+  The result has 10 rows — 9 actual orders plus 1 row for Frank with no order.
+  Compare this to INNER JOIN which would return only 9 rows, excluding Frank
+  entirely.
+
+  This pattern is essential for reports that must include every entity
+  regardless of whether related data exists.

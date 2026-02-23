@@ -1,0 +1,54 @@
+id: multiple-assign
+title: "Multiple Assignment"
+type: write
+
+prompt: |
+  Use Python's multiple assignment to create three variables in a single line:
+  `x`, `y`, and `z` with values `1`, `2`, and `3` respectively.
+
+  Then print their sum.
+
+  The output should be: 6
+
+starter: |
+  # Assign x, y, z to 1, 2, 3 using multiple assignment (one line)
+
+  # Print the sum of x, y, and z
+
+validation:
+  method: output
+  expected_output: "6"
+
+hints:
+  - "Multiple assignment uses commas on both sides of the = sign: a, b = 1, 2"
+  - "For three variables: x, y, z = 1, 2, 3 — each value is assigned to the corresponding variable."
+  - "Then print the sum: print(x + y + z)"
+
+solution: |
+  x, y, z = 1, 2, 3
+
+  print(x + y + z)
+
+explanation: |
+  Python's multiple assignment lets you assign several variables at once:
+
+      x, y, z = 1, 2, 3
+
+  This is equivalent to writing:
+
+      x = 1
+      y = 2
+      z = 3
+
+  The number of names on the left must match the number of values on the right,
+  otherwise Python raises a `ValueError`.
+
+  The expression `x + y + z` adds the three integers (1 + 2 + 3 = 6), and
+  `print()` displays the result.
+
+  Multiple assignment is also commonly used for swapping variables:
+
+      a, b = b, a    # swaps a and b without a temporary variable
+
+  This works because Python evaluates the entire right side before performing
+  any assignments on the left side.

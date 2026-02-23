@@ -1,0 +1,67 @@
+id: find-the-error
+title: "Find the Error"
+type: command
+prompt: |
+  INCIDENT ALERT: Monitoring reports errors in the web application.
+  Severity: HIGH. Customer impact: CONFIRMED.
+
+  Four log files are sitting in app/logs/. Only one of them contains an
+  ERROR. Find which file it is and write its filename (just the name,
+  like "access.log") to answer.txt.
+
+  The clock is ticking.
+starter: |
+  # Find which log file in app/logs/ contains "ERROR"
+  # Write the filename to answer.txt
+environment:
+  dirs:
+    - app/logs
+  files:
+    - path: app/logs/access.log
+      content: |
+        2024-03-15 03:42:11 GET /index.html 200 OK
+        2024-03-15 03:42:12 GET /style.css 200 OK
+        2024-03-15 03:42:13 GET /api/health 200 OK
+        2024-03-15 03:42:14 POST /api/login 200 OK
+        2024-03-15 03:42:15 GET /dashboard 200 OK
+    - path: app/logs/deploy.log
+      content: |
+        [deploy] 2024-03-15 02:00:00 Starting deployment v3.4.1
+        [deploy] 2024-03-15 02:00:05 Pulling image: app:v3.4.1
+        [deploy] 2024-03-15 02:00:30 Container started
+        [deploy] 2024-03-15 02:00:31 Health check passed
+        [deploy] 2024-03-15 02:00:32 Deployment complete
+    - path: app/logs/worker.log
+      content: |
+        2024-03-15 03:40:00 INFO Worker started, PID 4521
+        2024-03-15 03:40:01 INFO Processing queue: 0 pending jobs
+        2024-03-15 03:41:00 INFO Processing queue: 0 pending jobs
+        2024-03-15 03:42:00 INFO Processing queue: 2 pending jobs
+        2024-03-15 03:42:01 INFO Job #1881 completed in 0.3s
+        2024-03-15 03:42:01 INFO Job #1882 completed in 0.1s
+    - path: app/logs/app.log
+      content: |
+        2024-03-15 03:40:00 INFO Application started on port 8080
+        2024-03-15 03:41:22 INFO Connected to database
+        2024-03-15 03:42:10 WARN High memory usage: 78%
+        2024-03-15 03:42:44 ERROR Connection refused: redis://localhost:6379
+        2024-03-15 03:42:44 ERROR Cache layer unavailable, falling back
+        2024-03-15 03:42:45 WARN Response time degraded: avg 2.3s
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_contains:
+        path: answer.txt
+        content: "app.log"
+hints:
+  - "Use grep to search for 'ERROR' across all files: `grep -l ERROR app/logs/*`"
+  - "The `-l` flag makes grep print only the filename, not the matching lines."
+  - "Once you know the file, write it: `echo 'app.log' > answer.txt`"
+solution: |
+  grep -l ERROR app/logs/* > answer.txt
+explanation: |
+  `grep -l` (lowercase L) prints only the names of files containing a match,
+  not the matching lines themselves. This is the fastest way to locate which
+  file has the problem when you have many log files to search through.
+  During a real incident, this saves precious seconds.

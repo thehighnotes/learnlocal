@@ -1,0 +1,126 @@
+id: trait-bounds
+title: "Trait Bounds"
+type: fix
+
+prompt: |
+  The `print_info` function is supposed to accept any type that implements
+  the `Info` trait, but it is missing its trait bound. The code also has a
+  call that passes a type which does NOT implement the trait --- that call
+  needs to be removed.
+
+  Fix the function signature and remove the invalid call so the program
+  compiles and runs.
+
+starter: |
+  trait Info {
+      fn info(&self) -> String;
+  }
+
+  struct Server {
+      name: String,
+      uptime_hours: u32,
+  }
+
+  impl Info for Server {
+      fn info(&self) -> String {
+          format!("{}: up {} hours", self.name, self.uptime_hours)
+      }
+  }
+
+  struct Database {
+      name: String,
+      records: u64,
+  }
+
+  impl Info for Database {
+      fn info(&self) -> String {
+          format!("{}: {} records", self.name, self.records)
+      }
+  }
+
+  struct PlainNumber {
+      value: i32,
+  }
+
+  fn print_info<T>(item: &T) {
+      println!("{}", item.info());
+  }
+
+  fn main() {
+      let srv = Server { name: String::from("web-01"), uptime_hours: 720 };
+      let db = Database { name: String::from("users-db"), records: 50000 };
+      let num = PlainNumber { value: 42 };
+
+      print_info(&srv);
+      print_info(&db);
+      print_info(&num);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    web-01: up 720 hours
+    users-db: 50000 records
+
+hints:
+  - "The function needs a trait bound to tell the compiler that T has an .info() method. The syntax is fn print_info<T: Info>(item: &T)."
+  - "PlainNumber does not implement Info, so you cannot pass it to print_info. Remove that call."
+  - "Add `: Info` after `T` in the angle brackets, and delete the `print_info(&num);` line."
+
+solution: |
+  trait Info {
+      fn info(&self) -> String;
+  }
+
+  struct Server {
+      name: String,
+      uptime_hours: u32,
+  }
+
+  impl Info for Server {
+      fn info(&self) -> String {
+          format!("{}: up {} hours", self.name, self.uptime_hours)
+      }
+  }
+
+  struct Database {
+      name: String,
+      records: u64,
+  }
+
+  impl Info for Database {
+      fn info(&self) -> String {
+          format!("{}: {} records", self.name, self.records)
+      }
+  }
+
+  struct PlainNumber {
+      value: i32,
+  }
+
+  fn print_info<T: Info>(item: &T) {
+      println!("{}", item.info());
+  }
+
+  fn main() {
+      let srv = Server { name: String::from("web-01"), uptime_hours: 720 };
+      let db = Database { name: String::from("users-db"), records: 50000 };
+      let _num = PlainNumber { value: 42 };
+
+      print_info(&srv);
+      print_info(&db);
+  }
+
+explanation: |
+  Without a trait bound, the compiler does not know that `T` has an `.info()`
+  method. Adding `T: Info` tells the compiler: "T can be any type, as long as
+  it implements the Info trait."
+
+  `Server` and `Database` both implement `Info`, so they work fine.
+  `PlainNumber` does not, so passing it to `print_info` would be a compile
+  error. Removing that call (and prefixing `num` with `_` to silence the
+  unused-variable warning) fixes the program.
+
+  Trait bounds are checked at compile time. There is no runtime cost --- the
+  compiler generates a separate, optimized version of `print_info` for each
+  concrete type it is called with (monomorphization).

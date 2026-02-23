@@ -1,0 +1,30 @@
+id: compile-and-run
+title: "Compile and Run"
+type: command
+prompt: |
+  A hello.cpp file is provided. Compile it to an executable named 'hello',
+  then run it.
+environment:
+  files:
+    - path: hello.cpp
+      content: |
+        #include <iostream>
+        int main() {
+            std::cout << "Hello from C++!" << std::endl;
+            return 0;
+        }
+starter: |
+  # Compile hello.cpp and run the executable
+validation:
+  method: output
+  expected_output: "Hello from C++!"
+hints:
+  - "g++ -o hello hello.cpp compiles to an executable named 'hello'"
+  - "Run the executable with ./hello"
+solution: |
+  g++ -o hello hello.cpp
+  ./hello
+explanation: |
+  C++ is a compiled language. The g++ compiler translates your source code
+  into machine code. The -o flag names the output executable. Without it,
+  g++ creates a file called 'a.out'.

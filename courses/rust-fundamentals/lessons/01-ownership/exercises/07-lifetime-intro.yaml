@@ -1,0 +1,70 @@
+id: lifetime-intro
+title: "Lifetime Annotations"
+type: predict
+
+prompt: |
+  Study this program carefully. It compiles and runs successfully.
+
+  ```rust
+  fn longer<'a>(s1: &'a str, s2: &'a str) -> &'a str {
+      if s1.len() >= s2.len() { s1 } else { s2 }
+  }
+
+  fn main() {
+      let result;
+      let s1 = String::from("long string");
+      {
+          let s2 = String::from("hi");
+          result = longer(&s1, &s2);
+          println!("longer: {}", result);
+      }
+  }
+  ```
+
+  What does it print?
+
+  Enter exactly what the program outputs.
+
+validation:
+  method: output
+  expected_output: "longer: long string"
+
+hints:
+  - "The `longer` function compares the lengths of two string slices and returns whichever is longer (or the first one if they are equal)."
+  - "\"long string\" has 11 characters. \"hi\" has 2 characters. So `s1.len() >= s2.len()` is true."
+
+solution: |
+  fn longer<'a>(s1: &'a str, s2: &'a str) -> &'a str {
+      if s1.len() >= s2.len() { s1 } else { s2 }
+  }
+
+  fn main() {
+      let result;
+      let s1 = String::from("long string");
+      {
+          let s2 = String::from("hi");
+          result = longer(&s1, &s2);
+          println!("longer: {}", result);
+      }
+  }
+
+explanation: |
+  The program prints `longer: long string` because "long string" (11 characters)
+  is longer than "hi" (2 characters).
+
+  The `longer` function uses lifetime annotations (`'a`) to tell the compiler:
+  "the returned reference lives at least as long as both input references."
+  This is necessary because the function could return either `s1` or `s2`,
+  and the compiler needs to know how long the return value is valid.
+
+  Notice that `result` is used inside the inner scope where both `s1` and `s2`
+  are valid. The `println!` happens before `s2` goes out of scope, so the
+  reference is still valid regardless of which string was returned.
+
+  If you tried to use `result` after the inner block (where `s2` has been
+  dropped), the compiler would reject it — because the lifetime `'a` would
+  need to be as long as both inputs, but `s2` no longer exists.
+
+  Lifetimes do not change how long data lives. They are annotations that help
+  the compiler verify that references are always valid. The compiler uses them
+  to catch dangling references at compile time, not at runtime.

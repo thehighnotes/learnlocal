@@ -1,0 +1,87 @@
+id: multiple-returns
+title: "Multiple Return Values"
+type: write
+
+prompt: |
+  Write a function:
+
+    func divide(a, b float64) (float64, error)
+
+  It should return the result of a / b. If b is zero, return 0 and an error
+  with the message "division by zero" (use fmt.Errorf or errors.New).
+
+  In main, call divide twice and print both return values:
+  1. divide(10, 3)
+  2. divide(10, 0)
+
+  Expected output:
+  3.3333333333333335 <nil>
+  0 division by zero
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write func divide(a, b float64) (float64, error)
+  // Return 0 and an error if b is zero
+  // Otherwise return a / b and nil
+
+  func main() {
+      result, err := divide(10, 3)
+      fmt.Println(result, err)
+
+      result, err = divide(10, 0)
+      fmt.Println(result, err)
+  }
+
+validation:
+  method: output
+  expected_output: "3.3333333333333335 <nil>\n0 division by zero"
+
+hints:
+  - "The function signature is: func divide(a, b float64) (float64, error)"
+  - "Check if b == 0. If so, return 0 and fmt.Errorf(\"division by zero\"). Otherwise return a / b and nil."
+  - "func divide(a, b float64) (float64, error) { if b == 0 { return 0, fmt.Errorf(\"division by zero\") } return a / b, nil }"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func divide(a, b float64) (float64, error) {
+      if b == 0 {
+          return 0, fmt.Errorf("division by zero")
+      }
+      return a / b, nil
+  }
+
+  func main() {
+      result, err := divide(10, 3)
+      fmt.Println(result, err)
+
+      result, err = divide(10, 0)
+      fmt.Println(result, err)
+  }
+
+explanation: |
+  Multiple return values are one of Go's most distinctive features. The
+  `(float64, error)` return type means the function sends back two values.
+
+  **The (value, error) pattern** is Go's standard way to handle errors:
+  - On success, return the result and `nil` (no error).
+  - On failure, return a zero value and an error.
+
+  The caller uses `:=` to capture both values:
+
+    result, err := divide(10, 3)
+
+  `fmt.Errorf("division by zero")` creates an error value with the given
+  message. You could also use `errors.New("division by zero")` — both work.
+
+  When you print an error with `fmt.Println`, it calls the error's `Error()`
+  method, which returns the message string. When the error is `nil`, it
+  prints `<nil>`.
+
+  This pattern avoids exceptions entirely. Every error is an explicit value
+  that the caller must handle (or deliberately ignore with `_`).

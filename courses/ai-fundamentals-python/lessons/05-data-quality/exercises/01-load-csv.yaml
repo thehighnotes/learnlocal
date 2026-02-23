@@ -1,0 +1,61 @@
+id: load-csv
+title: "Load CSV Data"
+type: write
+
+prompt: |
+  Parse the CSV string below into a list of dictionaries. Each row becomes a
+  dictionary with column names as keys.
+
+  Print the number of records in the format: `N records`
+
+starter: |
+  csv_data = """name,age,income
+  Alice,30,50000
+  Bob,,60000
+  Charlie,25,
+  Diana,35,70000
+  Eve,,55000
+  Frank,28,65000"""
+
+  # Parse csv_data into a list of dictionaries
+  # Hint: split by newlines, first line is headers, remaining are data rows
+
+
+  print(f"{len(rows)} records")
+
+validation:
+  method: output
+  expected_output: "6 records"
+
+hints:
+  - "Split the string by newlines with `.strip().split('\\n')`. The first line contains headers (split by comma). Each subsequent line is a data row."
+  - "For each data line, split by comma, then zip with headers to create a dictionary: `row = {headers[i]: values[i] for i in range(len(headers))}`"
+
+solution: |
+  csv_data = """name,age,income
+  Alice,30,50000
+  Bob,,60000
+  Charlie,25,
+  Diana,35,70000
+  Eve,,55000
+  Frank,28,65000"""
+
+  lines = csv_data.strip().split("\n")
+  headers = lines[0].split(",")
+  rows = []
+  for line in lines[1:]:
+      values = line.split(",")
+      row = {}
+      for i, h in enumerate(headers):
+          row[h] = values[i]
+      rows.append(row)
+
+  print(f"{len(rows)} records")
+
+explanation: |
+  The CSV has 7 lines: 1 header + 6 data rows. After parsing, we have 6
+  dictionaries like `{"name": "Alice", "age": "30", "income": "50000"}`.
+
+  Notice that all values are strings, including numbers. Some fields are empty
+  strings (Bob's age, Charlie's income) — these are missing values that we
+  will detect and handle in the next exercises.

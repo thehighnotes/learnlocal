@@ -1,0 +1,18 @@
+id: pipes-redirection
+title: "Pipes & Redirection"
+description: "Master stdin/stdout/stderr, redirection operators, pipes, tee, and command substitution."
+estimated_minutes: 30
+content: content.md
+teaches: [pipes, redirection, stdout, stderr, tee, command-substitution]
+exercises:
+  - redirect-output
+  - append-output
+  - pipe-basics
+  - pipe-chain
+  - redirect-stderr
+  - tee-command
+  - command-sub
+recap: |
+  You learned to redirect output with > and >>, pipe between commands
+  with |, separate stderr from stdout with 2>, use tee to split output,
+  and capture command output with $().

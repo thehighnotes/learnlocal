@@ -1,0 +1,65 @@
+id: slice-operations
+title: "Slice and Append"
+type: write
+
+prompt: |
+  Start with a slice `[]int{1, 2, 3, 4, 5}`. Take a sub-slice from index
+  1 to 4 (which gives [2, 3, 4]). Append the number 6 to that sub-slice.
+  Print the result.
+
+  Expected output:
+  ```
+  [2 3 4 6]
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      nums := []int{1, 2, 3, 4, 5}
+      // Take a sub-slice [1:4]
+      // Append 6 to it
+      // Print the result with fmt.Println
+      _ = nums
+  }
+
+validation:
+  method: output
+  expected_output: "[2 3 4 6]"
+
+hints:
+  - "Use the slice expression: sub := nums[1:4] gives elements at indices 1, 2, 3."
+  - "append returns a new slice: sub = append(sub, 6)"
+  - |
+    sub := nums[1:4]
+    sub = append(sub, 6)
+    fmt.Println(sub)
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      nums := []int{1, 2, 3, 4, 5}
+      sub := nums[1:4]
+      sub = append(sub, 6)
+      fmt.Println(sub)
+  }
+
+explanation: |
+  This exercise demonstrates slice operations:
+
+  1. `nums[1:4]` creates a sub-slice containing elements at indices 1, 2,
+     and 3: [2, 3, 4]. The high bound (4) is exclusive.
+  2. `append(sub, 6)` adds 6 to the end. Because the sub-slice's capacity
+     may still reference the original array, append might overwrite nums[4]
+     or allocate a new array -- it depends on capacity. That is why you must
+     always assign the result: `sub = append(sub, 6)`.
+  3. `fmt.Println(sub)` prints a slice using Go's default format: [2 3 4 6].
+
+  The key lesson: sub-slices share memory with the original. Append can
+  cause surprising overwrites if you are not careful. When independence
+  matters, use `copy` to make a separate slice.

@@ -1,0 +1,22 @@
+id: parse-passwd
+title: "Parse /etc/passwd"
+type: command
+prompt: |
+  Extract the username and home directory (fields 1 and 6) from the
+  root entry in /etc/passwd. Print them separated by a space.
+  (The root user always exists and has UID 0.)
+starter: |
+  # Extract root's username and home dir from /etc/passwd
+validation:
+  method: regex
+  pattern: "^root /root$"
+hints:
+  - "grep '^root:' /etc/passwd gets the root line"
+  - "cut -d':' -f1,6 extracts fields 1 and 6"
+  - "Or use awk -F':' to print specific fields"
+solution: |
+  grep '^root:' /etc/passwd | awk -F':' '{print $1, $6}'
+explanation: |
+  /etc/passwd is colon-delimited. Field 1 is the username, field 6 is
+  the home directory. grep isolates the root line, awk extracts the
+  fields we want.

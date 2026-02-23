@@ -1,0 +1,47 @@
+id: ternary
+title: "Ternary Operator"
+type: write
+
+prompt: |
+  Read a number from stdin and print whether it is "even" or "odd" using
+  the ternary operator.
+
+  For example, if the input is "7", print: odd
+
+  The ternary operator syntax: condition ? valueIfTrue : valueIfFalse
+
+  Read input with: require("fs").readFileSync("/dev/stdin", "utf8").trim()
+
+input: "7\n"
+
+starter: |
+  const input = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  // Convert to number and use the ternary operator to print "even" or "odd"
+
+validation:
+  method: output
+  expected_output: "odd"
+
+hints:
+  - "Convert input to a number: const num = Number(input);"
+  - "Use modulo to check even/odd: num % 2 === 0 means even."
+  - "Ternary syntax: console.log(num % 2 === 0 ? \"even\" : \"odd\");"
+
+solution: |
+  const input = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  const num = Number(input);
+  console.log(num % 2 === 0 ? "even" : "odd");
+
+explanation: |
+  The ternary operator is a compact if/else expression:
+
+      condition ? valueIfTrue : valueIfFalse
+
+  Here, `num % 2 === 0` checks if the number is even (remainder 0 when
+  divided by 2). If true, the expression evaluates to "even"; if false,
+  it evaluates to "odd".
+
+  7 % 2 = 1, which is not 0, so the condition is false and "odd" is printed.
+
+  The ternary operator is best for simple, one-line choices. For complex
+  logic with multiple branches, use if/else instead.

@@ -1,0 +1,80 @@
+id: join-aliases
+title: "Fix the Aliases"
+type: fix
+
+prompt: |
+  The query below tries to show each customer's name, city, and the products
+  they ordered — but it has broken table aliases. The aliases are defined but
+  not used consistently.
+
+  Fix the query so it runs correctly. Do not change the logic, just fix the
+  alias references.
+
+  Expected columns: name, city, product.
+  The query should be ordered by order id.
+
+starter: |
+  SELECT customers.name, c.city, orders.product
+  FROM customers AS c
+  JOIN orders AS o ON customers.id = o.customer_id
+  ORDER BY orders.id;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE customers (id INTEGER, name TEXT, city TEXT);
+        INSERT INTO customers VALUES (1, 'Alice', 'Portland');
+        INSERT INTO customers VALUES (2, 'Bob', 'Seattle');
+        INSERT INTO customers VALUES (3, 'Charlie', 'Portland');
+        INSERT INTO customers VALUES (4, 'Diana', 'Chicago');
+        INSERT INTO customers VALUES (5, 'Eve', 'Seattle');
+        INSERT INTO customers VALUES (6, 'Frank', 'Denver');
+
+        CREATE TABLE orders (id INTEGER, customer_id INTEGER, product TEXT, amount REAL, order_date TEXT);
+        INSERT INTO orders VALUES (1, 1, 'Laptop', 999.99, '2024-01-15');
+        INSERT INTO orders VALUES (2, 1, 'Mouse', 29.99, '2024-01-15');
+        INSERT INTO orders VALUES (3, 2, 'Keyboard', 79.99, '2024-02-01');
+        INSERT INTO orders VALUES (4, 3, 'Monitor', 349.99, '2024-02-10');
+        INSERT INTO orders VALUES (5, 2, 'Webcam', 59.99, '2024-02-15');
+        INSERT INTO orders VALUES (6, 4, 'Headphones', 149.99, '2024-03-01');
+        INSERT INTO orders VALUES (7, 1, 'USB Cable', 12.99, '2024-03-05');
+        INSERT INTO orders VALUES (8, 5, 'Tablet', 499.99, '2024-03-10');
+        INSERT INTO orders VALUES (9, 3, 'Charger', 24.99, '2024-03-15');
+
+validation:
+  method: output
+  expected_output: |
+    Alice|Portland|Laptop
+    Alice|Portland|Mouse
+    Bob|Seattle|Keyboard
+    Charlie|Portland|Monitor
+    Bob|Seattle|Webcam
+    Diana|Chicago|Headphones
+    Alice|Portland|USB Cable
+    Eve|Seattle|Tablet
+    Charlie|Portland|Charger
+
+hints:
+  - "Once you define an alias (AS c), you must use that alias everywhere — not the original table name"
+  - "customers is aliased to c, orders is aliased to o. Replace all uses of the full names with the aliases"
+  - "Fixed query: SELECT c.name, c.city, o.product FROM customers AS c JOIN orders AS o ON c.id = o.customer_id ORDER BY o.id;"
+
+solution: |
+  SELECT c.name, c.city, o.product
+  FROM customers AS c
+  JOIN orders AS o ON c.id = o.customer_id
+  ORDER BY o.id;
+
+explanation: |
+  When you create a table alias with `AS`, you should use that alias consistently
+  throughout the query. The original code mixed full table names (`customers.name`,
+  `orders.product`, `customers.id`, `orders.id`) with aliases (`c.city`,
+  `o.customer_id`).
+
+  While SQLite actually allows mixing aliases and full names in some cases, it is
+  confusing and error-prone. The fix replaces every `customers.` with `c.` and
+  every `orders.` with `o.`.
+
+  Good practice: once you define an alias, use it everywhere. This makes queries
+  shorter, more readable, and less likely to contain subtle reference errors.

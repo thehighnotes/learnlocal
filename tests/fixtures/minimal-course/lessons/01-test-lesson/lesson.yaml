@@ -1,0 +1,10 @@
+id: test-lesson
+title: "Test Lesson"
+description: "A test lesson"
+content: content.md
+exercises:
+  - test-exercise
+teaches:
+  - testing
+recap: |
+  You learned about testing.

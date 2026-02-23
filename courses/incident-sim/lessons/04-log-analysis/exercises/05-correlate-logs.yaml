@@ -1,0 +1,40 @@
+id: correlate-logs
+title: "Cross-Reference Two Log Files"
+type: command
+prompt: |
+  MYSTERY: The app is returning 500 errors but the app log looks clean on the
+  surface. The database team suspects the root cause is in their logs.
+
+  You have two files: `app.log` and `db.log`. Both contain **request IDs**
+  (format: `req-XXXX`). Find the request ID that appears as an error in
+  BOTH logs — that's the smoking gun.
+
+  Write just the request ID to `answer.txt` (e.g., `req-1234`).
+starter: |
+  # Find the request ID that has errors in BOTH app.log and db.log
+  # Write it to answer.txt
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > app.log << 'APPEOF'\n2024-03-15 14:30:01 [INFO] Processing request req-4401 for user alice\n2024-03-15 14:30:02 [INFO] Request req-4401 completed in 45ms\n2024-03-15 14:30:05 [INFO] Processing request req-4402 for user bob\n2024-03-15 14:30:06 [WARN] Request req-4402 slow: 1200ms\n2024-03-15 14:30:06 [INFO] Request req-4402 completed in 1250ms\n2024-03-15 14:30:10 [INFO] Processing request req-4403 for user charlie\n2024-03-15 14:30:11 [ERROR] Request req-4403 failed: upstream error\n2024-03-15 14:30:15 [INFO] Processing request req-4404 for user diana\n2024-03-15 14:30:16 [INFO] Request req-4404 completed in 30ms\n2024-03-15 14:30:20 [INFO] Processing request req-4405 for user eve\n2024-03-15 14:30:21 [ERROR] Request req-4405 failed: timeout\n2024-03-15 14:30:25 [INFO] Processing request req-4406 for user frank\n2024-03-15 14:30:26 [INFO] Request req-4406 completed in 55ms\nAPPEOF\ncat > db.log << 'DBEOF'\n2024-03-15 14:30:01 [INFO] Query for req-4401: SELECT * FROM users WHERE name='alice' - 12ms\n2024-03-15 14:30:05 [INFO] Query for req-4402: SELECT * FROM orders WHERE user='bob' - 850ms\n2024-03-15 14:30:05 [WARN] Slow query for req-4402: exceeded 500ms threshold\n2024-03-15 14:30:10 [INFO] Query for req-4403: INSERT INTO orders VALUES(...) - 5ms\n2024-03-15 14:30:10 [ERROR] Deadlock detected for req-4403: transaction rolled back\n2024-03-15 14:30:15 [INFO] Query for req-4404: SELECT * FROM products WHERE id=42 - 8ms\n2024-03-15 14:30:20 [INFO] Query for req-4405: SELECT * FROM sessions WHERE token='xyz' - 15ms\n2024-03-15 14:30:25 [INFO] Query for req-4406: SELECT * FROM users WHERE name='frank' - 10ms\nDBEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_contains:
+        path: answer.txt
+        content: "req-4403"
+hints:
+  - "Look for request IDs that appear in ERROR lines in both files."
+  - "In app.log, req-4403 and req-4405 have errors. In db.log, only req-4403 has an error (deadlock)."
+  - "echo 'req-4403' > answer.txt"
+solution: |
+  echo 'req-4403' > answer.txt
+explanation: |
+  req-4403 had errors in both logs: the app reported "upstream error" and the
+  database reported "deadlock detected — transaction rolled back." The deadlock
+  in the DB caused the INSERT to fail, which propagated up as an error in the
+  app. req-4405 also failed in the app (timeout) but had no DB error — that
+  failure had a different root cause. Cross-referencing logs by request ID is
+  the most powerful technique for debugging distributed system failures.

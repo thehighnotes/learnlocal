@@ -1,0 +1,55 @@
+id: normalize
+title: "Normalize a Vector"
+type: write
+
+prompt: |
+  Normalize a vector to unit length by dividing each element by the vector's
+  magnitude. A normalized vector has magnitude 1.0.
+
+  For `v = [3, 4]`:
+  - Magnitude is 5.0
+  - Divide each element: [3/5, 4/5] = [0.6, 0.8]
+
+  Print the normalized vector. Round each element to 1 decimal place.
+
+starter: |
+  import math
+
+  v = [3, 4]
+
+  # Compute the magnitude
+
+
+  # Divide each element by the magnitude
+  # Round each element to 1 decimal place
+
+
+  print(normalized)
+
+validation:
+  method: output
+  expected_output: "[0.6, 0.8]"
+
+hints:
+  - "First compute the magnitude with `math.sqrt(sum(x**2 for x in v))`. Then divide each element by it."
+  - "Try: `mag = math.sqrt(sum(x**2 for x in v))` then `normalized = [round(x / mag, 1) for x in v]`"
+
+solution: |
+  import math
+
+  v = [3, 4]
+
+  mag = math.sqrt(sum(x**2 for x in v))
+
+  normalized = [round(x / mag, 1) for x in v]
+
+  print(normalized)
+
+explanation: |
+  The magnitude of [3, 4] is 5.0. Dividing each element by 5.0 gives
+  [0.6, 0.8]. This vector has magnitude 1.0 (check: 0.6^2 + 0.8^2 = 0.36 +
+  0.64 = 1.0).
+
+  Normalization preserves direction while setting length to 1. This is crucial
+  for cosine similarity (next lesson): when vectors are normalized, their dot
+  product directly gives the cosine of the angle between them.

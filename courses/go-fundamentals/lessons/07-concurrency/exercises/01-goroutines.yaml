@@ -1,0 +1,56 @@
+id: goroutines
+title: "Your First Goroutine"
+type: write
+
+prompt: |
+  Launch a goroutine that sends the string "hello from goroutine" on a channel.
+  In main, receive the value from the channel and print it with fmt.Println.
+
+  Use a channel (not time.Sleep) to synchronize between the goroutine and main.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      // Create a channel of type string
+
+      // Launch a goroutine that sends "hello from goroutine" on the channel
+
+      // Receive from the channel and print the result
+      _ = fmt.Println // remove this line when you use fmt.Println
+  }
+
+validation:
+  method: output
+  expected_output: "hello from goroutine\n"
+
+hints:
+  - "Create a channel with: ch := make(chan string)"
+  - "Launch a goroutine with: go func() { ch <- \"hello from goroutine\" }()"
+  - "Receive and print with: fmt.Println(<-ch)"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      ch := make(chan string)
+      go func() {
+          ch <- "hello from goroutine"
+      }()
+      fmt.Println(<-ch)
+  }
+
+explanation: |
+  The `go` keyword launches the anonymous function as a goroutine. Inside the
+  goroutine, we send the string "hello from goroutine" on the channel.
+
+  Back in main, `<-ch` blocks until the goroutine sends its value. This is
+  how channels synchronize: main waits for the goroutine without needing
+  `time.Sleep`.
+
+  The channel acts as both a communication pipe (carrying the string) and a
+  synchronization mechanism (main blocks until data arrives).

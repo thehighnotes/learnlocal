@@ -1,0 +1,71 @@
+id: find-missing
+title: "Find Missing Values"
+type: write
+
+prompt: |
+  Given a dataset (list of dictionaries), find which columns have missing
+  values (empty strings). Print each column name and its count of missing
+  values, one per line, in alphabetical order.
+
+starter: |
+  csv_data = """name,age,income
+  Alice,30,50000
+  Bob,,60000
+  Charlie,25,
+  Diana,35,70000
+  Eve,,55000
+  Frank,28,65000"""
+
+  lines = csv_data.strip().split("\n")
+  headers = lines[0].split(",")
+  rows = []
+  for line in lines[1:]:
+      values = line.split(",")
+      row = {}
+      for i, h in enumerate(headers):
+          row[h] = values[i]
+      rows.append(row)
+
+  # Find columns with missing values (empty strings)
+  # Print: "column_name: N missing" for each, in alphabetical order
+
+validation:
+  method: output
+  expected_output: "age: 2 missing\nincome: 1 missing"
+
+hints:
+  - "For each column, count how many rows have an empty string for that column. Only print columns where the count is greater than 0."
+  - "Use: `for col in sorted(headers): count = sum(1 for row in rows if row[col] == ''); if count > 0: print(f'{col}: {count} missing')`"
+
+solution: |
+  csv_data = """name,age,income
+  Alice,30,50000
+  Bob,,60000
+  Charlie,25,
+  Diana,35,70000
+  Eve,,55000
+  Frank,28,65000"""
+
+  lines = csv_data.strip().split("\n")
+  headers = lines[0].split(",")
+  rows = []
+  for line in lines[1:]:
+      values = line.split(",")
+      row = {}
+      for i, h in enumerate(headers):
+          row[h] = values[i]
+      rows.append(row)
+
+  for col in sorted(headers):
+      count = sum(1 for row in rows if row[col] == "")
+      if count > 0:
+          print(f"{col}: {count} missing")
+
+explanation: |
+  The "age" column has 2 missing values (Bob and Eve). The "income" column has
+  1 missing value (Charlie). The "name" column has no missing values.
+
+  Detecting missing values is the first step in data cleaning. You need to know
+  what is missing before you can decide how to handle it. In real datasets,
+  missing values are extremely common — surveys have unanswered questions,
+  sensors fail, and records get corrupted.

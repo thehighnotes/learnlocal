@@ -1,0 +1,31 @@
+id: hard-link
+title: "Hard Links and Inodes"
+type: command
+prompt: |
+  A file called data.txt already exists. Use `ln` (no -s flag) to
+  create a hard link called data2.txt. Print the inode number of each
+  file using stat --format='%i', then print "same" because hard links
+  share the same inode.
+starter: |
+  # data.txt exists — create a hard link, compare inodes
+environment:
+  files:
+    - path: data.txt
+      content: |
+        test
+validation:
+  method: regex
+  pattern: "(?s)\\d+\n\\d+\nsame"
+hints:
+  - "ln data.txt data2.txt (no -s flag for hard links)"
+  - "stat --format='%i' file.txt prints the inode number"
+  - "Hard links always share the same inode — print \"same\""
+solution: |
+  ln data.txt data2.txt
+  stat --format='%i' data.txt
+  stat --format='%i' data2.txt
+  echo "same"
+explanation: |
+  A hard link is another directory entry pointing to the same inode.
+  Both names share the same inode number, proving they reference the
+  same underlying data on disk.

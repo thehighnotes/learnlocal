@@ -1,0 +1,48 @@
+id: obj-iterate
+title: "Iterate Over Object"
+type: write
+
+prompt: |
+  Given the prices object, print each item and its price in the format:
+  key: value
+
+  The entries should be sorted alphabetically by key.
+
+  Expected output:
+  coffee: 4.5
+  juice: 5.5
+  tea: 3
+
+starter: |
+  const prices = { tea: 3, coffee: 4.5, juice: 5.5 };
+  // Print each entry sorted by key: "key: value"
+
+validation:
+  method: output
+  expected_output: "coffee: 4.5\njuice: 5.5\ntea: 3"
+
+hints:
+  - "Object.keys(prices) gives you the keys as an array. Arrays have a .sort() method."
+  - "Sort the keys first, then iterate: Object.keys(prices).sort().forEach(key => ...)"
+  - "Inside the loop: console.log(`${key}: ${prices[key]}`);"
+
+solution: |
+  const prices = { tea: 3, coffee: 4.5, juice: 5.5 };
+  Object.keys(prices).sort().forEach(key => {
+    console.log(`${key}: ${prices[key]}`);
+  });
+
+explanation: |
+  To iterate over an object's entries in a specific order:
+
+  1. `Object.keys(prices)` → ["tea", "coffee", "juice"]
+  2. `.sort()` → ["coffee", "juice", "tea"] (alphabetical)
+  3. `.forEach(key => ...)` — iterate over each key
+
+  Inside the callback, `prices[key]` uses bracket notation to look up
+  the value for each key. This is one of the main uses of bracket notation:
+  the key is stored in a variable.
+
+  Alternative approaches:
+  - `Object.entries(prices).sort()` — sort the [key, value] pairs directly
+  - `for (const key of Object.keys(prices).sort())` — for...of instead of forEach

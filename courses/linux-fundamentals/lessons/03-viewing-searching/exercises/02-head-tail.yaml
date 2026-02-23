@@ -1,0 +1,41 @@
+id: head-tail
+title: "First and Last Lines"
+type: command
+prompt: |
+  A file called nums.txt contains lines numbered 1 through 10.
+  Use head to print the first 3 lines, then tail to print the last
+  2 lines. Output should be 5 lines total: 1, 2, 3, 9, 10.
+starter: |
+  # nums.txt has lines 1-10 — show first 3 and last 2
+environment:
+  files:
+    - path: nums.txt
+      content: |
+        1
+        2
+        3
+        4
+        5
+        6
+        7
+        8
+        9
+        10
+validation:
+  method: output
+  expected_output: |
+    1
+    2
+    3
+    9
+    10
+hints:
+  - "head -3 file shows the first 3 lines"
+  - "tail -2 file shows the last 2 lines"
+  - "Run both commands separately"
+solution: |
+  head -3 nums.txt
+  tail -2 nums.txt
+explanation: |
+  head -N shows the first N lines, tail -N shows the last N lines.
+  Combined, they let you extract any portion of a file.

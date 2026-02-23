@@ -1,0 +1,53 @@
+id: references
+title: "References as Aliases"
+type: write
+
+prompt: |
+  Create an integer variable `x` with the value `10`.
+  Create a reference `ref` that refers to `x`.
+  Modify the value through `ref` by setting it to `20`.
+  Print the original variable `x` to show the change.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Create int x with value 10
+
+      // Create a reference ref to x
+
+      // Set ref to 20
+
+      // Print x
+      std::cout << /* your code here */ << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "20"
+
+hints:
+  - "Declare a reference with: int& ref = x;"
+  - "Assigning to a reference changes the original variable: ref = 20; modifies x."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int x = 10;
+      int& ref = x;
+      ref = 20;
+
+      std::cout << x << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  `int& ref = x;` creates a reference -- an alias for `x`. After this
+  line, `ref` and `x` are two names for the same memory location.
+  Setting `ref = 20` changes the value at that location, so `x` also
+  becomes `20`. Unlike pointers, references require no special syntax
+  to read or write the value.

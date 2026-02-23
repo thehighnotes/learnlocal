@@ -1,0 +1,22 @@
+id: cargo-new-run
+title: "Create and Run a Project"
+type: command
+prompt: |
+  Use cargo to create a new project called 'greeting', then run it.
+  Cargo generates a Hello World program automatically.
+starter: |
+  # Create a new cargo project and run it
+validation:
+  method: output
+  expected_output: "Hello, world!"
+hints:
+  - "cargo new greeting creates a new project directory"
+  - "cd into the directory, then cargo run"
+solution: |
+  cargo new greeting
+  cd greeting
+  cargo run
+explanation: |
+  cargo new creates a project with the standard layout: Cargo.toml for
+  dependencies and src/main.rs with a Hello World program. cargo run
+  compiles and runs in one step.

@@ -1,0 +1,29 @@
+id: view-files
+title: "View File Contents"
+type: command
+prompt: |
+  A file called data.txt with three lines already exists.
+  Use cat to print the entire file.
+starter: |
+  # data.txt exists — display it with cat
+environment:
+  files:
+    - path: data.txt
+      content: |
+        first
+        second
+        third
+validation:
+  method: output
+  expected_output: |
+    first
+    second
+    third
+hints:
+  - "cat file.txt prints the contents"
+  - "Just run: cat data.txt"
+solution: |
+  cat data.txt
+explanation: |
+  cat (concatenate) prints the entire contents of one or more files to
+  stdout. It's the most basic file viewing command.

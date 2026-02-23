@@ -1,0 +1,48 @@
+id: obj-basics
+title: "Object Basics"
+type: write
+
+prompt: |
+  Create an object called person with three properties:
+  - name: "Alice"
+  - age: 30
+  - city: "Tokyo"
+
+  Print each property value on its own line.
+
+  Expected output:
+  Alice
+  30
+  Tokyo
+
+starter: |
+  // Create a person object with name, age, and city properties
+  // Print each value
+
+validation:
+  method: output
+  expected_output: "Alice\n30\nTokyo"
+
+hints:
+  - "Object literal syntax: const person = { name: \"Alice\", age: 30, city: \"Tokyo\" };"
+  - "Access properties with dot notation: person.name, person.age, person.city"
+  - "Print each with console.log(person.name); etc."
+
+solution: |
+  const person = { name: "Alice", age: 30, city: "Tokyo" };
+  console.log(person.name);
+  console.log(person.age);
+  console.log(person.city);
+
+explanation: |
+  Objects are created with curly braces and key-value pairs:
+
+  `{ name: "Alice", age: 30, city: "Tokyo" }`
+
+  Each property has a key (name, age, city) and a value. Keys are strings
+  internally, but you can omit the quotes when the key is a valid identifier
+  (no spaces, starts with a letter or underscore).
+
+  Dot notation (`person.name`) is the most common way to access properties.
+  It is clean and readable when you know the key name at the time you write
+  the code.

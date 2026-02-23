@@ -1,0 +1,52 @@
+id: soft-reset
+title: "Soft Reset"
+type: command
+prompt: |
+  You just committed but realized you forgot to include `utils.py` in the
+  commit. Instead of making a second commit, you want to undo the last
+  commit while keeping all its changes staged — so you can add the missing
+  file and recommit everything together.
+
+  Use `git reset --soft` to move HEAD back one commit. The changes should
+  remain in the staging area.
+starter: |
+  #!/bin/bash
+  # Soft reset: undo the last commit but keep changes staged
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base' > base.txt && git add base.txt && git commit -m 'initial' && echo 'module code' > app.py && git add app.py && git commit -m 'add app' && echo 'helper code' > utils.py && git add utils.py && git commit -m 'premature commit'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-commit-count
+      command: sh
+      args: ["-c", "cd {dir}/repo && git rev-list --count HEAD > {dir}/commit_count.txt"]
+      timeout_seconds: 5
+      capture_to: count.log
+    - name: capture-staged
+      command: sh
+      args: ["-c", "cd {dir}/repo && git diff --cached --name-only | sort > {dir}/staged.txt"]
+      timeout_seconds: 5
+      capture_to: staged.log
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: commit_count.txt
+        content: "2"
+    - file_contains:
+        path: staged.txt
+        content: "utils.py"
+hints:
+  - "HEAD~1 means 'one commit before HEAD'"
+  - "git reset --soft HEAD~1"
+solution: |
+  #!/bin/bash
+  git reset --soft HEAD~1
+explanation: |
+  git reset --soft HEAD~1 moves the HEAD pointer back one commit but leaves
+  the staging area and working directory untouched. The changes from the
+  undone commit are still staged, ready to be amended or recommitted with
+  additional changes.

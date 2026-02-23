@@ -1,0 +1,65 @@
+id: where-basic
+title: "Your First WHERE Clause"
+type: write
+
+prompt: |
+  The `employees` table has columns: id, name, department, salary, hire_date, manager_id.
+
+  Write a query that selects the **name** and **salary** of all employees in the
+  'Engineering' department. Order results by name.
+
+starter: |
+  -- Select name and salary for Engineering employees
+  -- Order by name
+  SELECT name, salary
+  FROM employees;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          department TEXT NOT NULL,
+          salary REAL NOT NULL,
+          hire_date TEXT NOT NULL,
+          manager_id INTEGER
+        );
+        INSERT INTO employees VALUES (1, 'Alice Johnson', 'Engineering', 85000.0, '2020-03-15', NULL);
+        INSERT INTO employees VALUES (2, 'Bob Smith', 'Engineering', 72000.0, '2021-06-01', 1);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Sales', 55000.0, '2019-11-20', 1);
+        INSERT INTO employees VALUES (4, 'David Lee', 'Marketing', 62000.0, '2022-01-10', 1);
+        INSERT INTO employees VALUES (5, 'Eva Martinez', 'Engineering', 95000.0, '2018-07-22', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Wilson', 'Sales', 48000.0, '2023-04-05', 3);
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Marketing', 67000.0, '2021-09-14', 4);
+        INSERT INTO employees VALUES (8, 'Henry Brown', 'Engineering', 78000.0, '2022-08-30', 5);
+        INSERT INTO employees VALUES (9, 'Ivy Chen', 'Sales', 51000.0, '2023-01-18', 3);
+        INSERT INTO employees VALUES (10, 'Jack Taylor', 'Marketing', 58000.0, '2024-02-01', NULL);
+
+validation:
+  method: output
+  expected_output: |
+    Alice Johnson|85000.0
+    Bob Smith|72000.0
+    Eva Martinez|95000.0
+    Henry Brown|78000.0
+
+hints:
+  - "Add a WHERE clause after FROM to filter by department."
+  - "Text values in SQL are enclosed in single quotes: WHERE department = 'Engineering'"
+  - "Add ORDER BY name at the end of the query."
+
+solution: |
+  SELECT name, salary
+  FROM employees
+  WHERE department = 'Engineering'
+  ORDER BY name;
+
+explanation: |
+  The WHERE clause filters rows before they appear in the result. Only rows where
+  `department = 'Engineering'` pass the filter.
+
+  Note that SQL uses single `=` for equality comparison (not `==`). Text values
+  must be in single quotes. The query returns four engineers: Alice, Bob, Eva,
+  and Henry, ordered alphabetically by name.

@@ -1,0 +1,64 @@
+id: increment
+title: "Pre vs Post Increment"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```cpp
+  #include <iostream>
+  int main() {
+      int a = 5;
+      int b = a++;
+      int c = ++a;
+      std::cout << a << " " << b << " " << c << std::endl;
+      return 0;
+  }
+  ```
+
+  Enter the three numbers separated by spaces.
+
+starter: |
+  #include <iostream>
+  int main() {
+      int a = 5;
+      int b = a++;
+      int c = ++a;
+      std::cout << a << " " << b << " " << c << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "7 5 7"
+
+hints:
+  - "Post-increment (`a++`) returns the current value of `a` BEFORE incrementing. So `int b = a++` gives `b` the old value of `a`, then bumps `a` up by 1."
+  - "After `int b = a++`, b is 5 and a is 6. Now pre-increment (`++a`) increments `a` first, THEN returns the new value."
+  - "After `int c = ++a`, a goes from 6 to 7, and c gets that new value 7. So the output is: a=7, b=5, c=7."
+
+solution: |
+  #include <iostream>
+  int main() {
+      int a = 5;
+      int b = a++;
+      int c = ++a;
+      std::cout << a << " " << b << " " << c << std::endl;
+      return 0;
+  }
+
+explanation: |
+  Trace through it step by step:
+
+  1. `int a = 5;` — a is 5.
+  2. `int b = a++;` — Post-increment: b gets the current value of a (5),
+     then a is incremented to 6. So b = 5, a = 6.
+  3. `int c = ++a;` — Pre-increment: a is incremented first (6 → 7),
+     then c gets the new value. So a = 7, c = 7.
+  4. Output: `7 5 7`
+
+  The key distinction: postfix (`a++`) means "use it, then change it" while
+  prefix (`++a`) means "change it, then use it." When the increment is on
+  its own line with no assignment, both forms behave identically — they
+  just add 1. The difference only shows up when the expression's return
+  value is captured or used.

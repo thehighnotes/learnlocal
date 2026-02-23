@@ -1,0 +1,79 @@
+id: multiple-joins
+title: "Joining Three Tables"
+type: write
+
+prompt: |
+  The database now has three tables: `customers`, `orders`, and `categories`.
+  Each order has a `category_id` that references the `categories` table.
+
+  Write a query that shows the customer name, product name, and category name
+  for all orders. You will need to join all three tables.
+
+  Expected columns: customer name, product, category name.
+  Order by: orders.id.
+
+starter: |
+  -- Join customers, orders, and categories
+  -- Return: customer name, product, category name
+  -- Order by: orders.id
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE customers (id INTEGER, name TEXT, city TEXT);
+        INSERT INTO customers VALUES (1, 'Alice', 'Portland');
+        INSERT INTO customers VALUES (2, 'Bob', 'Seattle');
+        INSERT INTO customers VALUES (3, 'Charlie', 'Portland');
+        INSERT INTO customers VALUES (4, 'Diana', 'Chicago');
+
+        CREATE TABLE categories (id INTEGER, name TEXT);
+        INSERT INTO categories VALUES (1, 'Electronics');
+        INSERT INTO categories VALUES (2, 'Accessories');
+        INSERT INTO categories VALUES (3, 'Peripherals');
+
+        CREATE TABLE orders (id INTEGER, customer_id INTEGER, product TEXT, amount REAL, category_id INTEGER);
+        INSERT INTO orders VALUES (1, 1, 'Laptop', 999.99, 1);
+        INSERT INTO orders VALUES (2, 1, 'Mouse', 29.99, 2);
+        INSERT INTO orders VALUES (3, 2, 'Keyboard', 79.99, 3);
+        INSERT INTO orders VALUES (4, 3, 'Monitor', 349.99, 3);
+        INSERT INTO orders VALUES (5, 2, 'Webcam', 59.99, 2);
+        INSERT INTO orders VALUES (6, 4, 'Headphones', 149.99, 2);
+
+validation:
+  method: output
+  expected_output: |
+    Alice|Laptop|Electronics
+    Alice|Mouse|Accessories
+    Bob|Keyboard|Peripherals
+    Charlie|Monitor|Peripherals
+    Bob|Webcam|Accessories
+    Diana|Headphones|Accessories
+
+hints:
+  - "Start with FROM customers, then JOIN orders, then JOIN categories"
+  - "First join: customers.id = orders.customer_id. Second join: orders.category_id = categories.id"
+  - "Full query: SELECT customers.name, orders.product, categories.name FROM customers JOIN orders ON customers.id = orders.customer_id JOIN categories ON orders.category_id = categories.id ORDER BY orders.id;"
+
+solution: |
+  SELECT customers.name, orders.product, categories.name
+  FROM customers
+  JOIN orders ON customers.id = orders.customer_id
+  JOIN categories ON orders.category_id = categories.id
+  ORDER BY orders.id;
+
+explanation: |
+  You can chain as many JOINs as needed. Each JOIN brings in one more table.
+  The database processes them left to right:
+
+  1. First, `customers` is joined with `orders` on customer ID.
+  2. Then that intermediate result is joined with `categories` on category ID.
+
+  The key is getting the ON conditions right — each join needs to specify which
+  columns connect the tables. Here:
+  - `customers.id = orders.customer_id` links customers to their orders.
+  - `orders.category_id = categories.id` links orders to their category.
+
+  Since we used INNER JOIN for both, only orders that have both a valid customer
+  and a valid category appear. If any order had a NULL or invalid category_id,
+  it would be excluded.

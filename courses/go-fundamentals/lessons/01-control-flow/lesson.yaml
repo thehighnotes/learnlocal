@@ -1,0 +1,31 @@
+id: control-flow
+title: "Control Flow"
+description: "Steer your programs with conditions, loops, switch, and defer"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - if-else
+  - for-loop
+  - switch
+  - break-continue
+  - nested-loops
+  - defer
+  - short-declarations
+teaches:
+  - if-else
+  - for-loops
+  - switch-statement
+  - break-continue
+  - labeled-break
+  - nested-loops
+  - defer-keyword
+  - short-variable-declarations
+recap: |
+  You learned:
+  - if/else needs no parentheses around the condition, but braces are mandatory
+  - for is Go's only loop — it replaces while, do-while, and C-style for
+  - switch does not fall through by default — no break needed
+  - break exits a loop, continue skips to the next iteration
+  - Labels let you break out of nested loops
+  - defer schedules a call to run when the enclosing function returns (LIFO order)
+  - Short variable declarations inside if let you scope a variable to the if/else block

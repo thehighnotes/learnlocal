@@ -1,0 +1,78 @@
+id: confusion-matrix
+title: "Confusion Matrix per Group"
+type: write
+
+prompt: |
+  Build a confusion matrix (TP, FP, TN, FN) for each demographic group.
+  Show how overall accuracy hides per-group failures.
+
+  Given predictions and true labels for two groups (10 items each), compute:
+  - Overall accuracy across both groups
+  - Per-group accuracy with confusion matrix breakdown
+
+starter: |
+  # Group A: 10 items
+  pred_a = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+  true_a = [1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+
+  # Group B: 10 items
+  pred_b = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+  true_b = [1, 1, 0, 0, 1, 1, 0, 0, 0, 0]
+
+  # Compute confusion matrix for each group
+  # TP: predicted 1 and true 1
+  # FP: predicted 1 and true 0
+  # TN: predicted 0 and true 0
+  # FN: predicted 0 and true 1
+
+  # Print overall accuracy and per-group breakdown
+
+validation:
+  method: output
+  expected_output: "overall: 0.75\ngroup_a: 0.9 (TP:8 FP:1 TN:1 FN:0)\ngroup_b: 0.6 (TP:2 FP:2 TN:4 FN:2)"
+
+hints:
+  - "For each group, loop through predictions and true labels. Count TP (pred=1, true=1), FP (pred=1, true=0), TN (pred=0, true=0), FN (pred=0, true=1)."
+  - "Overall accuracy: total correct from both groups divided by total items (20). Per-group accuracy: (TP+TN) / group_size."
+
+solution: |
+  pred_a = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+  true_a = [1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+
+  pred_b = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+  true_b = [1, 1, 0, 0, 1, 1, 0, 0, 0, 0]
+
+  def confusion(pred, true):
+      tp = sum(1 for p, t in zip(pred, true) if p == 1 and t == 1)
+      fp = sum(1 for p, t in zip(pred, true) if p == 1 and t == 0)
+      tn = sum(1 for p, t in zip(pred, true) if p == 0 and t == 0)
+      fn = sum(1 for p, t in zip(pred, true) if p == 0 and t == 1)
+      return tp, fp, tn, fn
+
+  tp_a, fp_a, tn_a, fn_a = confusion(pred_a, true_a)
+  tp_b, fp_b, tn_b, fn_b = confusion(pred_b, true_b)
+
+  total_correct = (tp_a + tn_a) + (tp_b + tn_b)
+  total = len(pred_a) + len(pred_b)
+  overall = round(total_correct / total, 2)
+
+  acc_a = round((tp_a + tn_a) / len(pred_a), 2)
+  acc_b = round((tp_b + tn_b) / len(pred_b), 2)
+
+  print(f"overall: {overall}")
+  print(f"group_a: {acc_a} (TP:{tp_a} FP:{fp_a} TN:{tn_a} FN:{fn_a})")
+  print(f"group_b: {acc_b} (TP:{tp_b} FP:{fp_b} TN:{tn_b} FN:{fn_b})")
+
+explanation: |
+  Overall accuracy is 0.75 — looks reasonable. But the breakdown tells a
+  different story:
+
+  Group A: 0.90 accuracy. 8 true positives, only 1 false positive. The model
+  works well here.
+
+  Group B: 0.60 accuracy. Only 2 true positives, 2 false positives, and 2
+  false negatives. The model fails on both positive and negative cases.
+
+  The confusion matrix reveals that overall accuracy is inflated by group A's
+  strong performance, hiding group B's poor performance. This is why per-group
+  evaluation is essential for detecting bias.

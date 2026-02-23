@@ -1,0 +1,62 @@
+id: word-count
+title: "Word Frequency Counter"
+type: write
+
+prompt: |
+  Count the frequency of each word in the text "the cat sat on the mat the cat".
+
+  Print each word and its count in the format "word: count", sorted
+  alphabetically by word, one per line.
+
+  Expected output:
+  cat: 2
+  mat: 1
+  on: 1
+  sat: 1
+  the: 3
+
+starter: |
+  text = "the cat sat on the mat the cat"
+  # Count word frequencies and print sorted by word
+
+validation:
+  method: output
+  expected_output: |
+    cat: 2
+    mat: 1
+    on: 1
+    sat: 1
+    the: 3
+
+hints:
+  - "Use text.split() to break the string into a list of words"
+  - "Build a dictionary of counts: for each word, use counts[word] = counts.get(word, 0) + 1"
+  - "Use sorted() on the dictionary to iterate over keys alphabetically: for word in sorted(counts):"
+
+solution: |
+  text = "the cat sat on the mat the cat"
+  counts = {}
+  for word in text.split():
+      counts[word] = counts.get(word, 0) + 1
+  for word in sorted(counts):
+      print(f"{word}: {counts[word]}")
+
+explanation: |
+  This exercise combines several dictionary concepts into a practical pattern:
+
+  1. `text.split()` breaks the string into a list of words:
+     `["the", "cat", "sat", "on", "the", "mat", "the", "cat"]`
+
+  2. The counting loop uses `.get()` with a default of 0:
+     - First time seeing "the": `counts.get("the", 0)` returns 0, so we set it to 1
+     - Second time: returns 1, so we set it to 2
+     - And so on for each word
+
+  3. `sorted(counts)` returns the keys in alphabetical order. We iterate
+     over the sorted keys and print each word with its count.
+
+  The `.get(word, 0) + 1` pattern is the idiomatic way to count in Python.
+  It avoids the need for an `if word in counts` check before incrementing.
+
+  For production code, Python's `collections.Counter` does this in one line,
+  but understanding the manual approach teaches you how dictionaries work.

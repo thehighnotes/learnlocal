@@ -1,0 +1,82 @@
+id: panic-recover
+title: "panic and recover"
+type: write
+
+prompt: |
+  Write a function `dangerous()` that prints `"about to panic"` and then calls
+  `panic("something went wrong")`.
+
+  Write a function `safeCall()` that uses `defer` and `recover` to catch the
+  panic. In the deferred function, if `recover()` returns a non-nil value,
+  print `"recovered: VALUE"`. After the deferred recovery is set up, call
+  `dangerous()`.
+
+  In `main`, call `safeCall()` and then print `"after recovery"`.
+
+  Expected output:
+  about to panic
+  recovered: something went wrong
+  after recovery
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // TODO: write func dangerous() that prints and panics
+
+  // TODO: write func safeCall() that recovers from panic
+
+  func main() {
+      // TODO: call safeCall(), then print "after recovery"
+  }
+
+validation:
+  method: output
+  expected_output: "about to panic\nrecovered: something went wrong\nafter recovery"
+
+hints:
+  - "In `dangerous()`: `fmt.Println(\"about to panic\")` then `panic(\"something went wrong\")`"
+  - "In `safeCall()`: use `defer func() { if r := recover(); r != nil { fmt.Println(\"recovered:\", r) } }()` before calling `dangerous()`"
+  - "`recover()` only works inside a deferred function. It returns the value passed to `panic`, or nil if no panic occurred."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func dangerous() {
+      fmt.Println("about to panic")
+      panic("something went wrong")
+  }
+
+  func safeCall() {
+      defer func() {
+          if r := recover(); r != nil {
+              fmt.Println("recovered:", r)
+          }
+      }()
+      dangerous()
+  }
+
+  func main() {
+      safeCall()
+      fmt.Println("after recovery")
+  }
+
+explanation: |
+  `panic` stops normal execution of the current function and begins unwinding
+  the stack. Before the function returns, any `defer` statements run — and
+  that is where `recover` can intercept the panic.
+
+  `recover()` returns the value that was passed to `panic`. If no panic is in
+  progress, it returns `nil`. It only works inside a deferred function — calling
+  it anywhere else always returns `nil`.
+
+  After `recover` catches the panic, execution continues normally. The panicking
+  function (`dangerous`) does not resume, but `safeCall` returns normally, and
+  `main` continues to the next line.
+
+  Use `panic`/`recover` sparingly. They are for truly unrecoverable situations
+  or for library boundaries that need to convert panics into errors. For normal
+  error handling, return `error` values.

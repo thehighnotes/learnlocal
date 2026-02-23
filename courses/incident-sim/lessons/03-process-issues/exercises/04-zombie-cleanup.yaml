@@ -1,0 +1,46 @@
+id: zombie-cleanup
+title: "Identify Zombie Processes"
+type: command
+prompt: |
+  ALERT: The monitoring system reports a growing number of zombie processes.
+  They're not using resources, but they're filling the process table and
+  the system will eventually refuse to spawn new processes.
+
+  Examine `ps_output.txt` and find all **zombie** processes (state `Z`).
+  Write their PIDs to `zombies.txt`, one PID per line, sorted numerically.
+starter: |
+  # Find all zombie processes (STAT column contains Z)
+  # Write their PIDs to zombies.txt, one per line, sorted
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > ps_output.txt << 'PSEOF'\nUSER       PID %CPU %MEM    VSZ   RSS TTY  STAT START   TIME COMMAND\nroot         1  0.0  0.1 169344 11200 ?    Ss   08:00   0:03 /sbin/init\nroot       142  0.0  0.0  47852  3840 ?    Ss   08:00   0:00 /usr/sbin/sshd\nwww-data   387  0.5  1.8 412000 36864 ?    S    08:01   0:12 nginx: worker process\nappuser   1023  2.1  4.2 890000 86016 ?    S    08:05   1:30 java -jar api-server.jar\nappuser   1456  0.0  0.0      0     0 ?    Z    09:10   0:00 [worker-7] <defunct>\nappuser   1502  0.3  0.6 120000 12288 ?    S    09:12   0:03 redis-server *:6379\nappuser   1678  0.0  0.0      0     0 ?    Z    09:18   0:00 [worker-12] <defunct>\nroot       744  0.0  0.0  26000  2048 ?    Ss   08:03   0:00 /usr/sbin/cron\nappuser   1801  0.0  0.0      0     0 ?    Z    09:25   0:00 [batch-proc] <defunct>\npostgres   512  1.2  3.5 620000 71680 ?    S    08:02   0:45 postgres: writer process\nnobody    1944  0.0  0.1  32000  2560 ?    S    09:30   0:00 dnsmasq\nappuser   2015  0.0  0.0      0     0 ?    Z    09:35   0:00 [report-gen] <defunct>\nappuser   1720  0.8  2.1 450000 43008 ?    S    09:25   0:15 node web-frontend.js\nPSEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: zombies.txt
+    - file_contains:
+        path: zombies.txt
+        content: "1456"
+    - file_contains:
+        path: zombies.txt
+        content: "1678"
+    - file_contains:
+        path: zombies.txt
+        content: "1801"
+    - file_contains:
+        path: zombies.txt
+        content: "2015"
+hints:
+  - "Zombie processes have `Z` in the STAT column and often show `<defunct>` at the end."
+  - "There are 4 zombies: PIDs 1456, 1678, 1801, and 2015."
+  - "printf '1456\\n1678\\n1801\\n2015\\n' > zombies.txt"
+solution: |
+  grep ' Z ' ps_output.txt | awk '{print $2}' | sort -n > zombies.txt
+explanation: |
+  Zombie processes (state Z) have finished executing but their parent hasn't
+  read their exit status via wait(). They consume a process table slot but no
+  CPU or memory. The real fix is to fix or restart the parent process so it
+  properly reaps its children. You can't kill a zombie — it's already dead.
+  Killing the parent will cause init (PID 1) to adopt and reap them.

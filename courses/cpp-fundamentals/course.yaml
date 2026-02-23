@@ -1,0 +1,56 @@
+name: "C++ Fundamentals"
+version: "2.0.0"
+description: "Learn C++ from the ground up — variables, control flow, functions, arrays, pointers, and structs"
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+
+language:
+  id: cpp
+  display_name: "C++"
+  extension: ".cpp"
+  steps:
+    - name: compile
+      command: "g++"
+      args: ["-std=c++17", "-Wall", "-Wextra", "-o", "{dir}/{output}", "{dir}/{main}"]
+      check_exit_code: true
+    - name: run
+      command: "{dir}/{output}"
+      args: []
+      capture_output: true
+  limits:
+    timeout_seconds: 10
+    max_output_bytes: 65536
+
+lessons:
+  - id: hello-world
+    title: "Hello World & Program Structure"
+
+  - id: variables
+    title: "Variables and Types"
+    requires: [hello-world]
+
+  - id: operators
+    title: "Operators and Expressions"
+    requires: [variables]
+
+  - id: control-flow
+    title: "Control Flow"
+    requires: [variables, operators]
+
+  - id: functions
+    title: "Functions"
+    requires: [control-flow]
+
+  - id: arrays-strings
+    title: "Arrays and Strings"
+    requires: [variables, control-flow]
+
+  - id: pointers
+    title: "Pointers and References"
+    requires: [variables, functions]
+
+  - id: structs
+    title: "Structs"
+    requires: [variables, functions, arrays-strings]
+
+estimated_minutes_per_lesson: 30

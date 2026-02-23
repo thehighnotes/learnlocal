@@ -1,0 +1,48 @@
+id: input-output
+title: "Reading Input"
+type: write
+
+prompt: |
+  Write a program that reads a name from standard input and prints a greeting.
+
+  The program should:
+  1. Read one line of input (a name)
+  2. Print: Hello, {name}!
+
+  For example, if the input is "Alice", the output should be: Hello, Alice!
+
+  To read from stdin in Node.js:
+  const name = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+
+input: "Alice\n"
+
+starter: |
+  // Read a name from stdin and greet them
+  // Use: require("fs").readFileSync("/dev/stdin", "utf8").trim()
+
+validation:
+  method: output
+  expected_output: "Hello, Alice!"
+
+hints:
+  - "Use require(\"fs\").readFileSync(\"/dev/stdin\", \"utf8\").trim() to read input as a string."
+  - "Store the result in a variable, then use it in your console.log() call."
+  - "The full solution: const name = require(\"fs\").readFileSync(\"/dev/stdin\", \"utf8\").trim(); console.log(`Hello, ${name}!`);"
+
+solution: |
+  const name = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  console.log(`Hello, ${name}!`);
+
+explanation: |
+  Reading input in Node.js is different from Python or C++ because Node.js
+  is designed around asynchronous I/O. For simple learning exercises, the
+  synchronous approach works well:
+
+  - `require("fs")` loads Node's built-in file system module.
+  - `.readFileSync("/dev/stdin", "utf8")` reads all of standard input as a
+    UTF-8 string. This blocks until input is complete.
+  - `.trim()` removes any trailing newline or whitespace.
+
+  The output uses a **template literal** (backtick string) with `${name}`
+  to embed the variable. Template literals are enclosed in backticks (`)
+  instead of quotes and allow embedded expressions with ${...}.

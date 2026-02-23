@@ -1,0 +1,64 @@
+id: result-type
+title: "Using Result<T, E>"
+type: write
+
+prompt: |
+  Write a function `parse_num(s: &str) -> Result<i32, String>` that tries to
+  parse the string into an `i32`. On success, return `Ok(value)`. On failure,
+  return `Err` with the message `"not a number"`.
+
+  In `main`, call `parse_num` twice — once with `"42"` and once with `"abc"`.
+  Print the results using the `{:?}` debug format, one per line.
+
+  Expected output:
+  Ok(42)
+  Err("not a number")
+
+starter: |
+  fn parse_num(s: &str) -> Result<i32, String> {
+      // Try to parse s into an i32
+      // Return Ok(value) on success
+      // Return Err("not a number".to_string()) on failure
+      todo!()
+  }
+
+  fn main() {
+      // Call parse_num("42") and print with {:?}
+      // Call parse_num("abc") and print with {:?}
+  }
+
+validation:
+  method: output
+  expected_output: "Ok(42)\nErr(\"not a number\")"
+
+hints:
+  - "Use `s.parse::<i32>()` to attempt the conversion. It returns a Result."
+  - "Use `match` on the parse result: `Ok(n) => Ok(n)`, `Err(_) => Err(\"not a number\".to_string())`."
+  - "In main: `println!(\"{:?}\", parse_num(\"42\"));` prints the Result in debug format."
+
+solution: |
+  fn parse_num(s: &str) -> Result<i32, String> {
+      match s.parse::<i32>() {
+          Ok(n) => Ok(n),
+          Err(_) => Err("not a number".to_string()),
+      }
+  }
+
+  fn main() {
+      println!("{:?}", parse_num("42"));
+      println!("{:?}", parse_num("abc"));
+  }
+
+explanation: |
+  `s.parse::<i32>()` returns `Result<i32, ParseIntError>`. We match on it:
+  - `Ok(n)` means the parse succeeded, so we rewrap it as `Ok(n)`.
+  - `Err(_)` means it failed. We discard the original error and return our
+    own `Err("not a number".to_string())`.
+
+  The `{:?}` format specifier uses the Debug trait to print the Result,
+  showing `Ok(42)` or `Err("not a number")` with their enum variant names.
+  This is different from `{}` (Display), which is not implemented for Result.
+
+  This pattern — wrapping a library error into your own error type — is
+  fundamental to Rust error handling. Every function that can fail returns
+  Result, making errors explicit in the type system.

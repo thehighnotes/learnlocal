@@ -1,0 +1,45 @@
+name: "Git Time Travel"
+version: "1.0.0"
+description: "Master git through hands-on rescue missions — fix broken repos, resolve conflicts, recover lost commits. Assumes basic terminal comfort; teaches git from first commit to advanced recovery."
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+platform: linux
+
+language:
+  id: bash
+  display_name: "Bash"
+  extension: ".sh"
+  steps:
+    - name: run
+      command: "bash"
+      args: ["{dir}/{main}"]
+      capture_output: true
+  limits:
+    timeout_seconds: 10
+    max_output_bytes: 65536
+
+lessons:
+  - id: first-steps
+    title: "First Steps"
+
+  - id: branching
+    title: "Branching & Merging"
+    requires: [first-steps]
+
+  - id: undoing
+    title: "Undoing Things"
+    requires: [first-steps]
+
+  - id: conflicts
+    title: "Conflict Resolution"
+    requires: [branching]
+
+  - id: time-travel
+    title: "Time Travel"
+    requires: [undoing]
+
+  - id: rescue-missions
+    title: "Rescue Missions"
+    requires: [conflicts, time-travel]
+
+estimated_minutes_per_lesson: 25

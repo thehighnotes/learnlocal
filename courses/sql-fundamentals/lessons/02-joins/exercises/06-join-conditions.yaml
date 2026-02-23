@@ -1,0 +1,79 @@
+id: join-conditions
+title: "Join with Complex Conditions"
+type: fill-blank
+
+prompt: |
+  The query below should show customer names alongside only their high-value
+  orders (amount over 100). The join condition needs to check both the customer
+  ID match AND the amount threshold.
+
+  Fill in the blanks to complete the ON clause. The result should only include
+  orders where the amount exceeds 100.
+
+  Expected columns: customer name, product, amount.
+  Order by: orders.id.
+
+starter: |
+  SELECT c.name, o.product, o.amount
+  FROM customers c
+  JOIN orders o ON ___ = ___ AND o.amount > ___
+  ORDER BY o.id;
+  -- Replace each ___ with the correct value
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE customers (id INTEGER, name TEXT, city TEXT);
+        INSERT INTO customers VALUES (1, 'Alice', 'Portland');
+        INSERT INTO customers VALUES (2, 'Bob', 'Seattle');
+        INSERT INTO customers VALUES (3, 'Charlie', 'Portland');
+        INSERT INTO customers VALUES (4, 'Diana', 'Chicago');
+        INSERT INTO customers VALUES (5, 'Eve', 'Seattle');
+        INSERT INTO customers VALUES (6, 'Frank', 'Denver');
+
+        CREATE TABLE orders (id INTEGER, customer_id INTEGER, product TEXT, amount REAL, order_date TEXT);
+        INSERT INTO orders VALUES (1, 1, 'Laptop', 999.99, '2024-01-15');
+        INSERT INTO orders VALUES (2, 1, 'Mouse', 29.99, '2024-01-15');
+        INSERT INTO orders VALUES (3, 2, 'Keyboard', 79.99, '2024-02-01');
+        INSERT INTO orders VALUES (4, 3, 'Monitor', 349.99, '2024-02-10');
+        INSERT INTO orders VALUES (5, 2, 'Webcam', 59.99, '2024-02-15');
+        INSERT INTO orders VALUES (6, 4, 'Headphones', 149.99, '2024-03-01');
+        INSERT INTO orders VALUES (7, 1, 'USB Cable', 12.99, '2024-03-05');
+        INSERT INTO orders VALUES (8, 5, 'Tablet', 499.99, '2024-03-10');
+        INSERT INTO orders VALUES (9, 3, 'Charger', 24.99, '2024-03-15');
+
+validation:
+  method: output
+  expected_output: |
+    Alice|Laptop|999.99
+    Charlie|Monitor|349.99
+    Diana|Headphones|149.99
+    Eve|Tablet|499.99
+
+hints:
+  - "The first two blanks link customers to orders: c.id = o.customer_id"
+  - "The third blank is the amount threshold — orders over 100"
+  - "Complete ON clause: ON c.id = o.customer_id AND o.amount > 100"
+
+solution: |
+  SELECT c.name, o.product, o.amount
+  FROM customers c
+  JOIN orders o ON c.id = o.customer_id AND o.amount > 100
+  ORDER BY o.id;
+
+explanation: |
+  The ON clause can include multiple conditions joined with AND. Here the join
+  does two things at once:
+
+  1. `c.id = o.customer_id` — links each order to its customer (the standard
+     join condition).
+  2. `o.amount > 100` — filters out orders with amount 100 or less.
+
+  Only 4 of the 9 orders have an amount over 100: Laptop (999.99), Monitor
+  (349.99), Headphones (149.99), and Tablet (499.99).
+
+  Note: with INNER JOIN, putting the filter in ON vs WHERE gives the same
+  result. But with LEFT JOIN, they behave differently — ON preserves all left
+  rows while WHERE filters after the join. This distinction matters in more
+  advanced queries.

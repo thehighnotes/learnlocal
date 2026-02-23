@@ -1,0 +1,48 @@
+id: template-expr
+title: "Template Expressions"
+type: write
+
+prompt: |
+  Given these variables (in the starter code):
+  - items = 3
+  - price = 4.5
+
+  Use a template literal with embedded expressions to print:
+  3 items at $4.5 each = $13.5 total
+
+  The total should be calculated inside the ${...} expression.
+
+starter: |
+  const items = 3;
+  const price = 4.5;
+  // Use a template literal with ${items * price} for the total
+
+validation:
+  method: output
+  expected_output: "3 items at $4.5 each = $13.5 total"
+
+hints:
+  - "Template literals can contain math: ${items * price} computes the total."
+  - "The full template: `${items} items at $${price} each = $${items * price} total`"
+  - "Note the $$ — the first $ is the literal dollar sign, the second starts the expression."
+
+solution: |
+  const items = 3;
+  const price = 4.5;
+  console.log(`${items} items at $${price} each = $${items * price} total`);
+
+explanation: |
+  Template literal expressions can contain any valid JavaScript expression:
+
+  - `${items}` → 3 (simple variable)
+  - `${price}` → 4.5 (simple variable)
+  - `${items * price}` → 13.5 (computed expression)
+
+  The `$${price}` part might look confusing: the first `$` is a literal
+  dollar sign character, and `${price}` is the template expression. The
+  parser knows the difference because `${` starts an expression but
+  `$` followed by anything else is just the dollar sign character.
+
+  You can put function calls, ternary operators, and even other template
+  literals inside ${...}. However, keep expressions simple — if the logic
+  is complex, compute it in a variable first.

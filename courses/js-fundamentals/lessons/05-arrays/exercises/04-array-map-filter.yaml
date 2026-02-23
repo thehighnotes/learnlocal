@@ -1,0 +1,43 @@
+id: array-map-filter
+title: "Map and Filter"
+type: write
+
+prompt: |
+  Given the array [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+  1. Filter to keep only even numbers
+  2. Map to double each remaining number
+  3. Print the result joined with ", "
+
+  Expected output: 4, 8, 12, 16, 20
+
+starter: |
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  // Filter for evens, then map to double, then print joined
+
+validation:
+  method: output
+  expected_output: "4, 8, 12, 16, 20"
+
+hints:
+  - ".filter(n => n % 2 === 0) keeps only even numbers."
+  - ".map(n => n * 2) doubles each number."
+  - "Chain them: numbers.filter(n => n % 2 === 0).map(n => n * 2).join(\", \")"
+
+solution: |
+  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const result = numbers.filter(n => n % 2 === 0).map(n => n * 2);
+  console.log(result.join(", "));
+
+explanation: |
+  Method chaining is a powerful pattern with arrays:
+
+  1. `.filter(n => n % 2 === 0)` → [2, 4, 6, 8, 10] (keep evens)
+  2. `.map(n => n * 2)` → [4, 8, 12, 16, 20] (double each)
+
+  Each method returns a new array, so you can chain them directly. The
+  original `numbers` array is never modified.
+
+  The arrow functions `n => n % 2 === 0` and `n => n * 2` are callbacks —
+  functions passed as arguments. `.filter()` calls its callback for each
+  element and keeps those where it returns true. `.map()` calls its callback
+  for each element and collects the return values into a new array.

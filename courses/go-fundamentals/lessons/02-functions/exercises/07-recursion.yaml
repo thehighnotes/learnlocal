@@ -1,0 +1,86 @@
+id: recursion
+title: "Recursive Factorial"
+type: write
+
+prompt: |
+  Write a recursive function:
+
+    func factorial(n int) int
+
+  It should return n! (n factorial), defined as:
+  - factorial(0) = 1  (base case)
+  - factorial(n) = n * factorial(n-1)  (recursive case)
+
+  In main, print factorial(0), factorial(5), and factorial(10).
+
+  Expected output:
+  1
+  120
+  3628800
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write func factorial(n int) int
+  // Base case: factorial(0) = 1
+  // Recursive case: n * factorial(n - 1)
+
+  func main() {
+      fmt.Println(factorial(0))
+      fmt.Println(factorial(5))
+      fmt.Println(factorial(10))
+  }
+
+validation:
+  method: output
+  expected_output: "1\n120\n3628800"
+
+hints:
+  - "Start with the base case: if n == 0 { return 1 }"
+  - "The recursive case multiplies n by factorial of (n - 1)."
+  - "func factorial(n int) int { if n == 0 { return 1 } return n * factorial(n-1) }"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func factorial(n int) int {
+      if n == 0 {
+          return 1
+      }
+      return n * factorial(n - 1)
+  }
+
+  func main() {
+      fmt.Println(factorial(0))
+      fmt.Println(factorial(5))
+      fmt.Println(factorial(10))
+  }
+
+explanation: |
+  Recursion means a function calls itself. Every recursive function needs:
+
+  1. **Base case**: `if n == 0 { return 1 }` — this stops the recursion.
+     Without it, the function would call itself forever until Go panics
+     with a stack overflow.
+
+  2. **Recursive case**: `return n * factorial(n-1)` — this breaks the
+     problem into a smaller subproblem. Each call reduces n by 1, moving
+     toward the base case.
+
+  The call chain for factorial(5):
+  - factorial(5) = 5 * factorial(4)
+  - factorial(4) = 4 * factorial(3)
+  - factorial(3) = 3 * factorial(2)
+  - factorial(2) = 2 * factorial(1)
+  - factorial(1) = 1 * factorial(0)
+  - factorial(0) = 1 (base case!)
+
+  Then the results multiply back: 1 * 1 * 2 * 3 * 4 * 5 = 120.
+
+  factorial(10) = 3,628,800. Go's `int` type is 64-bit on most systems,
+  so it can handle factorials up to about 20 before overflowing. For larger
+  values, you would need the `math/big` package.

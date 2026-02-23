@@ -1,0 +1,63 @@
+id: ownership-move
+title: "Understanding Move Semantics"
+type: fix
+
+prompt: |
+  This program tries to use a String after it has been moved to another variable.
+  The compiler will reject it because `s1` is no longer valid after the move.
+
+  Fix the code so that both print statements work. The output should be:
+
+  ```
+  s1 = hello
+  s2 = hello
+  ```
+
+  Hint: you need to keep `s1` valid while also creating `s2` with the same content.
+
+starter: |
+  fn main() {
+      let s1 = String::from("hello");
+      let s2 = s1;
+
+      println!("s1 = {}", s1);
+      println!("s2 = {}", s2);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    s1 = hello
+    s2 = hello
+
+hints:
+  - "When you write `let s2 = s1;`, ownership of the String moves from s1 to s2. After that, s1 is invalid. You need a way to create s2 without invalidating s1."
+  - "The clone() method creates a deep copy of a String. Both the original and the clone are independently owned."
+  - "Change `let s2 = s1;` to `let s2 = s1.clone();` — this gives s2 its own copy of the data while s1 stays valid."
+
+solution: |
+  fn main() {
+      let s1 = String::from("hello");
+      let s2 = s1.clone();
+
+      println!("s1 = {}", s1);
+      println!("s2 = {}", s2);
+  }
+
+explanation: |
+  The original code failed because `let s2 = s1;` moves ownership of the String
+  from `s1` to `s2`. After a move, the original variable is invalidated — Rust
+  will not let you use it.
+
+  The fix is `let s2 = s1.clone();`. This calls the `clone()` method, which
+  creates a brand-new String with its own heap allocation containing a copy of
+  the data. Now `s1` and `s2` each own their own String independently.
+
+  Move semantics exist to prevent double-free bugs. If both `s1` and `s2`
+  pointed to the same heap memory and both tried to free it when they went out
+  of scope, the program would crash. Rust avoids this by ensuring only one
+  variable owns each piece of heap data at a time.
+
+  Note that simple types like integers implement the `Copy` trait and are
+  copied automatically — `let x = 5; let y = x;` works fine because integers
+  live entirely on the stack.

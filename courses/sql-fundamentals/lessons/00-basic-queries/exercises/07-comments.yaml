@@ -1,0 +1,62 @@
+id: comments
+title: "SQL Comments"
+type: predict
+
+prompt: |
+  Read the SQL below carefully. Some parts are commented out.
+
+  What output will this query produce? The `users` table has columns:
+  id (INTEGER), name (TEXT), and email (TEXT).
+
+  Type the exact output, one row per line, columns separated by `|`.
+
+starter: |
+  -- SELECT * FROM users;
+  SELECT
+    id,
+    /* name, */
+    email
+  FROM users;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE users (id INTEGER, name TEXT, email TEXT);
+        INSERT INTO users VALUES (1, 'Alice', 'alice@example.com');
+        INSERT INTO users VALUES (2, 'Bob', 'bob@example.com');
+
+validation:
+  method: output
+  expected_output: |
+    1|alice@example.com
+    2|bob@example.com
+
+hints:
+  - "The first line is a single-line comment (--) so that entire SELECT is ignored"
+  - "In the second query, /* name, */ is a block comment — the name column is excluded"
+  - "Only id and email are selected, for both rows: 1|alice@example.com and 2|bob@example.com"
+
+solution: |
+  -- SELECT * FROM users;
+  SELECT
+    id,
+    /* name, */
+    email
+  FROM users;
+
+explanation: |
+  Two comment styles are at work here:
+
+  1. `-- SELECT * FROM users;` — the double dash makes this entire line a
+     comment. SQLite ignores it completely. This SELECT never runs.
+
+  2. `/* name, */` — the block comment removes the `name` column from the
+     second SELECT. Only `id` and `email` remain.
+
+  So the effective query is `SELECT id, email FROM users;`, which returns
+  two rows: `1|alice@example.com` and `2|bob@example.com`.
+
+  Block comments are useful for temporarily disabling parts of a query while
+  debugging. Single-line comments are great for annotations explaining why
+  a query is written a certain way.

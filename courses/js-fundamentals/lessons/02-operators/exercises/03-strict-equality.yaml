@@ -1,0 +1,43 @@
+id: strict-equality
+title: "Equality Quirks"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```javascript
+  console.log(0 == "");
+  console.log(0 === "");
+  console.log(null == undefined);
+  console.log(null === undefined);
+  ```
+
+  These four lines compare the same pairs of values using loose (==) and
+  strict (===) equality. Run the code to see the difference.
+
+validation:
+  method: output
+  expected_output: "true\nfalse\ntrue\nfalse"
+
+hints:
+  - "== performs type coercion before comparing. === does not — both type and value must match."
+  - "0 == \"\" is true because both coerce to 0. 0 === \"\" is false because number !== string."
+
+solution: |
+  console.log(0 == "");
+  console.log(0 === "");
+  console.log(null == undefined);
+  console.log(null === undefined);
+
+explanation: |
+  The == (loose equality) operator converts types before comparing:
+
+  - `0 == ""` → true: empty string converts to 0, and 0 equals 0.
+  - `0 === ""` → false: a number is not a string, no conversion is done.
+  - `null == undefined` → true: this is a special rule in the spec —
+    null and undefined are loosely equal to each other (and nothing else).
+  - `null === undefined` → false: null is type "object", undefined is
+    type "undefined". Different types, so strict equality fails.
+
+  This is why the JavaScript community overwhelmingly recommends using
+  === and !== exclusively. The == rules are complex and error-prone.

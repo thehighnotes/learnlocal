@@ -1,0 +1,32 @@
+id: ownership
+title: "Ownership & Borrowing"
+description: "Master Rust's ownership system — the key to memory safety without a garbage collector"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - ownership-move
+  - clone-data
+  - references
+  - mutable-refs
+  - borrowing-rules
+  - string-slices
+  - lifetime-intro
+teaches:
+  - ownership-rules
+  - move-semantics
+  - clone-trait
+  - references
+  - mutable-references
+  - borrowing-rules
+  - string-slices
+  - lifetimes-intro
+recap: |
+  You learned:
+  - Every value in Rust has exactly one owner, and the value is dropped when the owner goes out of scope
+  - Assigning a heap-allocated value to another variable moves ownership — the original is invalidated
+  - Clone creates a deep copy when you need to keep the original
+  - References (&T) let you borrow a value without taking ownership
+  - Mutable references (&mut T) let you modify borrowed data
+  - Rust enforces: one &mut OR any number of & — never both at the same time
+  - String slices (&str) are references to a portion of a String
+  - Lifetimes ensure references never outlive the data they point to

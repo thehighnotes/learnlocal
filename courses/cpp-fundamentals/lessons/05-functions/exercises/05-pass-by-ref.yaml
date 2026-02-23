@@ -1,0 +1,58 @@
+id: pass-by-ref
+title: "Pass by Reference"
+type: write
+
+prompt: |
+  Write a function `void swap(int& a, int& b)` that swaps two values using
+  reference parameters. In `main`, create variables `x = 10` and `y = 20`,
+  call `swap(x, y)`, then print them separated by a space.
+
+starter: |
+  #include <iostream>
+
+  // Define your swap() function here
+  // Hint: the parameters use & to take references
+
+  int main() {
+      int x = 10;
+      int y = 20;
+
+      // Call swap(x, y) here
+
+      std::cout << x << " " << y << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "20 10"
+
+hints:
+  - "Reference parameters use `&` after the type: `void swap(int& a, int& b)`. This lets the function modify the caller's variables directly."
+  - "To swap two values, you need a temporary variable: `int temp = a; a = b; b = temp;`"
+  - "Put it together: define the function with the three-step swap inside, then call `swap(x, y);` before the print statement."
+
+solution: |
+  #include <iostream>
+
+  void swap(int& a, int& b) {
+      int temp = a;
+      a = b;
+      b = temp;
+  }
+
+  int main() {
+      int x = 10;
+      int y = 20;
+      swap(x, y);
+      std::cout << x << " " << y << std::endl;
+      return 0;
+  }
+
+explanation: |
+  The `&` in `int& a` makes `a` a reference --- an alias for whatever variable
+  the caller passes. When we write `a = b` inside `swap`, we are modifying the
+  original `x` and `y` in `main`, not local copies. Without the `&`, the function
+  would receive copies, swap them locally, and the originals would be unchanged.
+  The temporary variable `temp` holds one value while we overwrite it, which is
+  the standard three-step swap pattern.

@@ -1,0 +1,45 @@
+id: lr-schedule
+title: "Learning Rate Schedule"
+type: write
+
+prompt: |
+  Implement exponential learning rate decay. Each epoch, multiply the learning
+  rate by a decay factor.
+
+  Start with lr=0.1, decay=0.9. Print the learning rate for each of 5 epochs,
+  rounded to 4 decimal places.
+
+starter: |
+  lr = 0.1
+  decay = 0.9
+
+  # Print the learning rate for each epoch
+  # After printing, multiply lr by the decay factor
+  for epoch in range(5):
+      pass
+
+validation:
+  method: output
+  expected_output: "epoch 0: lr=0.1\nepoch 1: lr=0.09\nepoch 2: lr=0.081\nepoch 3: lr=0.0729\nepoch 4: lr=0.0656"
+
+hints:
+  - "Print the current lr at the start of each epoch, then update it: `lr *= decay`."
+  - "Use: `print(f'epoch {epoch}: lr={round(lr, 4)}')` then `lr *= decay`"
+
+solution: |
+  lr = 0.1
+  decay = 0.9
+
+  for epoch in range(5):
+      print(f"epoch {epoch}: lr={round(lr, 4)}")
+      lr *= decay
+
+explanation: |
+  Epoch 0: lr = 0.1. Epoch 1: 0.1 * 0.9 = 0.09. Epoch 2: 0.09 * 0.9 = 0.081.
+  Each epoch the learning rate shrinks by 10%.
+
+  This is useful because early in training you want large steps to make fast
+  progress, but later you want smaller steps to fine-tune. Without decay, a
+  learning rate that works well early may overshoot later when the model is
+  close to optimal. Most production training uses some form of learning rate
+  scheduling.

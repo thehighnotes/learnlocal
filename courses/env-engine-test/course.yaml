@@ -1,0 +1,31 @@
+name: "Environment Engine Test"
+version: "1.1.0"
+description: "Integration tests for Environment Engine v3 — setup, services, teardown, workspace view, and assertion checklist"
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+platform: linux
+
+language:
+  id: bash
+  display_name: "Bash"
+  extension: ".sh"
+  steps:
+    - name: run
+      command: "bash"
+      args: ["{dir}/{main}"]
+      capture_output: true
+  limits:
+    timeout_seconds: 10
+    max_output_bytes: 65536
+
+lessons:
+  - id: setup-teardown
+    title: "Setup & Teardown"
+
+  - id: services
+    title: "Services & Full Lifecycle"
+    requires: [setup-teardown]
+
+  - id: ui-panels
+    title: "Workspace & Assertions"
+    requires: [setup-teardown]

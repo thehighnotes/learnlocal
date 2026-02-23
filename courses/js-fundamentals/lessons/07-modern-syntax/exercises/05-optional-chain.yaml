@@ -1,0 +1,57 @@
+id: optional-chain
+title: "Optional Chaining"
+type: write
+
+prompt: |
+  Given the user object in the starter code, safely access two properties
+  using optional chaining (?.) and print each result:
+  1. user.address?.city → should print "Tokyo"
+  2. user.company?.name → should print "undefined" (company does not exist)
+
+  Expected output:
+  Tokyo
+  undefined
+
+starter: |
+  const user = {
+    name: "Alice",
+    address: { city: "Tokyo", zip: "100-0001" }
+  };
+  // Safely access user.address?.city and user.company?.name
+
+validation:
+  method: output
+  expected_output: "Tokyo\nundefined"
+
+hints:
+  - "?. returns the property if the object exists, or undefined if it is null/undefined."
+  - "user.address?.city → \"Tokyo\" (address exists). user.company?.name → undefined (company is undefined)."
+  - "console.log(user.address?.city); console.log(user.company?.name);"
+
+solution: |
+  const user = {
+    name: "Alice",
+    address: { city: "Tokyo", zip: "100-0001" }
+  };
+  console.log(user.address?.city);
+  console.log(user.company?.name);
+
+explanation: |
+  Optional chaining `?.` safely accesses properties of potentially
+  null/undefined values:
+
+  - `user.address?.city` — address exists, so .city is accessed → "Tokyo"
+  - `user.company?.name` — company is undefined, so the entire expression
+    short-circuits to undefined (instead of throwing a TypeError)
+
+  Without optional chaining, `user.company.name` would throw:
+  "TypeError: Cannot read properties of undefined"
+
+  You can chain multiple levels: `user?.address?.city?.length`
+
+  Optional chaining also works with:
+  - Method calls: `obj.method?.()` — calls only if method exists
+  - Bracket notation: `arr?.[0]` — accesses only if arr is not null/undefined
+
+  It was added in ES2020 and is now one of the most frequently used
+  features in modern JavaScript.

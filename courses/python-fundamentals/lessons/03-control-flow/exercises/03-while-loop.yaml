@@ -1,0 +1,46 @@
+id: while-loop
+title: "Count to Five"
+type: write
+
+prompt: |
+  Print the numbers 1 through 5, each on its own line, using a while loop.
+
+starter: |
+  # Use a while loop to print 1 through 5
+  # Each number on its own line
+
+validation:
+  method: output
+  expected_output: |
+    1
+    2
+    3
+    4
+    5
+
+hints:
+  - "Start a counter variable at 1. Loop while it is less than or equal to 5."
+  - "Inside the loop, print the counter, then increment it with += 1."
+  - "i = 1, while i <= 5: print(i), i += 1"
+
+solution: |
+  i = 1
+  while i <= 5:
+      print(i)
+      i += 1
+
+explanation: |
+  A while loop repeats as long as its condition is true:
+
+  1. `i = 1` -- initialize the counter before the loop.
+  2. `while i <= 5` -- check the condition. If true, run the body.
+  3. `print(i)` -- print the current value.
+  4. `i += 1` -- increment the counter. This is critical! Without it, the
+     condition never becomes false and you get an infinite loop.
+
+  The loop runs 5 times: i takes values 1, 2, 3, 4, 5. When i becomes 6,
+  the condition `6 <= 5` is false and the loop exits.
+
+  For simple counting like this, a `for` loop with `range()` is usually
+  cleaner. While loops are better when you do not know in advance how many
+  iterations you need.

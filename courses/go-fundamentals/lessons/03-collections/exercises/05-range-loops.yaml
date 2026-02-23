@@ -1,0 +1,80 @@
+id: range-loops
+title: "Range and Sum"
+type: write
+
+prompt: |
+  Given a slice `[]int{10, 20, 30}`, use a `range` loop to:
+  1. Print each index and value as: index: value
+  2. Accumulate a running sum
+  3. After the loop, print: sum=60
+
+  Expected output:
+  ```
+  0: 10
+  1: 20
+  2: 30
+  sum=60
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      nums := []int{10, 20, 30}
+      // Use range to iterate, printing "index: value" each time
+      // Accumulate the sum of all values
+      // After the loop, print "sum=<total>"
+      _ = nums
+  }
+
+validation:
+  method: output
+  expected_output: |
+    0: 10
+    1: 20
+    2: 30
+    sum=60
+
+hints:
+  - "for i, v := range nums gives you the index (i) and value (v) each iteration."
+  - "Declare sum := 0 before the loop and add v to it each iteration: sum += v"
+  - |
+    sum := 0
+    for i, v := range nums {
+        fmt.Printf("%d: %d\n", i, v)
+        sum += v
+    }
+    fmt.Printf("sum=%d\n", sum)
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      nums := []int{10, 20, 30}
+
+      sum := 0
+      for i, v := range nums {
+          fmt.Printf("%d: %d\n", i, v)
+          sum += v
+      }
+      fmt.Printf("sum=%d\n", sum)
+  }
+
+explanation: |
+  This exercise demonstrates the range keyword:
+
+  1. `for i, v := range nums` iterates over the slice. On each iteration,
+     `i` is the index (0, 1, 2) and `v` is the value (10, 20, 30).
+  2. `fmt.Printf("%d: %d\n", i, v)` formats the output. `%d` is for
+     integers, `\n` adds the newline that Printf does not add automatically.
+  3. `sum += v` accumulates the total: 10 + 20 + 30 = 60.
+  4. After the loop, we print the sum with `Printf` again.
+
+  Range works with slices, arrays, maps, strings, and channels. For slices,
+  it always gives (index, value). If you only need the index, omit the
+  second variable. If you only need the value, use `_` for the index:
+  `for _, v := range nums`.

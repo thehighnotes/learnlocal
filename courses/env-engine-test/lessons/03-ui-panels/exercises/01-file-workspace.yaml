@@ -1,0 +1,43 @@
+id: file-workspace
+title: "File Workspace Preview"
+type: write
+prompt: |
+  Look at the WORKSPACE panel above this code box. You should see:
+  - `short.txt` with its full content visible
+  - `data.csv` with 4 lines shown + "... (N more lines)" truncation
+  - `script.sh` with permissions (755) shown
+
+  Print the contents of `short.txt`.
+starter: |
+  #!/bin/bash
+  # Print the contents of short.txt
+environment:
+  files:
+    - path: short.txt
+      content: "hello world"
+    - path: data.csv
+      content: |
+        name,age,city
+        Alice,30,NYC
+        Bob,25,LA
+        Carol,28,Chicago
+        Dave,35,Seattle
+        Eve,22,Portland
+        Frank,40,Boston
+    - path: script.sh
+      content: |
+        #!/bin/bash
+        echo "I am executable"
+      permissions: "755"
+validation:
+  method: output
+  expected_output: "hello world"
+hints:
+  - "Use cat to read a file"
+solution: |
+  #!/bin/bash
+  cat short.txt
+explanation: |
+  The WORKSPACE panel shows all three files created by the environment
+  engine. `data.csv` is truncated because it has more than 4 lines.
+  `script.sh` shows its permissions (755) next to the filename.

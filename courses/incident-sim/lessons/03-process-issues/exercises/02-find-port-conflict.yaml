@@ -1,0 +1,37 @@
+id: find-port-conflict
+title: "Resolve a Port Conflict"
+type: command
+prompt: |
+  INCIDENT: The new API gateway won't start. Logs say "Address already in use"
+  on port 8080. You've captured the current port usage in `netstat_output.txt`
+  and both service configs are in the sandbox.
+
+  `api-gateway.conf` wants port 8080, but something else is already on it.
+  Change `api-gateway.conf` to use port **8081** instead so both services
+  can run.
+starter: |
+  # Check netstat_output.txt to understand the conflict
+  # Fix api-gateway.conf to use a different port
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > netstat_output.txt << 'NETEOF'\nProto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program\ntcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      142/sshd\ntcp        0      0 0.0.0.0:5432            0.0.0.0:*               LISTEN      512/postgres\ntcp        0      0 0.0.0.0:8080            0.0.0.0:*               LISTEN      1023/java\ntcp        0      0 0.0.0.0:6379            0.0.0.0:*               LISTEN      1944/redis-server\ntcp        0      0 0.0.0.0:3000            0.0.0.0:*               LISTEN      1720/node\ntcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      387/nginx\ntcp        0      0 0.0.0.0:443             0.0.0.0:*               LISTEN      387/nginx\nNETEOF\ncat > api-gateway.conf << 'GWEOF'\n# API Gateway Configuration\nservice_name=api-gateway\nlisten_port=8080\nupstream_host=127.0.0.1\nupstream_port=3000\nlog_level=info\nmax_connections=1000\nGWEOF\ncat > legacy-api.conf << 'LGEOF'\n# Legacy API Service Configuration\nservice_name=legacy-api\nlisten_port=8080\nupstream_host=127.0.0.1\nupstream_port=5432\nlog_level=warn\nmax_connections=500\nLGEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: api-gateway.conf
+    - file_contains:
+        path: api-gateway.conf
+        content: "8081"
+hints:
+  - "Look at netstat_output.txt — port 8080 is already taken by `java` (PID 1023)."
+  - "Edit api-gateway.conf and change `listen_port=8080` to `listen_port=8081`."
+  - "sed -i 's/listen_port=8080/listen_port=8081/' api-gateway.conf"
+solution: |
+  sed -i 's/listen_port=8080/listen_port=8081/' api-gateway.conf
+explanation: |
+  The netstat output showed port 8080 was held by a Java process (PID 1023) —
+  that's the legacy API. Since we can't just kill a production service, we move
+  the new gateway to 8081. In practice, you'd also update any load balancer or
+  DNS pointing at the old port, and document the change.

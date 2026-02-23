@@ -1,0 +1,45 @@
+name: "Production Incident Simulator"
+version: "1.0.0"
+description: "Something's broken. Logs are scrolling. Fix it. Real sysadmin scenarios in a sandboxed terminal. Requires Linux Fundamentals or equivalent — you should know cd, cat, grep, chmod, and basic piping."
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+platform: linux
+
+language:
+  id: bash
+  display_name: "Bash"
+  extension: ".sh"
+  steps:
+    - name: run
+      command: "bash"
+      args: ["{dir}/{main}"]
+      capture_output: true
+  limits:
+    timeout_seconds: 10
+    max_output_bytes: 65536
+
+lessons:
+  - id: first-response
+    title: "First Response"
+
+  - id: file-emergencies
+    title: "File System Emergencies"
+    requires: [first-response]
+
+  - id: process-issues
+    title: "Process & Resource Issues"
+    requires: [first-response]
+
+  - id: log-analysis
+    title: "Log Analysis"
+    requires: [file-emergencies]
+
+  - id: service-recovery
+    title: "Service Recovery"
+    requires: [process-issues]
+
+  - id: complex-incidents
+    title: "Complex Incidents"
+    requires: [log-analysis, service-recovery]
+
+estimated_minutes_per_lesson: 25

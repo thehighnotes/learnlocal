@@ -1,0 +1,46 @@
+id: array-basics
+title: "Array Declaration and Iteration"
+type: write
+
+prompt: |
+  Create an integer array with the values {10, 20, 30, 40, 50} and use
+  a for loop to print each element on its own line.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Declare an int array with values 10, 20, 30, 40, 50
+
+      // Use a for loop to print each element, one per line
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "10\n20\n30\n40\n50"
+
+hints:
+  - "Declare the array with: int nums[] = {10, 20, 30, 40, 50};"
+  - "Loop from i = 0 to i < 5, printing nums[i] each iteration."
+  - "Use std::cout << nums[i] << std::endl; inside the loop body."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int nums[] = {10, 20, 30, 40, 50};
+
+      for (int i = 0; i < 5; i++) {
+          std::cout << nums[i] << std::endl;
+      }
+
+      return 0;
+  }
+
+explanation: |
+  `int nums[] = {10, 20, 30, 40, 50};` declares an array of 5 integers.
+  The compiler infers the size from the initializer list. The for loop
+  uses index variable `i` from 0 to 4 (note: `i < 5`, not `i <= 5`).
+  Each iteration prints `nums[i]` followed by a newline via `std::endl`.

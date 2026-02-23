@@ -1,0 +1,50 @@
+id: relu
+title: "ReLU Function"
+type: write
+
+prompt: |
+  Implement the ReLU (Rectified Linear Unit) activation function:
+
+      relu(x) = max(0, x)
+
+  If the input is positive, return it unchanged. If negative, return 0.
+
+  Test with three inputs and print each result, one per line:
+  - relu(5) → 5
+  - relu(-3) → 0
+  - relu(0) → 0
+
+starter: |
+  # Implement the ReLU function
+  def relu(x):
+      pass
+
+  print(relu(5))
+  print(relu(-3))
+  print(relu(0))
+
+validation:
+  method: output
+  expected_output: "5\n0\n0"
+
+hints:
+  - "Return `max(0, x)` — Python's built-in `max()` does exactly what you need."
+  - "The function body is just: `return max(0, x)`"
+
+solution: |
+  def relu(x):
+      return max(0, x)
+
+  print(relu(5))
+  print(relu(-3))
+  print(relu(0))
+
+explanation: |
+  ReLU is the simplest non-linear activation: pass positive values through,
+  clamp negatives to zero. Despite its simplicity, ReLU is the most widely used
+  activation function in modern deep learning.
+
+  Why is it so popular? It is fast to compute, its gradient is trivial (1 for
+  positive, 0 for negative), and it avoids the "vanishing gradient" problem
+  that plagues sigmoid in deep networks. Most hidden layers in modern neural
+  networks use ReLU.

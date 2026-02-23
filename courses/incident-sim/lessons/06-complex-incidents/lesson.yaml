@@ -1,0 +1,18 @@
+id: complex-incidents
+title: "Complex Incidents"
+description: "Multiple things are wrong simultaneously. Triage, prioritize, and fix — this is the real thing."
+estimated_minutes: 35
+content: content.md
+teaches: [multi-system-triage, root-cause-analysis, post-mortem, incident-command]
+exercises:
+  - midnight-pager
+  - data-corruption
+  - deploy-gone-wrong
+  - the-cascade
+  - needle-in-haystack
+  - full-recovery
+  - write-postmortem
+recap: |
+  Real incidents are messy — multiple symptoms, red herrings, cascading failures.
+  You've now practiced the full incident lifecycle: alert -> triage -> diagnose ->
+  fix -> verify -> document. That's production-grade incident response.

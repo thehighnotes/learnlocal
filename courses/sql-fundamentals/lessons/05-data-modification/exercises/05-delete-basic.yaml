@@ -1,0 +1,59 @@
+id: delete-basic
+title: "Delete a Row"
+type: write
+
+prompt: |
+  Bob (id 2) has asked to be removed from the contacts list. Delete his row.
+
+  After deleting, write a SELECT that shows the id and name of all remaining
+  contacts, ordered by id. This verifies that Bob is gone and everyone else
+  is still there.
+
+starter: |
+  -- Delete Bob's row, then SELECT to verify he is gone
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT, phone TEXT, city TEXT);
+        INSERT INTO contacts VALUES (1, 'Alice', 'alice@example.com', '555-0101', 'Portland');
+        INSERT INTO contacts VALUES (2, 'Bob', 'bob@example.com', '555-0102', 'Seattle');
+        INSERT INTO contacts VALUES (3, 'Charlie', 'charlie@example.com', '555-0103', 'Portland');
+        INSERT INTO contacts VALUES (4, 'Diana', 'diana@example.com', '555-0104', 'Austin');
+        INSERT INTO contacts VALUES (5, 'Eve', 'eve@example.com', '555-0105', 'Seattle');
+
+validation:
+  method: output
+  expected_output: |
+    1|Alice
+    3|Charlie
+    4|Diana
+    5|Eve
+
+hints:
+  - "Use DELETE FROM contacts WHERE ... to remove a row"
+  - "Target Bob by his unique id: WHERE id = 2"
+  - "The full solution is: DELETE FROM contacts WHERE id = 2; SELECT id, name FROM contacts ORDER BY id;"
+
+solution: |
+  DELETE FROM contacts WHERE id = 2;
+
+  SELECT id, name FROM contacts ORDER BY id;
+
+explanation: |
+  `DELETE FROM contacts WHERE id = 2;` removes exactly one row — Bob's.
+
+  The WHERE clause is essential. Without it, DELETE FROM contacts would remove
+  **all five rows**, leaving an empty table. This is the most common DML mistake
+  beginners make.
+
+  The verification SELECT shows four remaining rows. Notice that the ids are
+  1, 3, 4, 5 — there is a gap where id 2 used to be. Deleting a row does not
+  renumber the remaining rows. The ids stay as they were originally assigned.
+
+  A good habit: before running a DELETE, run the same WHERE clause with SELECT
+  first to preview what will be removed:
+
+      SELECT * FROM contacts WHERE id = 2;  -- preview
+      DELETE FROM contacts WHERE id = 2;     -- then delete

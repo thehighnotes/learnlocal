@@ -1,0 +1,40 @@
+id: hello
+title: "Hello, World!"
+type: write
+
+prompt: |
+  Write a Python program that prints exactly: Hello, World!
+
+  Python's print() function sends text to the terminal. You call it with
+  parentheses and pass a string inside.
+
+starter: |
+  # Your first Python program!
+  # Print: Hello, World!
+
+validation:
+  method: output
+  expected_output: "Hello, World!"
+
+hints:
+  - "The print() function displays text. Call it with parentheses: print(...)"
+  - "Put your text inside quotes, either single or double: print(\"Hello, World!\") or print('Hello, World!')"
+  - "The complete solution is: print(\"Hello, World!\")"
+
+solution: |
+  print("Hello, World!")
+
+explanation: |
+  `print("Hello, World!")` does one thing: it sends the string "Hello, World!"
+  to the terminal, followed by a newline.
+
+  Breaking it down:
+
+  - `print` is a built-in function — it comes with Python, no imports needed.
+  - The parentheses `()` are how you call a function and pass arguments to it.
+  - `"Hello, World!"` is a **string literal** — text enclosed in double quotes.
+    Single quotes (`'Hello, World!'`) would work identically.
+
+  This is the simplest complete Python program: one line, one function call.
+  Compare this to C++ where you need `#include`, `int main()`, `std::cout`,
+  and `return 0` just to do the same thing.

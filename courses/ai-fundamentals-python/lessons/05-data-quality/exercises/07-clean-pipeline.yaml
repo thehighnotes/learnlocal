@@ -1,0 +1,112 @@
+id: clean-pipeline
+title: "Data Cleaning Pipeline"
+type: write
+
+prompt: |
+  Build a complete data cleaning pipeline that:
+  1. Loads CSV data into a list of dictionaries
+  2. Fills missing values with column means (for "age" and "score" columns)
+  3. Normalizes the numeric columns to 0-1 range
+  4. Prints summary stats
+
+  Print:
+  ```
+  records: 6
+  missing: 0
+  range: 0.0-1.0
+  ```
+
+starter: |
+  csv_data = """name,age,score
+  Alice,30,85
+  Bob,,90
+  Charlie,25,
+  Diana,35,70
+  Eve,,95
+  Frank,28,80"""
+
+  # Step 1: Parse CSV into list of dicts
+  lines = csv_data.strip().split("\n")
+  headers = lines[0].split(",")
+  rows = []
+  for line in lines[1:]:
+      values = line.split(",")
+      row = {}
+      for i, h in enumerate(headers):
+          row[h] = values[i]
+      rows.append(row)
+
+  # Step 2: Fill missing values with column mean for "age" and "score"
+
+
+  # Step 3: Normalize "age" and "score" to 0-1 range
+
+
+  # Step 4: Print summary
+  total_missing = sum(1 for row in rows for col in headers if row[col] == "")
+  all_nums = [float(row[col]) for row in rows for col in ["age", "score"]]
+  print(f"records: {len(rows)}")
+  print(f"missing: {total_missing}")
+  print(f"range: {min(all_nums)}-{max(all_nums)}")
+
+validation:
+  method: output
+  expected_output: "records: 6\nmissing: 0\nrange: 0.0-1.0"
+
+hints:
+  - "For step 2: for each numeric column, compute the mean of non-empty values, then replace empty values with that mean."
+  - "For step 3: for each numeric column, find min and max, then replace each value with `round((val - min) / (max - min), 2)`."
+
+solution: |
+  csv_data = """name,age,score
+  Alice,30,85
+  Bob,,90
+  Charlie,25,
+  Diana,35,70
+  Eve,,95
+  Frank,28,80"""
+
+  lines = csv_data.strip().split("\n")
+  headers = lines[0].split(",")
+  rows = []
+  for line in lines[1:]:
+      values = line.split(",")
+      row = {}
+      for i, h in enumerate(headers):
+          row[h] = values[i]
+      rows.append(row)
+
+  for col in ["age", "score"]:
+      known = [float(row[col]) for row in rows if row[col] != ""]
+      mean_val = sum(known) / len(known)
+      for row in rows:
+          if row[col] == "":
+              row[col] = str(mean_val)
+
+  for col in ["age", "score"]:
+      vals = [float(row[col]) for row in rows]
+      min_v = min(vals)
+      max_v = max(vals)
+      for row in rows:
+          row[col] = str(round((float(row[col]) - min_v) / (max_v - min_v), 2))
+
+  total_missing = sum(1 for row in rows for col in headers if row[col] == "")
+  all_nums = [float(row[col]) for row in rows for col in ["age", "score"]]
+  print(f"records: {len(rows)}")
+  print(f"missing: {total_missing}")
+  print(f"range: {min(all_nums)}-{max(all_nums)}")
+
+explanation: |
+  The pipeline processes data in three stages:
+
+  1. Parse: 6 records with 2 missing values (Bob's age, Charlie's score).
+
+  2. Fill: Age mean = (30+25+35+28)/4 = 29.5. Score mean = (85+90+70+95+80)/5
+     = 84.0. Missing values are replaced with these means.
+
+  3. Normalize: Each numeric column is scaled to 0.0-1.0 using min-max
+     normalization.
+
+  After cleaning: 6 records, 0 missing values, all numeric values in 0.0-1.0
+  range. This data is now ready for any AI model. In practice, you would save
+  the min/max values so you can apply the same transformation to new data.

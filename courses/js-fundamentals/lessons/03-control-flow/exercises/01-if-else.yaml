@@ -1,0 +1,51 @@
+id: if-else
+title: "if/else"
+type: write
+
+prompt: |
+  Read a number from stdin and classify it:
+  - If positive (> 0), print: positive
+  - If negative (< 0), print: negative
+  - If zero, print: zero
+
+  For example, if the input is "5", print: positive
+
+input: "5\n"
+
+starter: |
+  const input = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  const num = Number(input);
+  // Use if/else to classify the number
+
+validation:
+  method: output
+  expected_output: "positive"
+
+hints:
+  - "Use if (num > 0) for positive, else if (num < 0) for negative, else for zero."
+  - "Each branch should have a console.log() with the appropriate word."
+  - "if (num > 0) { console.log(\"positive\"); } else if (num < 0) { console.log(\"negative\"); } else { console.log(\"zero\"); }"
+
+solution: |
+  const input = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  const num = Number(input);
+  if (num > 0) {
+    console.log("positive");
+  } else if (num < 0) {
+    console.log("negative");
+  } else {
+    console.log("zero");
+  }
+
+explanation: |
+  The if/else chain checks conditions in order:
+
+  1. `if (num > 0)` — is the number positive? If yes, print "positive"
+     and skip the rest.
+  2. `else if (num < 0)` — is it negative? Only checked if the first
+     condition was false.
+  3. `else` — if neither condition was true, the number must be zero.
+
+  JavaScript requires parentheses around the condition and uses curly
+  braces for the body. For single-statement bodies, braces are technically
+  optional, but using them consistently prevents bugs.

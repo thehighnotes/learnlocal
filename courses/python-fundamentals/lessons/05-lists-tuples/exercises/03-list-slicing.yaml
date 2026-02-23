@@ -1,0 +1,42 @@
+id: list-slicing
+title: "List Slicing"
+type: write
+
+prompt: |
+  Given `nums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]`, use slicing to print:
+  1. The first 3 elements
+  2. The last 3 elements
+  3. Every other element (step of 2)
+
+  Each result should be printed on its own line.
+
+starter: |
+  nums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+  # Print the first 3 elements
+
+  # Print the last 3 elements
+
+  # Print every other element (step of 2)
+
+validation:
+  method: output
+  expected_output: "[0, 1, 2]\n[7, 8, 9]\n[0, 2, 4, 6, 8]"
+
+hints:
+  - "First 3: `nums[:3]`. Last 3: `nums[-3:]` or `nums[7:]`."
+  - "Every other element: `nums[::2]`. The third value in the slice is the step."
+
+solution: |
+  nums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+  print(nums[:3])
+  print(nums[-3:])
+  print(nums[::2])
+
+explanation: |
+  `nums[:3]` takes elements from index 0 up to (but not including) index 3,
+  giving `[0, 1, 2]`. `nums[-3:]` starts from the third-to-last element and
+  goes to the end, giving `[7, 8, 9]`. `nums[::2]` starts at the beginning,
+  goes to the end, and takes every second element: `[0, 2, 4, 6, 8]`. Slicing
+  always returns a new list. The original `nums` is never modified.

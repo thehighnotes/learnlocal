@@ -1,0 +1,53 @@
+id: unstage-file
+title: "Unstage a File"
+type: command
+golf: true
+prompt: |
+  You're working on a feature and accidentally staged `debug.log` along with
+  your real changes. The file is sitting in the staging area, ready to be
+  committed — but you don't want to commit a log file.
+
+  Unstage `debug.log` so it's no longer staged, but keep the file itself
+  in the working directory (don't delete it).
+starter: |
+  #!/bin/bash
+  # Unstage debug.log — keep the file, just remove it from staging
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'real code' > app.py && git add app.py && git commit -m 'initial commit' && echo 'lots of debug output' > debug.log && git add debug.log"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-staged
+      command: sh
+      args: ["-c", "cd {dir}/repo && git diff --cached --name-only > {dir}/staged.txt 2>&1 || true"]
+      timeout_seconds: 5
+      capture_to: teardown.log
+    - name: capture-file-exists
+      command: sh
+      args: ["-c", "cd {dir}/repo && test -f debug.log && echo 'EXISTS' > {dir}/file_check.txt || echo 'MISSING' > {dir}/file_check.txt"]
+      timeout_seconds: 5
+      capture_to: file_check.log
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/debug.log
+    - file_exists: staged.txt
+    - file_equals:
+        path: staged.txt
+        content: ""
+    - file_contains:
+        path: file_check.txt
+        content: "EXISTS"
+hints:
+  - "git restore --staged <file> removes a file from the staging area"
+  - "git restore --staged debug.log"
+solution: |
+  #!/bin/bash
+  git restore --staged debug.log
+explanation: |
+  git restore --staged moves a file from the staging area back to the
+  working directory. The file itself isn't modified — only its staging
+  status changes. The older equivalent is git reset HEAD debug.log.

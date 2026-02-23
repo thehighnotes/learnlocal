@@ -1,0 +1,30 @@
+id: data-quality
+title: "Data Quality"
+description: "Detect and fix missing values, label noise, class imbalance, and normalize data for AI"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - load-csv
+  - find-missing
+  - fill-missing
+  - label-noise
+  - class-imbalance
+  - normalize
+  - clean-pipeline
+teaches:
+  - csv-parsing
+  - missing-values
+  - mean-imputation
+  - label-noise
+  - class-imbalance
+  - normalization
+  - data-pipeline
+recap: |
+  You learned:
+  - CSV data can be parsed into lists of dictionaries with the csv module or string splitting
+  - Missing values must be detected before training — models can't handle empty fields
+  - Mean imputation fills missing values with the column average
+  - Label noise (mislabeled data) directly degrades classifier accuracy
+  - Class imbalance makes accuracy misleading — a 90/10 split gives 90% accuracy by guessing
+  - Min-max normalization scales values to 0-1 for fair comparison across features
+  - A data cleaning pipeline chains these steps: load → detect → fill → normalize

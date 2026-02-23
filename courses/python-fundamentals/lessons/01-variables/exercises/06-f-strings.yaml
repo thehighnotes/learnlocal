@@ -1,0 +1,48 @@
+id: f-strings
+title: "f-String Formatting"
+type: write
+
+prompt: |
+  Use an f-string to print: Alice is 30 years old
+
+  The starter code already defines `name` and `age`. Write a single print
+  statement using an f-string to produce the output.
+
+starter: |
+  name = "Alice"
+  age = 30
+  # Print using an f-string: "{name} is {age} years old"
+
+validation:
+  method: output
+  expected_output: "Alice is 30 years old"
+
+hints:
+  - "An f-string starts with the letter f before the opening quote: f\"...\""
+  - "Inside an f-string, put variable names in curly braces to embed their values: f\"{name}\""
+  - "The full solution: print(f\"{name} is {age} years old\")"
+
+solution: |
+  name = "Alice"
+  age = 30
+  print(f"{name} is {age} years old")
+
+explanation: |
+  f-strings (formatted string literals) are the modern Python way to embed
+  values in strings. You prefix the string with `f` and put expressions inside
+  curly braces `{}`:
+
+      f"{name} is {age} years old"
+
+  Python evaluates each expression inside the braces and inserts the result
+  into the string. In this case:
+
+  - `{name}` is replaced with `"Alice"`
+  - `{age}` is replaced with `30` (automatically converted to a string)
+
+  f-strings can contain any valid Python expression, not just variable names:
+
+      print(f"In 5 years: {age + 5}")  # prints: In 5 years: 35
+
+  They are preferred over string concatenation (`"text" + str(value)`) because
+  they are more readable and less error-prone.

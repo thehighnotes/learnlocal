@@ -1,0 +1,42 @@
+id: disk-check
+title: "Disk Check"
+type: command
+prompt: |
+  ALERT: Multiple services failing with "No space left on device."
+
+  A snapshot of `df -h` output is in disk-usage.txt. One partition is
+  dangerously full. Find it and write its mount point to answer.txt.
+
+  When a disk fills up, everything breaks. Find it fast.
+starter: |
+  # Find the full partition in disk-usage.txt
+  # Write its mount point to answer.txt
+environment:
+  files:
+    - path: disk-usage.txt
+      content: |
+        Filesystem      Size  Used Avail Use% Mounted on
+        /dev/sda1        50G   12G   35G  26% /
+        /dev/sda2       200G  196G  2.1G  98% /var
+        /dev/sdb1       500G  230G  245G  49% /data
+        tmpfs            16G  1.2M   16G   1% /dev/shm
+        /dev/sdc1       100G   45G   50G  48% /backup
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_equals:
+        path: answer.txt
+        content: "/var"
+hints:
+  - "Look at the 'Use%' column — which partition is at 98%?"
+  - "The mount point is the last column on that line."
+  - "`grep '9[0-9]%' disk-usage.txt` finds partitions over 90% full."
+solution: |
+  echo "/var" > answer.txt
+explanation: |
+  /var at 98% is the culprit. /var typically holds logs, databases, mail
+  spools, and package caches — all things that grow over time. When /var
+  fills up, services can't write logs, databases can't create temp files,
+  and the whole system starts failing in confusing ways. This is one of
+  the most common incident root causes.

@@ -1,0 +1,50 @@
+id: multi-line
+title: "Multi-Line Output"
+type: write
+
+prompt: |
+  Print three lines of output, each on its own line:
+
+  Line 1: Name: Alice
+  Line 2: Age: 30
+  Line 3: Language: Python
+
+  The output must match exactly, with each piece of information on a separate line.
+
+starter: |
+  # Print three lines:
+  # Name: Alice
+  # Age: 30
+  # Language: Python
+
+validation:
+  method: output
+  expected_output: "Name: Alice\nAge: 30\nLanguage: Python"
+
+hints:
+  - "Each call to print() automatically ends with a newline, so each print() produces one line of output."
+  - "You need three print() calls, one for each line. For example: print(\"Name: Alice\")"
+  - "The full solution is three print statements: print(\"Name: Alice\"), print(\"Age: 30\"), and print(\"Language: Python\")"
+
+solution: |
+  print("Name: Alice")
+  print("Age: 30")
+  print("Language: Python")
+
+explanation: |
+  Each `print()` call outputs its string and then moves to the next line
+  automatically. By default, `print()` adds a newline character (`\n`) at the
+  end of every call.
+
+  You could also write this as a single print with `\n` characters:
+
+      print("Name: Alice\nAge: 30\nLanguage: Python")
+
+  Or use a triple-quoted string:
+
+      print("""Name: Alice
+  Age: 30
+  Language: Python""")
+
+  All three approaches produce identical output. Using separate `print()` calls
+  is the clearest when you are starting out.

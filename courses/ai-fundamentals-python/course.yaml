@@ -1,0 +1,53 @@
+name: "AI Fundamentals (Python)"
+version: "1.1.0"
+description: "Implement AI from scratch — vectors, neural networks, training, attention, and more, using pure Python"
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+
+language:
+  id: python
+  display_name: "Python"
+  extension: ".py"
+  provision: auto
+  steps:
+    - name: run
+      command: "python3"
+      args: ["{dir}/{main}"]
+      capture_output: true
+  limits:
+    timeout_seconds: 10
+    max_output_bytes: 65536
+
+lessons:
+  - id: vectors-and-math
+    title: "Vectors and Math Foundations"
+
+  - id: similarity-and-search
+    title: "Similarity and Search"
+    requires: [vectors-and-math]
+
+  - id: the-perceptron
+    title: "The Perceptron"
+    requires: [vectors-and-math]
+
+  - id: neural-networks
+    title: "Neural Networks"
+    requires: [the-perceptron]
+
+  - id: training-and-optimization
+    title: "Training and Optimization"
+    requires: [neural-networks]
+
+  - id: data-quality
+    title: "Data Quality"
+    requires: [vectors-and-math]
+
+  - id: fairness-and-bias
+    title: "Fairness and Bias"
+    requires: [data-quality]
+
+  - id: attention-mechanism
+    title: "The Attention Mechanism"
+    requires: [vectors-and-math, neural-networks]
+
+estimated_minutes_per_lesson: 30

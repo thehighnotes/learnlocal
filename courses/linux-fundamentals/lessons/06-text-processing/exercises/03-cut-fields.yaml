@@ -1,0 +1,33 @@
+id: cut-fields
+title: "Extract Fields with cut"
+type: command
+prompt: |
+  A file called data.csv already exists with these CSV lines:
+    alice,30,engineer
+    bob,25,designer
+    carol,35,manager
+  Use cut to extract just the names (first field). Print one per line.
+starter: |
+  # data.csv exists — extract the first field with cut
+environment:
+  files:
+    - path: data.csv
+      content: |
+        alice,30,engineer
+        bob,25,designer
+        carol,35,manager
+validation:
+  method: output
+  expected_output: |
+    alice
+    bob
+    carol
+hints:
+  - "cut -d',' sets comma as the delimiter"
+  - "cut -f1 selects the first field"
+  - "cut -d',' -f1 data.csv"
+solution: |
+  cut -d',' -f1 data.csv
+explanation: |
+  cut -d',' splits each line on commas, and -f1 selects the first field.
+  This is a quick way to extract columns from CSV-like data.

@@ -1,0 +1,55 @@
+id: fix-permissions
+title: "Fix Permissions"
+type: command
+prompt: |
+  ALERT: Web server returning 500 errors on every request.
+  Severity: CRITICAL. All customers affected.
+
+  Investigation reveals the app can't read its configuration file.
+  The error log says it clearly:
+
+      "Permission denied: /app/config/server.conf"
+
+  The file exists — but its permissions are set to 000 (no access for
+  anyone). Fix the permissions so the application can read it.
+
+  Set server.conf to mode 644 (owner read/write, group and other read).
+starter: |
+  # Fix the permissions on app/config/server.conf
+  # Target: 644 (rw-r--r--)
+environment:
+  dirs:
+    - app/config
+  files:
+    - path: app/config/server.conf
+      content: |
+        server.host=0.0.0.0
+        server.port=8080
+        server.workers=4
+        database.host=db.internal
+        database.port=5432
+      permissions: "000"
+    - path: app/error.log
+      content: |
+        2024-03-15 04:10:00 FATAL Failed to start: Permission denied: /app/config/server.conf
+        2024-03-15 04:10:00 FATAL Application shutting down
+validation:
+  method: state
+  assertions:
+    - file_exists: app/config/server.conf
+    - permissions:
+        path: app/config/server.conf
+        mode: "644"
+hints:
+  - "`ls -l app/config/server.conf` shows the current permissions (----------)."
+  - "`chmod 644 app/config/server.conf` sets read/write for owner, read for everyone else."
+  - "644 means: 6 (rw-) for user, 4 (r--) for group, 4 (r--) for other."
+solution: |
+  chmod 644 app/config/server.conf
+explanation: |
+  Permissions of 000 mean nobody can read, write, or execute the file.
+  This usually happens when someone runs `chmod 000` by accident or a
+  deployment script sets wrong permissions. 644 is the standard for
+  config files: the owner can read and modify, everyone else can read.
+  In a real incident, you would also check how the permissions got
+  changed — was it a bad deploy? A runaway script?

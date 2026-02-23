@@ -1,0 +1,99 @@
+id: the-cascade
+title: "The Cascade"
+type: command
+golf: true
+prompt: |
+  CRITICAL: Four services down. Alerts everywhere. Total chaos.
+
+  Your monitoring dashboard shows: `auth`, `api`, `worker`, and `frontend`
+  are ALL failing. Four separate alerts, four error logs, and everyone
+  is panicking.
+
+  But this is a cascade. Only ONE service has the actual bug — the rest
+  are just failing because their dependency is down. Read the logs
+  carefully. Find the **root cause** and fix it.
+
+  The dependency chain is documented in `deps.txt`. The fix is a single
+  change to a single file.
+
+  Hint: permissions matter.
+starter: |
+  # Four services down. Only one root cause.
+  # Find it. Fix it. One change.
+environment:
+  dirs:
+    - services/auth
+    - services/api
+    - services/worker
+    - services/frontend
+  files:
+    - path: deps.txt
+      content: |
+        # Service Dependencies (bottom-up)
+        #
+        # frontend -> api -> auth -> auth/secrets.key (file)
+        # worker -> api -> auth -> auth/secrets.key (file)
+        #
+        # auth reads secrets.key for JWT signing
+        # api depends on auth for token validation
+        # frontend and worker both depend on api
+    - path: services/auth/secrets.key
+      content: "jwt-signing-key-2024-super-secret-do-not-share"
+      permissions: "000"
+    - path: services/auth/config.yaml
+      content: |
+        service: auth
+        port: 8001
+        secrets_file: secrets.key
+    - path: services/auth/error.log
+      content: |
+        2024-03-15 08:00:01 [auth] Starting auth service v1.4.0
+        2024-03-15 08:00:01 [auth] Loading secrets from secrets.key
+        2024-03-15 08:00:01 [auth] ERROR: Permission denied: secrets.key
+        2024-03-15 08:00:01 [auth] FATAL: Cannot read JWT signing key — refusing to start
+    - path: services/api/config.yaml
+      content: |
+        service: api
+        port: 8002
+        auth_url: http://localhost:8001
+    - path: services/api/error.log
+      content: |
+        2024-03-15 08:00:05 [api] Starting api service v2.1.0
+        2024-03-15 08:00:05 [api] Connecting to auth service at localhost:8001
+        2024-03-15 08:00:08 [api] ERROR: Connection refused: localhost:8001
+        2024-03-15 08:00:08 [api] FATAL: auth service unreachable — cannot validate tokens
+    - path: services/worker/error.log
+      content: |
+        2024-03-15 08:00:10 [worker] Starting background worker v1.8.0
+        2024-03-15 08:00:10 [worker] Connecting to api at localhost:8002
+        2024-03-15 08:00:13 [worker] ERROR: Connection refused: localhost:8002
+        2024-03-15 08:00:13 [worker] FATAL: api unreachable — cannot process jobs
+    - path: services/frontend/error.log
+      content: |
+        2024-03-15 08:00:10 [frontend] Starting web frontend v3.0.0
+        2024-03-15 08:00:10 [frontend] Connecting to api at localhost:8002
+        2024-03-15 08:00:13 [frontend] ERROR: Connection refused: localhost:8002
+        2024-03-15 08:00:13 [frontend] FATAL: api unreachable — returning 502 to all requests
+        2024-03-15 08:00:14 [frontend] ERROR: GET / — 502 Bad Gateway
+        2024-03-15 08:00:15 [frontend] ERROR: GET /login — 502 Bad Gateway
+validation:
+  method: state
+  assertions:
+    - permissions:
+        path: services/auth/secrets.key
+        mode: "644"
+hints:
+  - "Read the error logs chronologically. `auth` failed first (at 08:00:01), and every other service failure happened after that. The root cause is in auth."
+  - "The auth error log says `Permission denied: secrets.key`. The file exists but can't be read."
+  - "`chmod 644 services/auth/secrets.key` — fix the permissions on the secrets file."
+solution: |
+  chmod 644 services/auth/secrets.key
+explanation: |
+  Four services down, four sets of alerts, but only one root cause: a file
+  with wrong permissions. The auth service couldn't read its JWT signing
+  key, so it refused to start. The API service depended on auth, so it
+  failed. The frontend and worker both depended on the API, so they failed
+  too. The timestamps in the logs tell the whole story — auth failed at
+  08:00:01, everything else cascaded from there. In real incidents,
+  chronological log analysis is your most powerful tool for finding the
+  root cause in a cascade.

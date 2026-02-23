@@ -1,0 +1,33 @@
+id: sed-replace
+title: "Find and Replace with sed"
+type: command
+prompt: |
+  A file called greet.txt already exists with these lines:
+    Hello World
+    Hello Linux
+    Hello Shell
+  Use sed to replace "Hello" with "Hey" and print the result.
+starter: |
+  # greet.txt exists — use sed to replace Hello with Hey
+environment:
+  files:
+    - path: greet.txt
+      content: |
+        Hello World
+        Hello Linux
+        Hello Shell
+validation:
+  method: output
+  expected_output: |
+    Hey World
+    Hey Linux
+    Hey Shell
+hints:
+  - "sed 's/Hello/Hey/' replaces the first occurrence per line"
+  - "Since there's only one Hello per line, /g isn't needed here"
+solution: |
+  sed 's/Hello/Hey/' greet.txt
+explanation: |
+  sed 's/pattern/replacement/' replaces the first match on each line.
+  Add /g for all occurrences. sed processes line by line and outputs
+  the transformed text.

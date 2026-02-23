@@ -1,0 +1,50 @@
+id: string-ops
+title: "String Operations"
+type: fix
+
+prompt: |
+  This code tries to build a greeting string and count its characters, but it
+  has two bugs. Fix them so the output matches the expected result.
+
+  Expected output:
+  ```
+  Hello, Rust!
+  12 characters
+  ```
+
+starter: |
+  fn main() {
+      let mut greeting = String::from("Hello");
+      greeting.push(", Rust!");
+
+      println!("{}", greeting);
+      println!("{} characters", greeting.len());
+  }
+
+validation:
+  method: output
+  expected_output: "Hello, Rust!\n12 characters"
+
+hints:
+  - "Look at the method used to append text. `push` adds a single char, not a string slice."
+  - "Use `push_str` to append a string slice: greeting.push_str(\", Rust!\");"
+  - "After fixing push to push_str, the string \"Hello, Rust!\" has 12 bytes. Since it is all ASCII, .len() returns 12 which matches the expected character count."
+
+solution: |
+  fn main() {
+      let mut greeting = String::from("Hello");
+      greeting.push_str(", Rust!");
+
+      println!("{}", greeting);
+      println!("{} characters", greeting.len());
+  }
+
+explanation: |
+  The bug was using `.push()` instead of `.push_str()`. In Rust, `push(ch)`
+  takes a single `char`, while `push_str(s)` takes a string slice `&str`.
+  Passing a string literal to `push` is a type error.
+
+  After the fix, `greeting` contains "Hello, Rust!" which is 12 bytes.
+  `.len()` returns the byte length, which equals the character count for
+  ASCII strings. For strings with multi-byte UTF-8 characters, you would
+  use `.chars().count()` to get the true character count.

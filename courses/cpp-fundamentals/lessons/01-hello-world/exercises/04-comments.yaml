@@ -1,0 +1,61 @@
+id: comments
+title: "Comment Out the Errors"
+type: fix
+
+prompt: |
+  The starter code has three lines that are not valid C++ — they are plain English
+  text sitting in the middle of the code. The compiler will choke on them.
+
+  Comment out those three invalid lines so that only the valid std::cout line
+  runs. You can use single-line comments (//) or a multi-line comment (/* */).
+
+  The program should print: Ready to code!
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      This line is not valid C++
+      std::cout << "Ready to code!" << std::endl;
+      Neither is this one
+      Or this one
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Ready to code!"
+
+hints:
+  - "Comments tell the compiler to ignore text. Single-line comments start with // and last until the end of the line."
+  - "You can comment out each bad line individually with // at the start: // This line is not valid C++"
+  - "Alternatively, wrap all three bad lines in a multi-line comment: /* ... */. But be careful — the three lines are not all together, so using // on each line is simpler here."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      // This line is not valid C++
+      std::cout << "Ready to code!" << std::endl;
+      // Neither is this one
+      // Or this one
+      return 0;
+  }
+
+explanation: |
+  Placing `//` at the beginning of a line turns the entire line into a comment.
+  The compiler skips over it completely, so the invalid text no longer causes
+  errors.
+
+  You could also use multi-line comments. For example, the last two lines could
+  be wrapped together:
+
+      /* Neither is this one
+         Or this one */
+
+  Both styles work. Single-line comments (`//`) are more common in practice
+  because they are easy to add and remove. Multi-line comments (`/* */`) are
+  handy when you need to disable a large block of code at once.
+
+  In real programs, you use comments to explain your reasoning — not to hold
+  broken code. But commenting out code temporarily is a useful debugging trick.

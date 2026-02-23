@@ -1,0 +1,32 @@
+id: functions
+title: "Functions"
+description: "Define functions with parameters, multiple returns, variadic args, closures, and recursion"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - basic-params
+  - multiple-returns
+  - named-returns
+  - variadic
+  - closures
+  - function-types
+  - recursion
+teaches:
+  - function-definition
+  - parameters-arguments
+  - multiple-return-values
+  - named-return-values
+  - variadic-functions
+  - first-class-functions
+  - closures
+  - recursion
+recap: |
+  You learned:
+  - func name(params) returnType defines a function
+  - Parameters with the same type can share it: func add(a, b int)
+  - Functions can return multiple values: (float64, error)
+  - Named return values act as pre-declared variables; bare return sends them back
+  - Variadic functions accept any number of arguments: func sum(nums ...int)
+  - Functions are first-class — pass them as arguments and store them in variables
+  - Closures capture variables from their enclosing scope
+  - Recursive functions call themselves with a base case to stop

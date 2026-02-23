@@ -1,0 +1,77 @@
+id: wrong-branch
+title: "MISSION: Wrong Branch"
+type: command
+prompt: |
+  --- INCOMING TRANSMISSION ---
+
+  DISASTER: You just made two commits on `main` that were supposed to go on
+  a feature branch called `feature`. The project has a strict rule: main only
+  gets code through pull requests. Your direct commits must be moved.
+
+  MISSION:
+  1. Create a `feature` branch that has your two accidental commits
+  2. Reset `main` back to where it was before your commits
+  3. End up on `main` with a clean state
+
+  After the mission, `main` should only have the "initial project" commit,
+  and `feature` should have all three commits (initial + your two).
+
+  --- END TRANSMISSION ---
+starter: |
+  #!/bin/bash
+  # Move the last 2 commits from main to a new "feature" branch
+  # Reset main to its original state
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'project base' > project.txt && git add project.txt && git commit -m 'initial project' && echo 'new feature part 1' > feature1.txt && git add feature1.txt && git commit -m 'add feature part 1' && echo 'new feature part 2' > feature2.txt && git add feature2.txt && git commit -m 'add feature part 2'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-main-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline main > {dir}/__main_log.txt"]
+      timeout_seconds: 5
+    - name: capture-main-count
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline main | wc -l | tr -d ' ' > {dir}/__main_count.txt"]
+      timeout_seconds: 5
+    - name: capture-feature-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline feature 2>/dev/null > {dir}/__feature_log.txt || echo 'NO_BRANCH' > {dir}/__feature_log.txt"]
+      timeout_seconds: 5
+    - name: capture-current
+      command: sh
+      args: ["-c", "cd {dir}/repo && git branch --show-current > {dir}/__current.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __main_count.txt
+        content: "1"
+    - file_contains:
+        path: __feature_log.txt
+        content: "add feature part 1"
+    - file_contains:
+        path: __feature_log.txt
+        content: "add feature part 2"
+    - file_contains:
+        path: __current.txt
+        content: "main"
+hints:
+  - "Create the feature branch first (while main still has the commits): `git branch feature`"
+  - "The feature branch now points to the same commit as main — it has all three commits."
+  - "Now reset main back 2 commits: `git reset --hard HEAD~2`"
+solution: |
+  #!/bin/bash
+  git branch feature
+  git reset --hard HEAD~2
+explanation: |
+  The trick is the order: create the branch BEFORE resetting main. When you
+  run `git branch feature`, the new branch points at the same commit as HEAD
+  (which includes your accidental commits). Then `git reset --hard HEAD~2`
+  moves main's pointer back two commits. The feature branch still points at
+  the old position — it has all the commits. Simple, clean, no cherry-pick
+  needed.

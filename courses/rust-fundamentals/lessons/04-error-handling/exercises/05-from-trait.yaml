@@ -1,0 +1,135 @@
+id: from-trait
+title: "The From Trait"
+type: fix
+
+prompt: |
+  The code below defines a custom error type `CalcError` and a function
+  `compute` that parses two strings and divides them. However, the `?`
+  operators on the parse lines fail to compile because there is no `From`
+  implementation to convert `ParseIntError` into `CalcError`.
+
+  Fix the code by adding the missing `impl From<ParseIntError> for CalcError`
+  so that `?` can automatically convert parse errors. Do not change anything
+  else.
+
+starter: |
+  use std::fmt;
+  use std::num::ParseIntError;
+
+  #[derive(Debug)]
+  enum CalcError {
+      BadNumber(ParseIntError),
+      DivideByZero,
+  }
+
+  impl fmt::Display for CalcError {
+      fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+          match self {
+              CalcError::BadNumber(e) => write!(f, "bad number: {}", e),
+              CalcError::DivideByZero => write!(f, "division by zero"),
+          }
+      }
+  }
+
+  impl std::error::Error for CalcError {}
+
+  fn compute(a: &str, b: &str) -> Result<i32, CalcError> {
+      let x = a.parse::<i32>()?;
+      let y = b.parse::<i32>()?;
+      if y == 0 {
+          return Err(CalcError::DivideByZero);
+      }
+      Ok(x / y)
+  }
+
+  fn main() {
+      match compute("100", "4") {
+          Ok(v) => println!("result: {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+      match compute("abc", "4") {
+          Ok(v) => println!("result: {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+      match compute("100", "0") {
+          Ok(v) => println!("result: {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+  }
+
+validation:
+  method: output
+  expected_output: "result: 25\nerror: bad number: invalid digit found in string\nerror: division by zero\n"
+
+hints:
+  - "The `?` operator uses the `From` trait to convert the error type. You need `impl From<ParseIntError> for CalcError`."
+  - "The From impl should wrap the ParseIntError in the `CalcError::BadNumber` variant: `CalcError::BadNumber(e)`."
+  - "Add this block after the Error impl: `impl From<ParseIntError> for CalcError { fn from(e: ParseIntError) -> Self { CalcError::BadNumber(e) } }`"
+
+solution: |
+  use std::fmt;
+  use std::num::ParseIntError;
+
+  #[derive(Debug)]
+  enum CalcError {
+      BadNumber(ParseIntError),
+      DivideByZero,
+  }
+
+  impl fmt::Display for CalcError {
+      fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+          match self {
+              CalcError::BadNumber(e) => write!(f, "bad number: {}", e),
+              CalcError::DivideByZero => write!(f, "division by zero"),
+          }
+      }
+  }
+
+  impl std::error::Error for CalcError {}
+
+  impl From<ParseIntError> for CalcError {
+      fn from(e: ParseIntError) -> Self {
+          CalcError::BadNumber(e)
+      }
+  }
+
+  fn compute(a: &str, b: &str) -> Result<i32, CalcError> {
+      let x = a.parse::<i32>()?;
+      let y = b.parse::<i32>()?;
+      if y == 0 {
+          return Err(CalcError::DivideByZero);
+      }
+      Ok(x / y)
+  }
+
+  fn main() {
+      match compute("100", "4") {
+          Ok(v) => println!("result: {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+      match compute("abc", "4") {
+          Ok(v) => println!("result: {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+      match compute("100", "0") {
+          Ok(v) => println!("result: {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+  }
+
+explanation: |
+  When you write `a.parse::<i32>()?`, the `?` operator needs to convert
+  `ParseIntError` into whatever error type the function returns (`CalcError`).
+  It does this by calling `CalcError::from(parse_int_error)`.
+
+  The `From` trait implementation tells Rust how to make that conversion:
+  wrap the `ParseIntError` inside `CalcError::BadNumber(e)`.
+
+  This pattern is central to Rust error handling. Instead of manually writing
+  `.map_err(|e| CalcError::BadNumber(e))` on every parse call, the `From` impl
+  lets `?` do the conversion automatically. For a function that calls many
+  fallible operations, this removes significant boilerplate.
+
+  You can implement `From` for multiple source error types (e.g.,
+  `From<std::io::Error>`, `From<ParseFloatError>`) to make your custom error
+  type work seamlessly with different parts of the standard library.

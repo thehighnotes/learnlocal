@@ -1,0 +1,30 @@
+id: data-modification
+title: "Inserting, Updating & Deleting"
+description: "Modify data in your tables — add new rows, change existing values, and remove what you don't need"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - insert-single
+  - insert-multiple
+  - update-basic
+  - update-conditional
+  - delete-basic
+  - delete-conditional
+  - replace-into
+teaches:
+  - insert-into-values
+  - insert-multiple-rows
+  - insert-from-select
+  - update-set-where
+  - delete-from-where
+  - replace-into
+  - dml-safety
+recap: |
+  You learned:
+  - INSERT INTO ... VALUES adds a single row to a table
+  - You can insert multiple rows in one INSERT statement by listing several value tuples
+  - INSERT INTO ... SELECT copies rows from one query into a table
+  - UPDATE ... SET changes column values, always use WHERE to target specific rows
+  - DELETE FROM removes rows, always use WHERE to avoid deleting everything
+  - REPLACE INTO is SQLite's upsert — it inserts or replaces on primary key conflict
+  - DML statements produce no output; follow them with SELECT to verify your changes

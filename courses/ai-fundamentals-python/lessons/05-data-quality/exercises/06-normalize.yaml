@@ -1,0 +1,51 @@
+id: normalize
+title: "Min-Max Normalization"
+type: write
+
+prompt: |
+  Implement min-max normalization to scale a list of values to the range 0-1.
+
+  The formula for each value: `(x - min) / (max - min)`
+
+  Given: `values = [0, 4, 8, 12, 16]`
+
+  Print the normalized list.
+
+starter: |
+  values = [0, 4, 8, 12, 16]
+
+  # Normalize each value to the range 0-1
+  # Formula: (x - min) / (max - min)
+
+
+  print(normalized)
+
+validation:
+  method: output
+  expected_output: "[0.0, 0.25, 0.5, 0.75, 1.0]"
+
+hints:
+  - "Find `min(values)` and `max(values)`, then apply the formula to each value."
+  - "Try: `min_v = min(values); max_v = max(values); normalized = [round((x - min_v) / (max_v - min_v), 2) for x in values]`"
+
+solution: |
+  values = [0, 4, 8, 12, 16]
+
+  min_v = min(values)
+  max_v = max(values)
+  normalized = [round((x - min_v) / (max_v - min_v), 2) for x in values]
+
+  print(normalized)
+
+explanation: |
+  Min = 0, Max = 16, Range = 16.
+  - (0-0)/16 = 0.0
+  - (4-0)/16 = 0.25
+  - (8-0)/16 = 0.5
+  - (12-0)/16 = 0.75
+  - (16-0)/16 = 1.0
+
+  After normalization, the smallest value maps to 0.0 and the largest to 1.0.
+  This ensures all features contribute equally regardless of their original
+  scale. Without normalization, a feature ranging 0-100,000 would dominate
+  one ranging 0-1 in distance and similarity calculations.

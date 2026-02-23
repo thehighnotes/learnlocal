@@ -1,0 +1,84 @@
+id: destructuring
+title: "Destructure a Struct"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```rust
+  struct Point {
+      x: i32,
+      y: i32,
+  }
+
+  fn classify(p: &Point) {
+      match p {
+          Point { x: 0, y: 0 } => println!("origin"),
+          Point { x, y: 0 }    => println!("x-axis at {}", x),
+          Point { x: 0, y }    => println!("y-axis at {}", y),
+          Point { x, y }       => println!("({}, {})", x, y),
+      }
+  }
+
+  fn main() {
+      classify(&Point { x: 0, y: 7 });
+      classify(&Point { x: 3, y: 0 });
+      classify(&Point { x: 5, y: 9 });
+  }
+  ```
+
+  Enter the three lines of output exactly.
+
+validation:
+  method: output
+  expected_output: |
+    y-axis at 7
+    x-axis at 3
+    (5, 9)
+
+hints:
+  - "Each call to `classify` matches against the patterns top to bottom. Which pattern does `Point { x: 0, y: 7 }` match first?"
+  - "A literal `0` in a pattern only matches the value zero. A bare name like `x` matches anything and binds the value."
+  - "Point { x: 0, y: 7 }: x is 0 but y is not 0, so it matches the third arm (y-axis). Point { x: 3, y: 0 }: y is 0 but x is not 0, so it matches the second arm (x-axis). Point { x: 5, y: 9 }: neither is 0, so it falls through to the last arm."
+
+solution: |
+  struct Point {
+      x: i32,
+      y: i32,
+  }
+
+  fn classify(p: &Point) {
+      match p {
+          Point { x: 0, y: 0 } => println!("origin"),
+          Point { x, y: 0 }    => println!("x-axis at {}", x),
+          Point { x: 0, y }    => println!("y-axis at {}", y),
+          Point { x, y }       => println!("({}, {})", x, y),
+      }
+  }
+
+  fn main() {
+      classify(&Point { x: 0, y: 7 });
+      classify(&Point { x: 3, y: 0 });
+      classify(&Point { x: 5, y: 9 });
+  }
+
+explanation: |
+  The match arms use a mix of literal values and bindings:
+
+  - `Point { x: 0, y: 0 }` matches only when both fields are zero.
+  - `Point { x, y: 0 }` matches when `y` is zero and binds `x` to whatever `x` is.
+  - `Point { x: 0, y }` matches when `x` is zero and binds `y`.
+  - `Point { x, y }` matches everything and binds both fields.
+
+  For `Point { x: 0, y: 7 }`: x is 0, y is 7. The first arm requires both to
+  be 0, so it fails. The second requires y=0, so it fails. The third requires
+  x=0, which matches -- output: "y-axis at 7".
+
+  For `Point { x: 3, y: 0 }`: The first arm fails (x is not 0). The second arm
+  matches (y is 0) -- output: "x-axis at 3".
+
+  For `Point { x: 5, y: 9 }`: The first three arms all fail, so the catch-all
+  fourth arm matches -- output: "(5, 9)".
+
+  Order matters: more specific patterns must come first, because match stops at
+  the first matching arm.

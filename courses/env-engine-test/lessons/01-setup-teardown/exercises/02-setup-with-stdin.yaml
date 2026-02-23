@@ -1,0 +1,34 @@
+id: setup-with-stdin
+title: "Setup With Stdin"
+type: write
+prompt: |
+  A setup command piped three lines through `sort` and saved the result
+  to `sorted.txt`. Print how many lines are in that file (just the number).
+starter: |
+  #!/bin/bash
+  # sorted.txt was created by a setup command that piped stdin through sort.
+  # Print the line count (just the number, no filename).
+environment:
+  setup:
+    - name: sort-data
+      command: sh
+      args: ["-c", "sort > {dir}/sorted.txt"]
+      stdin: |
+        cherry
+        apple
+        banana
+      timeout_seconds: 5
+validation:
+  method: output
+  expected_output: "3"
+hints:
+  - "Use wc -l to count lines"
+  - "wc -l < sorted.txt gives count without filename, but may have leading spaces"
+  - "Pipe through tr -d ' ' to remove spaces"
+solution: |
+  #!/bin/bash
+  wc -l < sorted.txt | tr -d ' '
+explanation: |
+  The setup command piped three fruit names through `sort`, saving
+  the sorted output to sorted.txt. `wc -l < file` counts lines
+  (without printing the filename), and `tr -d ' '` strips whitespace.

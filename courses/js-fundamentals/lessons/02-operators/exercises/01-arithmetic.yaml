@@ -1,0 +1,50 @@
+id: arithmetic
+title: "Arithmetic Operations"
+type: write
+
+prompt: |
+  Print the results of four arithmetic operations, each on its own line:
+  1. 17 / 5 (regular division)
+  2. 17 % 5 (modulo — remainder)
+  3. 2 ** 10 (exponentiation — 2 to the power of 10)
+  4. Math.floor(17 / 5) (integer division — round down)
+
+  Expected output:
+  3.4
+  2
+  1024
+  3
+
+starter: |
+  // Print four arithmetic results, one per line:
+  // 1. 17 / 5
+  // 2. 17 % 5
+  // 3. 2 ** 10
+  // 4. Math.floor(17 / 5)
+
+validation:
+  method: output
+  expected_output: "3.4\n2\n1024\n3"
+
+hints:
+  - "Use console.log() for each calculation: console.log(17 / 5);"
+  - "% gives the remainder: 17 % 5 = 2 because 17 = 3*5 + 2."
+  - "** is the exponentiation operator: 2 ** 10 = 1024. Math.floor() rounds down to the nearest integer."
+
+solution: |
+  console.log(17 / 5);
+  console.log(17 % 5);
+  console.log(2 ** 10);
+  console.log(Math.floor(17 / 5));
+
+explanation: |
+  JavaScript handles division differently from C++ or Python's //:
+
+  - `17 / 5` = 3.4 — JavaScript always does floating-point division.
+    There is no integer division operator.
+  - `17 % 5` = 2 — the modulo (remainder) operator. 17 divided by 5 is
+    3 with remainder 2.
+  - `2 ** 10` = 1024 — the exponentiation operator, added in ES2016.
+    Equivalent to Math.pow(2, 10).
+  - `Math.floor(17 / 5)` = 3 — to get integer division, divide and then
+    floor the result. Math.floor() rounds toward negative infinity.

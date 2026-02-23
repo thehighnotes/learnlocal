@@ -1,0 +1,48 @@
+id: spread-merge
+title: "Merge Arrays with Spread"
+type: write
+
+prompt: |
+  Given two arrays:
+  - a = [1, 2, 3]
+  - b = [4, 5, 6]
+
+  Use the spread operator to merge them into a new array and print the
+  result joined with ", ".
+
+  Expected output: 1, 2, 3, 4, 5, 6
+
+starter: |
+  const a = [1, 2, 3];
+  const b = [4, 5, 6];
+  // Merge using spread and print joined with ", "
+
+validation:
+  method: output
+  expected_output: "1, 2, 3, 4, 5, 6"
+
+hints:
+  - "The spread operator in an array literal copies all elements: [...a, ...b]"
+  - "This creates a new array with all elements from a followed by all elements from b."
+  - "const merged = [...a, ...b]; console.log(merged.join(\", \"));"
+
+solution: |
+  const a = [1, 2, 3];
+  const b = [4, 5, 6];
+  const merged = [...a, ...b];
+  console.log(merged.join(", "));
+
+explanation: |
+  The spread operator `...` in an array literal copies all elements from
+  the source array into the new one:
+
+  `[...a, ...b]` creates [1, 2, 3, 4, 5, 6]
+
+  You can also add extra elements:
+  - `[0, ...a, ...b, 7]` → [0, 1, 2, 3, 4, 5, 6, 7]
+  - `[...b, ...a]` → [4, 5, 6, 1, 2, 3] (reversed order)
+
+  This is preferred over `.concat()` because it is more flexible and
+  visually clear. It also works as a shallow copy: `[...a]` creates a
+  new array with the same elements (modifying the copy does not affect
+  the original).

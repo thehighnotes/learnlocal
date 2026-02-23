@@ -1,0 +1,54 @@
+id: readonly-fix
+title: "Read-Only Deploy Directory"
+type: command
+prompt: |
+  ALERT: Deployment pipeline FAILED.
+
+  The deploy script needs to write files to the deploy/ directory, but
+  the directory permissions are set to 555 (read + execute only — no
+  write). The deploy script cannot create files in it.
+
+  Fix the directory permissions to allow writing (755), then create the
+  file deploy/app.txt containing "deployed" to prove the deploy can
+  proceed.
+starter: |
+  # 1. Fix deploy/ directory permissions to 755
+  # 2. Create deploy/app.txt with content "deployed"
+environment:
+  dirs:
+    - deploy
+  setup:
+    - name: lock-deploy-dir
+      command: sh
+      args: ["-c", "chmod 555 {dir}/deploy"]
+  files:
+    - path: deploy-error.log
+      content: |
+        2024-03-15 05:20:00 ERROR Deploy failed: cannot write to /deploy/
+        2024-03-15 05:20:00 ERROR Permission denied: /deploy/app.txt
+        2024-03-15 05:20:01 ERROR Deployment aborted — fix directory permissions
+validation:
+  method: state
+  assertions:
+    - permissions:
+        path: deploy
+        mode: "755"
+    - file_exists: deploy/app.txt
+    - file_contains:
+        path: deploy/app.txt
+        content: "deployed"
+hints:
+  - "`ls -ld deploy/` shows the directory permissions (dr-xr-xr-x = 555)."
+  - "`chmod 755 deploy` adds write permission for the owner."
+  - "Then `echo 'deployed' > deploy/app.txt` creates the file."
+solution: |
+  chmod 755 deploy
+  echo "deployed" > deploy/app.txt
+explanation: |
+  Directory permissions work differently from file permissions. Write
+  permission on a directory means you can create, rename, and delete
+  files inside it. Without write permission, the directory is read-only
+  even if you own it. Mode 555 (r-xr-xr-x) allows listing and entering
+  the directory but not creating files. Mode 755 (rwxr-xr-x) restores
+  the owner's ability to write. This commonly happens when security
+  hardening scripts are too aggressive.

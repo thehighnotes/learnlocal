@@ -1,0 +1,28 @@
+id: string-methods
+title: "String Methods and Formatting"
+description: "Process and format text with Python's string tools"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - case-methods
+  - find-replace
+  - split-join
+  - format-strings
+  - fix-index
+  - palindrome
+teaches:
+  - case-conversion
+  - find-and-replace
+  - split-and-join
+  - string-formatting
+  - string-indexing
+  - palindrome-logic
+recap: |
+  You learned:
+  - upper(), lower(), title(), strip() transform strings
+  - find() locates substrings, replace() substitutes text
+  - split() breaks strings into lists, join() combines lists into strings
+  - f-strings, .format(), and %-formatting for string interpolation
+  - Strings are indexable and sliceable like lists
+  - Strings are immutable — methods return new strings
+  - Combining slicing and comparison to check palindromes

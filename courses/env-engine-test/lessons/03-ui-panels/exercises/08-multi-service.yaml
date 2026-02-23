@@ -1,0 +1,60 @@
+id: multi-service
+title: "Multiple Services"
+type: write
+prompt: |
+  Two services run concurrently. The first uses delay mode and
+  writes a marker file. The second uses pattern readiness on
+  stderr and its stderr is captured to `worker-err.log`.
+
+  Read the marker file and print its content.
+starter: |
+  #!/bin/bash
+  # Read and print marker.txt (created by service-a)
+environment:
+  files:
+    - path: worker.sh
+      content: |
+        #!/bin/bash
+        echo "worker ready" >&2
+        echo "worker stderr output" >&2
+        sleep 60
+      permissions: "755"
+  setup:
+    - name: create-marker
+      command: sh
+      args: ["-c", "echo 'both services alive' > {dir}/marker.txt"]
+      timeout_seconds: 5
+  services:
+    - name: service-a
+      command: sleep
+      args: ["60"]
+      ready_delay_ms: 100
+    - name: service-b
+      command: bash
+      args: ["{dir}/worker.sh"]
+      ready_pattern: "worker ready"
+      ready_stream: stderr
+      ready_timeout_seconds: 5
+      capture_stderr: worker-err.log
+validation:
+  method: state
+  assertions:
+    - file_exists: marker.txt
+    - file_contains:
+        path: marker.txt
+        content: "both services alive"
+    - file_exists: worker-err.log
+    - file_contains:
+        path: worker-err.log
+        content: "worker stderr output"
+hints:
+  - "cat marker.txt"
+solution: |
+  #!/bin/bash
+  cat marker.txt
+explanation: |
+  Two services ran concurrently: service-a in delay mode (sleep)
+  and service-b with stderr pattern readiness. Service-b's stderr
+  was captured to worker-err.log. The ServiceGuard killed both
+  processes after your code ran, then drain threads finished
+  writing capture files before assertions checked them.

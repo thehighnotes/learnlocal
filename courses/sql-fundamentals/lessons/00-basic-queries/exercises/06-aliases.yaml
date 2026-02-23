@@ -1,0 +1,50 @@
+id: aliases
+title: "Column Aliases"
+type: fix
+
+prompt: |
+  The starter code tries to select product names with an alias, but there
+  is a syntax error. Fix the query so it runs correctly.
+
+  The query should select `name` aliased as `product_name` and `price`
+  aliased as `unit_price` from the `products` table.
+
+starter: |
+  SELECT name ALIAS product_name, price ALIAS unit_price FROM products;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE products (id INTEGER, name TEXT, price REAL, category TEXT);
+        INSERT INTO products VALUES (1, 'Laptop', 999.99, 'Electronics');
+        INSERT INTO products VALUES (2, 'Headphones', 49.99, 'Electronics');
+        INSERT INTO products VALUES (3, 'T-Shirt', 19.99, 'Clothing');
+
+validation:
+  method: output
+  expected_output: |
+    Laptop|999.99
+    Headphones|49.99
+    T-Shirt|19.99
+
+hints:
+  - "SQL does not have an ALIAS keyword. The keyword for column aliases is AS."
+  - "Replace every occurrence of ALIAS with AS."
+  - "The fixed query is: SELECT name AS product_name, price AS unit_price FROM products;"
+
+solution: |
+  SELECT name AS product_name, price AS unit_price FROM products;
+
+explanation: |
+  The keyword for creating column aliases in SQL is `AS`, not `ALIAS`. The
+  original query used a nonexistent keyword, causing a syntax error.
+
+  `SELECT name AS product_name` tells SQLite to label the output column
+  `product_name` instead of `name`. The data is identical — only the column
+  heading changes.
+
+  Note that SQLite's pipe-separated output does not display column headers,
+  so the alias does not visibly change the output here. However, aliases
+  matter in application code, in subqueries, and when other people read your
+  SQL. They make queries self-documenting.

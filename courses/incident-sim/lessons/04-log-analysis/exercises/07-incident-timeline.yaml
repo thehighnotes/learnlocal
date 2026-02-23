@@ -1,0 +1,72 @@
+id: incident-timeline
+title: "Build an Incident Timeline"
+type: command
+prompt: |
+  POST-MORTEM TIME: A deploy went bad last night. You have three log files
+  from different services that were all involved. The team needs a timeline.
+
+  Files: `app.log`, `nginx.log`, `deploy.log`
+
+  Create `timeline.txt` listing the key events in **chronological order**.
+  For each event, write a line with the timestamp and a brief description:
+
+  ```
+  HH:MM:SS - <what happened>
+  ```
+
+  Include at least these events:
+  - When the deploy started
+  - When errors first appeared
+  - When the rollback happened
+  - When service was restored
+starter: |
+  # Read all three log files
+  # Create a chronological timeline of the incident
+  # Write to timeline.txt
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > deploy.log << 'DEPEOF'\n2024-03-15 22:00:01 [INFO] Deploy pipeline triggered for version 2.4.1\n2024-03-15 22:00:15 [INFO] Building container image app:2.4.1\n2024-03-15 22:02:30 [INFO] Image built successfully, pushing to registry\n2024-03-15 22:03:00 [INFO] Rolling deploy started: 0/4 pods updated\n2024-03-15 22:03:30 [INFO] Rolling deploy progress: 1/4 pods updated\n2024-03-15 22:04:00 [INFO] Rolling deploy progress: 2/4 pods updated\n2024-03-15 22:04:30 [INFO] Rolling deploy progress: 3/4 pods updated\n2024-03-15 22:05:00 [INFO] Rolling deploy complete: 4/4 pods updated\n2024-03-15 22:12:00 [WARN] Rollback initiated by on-call engineer\n2024-03-15 22:12:15 [INFO] Rolling back to version 2.4.0\n2024-03-15 22:13:00 [INFO] Rollback complete: all pods running 2.4.0\nDEPEOF\ncat > app.log << 'APPEOF'\n2024-03-15 21:59:50 [INFO] Health check passed - version 2.4.0\n2024-03-15 22:03:35 [INFO] Application starting - version 2.4.1\n2024-03-15 22:03:40 [WARN] New config format detected, migrating\n2024-03-15 22:04:10 [INFO] Application starting - version 2.4.1\n2024-03-15 22:05:05 [INFO] All instances running version 2.4.1\n2024-03-15 22:05:30 [ERROR] Unhandled exception: TypeError in PaymentService.process()\n2024-03-15 22:05:45 [ERROR] Unhandled exception: TypeError in PaymentService.process()\n2024-03-15 22:06:10 [ERROR] Unhandled exception: TypeError in PaymentService.process()\n2024-03-15 22:06:30 [WARN] Error rate exceeds threshold: 45% of requests failing\n2024-03-15 22:07:00 [ERROR] Circuit breaker OPEN for PaymentService\n2024-03-15 22:07:30 [CRIT] Payment processing completely unavailable\n2024-03-15 22:13:05 [INFO] Application starting - version 2.4.0\n2024-03-15 22:13:30 [INFO] Health check passed - version 2.4.0\n2024-03-15 22:14:00 [INFO] All systems nominal\nAPPEOF\ncat > nginx.log << 'NGXEOF'\n2024-03-15 21:59:55 [INFO] Upstream healthy: 4/4 backends responding\n2024-03-15 22:03:32 [WARN] Upstream backend 10.0.1.1:8080 not responding, retrying\n2024-03-15 22:04:05 [WARN] Upstream backend 10.0.1.2:8080 not responding, retrying\n2024-03-15 22:05:10 [INFO] All upstream backends responding\n2024-03-15 22:05:32 [ERROR] 502 Bad Gateway for POST /api/payment (3 attempts failed)\n2024-03-15 22:05:48 [ERROR] 502 Bad Gateway for POST /api/payment (3 attempts failed)\n2024-03-15 22:06:15 [ERROR] 502 Bad Gateway for POST /api/payment (3 attempts failed)\n2024-03-15 22:06:35 [WARN] Error rate spike: 502 errors at 40/minute\n2024-03-15 22:08:00 [WARN] Enabling maintenance page for /api/payment\n2024-03-15 22:13:10 [INFO] Upstream backends recovering\n2024-03-15 22:13:35 [INFO] Disabling maintenance page\n2024-03-15 22:14:05 [INFO] Upstream healthy: 4/4 backends responding\nNGXEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: timeline.txt
+    - file_contains:
+        path: timeline.txt
+        content: "deploy"
+    - file_contains:
+        path: timeline.txt
+        content: "error"
+    - file_contains:
+        path: timeline.txt
+        content: "rollback"
+    - file_contains:
+        path: timeline.txt
+        content: "restore"
+hints:
+  - "Read all three files. Key timestamps: 22:00 (deploy starts), 22:05:30 (first errors), 22:12:00 (rollback), 22:14:00 (restored)."
+  - "Merge events from all three sources and sort by timestamp."
+  - "Your timeline should cover: deploy start → pods updating → first errors → escalation → rollback → recovery."
+solution: |
+  cat > timeline.txt << 'EOF'
+  22:00:01 - deploy started for version 2.4.1
+  22:03:00 - rolling deploy began, pods updating one by one
+  22:03:32 - nginx detected backends going down during deploy (error during restart)
+  22:05:00 - deploy complete, all 4 pods on v2.4.1
+  22:05:30 - first errors appeared: TypeError in PaymentService.process()
+  22:06:30 - error rate hit 45%, circuit breaker opened
+  22:07:30 - payment processing completely unavailable
+  22:08:00 - nginx enabled maintenance page for payment endpoint
+  22:12:00 - on-call engineer initiated rollback to v2.4.0
+  22:13:00 - rollback complete, all pods back on v2.4.0
+  22:14:00 - service fully restored, all systems nominal
+  EOF
+explanation: |
+  The timeline reveals the incident anatomy: a deploy introduced a TypeError
+  in PaymentService that wasn't caught by tests. It took 7 minutes from first
+  error (22:05:30) to rollback decision (22:12:00) — that's the detection gap.
+  The rollback itself was fast (1 minute). Post-mortem actions: add payment
+  service integration tests, set up automatic rollback on error rate spike,
+  reduce the detection-to-action gap. Building timelines from multiple log
+  sources is the core skill of incident post-mortems.

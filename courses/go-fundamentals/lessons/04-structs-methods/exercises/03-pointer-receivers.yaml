@@ -1,0 +1,99 @@
+id: pointer-receivers
+title: "Pointer Receivers"
+type: write
+
+prompt: |
+  Define a `Counter` struct with a single field `value int`.
+
+  Add two methods:
+  1. `Increment()` — uses a **pointer receiver** to increase `value` by 1
+  2. `Value() int` — uses a **value receiver** to return the current value
+
+  In `main`, create a counter, print its initial value, then increment it three
+  times, printing the value after each increment.
+
+  Expected output:
+  ```
+  0
+  1
+  2
+  3
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Define Counter struct here
+
+  // Add Increment() with pointer receiver here
+
+  // Add Value() with value receiver here
+
+  func main() {
+      var c Counter
+      fmt.Println(c.Value())
+      c.Increment()
+      fmt.Println(c.Value())
+      c.Increment()
+      fmt.Println(c.Value())
+      c.Increment()
+      fmt.Println(c.Value())
+  }
+
+validation:
+  method: output
+  expected_output: |
+    0
+    1
+    2
+    3
+
+hints:
+  - "A pointer receiver looks like: func (c *Counter) Increment() { ... }"
+  - "Inside a pointer receiver method, modify the field directly: c.value++ (Go automatically dereferences the pointer)."
+  - "A value receiver looks like: func (c Counter) Value() int { return c.value }"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type Counter struct {
+      value int
+  }
+
+  func (c *Counter) Increment() {
+      c.value++
+  }
+
+  func (c Counter) Value() int {
+      return c.value
+  }
+
+  func main() {
+      var c Counter
+      fmt.Println(c.Value())
+      c.Increment()
+      fmt.Println(c.Value())
+      c.Increment()
+      fmt.Println(c.Value())
+      c.Increment()
+      fmt.Println(c.Value())
+  }
+
+explanation: |
+  The key difference: `Increment` uses `*Counter` (pointer receiver) so it can
+  modify the original struct. `Value` uses `Counter` (value receiver) because it
+  only reads data.
+
+  If `Increment` used a value receiver `(c Counter)`, it would modify a copy and
+  the original counter would never change — every print would show `0`.
+
+  Notice that `var c Counter` creates a zero-valued `Counter` with `value` set to
+  `0`. Go automatically takes the address when you call `c.Increment()` on a
+  non-pointer variable — it rewrites it as `(&c).Increment()` behind the scenes.
+
+  The `value` field is lowercase, making it unexported. This is a common pattern:
+  the field is private, and access is controlled through methods.

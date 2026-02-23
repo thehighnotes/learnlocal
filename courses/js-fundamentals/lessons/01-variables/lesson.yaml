@@ -1,0 +1,28 @@
+id: variables
+title: "Variables and Types"
+description: "Learn to store values, understand types, and use template literals"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - declare
+  - let-vs-const
+  - typeof-check
+  - coercion
+  - template-lit
+  - fix-concat
+  - convert-types
+teaches:
+  - let-const-var
+  - data-types
+  - typeof-operator
+  - type-coercion
+  - template-literals
+  - type-conversion
+recap: |
+  You learned:
+  - let declares reassignable variables, const declares constants
+  - JavaScript has number, string, boolean, undefined, null, and object types
+  - typeof returns a string describing a value's type
+  - The + operator concatenates when either operand is a string
+  - Template literals use backticks and ${...} for embedded expressions
+  - parseInt() and parseFloat() convert strings to numbers

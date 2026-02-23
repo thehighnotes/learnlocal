@@ -1,0 +1,93 @@
+id: merge-hell
+title: "MISSION: Merge Hell"
+type: command
+prompt: |
+  --- INCOMING TRANSMISSION ---
+
+  NIGHTMARE SCENARIO: Three developers worked on the same file. `branch-a`
+  rewrote the header. `branch-b` rewrote the footer. Both conflict with
+  the current `main` version.
+
+  You're on `main`. You need to merge BOTH branches. Each merge will produce
+  conflicts.
+
+  MISSION: Merge `branch-a` into main (resolve conflicts), then merge
+  `branch-b` into main (resolve those conflicts too). The final `app.txt`
+  must contain ALL three sections:
+  - Line 1: "HEADER: redesigned by team-a"
+  - Line 2: "BODY: core application logic"
+  - Line 3: "FOOTER: redesigned by team-b"
+
+  No conflict markers allowed in the final file.
+
+  --- END TRANSMISSION ---
+starter: |
+  #!/bin/bash
+  # Merge branch-a, resolve conflicts
+  # Merge branch-b, resolve conflicts
+  # Final app.txt must have all three lines with no conflict markers
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && printf 'HEADER: original design\\nBODY: core application logic\\nFOOTER: original design\\n' > app.txt && git add app.txt && git commit -m 'initial app' && git checkout -b branch-a && printf 'HEADER: redesigned by team-a\\nBODY: core application logic\\nFOOTER: original design\\n' > app.txt && git add app.txt && git commit -m 'redesign header' && git checkout main && git checkout -b branch-b && printf 'HEADER: original design\\nBODY: core application logic\\nFOOTER: redesigned by team-b\\n' > app.txt && git add app.txt && git commit -m 'redesign footer' && git checkout main"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-app
+      command: sh
+      args: ["-c", "cd {dir}/repo && cat app.txt > {dir}/__app.txt"]
+      timeout_seconds: 5
+    - name: capture-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline > {dir}/__log.txt"]
+      timeout_seconds: 5
+    - name: capture-conflict-check
+      command: sh
+      args: ["-c", "cd {dir}/repo && grep -c '<<<<<<<' app.txt > {dir}/__conflicts.txt 2>&1 || echo '0' > {dir}/__conflicts.txt"]
+      timeout_seconds: 5
+    - name: capture-branches-merged
+      command: sh
+      args: ["-c", "cd {dir}/repo && git branch --merged main > {dir}/__merged.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __app.txt
+        content: "HEADER: redesigned by team-a"
+    - file_contains:
+        path: __app.txt
+        content: "BODY: core application logic"
+    - file_contains:
+        path: __app.txt
+        content: "FOOTER: redesigned by team-b"
+    - file_contains:
+        path: __conflicts.txt
+        content: "0"
+    - file_contains:
+        path: __merged.txt
+        content: "branch-a"
+    - file_contains:
+        path: __merged.txt
+        content: "branch-b"
+hints:
+  - "Start with `git merge branch-a`. It will conflict. Edit app.txt to have the right content, then `git add app.txt && git commit`."
+  - "After the first merge succeeds, run `git merge branch-b`. Resolve that conflict the same way."
+  - "The final file should be exactly three lines: the team-a header, the original body, and the team-b footer."
+solution: |
+  #!/bin/bash
+  git merge branch-a --no-edit || true
+  printf 'HEADER: redesigned by team-a\nBODY: core application logic\nFOOTER: original design\n' > app.txt
+  git add app.txt
+  git commit -m "Merge branch 'branch-a'" --allow-empty
+  git merge branch-b --no-edit || true
+  printf 'HEADER: redesigned by team-a\nBODY: core application logic\nFOOTER: redesigned by team-b\n' > app.txt
+  git add app.txt
+  git commit -m "Merge branch 'branch-b'" --allow-empty
+explanation: |
+  When multiple branches modify the same file, you get conflicts on each merge.
+  The key is to handle them one at a time: merge branch-a, resolve its conflicts
+  (edit the file, remove markers, keep the right content), stage and commit.
+  Then merge branch-b and repeat. After each resolution, the file should contain
+  the correct combined content — no conflict markers left behind.

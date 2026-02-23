@@ -1,0 +1,34 @@
+id: error-handling
+title: "Error Handling"
+description: "Handle errors the Go way — explicit return values, custom types, wrapping, and recovery"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - error-type
+  - custom-errors
+  - error-wrapping
+  - errors-is
+  - errors-as
+  - panic-recover
+  - sentinel-errors
+teaches:
+  - error-interface
+  - errors-new
+  - fmt-errorf
+  - custom-error-types
+  - error-wrapping
+  - errors-is
+  - errors-as
+  - panic-recover
+  - sentinel-errors
+recap: |
+  You learned:
+  - Go functions return errors as values — there are no exceptions
+  - The `error` interface has one method: `Error() string`
+  - `errors.New` and `fmt.Errorf` create simple error values
+  - Custom error types implement the `error` interface with an `Error()` method
+  - `fmt.Errorf` with `%w` wraps errors, preserving the original for inspection
+  - `errors.Is` checks if any error in a chain matches a specific sentinel error
+  - `errors.As` extracts a specific error type from a chain into a target variable
+  - `panic` crashes the program for unrecoverable situations; `recover` catches panics
+  - Sentinel errors are package-level `var` values used as known error conditions

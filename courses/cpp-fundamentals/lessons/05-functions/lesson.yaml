@@ -1,0 +1,31 @@
+id: functions
+title: "Functions"
+description: "Write reusable code with functions"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - basic
+  - parameters
+  - return-values
+  - overloading
+  - pass-by-ref
+  - default-params
+  - recursive
+  - compile-multiple
+teaches:
+  - function-definition
+  - parameters-arguments
+  - return-values
+  - overloading
+  - pass-by-reference
+  - default-parameters
+  - recursion
+recap: |
+  You learned:
+  - Functions group reusable code with a name
+  - Parameters let functions accept input
+  - Return values let functions produce output
+  - Overloading: same name, different parameter types
+  - Pass by reference modifies the original variable
+  - Default parameters provide fallback values
+  - Recursion: functions calling themselves with a base case

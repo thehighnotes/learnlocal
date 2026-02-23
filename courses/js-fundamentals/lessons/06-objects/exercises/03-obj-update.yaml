@@ -1,0 +1,54 @@
+id: obj-update
+title: "Updating Objects"
+type: write
+
+prompt: |
+  Start with the car object in the starter code. Then:
+  1. Add a new property "year" with value 2024
+  2. Change "color" from "red" to "blue"
+  3. Print Object.keys(car) joined with ", "
+  4. Print car.year
+  5. Print car.color
+
+  Expected output:
+  color, make, year
+  2024
+  blue
+
+starter: |
+  const car = { color: "red", make: "Toyota" };
+  // Add year: 2024
+  // Change color to "blue"
+  // Print keys, year, and color
+
+validation:
+  method: output
+  expected_output: "color, make, year\n2024\nblue"
+
+hints:
+  - "Add a property: car.year = 2024; Update a property: car.color = \"blue\";"
+  - "Object.keys(car) returns an array of the property names."
+  - "const with objects: you cannot reassign car = {...}, but you CAN modify car.color."
+
+solution: |
+  const car = { color: "red", make: "Toyota" };
+  car.year = 2024;
+  car.color = "blue";
+  console.log(Object.keys(car).join(", "));
+  console.log(car.year);
+  console.log(car.color);
+
+explanation: |
+  Objects are mutable — you can add, change, and remove properties even
+  when declared with `const`. The `const` keyword only prevents reassigning
+  the variable itself (you cannot write `car = { ... }`), not modifying
+  the object's contents.
+
+  - `car.year = 2024` — adds a new property "year"
+  - `car.color = "blue"` — updates the existing "color" property
+
+  `Object.keys(car)` returns ["color", "make", "year"]. Properties
+  generally appear in insertion order for string keys (with numeric-like
+  keys sorted first, but that does not apply here).
+
+  To remove a property, use `delete car.color` (not needed here).

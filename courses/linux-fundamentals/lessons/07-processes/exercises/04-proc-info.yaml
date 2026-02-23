@@ -1,0 +1,24 @@
+id: proc-info
+title: "Read /proc"
+type: command
+prompt: |
+  Print the current process's PID using $$, then extract the Pid line
+  from /proc/$$/status to verify it matches.
+  Print two lines: the PID from $$, and the PID from /proc.
+  They should be the same number.
+starter: |
+  # Print PID from $$ and from /proc
+validation:
+  method: regex
+  pattern: "^\\d+\n\\d+$"
+hints:
+  - "$$ gives the current shell's PID"
+  - "grep '^Pid:' /proc/$$/status extracts the PID line"
+  - "Use awk or cut to extract just the number"
+solution: |
+  echo $$
+  grep '^Pid:' /proc/$$/status | awk '{print $2}'
+explanation: |
+  $$ is a special variable containing the current process ID.
+  /proc/$$/status contains detailed process information as a virtual
+  file. The Pid: line confirms the same PID.

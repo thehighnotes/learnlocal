@@ -1,0 +1,84 @@
+id: foreign-key
+title: "Foreign Key Relationships"
+type: write
+
+prompt: |
+  Create two related tables with a foreign key relationship:
+
+  1. A `departments` table with:
+     - id (INTEGER PRIMARY KEY)
+     - name (TEXT NOT NULL)
+
+  2. An `employees` table with:
+     - id (INTEGER PRIMARY KEY)
+     - name (TEXT NOT NULL)
+     - dept_id (INTEGER) with a FOREIGN KEY referencing departments(id)
+
+  Insert two departments: (1, 'Engineering') and (2, 'Marketing').
+  Insert two employees: (1, 'Alice', 1) and (2, 'Bob', 2).
+
+  Then SELECT all employees joined with their department names, ordered by
+  employee id. Output columns: employee name, department name.
+
+starter: |
+  -- Create the departments table
+
+  -- Create the employees table with a FOREIGN KEY
+
+  -- Insert departments
+
+  -- Insert employees
+
+  -- SELECT employee name and department name, joined and ordered by employee id
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        -- No setup needed
+
+validation:
+  method: output
+  expected_output: |
+    Alice|Engineering
+    Bob|Marketing
+
+hints:
+  - "Create departments first, then employees with FOREIGN KEY (dept_id) REFERENCES departments(id)"
+  - "Use INSERT INTO to add rows. Department ids 1 and 2, employee dept_ids must match"
+  - |
+    Join the tables:
+    SELECT e.name, d.name FROM employees e
+    JOIN departments d ON e.dept_id = d.id
+    ORDER BY e.id;
+
+solution: |
+  CREATE TABLE departments (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL
+  );
+  CREATE TABLE employees (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      dept_id INTEGER,
+      FOREIGN KEY (dept_id) REFERENCES departments(id)
+  );
+  INSERT INTO departments VALUES (1, 'Engineering');
+  INSERT INTO departments VALUES (2, 'Marketing');
+  INSERT INTO employees VALUES (1, 'Alice', 1);
+  INSERT INTO employees VALUES (2, 'Bob', 2);
+  SELECT e.name, d.name FROM employees e
+  JOIN departments d ON e.dept_id = d.id
+  ORDER BY e.id;
+
+explanation: |
+  The `FOREIGN KEY (dept_id) REFERENCES departments(id)` clause establishes
+  a relationship between the two tables. It means every value in
+  employees.dept_id must exist as an id in the departments table.
+
+  This prevents orphaned records — you cannot insert an employee referencing
+  a department that does not exist.
+
+  The JOIN query brings the tables together: for each employee, it finds the
+  matching department by linking `e.dept_id = d.id`, giving us the employee
+  name alongside their department name.

@@ -1,0 +1,27 @@
+id: trap-signal
+title: "Trap a Signal"
+type: command
+prompt: |
+  Use trap to set an EXIT handler that prints "cleanup done" when the
+  script exits. Then print "running" and let the script end normally.
+  Output should be:
+    running
+    cleanup done
+starter: |
+  # Set EXIT trap, do work, let it trigger on exit
+validation:
+  method: output
+  expected_output: |
+    running
+    cleanup done
+hints:
+  - "trap 'echo cleanup done' EXIT"
+  - "The EXIT trap fires when the script finishes"
+  - "Put the trap at the top, then your normal code"
+solution: |
+  trap 'echo "cleanup done"' EXIT
+  echo "running"
+explanation: |
+  The EXIT trap runs when the script exits for any reason — normal
+  completion, explicit exit, or signals. It's the standard pattern
+  for cleanup (removing temp files, releasing locks, etc.).

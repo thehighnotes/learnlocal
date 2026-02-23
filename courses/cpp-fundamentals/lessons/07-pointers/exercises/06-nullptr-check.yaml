@@ -1,0 +1,67 @@
+id: nullptr-check
+title: "Null Pointer Safety"
+type: write
+
+prompt: |
+  Write a function `void print_value(int* ptr)` that checks whether
+  the pointer is null. If it is not null, print the value it points to.
+  If it is null, print the word "null".
+
+  In `main`, create an integer `x = 42` and call `print_value` twice:
+  once with a pointer to `x`, and once with `nullptr`.
+
+starter: |
+  #include <iostream>
+
+  // Write void print_value(int* ptr) here
+  // Check if the pointer is null before dereferencing
+
+  int main() {
+      int x = 42;
+
+      // Call print_value with a pointer to x
+
+      // Call print_value with nullptr
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "42\nnull"
+
+hints:
+  - "Check for null with: if (ptr != nullptr)"
+  - "You can also use the shorter form: if (ptr) -- a null pointer is falsy."
+  - "Call with: print_value(&x); and print_value(nullptr);"
+
+solution: |
+  #include <iostream>
+
+  void print_value(int* ptr) {
+      if (ptr != nullptr) {
+          std::cout << *ptr << std::endl;
+      } else {
+          std::cout << "null" << std::endl;
+      }
+  }
+
+  int main() {
+      int x = 42;
+
+      print_value(&x);
+      print_value(nullptr);
+
+      return 0;
+  }
+
+explanation: |
+  Before dereferencing any pointer, you should consider whether it might
+  be null. Dereferencing a null pointer is undefined behavior -- in
+  practice it usually crashes your program.
+
+  The check `ptr != nullptr` (or simply `if (ptr)`) guards against this.
+  This pattern is essential whenever a function accepts a pointer that
+  callers might reasonably pass as null. References avoid this problem
+  entirely since they cannot be null, which is one reason to prefer
+  them when "no value" is not a valid state.

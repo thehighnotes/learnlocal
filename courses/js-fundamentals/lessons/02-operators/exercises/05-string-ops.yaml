@@ -1,0 +1,42 @@
+id: string-ops
+title: "String Operations"
+type: write
+
+prompt: |
+  Perform three string operations and print each result on its own line:
+  1. "Ha".repeat(3) — repeat a string
+  2. "abc" + "def" — concatenate two strings
+  3. "apple" < "banana" — string comparison
+
+  Expected output:
+  HaHaHa
+  abcdef
+  true
+
+starter: |
+  // Print three string operation results
+
+validation:
+  method: output
+  expected_output: "HaHaHa\nabcdef\ntrue"
+
+hints:
+  - ".repeat(n) creates a new string by repeating the original n times."
+  - "The + operator concatenates strings when both operands are strings."
+  - "String comparison uses lexicographic (dictionary) ordering."
+
+solution: |
+  console.log("Ha".repeat(3));
+  console.log("abc" + "def");
+  console.log("apple" < "banana");
+
+explanation: |
+  JavaScript strings have many built-in methods:
+
+  - `.repeat(3)` creates "HaHaHa" by repeating "Ha" three times. The
+    original string is not modified (strings are immutable in JavaScript).
+  - `"abc" + "def"` produces "abcdef". The + operator concatenates when
+    both operands are strings.
+  - `"apple" < "banana"` returns true. String comparison is character-by-
+    character using Unicode code points. 'a' (97) < 'b' (98), so "apple"
+    is "less than" (comes before) "banana".

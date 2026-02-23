@@ -1,0 +1,31 @@
+id: operators
+title: "Operators and Expressions"
+description: "Master arithmetic, comparison, and logical operators"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - arithmetic
+  - comparison
+  - logical
+  - precedence
+  - compound-assign
+  - increment
+  - casting
+teaches:
+  - arithmetic-operators
+  - comparison-operators
+  - logical-operators
+  - operator-precedence
+  - compound-assignment
+  - increment-decrement
+  - type-casting
+recap: |
+  You learned:
+  - Arithmetic operators: +, -, *, /, %
+  - Integer division truncates — 7/2 is 3, not 3.5
+  - Comparison operators return true/false
+  - Logical operators combine conditions: &&, ||, !
+  - Operator precedence determines evaluation order
+  - Compound assignment (+=, -=) shortens common patterns
+  - Pre/post increment have subtle differences
+  - static_cast converts between types explicitly

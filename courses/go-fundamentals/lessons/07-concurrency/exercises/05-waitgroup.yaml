@@ -1,0 +1,93 @@
+id: waitgroup
+title: "WaitGroup Coordination"
+type: write
+
+prompt: |
+  Launch 3 goroutines using sync.WaitGroup. Each goroutine should write its
+  result to a shared slice at its own index, then call wg.Done(). After
+  wg.Wait(), print the results in order.
+
+  The output must be deterministic. Use a pre-allocated slice of 3 strings
+  and have each goroutine write to results[i] so there are no data races.
+  Print the slice contents in a loop after Wait() returns.
+
+  Expected output:
+  worker 1 done
+  worker 2 done
+  worker 3 done
+
+starter: |
+  package main
+
+  import (
+      "fmt"
+      "sync"
+  )
+
+  func main() {
+      var wg sync.WaitGroup
+      results := make([]string, 3)
+
+      for i := 0; i < 3; i++ {
+          wg.Add(1)
+          // Launch a goroutine that sets results[i] to "worker N done"
+          // where N is i+1. Don't forget to call wg.Done().
+      }
+
+      wg.Wait()
+
+      // Print each result
+      _ = fmt.Println
+      _ = results
+  }
+
+validation:
+  method: output
+  expected_output: "worker 1 done\nworker 2 done\nworker 3 done\n"
+
+hints:
+  - "Pass i as a parameter to the goroutine: go func(n int) { ... }(i)"
+  - "Set results[n] = fmt.Sprintf(\"worker %d done\", n+1) inside the goroutine"
+  - "After wg.Wait(), loop over results and print each: for _, r := range results { fmt.Println(r) }"
+
+solution: |
+  package main
+
+  import (
+      "fmt"
+      "sync"
+  )
+
+  func main() {
+      var wg sync.WaitGroup
+      results := make([]string, 3)
+
+      for i := 0; i < 3; i++ {
+          wg.Add(1)
+          go func(n int) {
+              defer wg.Done()
+              results[n] = fmt.Sprintf("worker %d done", n+1)
+          }(i)
+      }
+
+      wg.Wait()
+
+      for _, r := range results {
+          fmt.Println(r)
+      }
+  }
+
+explanation: |
+  Each goroutine receives its index `n` as a parameter (not a closure over `i`,
+  which would be a common bug). It writes to `results[n]`, so each goroutine
+  owns its own slot -- no data race.
+
+  `wg.Add(1)` is called *before* the goroutine launches, ensuring the counter
+  is incremented before `Wait()` could see zero. `defer wg.Done()` decrements
+  the counter when the goroutine finishes.
+
+  `wg.Wait()` blocks until all 3 goroutines have called `Done()`. At that
+  point, all slots in the slice are filled, and we print them in index order.
+
+  This collect-then-print pattern is the standard way to get deterministic
+  output from concurrent goroutines.

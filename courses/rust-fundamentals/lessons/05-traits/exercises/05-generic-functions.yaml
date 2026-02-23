@@ -1,0 +1,63 @@
+id: generic-functions
+title: "Write a Generic Function"
+type: write
+
+prompt: |
+  Write a generic function called `largest` that takes two arguments of
+  the same type and returns the larger one. It should work with any type
+  that supports comparison and copying.
+
+  Use trait bounds `PartialOrd + Copy` so the function works with integers,
+  floats, and characters.
+
+  Then call it in `main` with these three pairs and print each result:
+  - largest(10, 25)
+  - largest(3.14, 2.72)
+  - largest('z', 'a')
+
+starter: |
+  // Write your generic largest function here
+
+  fn main() {
+      // Call largest with (10, 25) and print the result
+      // Call largest with (3.14, 2.72) and print the result
+      // Call largest with ('z', 'a') and print the result
+  }
+
+validation:
+  method: output
+  expected_output: |
+    25
+    3.14
+    z
+
+hints:
+  - "The function signature is: fn largest<T: PartialOrd + Copy>(a: T, b: T) -> T"
+  - "Inside the function, use an if expression: if a >= b { a } else { b }"
+  - "In main: println!(\"{}\", largest(10, 25)); and similarly for the other two calls."
+
+solution: |
+  fn largest<T: PartialOrd + Copy>(a: T, b: T) -> T {
+      if a >= b { a } else { b }
+  }
+
+  fn main() {
+      println!("{}", largest(10, 25));
+      println!("{}", largest(3.14, 2.72));
+      println!("{}", largest('z', 'a'));
+  }
+
+explanation: |
+  The `largest` function is generic over `T`, but with two trait bounds:
+
+  - `PartialOrd` enables the `>=` comparison operator. Without it, the
+    compiler would not know how to compare `a` and `b`.
+  - `Copy` lets us return `a` or `b` by value without worrying about
+    ownership moves. Simple types like i32, f64, and char all implement Copy.
+
+  The compiler generates three specialized versions at compile time: one for
+  i32, one for f64, and one for char. Each is as efficient as if you had
+  written a separate function for each type. This is called monomorphization.
+
+  Note: we used `PartialOrd` rather than `Ord` because f64 implements
+  `PartialOrd` (since NaN makes total ordering impossible) but not `Ord`.

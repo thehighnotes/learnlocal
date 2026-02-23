@@ -1,0 +1,92 @@
+id: sentinel-errors
+title: "Sentinel Errors"
+type: write
+
+prompt: |
+  Define two package-level sentinel errors:
+  - `ErrNotFound` with message `"not found"`
+  - `ErrForbidden` with message `"forbidden"`
+
+  Write a function `fetchResource(code int) error` that:
+  - Returns `ErrNotFound` when code is 404
+  - Returns `ErrForbidden` when code is 403
+  - Returns `nil` otherwise
+
+  In `main`, call `fetchResource` with 404, 403, and 200. For each, check with
+  `errors.Is` and print the result.
+
+  Expected output:
+  not found: true
+  forbidden: true
+  other: false
+
+starter: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  // TODO: define ErrNotFound and ErrForbidden
+
+  // TODO: write func fetchResource(code int) error
+
+  func main() {
+      // TODO: test with 404, 403, 200 and print results
+  }
+
+validation:
+  method: output
+  expected_output: "not found: true\nforbidden: true\nother: false"
+
+hints:
+  - "Define sentinels: `var ErrNotFound = errors.New(\"not found\")` and `var ErrForbidden = errors.New(\"forbidden\")`"
+  - "In fetchResource, use a switch on code: `case 404: return ErrNotFound` and `case 403: return ErrForbidden`"
+  - "For printing: `fmt.Println(\"not found:\", errors.Is(fetchResource(404), ErrNotFound))`"
+
+solution: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  var ErrNotFound = errors.New("not found")
+  var ErrForbidden = errors.New("forbidden")
+
+  func fetchResource(code int) error {
+      switch code {
+      case 404:
+          return ErrNotFound
+      case 403:
+          return ErrForbidden
+      default:
+          return nil
+      }
+  }
+
+  func main() {
+      fmt.Println("not found:", errors.Is(fetchResource(404), ErrNotFound))
+      fmt.Println("forbidden:", errors.Is(fetchResource(403), ErrForbidden))
+      fmt.Println("other:", errors.Is(fetchResource(200), ErrNotFound))
+  }
+
+explanation: |
+  Sentinel errors are package-level variables that represent known, specific
+  error conditions. They are declared with `var` (not `const`) because
+  `errors.New` returns a pointer value that cannot be a constant.
+
+  The naming convention is `Err` followed by the condition: `ErrNotFound`,
+  `ErrForbidden`, `ErrTimeout`. The standard library follows this everywhere:
+  `io.EOF`, `sql.ErrNoRows`, `os.ErrNotExist`.
+
+  `errors.Is` compares by identity (pointer equality for simple sentinel
+  errors). Since `fetchResource` returns the exact same `ErrNotFound` variable,
+  `errors.Is` matches it. For code 200, `fetchResource` returns `nil`, which
+  does not match `ErrNotFound`, so the check returns `false`.
+
+  Sentinel errors work well with wrapping. If a function wraps a sentinel with
+  `fmt.Errorf("context: %w", ErrNotFound)`, callers can still detect it with
+  `errors.Is` because it unwraps the chain.

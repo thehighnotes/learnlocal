@@ -1,0 +1,44 @@
+id: string-concat
+title: "Fix the String Concatenation"
+type: fix
+
+prompt: |
+  The starter code tries to print "Age: 25" by concatenating a string and a
+  variable, but it crashes with a TypeError.
+
+  Fix the code so it prints: Age: 25
+
+starter: |
+  age = 25
+  print("Age: " + age)
+
+validation:
+  method: output
+  expected_output: "Age: 25"
+
+hints:
+  - "Python cannot concatenate a string and an integer with +. You need to convert the integer to a string first."
+  - "Use str() to convert a number to a string: str(25) gives \"25\". Or use an f-string instead of concatenation."
+  - "Either print(\"Age: \" + str(age)) or print(f\"Age: {age}\") will work."
+
+solution: |
+  age = 25
+  print("Age: " + str(age))
+
+explanation: |
+  The `+` operator works differently depending on the types involved:
+
+  - `str + str` concatenates strings: `"Hello" + " World"` gives `"Hello World"`
+  - `int + int` adds numbers: `2 + 3` gives `5`
+  - `str + int` is a **TypeError** — Python refuses to guess what you meant
+
+  The fix is to convert the integer to a string using `str(age)`, so both
+  sides of `+` are strings.
+
+  An alternative (and often preferred) approach is to use an f-string:
+
+      print(f"Age: {age}")
+
+  f-strings handle the conversion automatically — you do not need to call
+  `str()` on the variable. This is one of the reasons f-strings are the
+  recommended way to build strings with embedded values in modern Python.

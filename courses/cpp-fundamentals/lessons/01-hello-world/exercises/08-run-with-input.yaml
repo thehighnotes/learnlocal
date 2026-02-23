@@ -1,0 +1,33 @@
+id: run-with-input
+title: "Pipe Input to Your Program"
+type: command
+prompt: |
+  A greeting.cpp program reads a name from stdin. Compile it, then run it
+  with "Alice" piped as input.
+environment:
+  files:
+    - path: greeting.cpp
+      content: |
+        #include <iostream>
+        #include <string>
+        int main() {
+            std::string name;
+            std::getline(std::cin, name);
+            std::cout << "Hello, " << name << "!" << std::endl;
+            return 0;
+        }
+starter: |
+  # Compile greeting.cpp, then pipe input to it
+validation:
+  method: output
+  expected_output: "Hello, Alice!"
+hints:
+  - "First: g++ -o greeting greeting.cpp"
+  - "Then: echo Alice | ./greeting"
+solution: |
+  g++ -o greeting greeting.cpp
+  echo Alice | ./greeting
+explanation: |
+  Programs often need input. You can pipe data to a program using |.
+  echo Alice | ./greeting sends "Alice" to the program's stdin, just as
+  if someone typed it interactively.

@@ -1,0 +1,39 @@
+name: "Go Fundamentals"
+version: "1.0.0"
+description: "Learn Go from scratch — simple syntax, powerful concurrency, and a great standard library. Build fast, reliable programs in your terminal."
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+
+language:
+  id: go
+  display_name: "Go"
+  extension: ".go"
+  provision: auto
+  steps:
+    - name: run
+      command: "go"
+      args: ["run", "{dir}/{main}"]
+      capture_output: true
+      check_exit_code: true
+  limits:
+    timeout_seconds: 15
+
+lessons:
+  - id: hello-world
+    title: "Hello, Go!"
+  - id: control-flow
+    title: "Control Flow"
+  - id: functions
+    title: "Functions"
+  - id: collections
+    title: "Arrays, Slices & Maps"
+  - id: structs-methods
+    title: "Structs & Methods"
+  - id: interfaces
+    title: "Interfaces"
+  - id: error-handling
+    title: "Error Handling"
+  - id: concurrency
+    title: "Goroutines & Channels"
+
+estimated_minutes_per_lesson: 25

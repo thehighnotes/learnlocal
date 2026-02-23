@@ -1,0 +1,45 @@
+id: let-vs-const
+title: "Fix let vs const"
+type: fix
+
+prompt: |
+  The starter code tries to reassign a const variable, which causes an error.
+  Fix the code so it runs and prints:
+  10
+  20
+
+  The variable needs to be declared with let instead of const so it can be
+  reassigned.
+
+starter: |
+  const x = 10;
+  console.log(x);
+  x = 20;
+  console.log(x);
+
+validation:
+  method: output
+  expected_output: "10\n20"
+
+hints:
+  - "const variables cannot be reassigned after declaration. The line x = 20 causes a TypeError."
+  - "Change const to let so the variable can be reassigned."
+  - "The fix is: let x = 10; — then x = 20 works fine."
+
+solution: |
+  let x = 10;
+  console.log(x);
+  x = 20;
+  console.log(x);
+
+explanation: |
+  `const` means the binding is constant — you cannot point the variable at
+  a different value. Attempting `x = 20` when x was declared with const
+  throws: TypeError: Assignment to constant variable.
+
+  Changing to `let` allows reassignment. The variable `x` starts as 10,
+  gets printed, then is reassigned to 20 and printed again.
+
+  Rule of thumb: use `const` by default, switch to `let` only when you
+  need to reassign. This makes code easier to reason about because you
+  know const values will never change.

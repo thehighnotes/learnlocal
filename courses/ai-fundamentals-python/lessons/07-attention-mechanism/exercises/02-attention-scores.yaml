@@ -1,0 +1,58 @@
+id: attention-scores
+title: "Attention Scores"
+type: write
+
+prompt: |
+  Compute attention scores: the dot product between a query vector and each
+  key vector, scaled by the square root of the dimension.
+
+      score_i = (query · key_i) / sqrt(d)
+
+  Given:
+  - query = [1, 1]
+  - keys = [[0, 1], [1, 1], [0.5, 0]]
+  - d = 2, so sqrt(d) ≈ 1.41
+
+  Print the list of scores, each rounded to 2 decimal places.
+
+starter: |
+  import math
+
+  query = [1, 1]
+  keys = [[0, 1], [1, 1], [0.5, 0]]
+  d = len(query)
+  scale = math.sqrt(d)
+
+  # Compute scaled dot product of query with each key
+
+
+  print(scores)
+
+validation:
+  method: output
+  expected_output: "[0.71, 1.41, 0.35]"
+
+hints:
+  - "For each key, compute the dot product with the query, then divide by `scale`. Use `round(result, 2)` for each score."
+  - "Try: `scores = [round(sum(query[i]*key[i] for i in range(d)) / scale, 2) for key in keys]`"
+
+solution: |
+  import math
+
+  query = [1, 1]
+  keys = [[0, 1], [1, 1], [0.5, 0]]
+  d = len(query)
+  scale = math.sqrt(d)
+
+  scores = [round(sum(query[i] * key[i] for i in range(d)) / scale, 2) for key in keys]
+
+  print(scores)
+
+explanation: |
+  query · key[0] = 1*0 + 1*1 = 1. Scaled: 1/1.414 ≈ 0.71.
+  query · key[1] = 1*1 + 1*1 = 2. Scaled: 2/1.414 ≈ 1.41.
+  query · key[2] = 1*0.5 + 1*0 = 0.5. Scaled: 0.5/1.414 ≈ 0.35.
+
+  Key 1 ([1,1]) has the highest score because it points in the same direction
+  as the query. These raw scores will be passed through softmax in the next
+  exercise to become attention weights.

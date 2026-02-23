@@ -1,0 +1,32 @@
+id: control-flow
+title: "Control Flow"
+description: "Use conditionals and loops to control program behavior"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - if-else
+  - else-if-chain
+  - switch
+  - while-loop
+  - for-loop
+  - fizzbuzz
+  - for-of-string
+  - nested-loops
+teaches:
+  - if-else-statements
+  - else-if-chains
+  - switch-statement
+  - while-loops
+  - for-loops
+  - break-continue
+  - for-of-loops
+  - nested-loops
+recap: |
+  You learned:
+  - if/else makes decisions based on conditions
+  - else if chains handle multiple exclusive conditions
+  - switch matches a value against multiple cases (don't forget break!)
+  - while loops repeat until a condition becomes false
+  - for loops are ideal when you know the iteration count
+  - for...of iterates over strings, arrays, and other iterables
+  - Loops can be nested for multi-dimensional patterns

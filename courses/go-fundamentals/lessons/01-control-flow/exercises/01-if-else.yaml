@@ -1,0 +1,71 @@
+id: if-else
+title: "Categorize Numbers"
+type: write
+
+prompt: |
+  Write a function `categorize` that takes an int and returns a string:
+  "negative" if the number is less than zero, "zero" if it equals zero,
+  or "positive" if it is greater than zero.
+
+  Call it for -5, 0, and 42, printing each result on its own line.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write a categorize function that takes an int
+  // and returns "negative", "zero", or "positive"
+
+  func main() {
+      fmt.Println(categorize(-5))
+      fmt.Println(categorize(0))
+      fmt.Println(categorize(42))
+  }
+
+validation:
+  method: output
+  expected_output: |
+    negative
+    zero
+    positive
+
+hints:
+  - "Define the function as: func categorize(n int) string { ... }"
+  - "Use if/else if/else — remember, no parentheses around the condition in Go."
+  - "Return the string from each branch. The else clause handles the zero case."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func categorize(n int) string {
+      if n < 0 {
+          return "negative"
+      } else if n > 0 {
+          return "positive"
+      } else {
+          return "zero"
+      }
+  }
+
+  func main() {
+      fmt.Println(categorize(-5))
+      fmt.Println(categorize(0))
+      fmt.Println(categorize(42))
+  }
+
+explanation: |
+  The categorize function uses an if/else if/else chain to classify a number:
+
+  1. `if n < 0` catches negative numbers.
+  2. `else if n > 0` catches positive numbers.
+  3. `else` handles the only remaining case: zero.
+
+  Notice there are no parentheses around the conditions — Go does not require
+  them, and idiomatic Go omits them. The braces, however, are mandatory even
+  for single-statement bodies.
+
+  Each branch uses `return` to send back the string, so only one branch
+  ever executes.

@@ -1,0 +1,33 @@
+id: collections
+title: "Arrays, Slices & Maps"
+description: "Work with Go's built-in collection types: fixed arrays, dynamic slices, and key-value maps"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - arrays
+  - slices
+  - slice-operations
+  - maps
+  - range-loops
+  - make-append
+  - nested-collections
+teaches:
+  - arrays
+  - slices
+  - slice-operations
+  - append
+  - maps
+  - range-keyword
+  - make-function
+  - nested-collections
+recap: |
+  You learned:
+  - Arrays have a fixed size declared at compile time: [5]int
+  - Slices are dynamic, flexible views backed by arrays: []int
+  - Slice operations: slicing with [low:high], append(), copy()
+  - Maps store key-value pairs: map[string]string
+  - The comma-ok idiom to check if a map key exists
+  - range iterates over slices (index, value) and maps (key, value)
+  - make() allocates slices and maps with initial capacity
+  - append() grows slices, returning a new slice header
+  - Nested collections like map[string][]string combine types

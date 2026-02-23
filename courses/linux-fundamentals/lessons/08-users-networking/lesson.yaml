@@ -1,0 +1,17 @@
+id: users-networking
+title: "Users, Networking & Services"
+description: "Explore user identity, system info, environment variables, and basic networking."
+estimated_minutes: 30
+content: content.md
+teaches: [whoami, id, env, hostname, passwd, networking]
+exercises:
+  - whoami
+  - user-id
+  - parse-passwd
+  - env-variables
+  - hostname-info
+  - fix-script
+recap: |
+  You explored user identity (whoami, id), parsed /etc/passwd, worked
+  with environment variables, and gathered system information. These
+  skills are essential for system administration and scripting.

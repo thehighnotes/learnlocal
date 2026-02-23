@@ -1,0 +1,62 @@
+id: types
+title: "Different Types"
+type: write
+
+prompt: |
+  Create four variables, one of each fundamental type, and print them each on
+  their own line:
+
+  1. An `int` named `count` with value `42`
+  2. A `float` named `price` with value `9.99`
+  3. A `str` named `name` with value `"Alice"`
+  4. A `bool` named `active` with value `True`
+
+  Print each variable on its own line. The output should be exactly:
+
+  42
+  9.99
+  Alice
+  True
+
+starter: |
+  # Create four variables:
+  # count  - an integer with value 42
+  # price  - a float with value 9.99
+  # name   - a string with value "Alice"
+  # active - a boolean with value True
+
+  # Print each variable on its own line
+
+validation:
+  method: output
+  expected_output: "42\n9.99\nAlice\nTrue"
+
+hints:
+  - "Assign each variable on its own line: count = 42, price = 9.99, and so on."
+  - "Booleans in Python are capitalized: True and False (not true/false like in C++)."
+  - "Print each one with a separate print() call: print(count), print(price), print(name), print(active)."
+
+solution: |
+  count = 42
+  price = 9.99
+  name = "Alice"
+  active = True
+
+  print(count)
+  print(price)
+  print(name)
+  print(active)
+
+explanation: |
+  Each variable uses a different type:
+
+  - `count = 42` — an `int` (whole number, no decimal point)
+  - `price = 9.99` — a `float` (number with a decimal point)
+  - `name = "Alice"` — a `str` (text in quotes)
+  - `active = True` — a `bool` (True or False, capitalized)
+
+  Python determines the type automatically from the value you assign. You never
+  need to specify the type explicitly when creating a variable.
+
+  When you print a boolean, Python displays the word `True` or `False` (with a
+  capital letter). This is different from C++, which prints `1` or `0` by default.

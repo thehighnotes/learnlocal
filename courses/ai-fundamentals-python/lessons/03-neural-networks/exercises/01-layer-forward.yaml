@@ -1,0 +1,67 @@
+id: layer-forward
+title: "Layer Forward Pass"
+type: write
+
+prompt: |
+  Implement the forward pass for one neural network layer. A layer has multiple
+  neurons, each with its own weights and bias. Every neuron applies:
+  sigmoid(dot(weights, inputs) + bias).
+
+  Given:
+  - inputs = [1.0, 2.0]
+  - weights = [[0.5, 0.1], [0.3, 0.7]] (2 neurons, each with 2 weights)
+  - biases = [0.3, 0.3]
+
+  Compute the output of each neuron and print the list, rounded to 2 decimals.
+
+starter: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  inputs = [1.0, 2.0]
+  weights = [[0.5, 0.1], [0.3, 0.7]]
+  biases = [0.3, 0.3]
+
+  # Compute each neuron's output: sigmoid(dot(weights[i], inputs) + biases[i])
+  output = []
+
+
+  print([round(x, 2) for x in output])
+
+validation:
+  method: output
+  expected_output: "[0.73, 0.88]"
+
+hints:
+  - "Loop over each neuron (each row in weights). For neuron i, compute z = sum of weights[i][j]*inputs[j] + biases[i], then append sigmoid(z)."
+  - "Use: `for i in range(len(weights)): z = sum(weights[i][j]*inputs[j] for j in range(len(inputs))) + biases[i]; output.append(sigmoid(z))`"
+
+solution: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  inputs = [1.0, 2.0]
+  weights = [[0.5, 0.1], [0.3, 0.7]]
+  biases = [0.3, 0.3]
+
+  output = []
+  for i in range(len(weights)):
+      z = sum(weights[i][j] * inputs[j] for j in range(len(inputs))) + biases[i]
+      output.append(sigmoid(z))
+
+  print([round(x, 2) for x in output])
+
+explanation: |
+  Neuron 0: z = 0.5*1.0 + 0.1*2.0 + 0.3 = 0.5 + 0.2 + 0.3 = 1.0.
+  sigmoid(1.0) = 0.73.
+
+  Neuron 1: z = 0.3*1.0 + 0.7*2.0 + 0.3 = 0.3 + 1.4 + 0.3 = 2.0.
+  sigmoid(2.0) = 0.88.
+
+  Each neuron independently computes a weighted sum of the same inputs, adds
+  its own bias, and applies sigmoid. The result is a new vector that serves as
+  input to the next layer.

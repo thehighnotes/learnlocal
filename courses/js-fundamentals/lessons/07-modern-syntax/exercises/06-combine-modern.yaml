@@ -1,0 +1,58 @@
+id: combine-modern
+title: "Combining Modern Features"
+type: write
+
+prompt: |
+  Write a function called formatUser that takes a destructured object
+  parameter with name (default "Anonymous") and role (default "user"),
+  and returns a formatted string.
+
+  Call it twice:
+  1. formatUser({ name: "Alice", role: "admin" }) → "Alice (admin)"
+  2. formatUser({}) → "Anonymous (user)"
+
+  Expected output:
+  Alice (admin)
+  Anonymous (user)
+
+starter: |
+  // Define formatUser with destructured params and defaults:
+  // function formatUser({ name = "Anonymous", role = "user" })
+
+  // Call it twice and print the results
+
+validation:
+  method: output
+  expected_output: "Alice (admin)\nAnonymous (user)"
+
+hints:
+  - "Destructure in the parameter list: function formatUser({ name = \"Anonymous\", role = \"user\" })"
+  - "Return a template literal: return `${name} (${role})`;"
+  - "Call with an object: formatUser({ name: \"Alice\", role: \"admin\" }) and formatUser({})"
+
+solution: |
+  function formatUser({ name = "Anonymous", role = "user" }) {
+    return `${name} (${role})`;
+  }
+  console.log(formatUser({ name: "Alice", role: "admin" }));
+  console.log(formatUser({}));
+
+explanation: |
+  This exercise combines three modern features:
+
+  1. **Destructuring in parameters**: The function takes an object and
+     extracts `name` and `role` directly in the parameter list.
+
+  2. **Default values**: `name = "Anonymous"` and `role = "user"` provide
+     fallbacks when properties are missing.
+
+  3. **Template literals**: `\`${name} (${role})\`` formats the output.
+
+  This pattern is extremely common in real JavaScript code. Instead of
+  positional parameters (which are hard to remember), you pass a
+  configuration object. The function destructures what it needs and
+  provides sensible defaults.
+
+  The call `formatUser({})` passes an empty object — no name or role,
+  so both defaults activate. This is cleaner than calling
+  `formatUser(undefined, undefined)` with positional parameters.

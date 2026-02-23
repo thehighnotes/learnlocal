@@ -1,0 +1,66 @@
+id: zero-values
+title: "Predict the Zero Values"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```go
+  package main
+
+  import "fmt"
+
+  func main() {
+      var i int
+      var s string
+      var b bool
+      var f float64
+      fmt.Println(i, s, b, f)
+  }
+  ```
+
+  Every variable in Go is initialized to its zero value when no explicit value
+  is given. Enter the exact output line. Remember that fmt.Println separates
+  values with spaces, and an empty string prints as nothing (just a gap).
+
+validation:
+  method: output
+  expected_output: "0  false 0"
+
+hints:
+  - "The zero value for int is 0."
+  - "The zero value for string is an empty string (\"\") — it prints as nothing, but Println still puts a space separator around it."
+  - "The zero value for bool is false, and for float64 it is 0."
+  - "Println separates each value with a space. With four values you get: 0 (space) (empty string) (space) false (space) 0. The empty string between two spaces looks like a double space."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      var i int
+      var s string
+      var b bool
+      var f float64
+      fmt.Println(i, s, b, f)
+  }
+
+explanation: |
+  Go guarantees that every variable is initialized to its zero value:
+
+  - `int` → `0`
+  - `string` → `""` (empty string)
+  - `bool` → `false`
+  - `float64` → `0`
+
+  When `fmt.Println` prints multiple arguments, it puts a space between each
+  one. So the output is: `0` space `""` space `false` space `0`.
+
+  The empty string is invisible in the output, but the space separators around
+  it are still there. That is why you see `0  false 0` with a double space
+  between the first `0` and `false` — the empty string sits in that gap.
+
+  Zero values are a deliberate design choice in Go. There is no uninitialized
+  memory, no null pointer surprises for basic types. Every variable starts in
+  a known, safe state.

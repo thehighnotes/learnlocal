@@ -1,0 +1,80 @@
+id: date-functions
+title: "Date Functions"
+type: write
+
+prompt: |
+  Write a query that shows each employee's name, hire_date, and the year they
+  were hired (as a column called `hire_year`). Use STRFTIME to extract the year.
+
+  Then add a fourth column called `tenure_days` that shows how many days elapsed
+  between their hire_date and '2025-01-01'. Use julianday to compute this and
+  CAST the result AS INTEGER to remove the decimal.
+
+  Order the results by tenure_days descending (longest tenure first).
+
+  Table schema: employees (id INTEGER, name TEXT, department TEXT, salary INTEGER,
+  hire_date TEXT, email TEXT)
+
+starter: |
+  -- Select name, hire_date, hire_year (using STRFTIME), and tenure_days
+  -- tenure_days = days between hire_date and '2025-01-01' (use julianday)
+  -- Order by tenure_days descending
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+            id INTEGER, name TEXT, department TEXT,
+            salary INTEGER, hire_date TEXT, email TEXT
+        );
+        INSERT INTO employees VALUES (1, 'Alice Chen', 'Engineering', 92000, '2020-03-15', 'alice@company.com');
+        INSERT INTO employees VALUES (2, 'Bob Martinez', 'Engineering', 85000, '2021-07-01', NULL);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Marketing', 78000, '2019-11-20', 'carol@company.com');
+        INSERT INTO employees VALUES (4, 'Dan Wilson', 'Marketing', 72000, '2022-01-10', 'dan@company.com');
+        INSERT INTO employees VALUES (5, 'Eve Johnson', 'Sales', 68000, '2023-06-01', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Lee', 'Engineering', 95000, '2018-09-12', 'frank@company.com');
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Sales', 71000, '2021-04-05', 'grace@company.com');
+        INSERT INTO employees VALUES (8, 'Hank Brown', 'Marketing', 82000, '2020-08-30', NULL);
+        INSERT INTO employees VALUES (9, 'Iris Patel', 'Sales', 74000, '2022-12-15', 'iris@company.com');
+
+validation:
+  method: output
+  expected_output: "Frank Lee|2018-09-12|2018|2303\nCarol Davis|2019-11-20|2019|1869\nAlice Chen|2020-03-15|2020|1753\nHank Brown|2020-08-30|2020|1585\nGrace Kim|2021-04-05|2021|1367\nBob Martinez|2021-07-01|2021|1280\nDan Wilson|2022-01-10|2022|1087\nIris Patel|2022-12-15|2022|748\nEve Johnson|2023-06-01|2023|580\n"
+
+hints:
+  - "STRFTIME('%Y', hire_date) extracts the 4-digit year from a date string"
+  - "julianday('2025-01-01') - julianday(hire_date) gives the number of days as a float. Wrap it in CAST(... AS INTEGER) to get a whole number"
+  - |
+    The full query is:
+    SELECT name, hire_date,
+           STRFTIME('%Y', hire_date) AS hire_year,
+           CAST(julianday('2025-01-01') - julianday(hire_date) AS INTEGER) AS tenure_days
+    FROM employees
+    ORDER BY tenure_days DESC;
+
+solution: |
+  SELECT name, hire_date,
+         STRFTIME('%Y', hire_date) AS hire_year,
+         CAST(julianday('2025-01-01') - julianday(hire_date) AS INTEGER) AS tenure_days
+  FROM employees
+  ORDER BY tenure_days DESC;
+
+explanation: |
+  This query combines two date techniques:
+
+  STRFTIME('%Y', hire_date) extracts just the year portion. The %Y format code
+  gives a 4-digit year. Other useful codes include %m (month), %d (day), and
+  %w (weekday 0-6).
+
+  julianday converts a date to a Julian day number — the count of days since a
+  fixed reference point. Subtracting two julianday values gives the number of
+  days between them as a floating-point number. CAST(... AS INTEGER) truncates
+  the decimal.
+
+  For Frank Lee (hired 2018-09-12), the calculation is:
+  julianday('2025-01-01') - julianday('2018-09-12') = 2303.0 days.
+
+  Using a fixed reference date ('2025-01-01') instead of DATE('now') makes the
+  output deterministic — it will always produce the same result regardless of
+  when you run the query.

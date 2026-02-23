@@ -1,0 +1,80 @@
+id: defer
+title: "Deferred Cleanup"
+type: write
+
+prompt: |
+  Demonstrate how `defer` works and its LIFO (last-in, first-out) order.
+
+  Write a program that prints exactly:
+
+      start
+      middle
+      first
+      second
+      third
+
+  Use `fmt.Println` for "start" and "middle" (printed immediately).
+  Use three `defer fmt.Println(...)` calls between them so that the
+  deferred calls print "first", "second", "third" in that order after
+  main returns.
+
+  Remember: deferred calls execute in reverse order of how they were
+  deferred.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      // Print "start"
+      // Defer three prints so they come out as: first, second, third
+      // Print "middle"
+      // After main returns, the deferred calls execute in LIFO order
+  }
+
+validation:
+  method: output
+  expected_output: |
+    start
+    middle
+    first
+    second
+    third
+
+hints:
+  - "defer executes in LIFO order: the last defer runs first. So to get first/second/third, you need to defer them in reverse order."
+  - "Defer \"third\" first, then \"second\", then \"first\". When main exits, \"first\" (deferred last) runs first."
+  - "The full sequence: Println(\"start\"), defer Println(\"third\"), defer Println(\"second\"), defer Println(\"first\"), Println(\"middle\")."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      fmt.Println("start")
+      defer fmt.Println("third")
+      defer fmt.Println("second")
+      defer fmt.Println("first")
+      fmt.Println("middle")
+  }
+
+explanation: |
+  The `defer` keyword schedules a function call to run when the
+  enclosing function returns. Multiple deferred calls are stacked
+  in LIFO (last-in, first-out) order:
+
+  1. `fmt.Println("start")` executes immediately — prints "start".
+  2. `defer fmt.Println("third")` is pushed onto the defer stack.
+  3. `defer fmt.Println("second")` is pushed onto the defer stack.
+  4. `defer fmt.Println("first")` is pushed onto the defer stack.
+  5. `fmt.Println("middle")` executes immediately — prints "middle".
+  6. `main` returns. The defer stack unwinds:
+     - Top of stack: prints "first"
+     - Next: prints "second"
+     - Bottom: prints "third"
+
+  This LIFO order is deliberate — it mirrors how you typically acquire
+  and release resources. If you open file A then file B, you want to
+  close B before A. Defer's reverse order handles this naturally.

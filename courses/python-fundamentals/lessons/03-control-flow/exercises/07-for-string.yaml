@@ -1,0 +1,56 @@
+id: for-string
+title: "Iterate Over a String"
+type: write
+
+prompt: |
+  Read a word from standard input and print each character on its own line.
+
+  For example, if the input is "Python", the output should be:
+  P
+  y
+  t
+  h
+  o
+  n
+
+starter: |
+  # Read a word from input
+  # Print each character on its own line
+
+input: "Python\n"
+
+validation:
+  method: output
+  expected_output: |
+    P
+    y
+    t
+    h
+    o
+    n
+
+hints:
+  - "Strings are iterable in Python. You can loop over them with: for char in word:"
+  - "input() reads a line from stdin. Use it to get the word, then loop over it."
+  - "word = input(), then for char in word: print(char)"
+
+solution: |
+  word = input()
+  for char in word:
+      print(char)
+
+explanation: |
+  Strings are sequences in Python, which means you can iterate over them
+  directly with a for loop:
+
+  1. `input()` reads "Python" from stdin (the trailing newline is stripped
+     automatically by input()).
+  2. `for char in word` iterates over each character: 'P', 'y', 't', 'h',
+     'o', 'n'.
+  3. `print(char)` prints each character on its own line (print adds a
+     newline by default).
+
+  This works because Python treats strings as sequences of single characters.
+  There is no separate "char" type -- each character is just a string of
+  length 1. This makes string processing in Python very natural compared to
+  languages that require indexing or special methods.

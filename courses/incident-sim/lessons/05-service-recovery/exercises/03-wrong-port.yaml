@@ -1,0 +1,63 @@
+id: wrong-port
+title: "Wrong Port"
+type: command
+prompt: |
+  ALERT: Web service won't bind. Severity: HIGH. Customers affected.
+
+  The web service is configured to listen on port 80, but that port is
+  already in use by the system's nginx reverse proxy. The service needs to
+  run on port **8080** instead.
+
+  Check `ports_in_use.txt` to understand the conflict, then fix
+  `service/app.conf` to use port 8080.
+starter: |
+  # Port 80 is taken. Change the service config to use 8080.
+  # Config file: service/app.conf
+environment:
+  dirs:
+    - service
+  files:
+    - path: ports_in_use.txt
+      content: |
+        Active Internet connections (only servers)
+        Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program
+        tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      142/sshd
+        tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      387/nginx
+        tcp        0      0 0.0.0.0:443             0.0.0.0:*               LISTEN      387/nginx
+        tcp        0      0 0.0.0.0:5432            0.0.0.0:*               LISTEN      512/postgres
+        tcp        0      0 0.0.0.0:6379            0.0.0.0:*               LISTEN      1944/redis-server
+    - path: service/app.conf
+      content: |
+        # Application Server Configuration
+        service_name=web-frontend
+        listen_port=80
+        bind_address=0.0.0.0
+        workers=4
+        log_file=/var/log/app/web-frontend.log
+        upstream_api=http://127.0.0.1:3000
+    - path: error.log
+      content: |
+        2024-03-15 04:22:00 [web-frontend] Starting web-frontend v4.2.0
+        2024-03-15 04:22:00 [web-frontend] Binding to 0.0.0.0:80
+        2024-03-15 04:22:00 [web-frontend] ERROR Address already in use: 0.0.0.0:80
+        2024-03-15 04:22:00 [web-frontend] FATAL Cannot bind to configured port
+        2024-03-15 04:22:01 [systemd] web-frontend.service: Main process exited, code=exited, status=1/FAILURE
+validation:
+  method: state
+  assertions:
+    - file_exists: service/app.conf
+    - file_contains:
+        path: service/app.conf
+        content: "listen_port=8080"
+hints:
+  - "Look at `ports_in_use.txt` — port 80 is held by nginx (PID 387)."
+  - "Edit `service/app.conf` and change `listen_port=80` to `listen_port=8080`."
+  - "`sed -i 's/listen_port=80/listen_port=8080/' service/app.conf`"
+solution: |
+  sed -i 's/listen_port=80/listen_port=8080/' service/app.conf
+explanation: |
+  Port 80 was already bound by nginx. Rather than killing nginx (which is
+  serving as the reverse proxy for the whole system), you move the app to
+  port 8080. In production, you'd then update the nginx config to proxy
+  traffic from port 80 to 8080 — but the immediate fix is getting the
+  service running on an available port.

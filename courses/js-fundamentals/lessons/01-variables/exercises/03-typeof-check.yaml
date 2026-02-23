@@ -1,0 +1,47 @@
+id: typeof-check
+title: "Type Checking"
+type: write
+
+prompt: |
+  Use the typeof operator to print the type of each value, one per line:
+  1. 42
+  2. "hello"
+  3. true
+  4. undefined
+  5. null
+
+  Print only the typeof result for each value (e.g., console.log(typeof 42)).
+
+  Note: typeof null has a famous quirk — try it and see!
+
+starter: |
+  // Print typeof for each value: 42, "hello", true, undefined, null
+
+validation:
+  method: output
+  expected_output: "number\nstring\nboolean\nundefined\nobject"
+
+hints:
+  - "The typeof operator returns a string: typeof 42 returns \"number\"."
+  - "Use console.log(typeof 42); for each value on its own line."
+  - "typeof null returns \"object\" — this is a well-known bug in JavaScript that has never been fixed for backwards compatibility."
+
+solution: |
+  console.log(typeof 42);
+  console.log(typeof "hello");
+  console.log(typeof true);
+  console.log(typeof undefined);
+  console.log(typeof null);
+
+explanation: |
+  The typeof operator returns a string describing the type:
+  - `typeof 42` → "number"
+  - `typeof "hello"` → "string"
+  - `typeof true` → "boolean"
+  - `typeof undefined` → "undefined"
+  - `typeof null` → "object" (this is a bug!)
+
+  The null quirk: `typeof null` returns "object" instead of "null". This
+  is a bug from the very first version of JavaScript (1995) that was never
+  fixed because too much existing code depends on it. To check for null,
+  use `value === null` instead of typeof.

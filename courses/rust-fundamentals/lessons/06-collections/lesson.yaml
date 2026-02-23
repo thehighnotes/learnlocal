@@ -1,0 +1,34 @@
+id: collections
+title: "Collections & Iterators"
+description: "Use Vec, HashMap, and String, then chain iterators with closures to transform data"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - vec-basics
+  - hashmap-basics
+  - string-ops
+  - iterators
+  - closures
+  - map-filter-collect
+  - enumerate-zip
+teaches:
+  - vec-push-pop
+  - vec-indexing
+  - hashmap-insert-get
+  - hashmap-entry
+  - string-push-str
+  - string-format
+  - iterator-basics
+  - closures
+  - map-filter-collect
+  - enumerate-zip
+recap: |
+  You learned:
+  - Vec<T> is a growable array: push, pop, indexing with [], and len()
+  - vec![] macro creates vectors with initial values
+  - HashMap<K, V> stores key-value pairs with insert, get, and the entry API
+  - String is a growable UTF-8 buffer: push_str, format!, and chars()
+  - .iter() borrows elements; .into_iter() consumes the collection
+  - Closures capture variables from their environment with |args| body syntax
+  - .map(), .filter(), and .collect() chain together to transform data
+  - .enumerate() pairs each element with its index; .zip() pairs two iterators

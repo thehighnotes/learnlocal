@@ -1,0 +1,43 @@
+id: return-values
+title: "Fix Missing Return"
+type: fix
+
+prompt: |
+  The function double() is supposed to return twice its input, but it is
+  missing the return statement. The console.log below prints "undefined"
+  instead of 42. Fix the function.
+
+  Expected output: 42
+
+starter: |
+  function double(x) {
+    x * 2;
+  }
+  console.log(double(21));
+
+validation:
+  method: output
+  expected_output: "42"
+
+hints:
+  - "The expression x * 2 is computed but never returned. Without return, the function returns undefined."
+  - "Add the return keyword before the expression."
+  - "Fix the line to: return x * 2;"
+
+solution: |
+  function double(x) {
+    return x * 2;
+  }
+  console.log(double(21));
+
+explanation: |
+  In JavaScript, a function without a `return` statement returns `undefined`
+  by default. The line `x * 2;` computes the value 42 but immediately
+  discards it because the result is not returned or stored.
+
+  This is a common bug, especially for programmers coming from languages
+  where the last expression is automatically returned (like Ruby or Rust).
+  In JavaScript, you must explicitly write `return`.
+
+  Adding `return x * 2;` tells the function to send the computed value
+  back to the caller, where `console.log()` can print it.

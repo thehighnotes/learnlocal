@@ -1,0 +1,73 @@
+id: nested-modules
+title: "Nested Modules"
+type: write
+
+prompt: |
+  Create a module called `animal` that contains two public sub-modules:
+  `dog` and `cat`. Each sub-module should have a public function called
+  `speak` that returns a `&'static str`.
+
+  - `animal::dog::speak()` should return `"Woof!"`
+  - `animal::cat::speak()` should return `"Meow!"`
+
+  The main function is already written for you.
+
+  Expected output:
+  ```
+  Dog says: Woof!
+  Cat says: Meow!
+  ```
+
+starter: |
+  // Define the `animal` module with nested `dog` and `cat` sub-modules
+  // Each sub-module needs a public `speak` function returning a &'static str
+
+  fn main() {
+      println!("Dog says: {}", animal::dog::speak());
+      println!("Cat says: {}", animal::cat::speak());
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Dog says: Woof!
+    Cat says: Meow!
+
+hints:
+  - "Start with the outer module: mod animal { ... } — inside it, define two sub-modules with pub mod dog { ... } and pub mod cat { ... }."
+  - "Each sub-module needs a pub function: pub fn speak() -> &'static str { \"Woof!\" } inside dog, and the same pattern with \"Meow!\" inside cat."
+  - "Remember: both the inner modules AND their functions need pub. A pub function inside a private module is still unreachable from outside."
+
+solution: |
+  mod animal {
+      pub mod dog {
+          pub fn speak() -> &'static str {
+              "Woof!"
+          }
+      }
+
+      pub mod cat {
+          pub fn speak() -> &'static str {
+              "Meow!"
+          }
+      }
+  }
+
+  fn main() {
+      println!("Dog says: {}", animal::dog::speak());
+      println!("Cat says: {}", animal::cat::speak());
+  }
+
+explanation: |
+  Nested modules create a tree of namespaces. `animal::dog::speak()` follows
+  the path: `animal` module, then `dog` sub-module, then `speak` function.
+
+  Three things must be `pub` for this to work:
+  1. `pub mod dog` — so code outside `animal` can enter the sub-module
+  2. `pub mod cat` — same reason
+  3. `pub fn speak()` in each — so the function itself is callable
+
+  The outer `animal` module does NOT need `pub` because it is defined at
+  the top level of the file. Top-level modules are accessible to everything
+  in the same crate by default. The `pub` keyword on a top-level module
+  would only matter if this were a library crate being used by other crates.

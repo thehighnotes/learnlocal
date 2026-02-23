@@ -1,0 +1,17 @@
+id: undoing
+title: "Undoing Things"
+description: "Unstage files, discard changes, revert commits — learn to undo any mistake."
+estimated_minutes: 25
+content: content.md
+teaches: [git-restore, git-reset, git-revert, git-clean, unstaging]
+exercises:
+  - unstage-file
+  - discard-changes
+  - revert-commit
+  - soft-reset
+  - mixed-reset
+  - remove-untracked
+  - selective-unstage
+recap: |
+  You now have a complete undo toolkit: restore for working tree changes,
+  reset for moving HEAD, and revert for safely undoing published commits.

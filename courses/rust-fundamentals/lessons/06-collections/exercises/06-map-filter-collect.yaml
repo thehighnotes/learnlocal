@@ -1,0 +1,71 @@
+id: map-filter-collect
+title: "Map, Filter, Collect"
+type: write
+
+prompt: |
+  Given the vector `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`, use iterator methods to:
+  1. Filter to keep only the even numbers
+  2. Square each remaining number
+  3. Collect the result into a Vec<i32>
+
+  Print the resulting vector with debug formatting `{:?}`.
+
+  Expected output:
+  ```
+  [4, 16, 36, 64, 100]
+  ```
+
+starter: |
+  fn main() {
+      let numbers = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+      // Chain .iter(), .filter(), .map(), and .collect() to:
+      // 1. Keep only even numbers (x % 2 == 0)
+      // 2. Square each one (x * x)
+      // 3. Collect into Vec<i32>
+
+      // Print the result with {:?}
+
+  }
+
+validation:
+  method: output
+  expected_output: "[4, 16, 36, 64, 100]"
+
+hints:
+  - "Start with numbers.iter() to borrow each element, then chain .filter() and .map() before .collect()."
+  - "In .filter(), the closure receives &&i32 (a reference to the iterator's &i32 item). Use |&&x| x % 2 == 0 or |x| *x % 2 == 0."
+  - |
+    The full chain:
+    let result: Vec<i32> = numbers.iter()
+        .filter(|&&x| x % 2 == 0)
+        .map(|&x| x * x)
+        .collect();
+    println!("{:?}", result);
+
+solution: |
+  fn main() {
+      let numbers = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+      let result: Vec<i32> = numbers.iter()
+          .filter(|&&x| x % 2 == 0)
+          .map(|&x| x * x)
+          .collect();
+
+      println!("{:?}", result);
+  }
+
+explanation: |
+  This exercise demonstrates the core iterator pattern in Rust:
+
+  1. `.iter()` creates an iterator yielding `&i32` references.
+  2. `.filter(|&&x| x % 2 == 0)` keeps elements where the closure returns
+     true. The `&&x` pattern destructures the double reference: `filter`
+     receives `&&i32` because the iterator yields `&i32` and `filter` takes
+     its items by reference.
+  3. `.map(|&x| x * x)` transforms each `&i32` into an owned `i32` by
+     dereferencing with `&x` in the pattern and computing `x * x`.
+  4. `.collect()` consumes the iterator and builds a `Vec<i32>`.
+
+  The type annotation on `result` tells `.collect()` what to build. Without
+  it, you could use the turbofish: `.collect::<Vec<i32>>()`.

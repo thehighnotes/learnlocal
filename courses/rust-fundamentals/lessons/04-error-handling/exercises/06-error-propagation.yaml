@@ -1,0 +1,110 @@
+id: error-propagation
+title: "Error Propagation Chain"
+type: write
+
+prompt: |
+  Build a three-function error propagation chain:
+
+  1. `parse_score(s: &str) -> Result<u32, String>` — parses the string as u32.
+     On parse failure, return Err with "invalid score".
+
+  2. `validate_score(s: &str) -> Result<u32, String>` — calls `parse_score`,
+     then checks the value is between 0 and 100 (inclusive). If out of range,
+     return Err with "score out of range".
+
+  3. `grade(s: &str) -> Result<&'static str, String>` — calls `validate_score`,
+     then returns a grade:
+     - 90..=100 => "A"
+     - 80..=89  => "B"
+     - 70..=79  => "C"
+     - _        => "F"
+
+  In `main`, test with "95", "abc", "150", and "42". For each, print the
+  result like "95 => A" or "abc => error: invalid score".
+
+starter: |
+  fn parse_score(s: &str) -> Result<u32, String> {
+      // Parse s as u32, return Err("invalid score") on failure
+      todo!()
+  }
+
+  fn validate_score(s: &str) -> Result<u32, String> {
+      // Call parse_score with ?
+      // Check 0..=100 range
+      todo!()
+  }
+
+  fn grade(s: &str) -> Result<&'static str, String> {
+      // Call validate_score with ?
+      // Return grade based on score
+      todo!()
+  }
+
+  fn main() {
+      for input in &["95", "abc", "150", "42"] {
+          match grade(input) {
+              Ok(g) => println!("{} => {}", input, g),
+              Err(e) => println!("{} => error: {}", input, e),
+          }
+      }
+  }
+
+validation:
+  method: output
+  expected_output: "95 => A\nabc => error: invalid score\n150 => error: score out of range\n42 => F"
+
+hints:
+  - "In `parse_score`, use `s.parse::<u32>().map_err(|_| \"invalid score\".to_string())` to convert the parse error."
+  - "In `validate_score`, call `let score = parse_score(s)?;` then check `if score > 100 { return Err(...) }`. Since u32 cannot be negative, you only need to check the upper bound."
+  - "In `grade`, call `let score = validate_score(s)?;` then use `match score { 90..=100 => Ok(\"A\"), 80..=89 => Ok(\"B\"), 70..=79 => Ok(\"C\"), _ => Ok(\"F\") }`."
+
+solution: |
+  fn parse_score(s: &str) -> Result<u32, String> {
+      s.parse::<u32>().map_err(|_| "invalid score".to_string())
+  }
+
+  fn validate_score(s: &str) -> Result<u32, String> {
+      let score = parse_score(s)?;
+      if score > 100 {
+          return Err("score out of range".to_string());
+      }
+      Ok(score)
+  }
+
+  fn grade(s: &str) -> Result<&'static str, String> {
+      let score = validate_score(s)?;
+      match score {
+          90..=100 => Ok("A"),
+          80..=89 => Ok("B"),
+          70..=79 => Ok("C"),
+          _ => Ok("F"),
+      }
+  }
+
+  fn main() {
+      for input in &["95", "abc", "150", "42"] {
+          match grade(input) {
+              Ok(g) => println!("{} => {}", input, g),
+              Err(e) => println!("{} => error: {}", input, e),
+          }
+      }
+  }
+
+explanation: |
+  This exercise demonstrates how errors flow through a chain of functions:
+
+  - `grade` calls `validate_score` with `?`. If validation fails, the error
+    propagates straight back to main without grade needing to handle it.
+  - `validate_score` calls `parse_score` with `?`. If parsing fails, that
+    error propagates through validate_score and then through grade.
+
+  The call chain is: `main -> grade -> validate_score -> parse_score`.
+  Errors travel the reverse path: `parse_score -> validate_score -> grade -> main`.
+
+  Each function only creates errors for its own concerns:
+  - `parse_score` handles parse failures
+  - `validate_score` handles range violations
+  - `grade` just maps scores to letters
+
+  The `?` operator makes this propagation invisible. Without it, each function
+  would need a `match` to check for errors, tripling the code volume.

@@ -1,0 +1,106 @@
+id: full-recovery
+title: "Full System Recovery"
+type: command
+prompt: |
+  CRITICAL: Total system failure. Multiple problems. Fix them ALL.
+
+  The production server came back after a power outage, but nothing is
+  working. The automated recovery didn't run properly. You need to fix
+  EVERYTHING before the system can come back online.
+
+  Known issues (from the recovery check script):
+  1. `app/server.py` has wrong permissions (should be 755)
+  2. `app/config.json` has wrong permissions (should be 644)
+  3. `data/` directory is missing entirely
+  4. `logs/current` symlink is broken — should point to `logs/2024-03-15`
+  5. `app/config.json` has a broken database host (says `localhost`,
+     should say `db.internal`)
+
+  Fix ALL five issues. The system health check will verify each one.
+starter: |
+  # Five problems. Fix all of them.
+  # Read recovery_check.txt for details
+environment:
+  dirs:
+    - app
+    - logs
+    - logs/2024-03-15
+  files:
+    - path: app/server.py
+      content: |
+        #!/usr/bin/env python3
+        # Order Service v3.4.1
+        import json
+
+        with open('config.json') as f:
+            config = json.load(f)
+
+        print(f"Starting on port {config['port']}")
+      permissions: "444"
+    - path: app/config.json
+      content: |
+        {
+          "app_name": "order-service",
+          "port": 8080,
+          "database_host": "localhost",
+          "database_port": 5432
+        }
+      permissions: "000"
+    - path: logs/2024-03-15/app.log
+      content: |
+        2024-03-15 10:00:00 [recovery] System boot after power outage
+        2024-03-15 10:00:01 [recovery] Running automated recovery checks...
+        2024-03-15 10:00:01 [recovery] FAIL: app/server.py — not executable
+        2024-03-15 10:00:01 [recovery] FAIL: app/config.json — not readable
+        2024-03-15 10:00:01 [recovery] FAIL: data/ directory — missing
+        2024-03-15 10:00:02 [recovery] FAIL: logs/current — broken symlink
+        2024-03-15 10:00:02 [recovery] FAIL: config.json — database_host incorrect
+        2024-03-15 10:00:02 [recovery] 5 checks FAILED. System NOT ready.
+    - path: recovery_check.txt
+      content: |
+        === POST-OUTAGE RECOVERY CHECKLIST ===
+
+        [ ] app/server.py must be executable (755)
+        [ ] app/config.json must be readable (644)
+        [ ] data/ directory must exist
+        [ ] logs/current symlink must point to logs/2024-03-15
+        [ ] app/config.json database_host must be "db.internal" (not "localhost")
+
+        Fix all items, then run health check.
+  symlinks:
+    - link: logs/current
+      target: logs/2024-03-14
+validation:
+  method: state
+  assertions:
+    - permissions:
+        path: app/server.py
+        mode: "755"
+    - permissions:
+        path: app/config.json
+        mode: "644"
+    - dir_exists: data
+    - symlink:
+        path: logs/current
+        target: logs/2024-03-15
+    - file_contains:
+        path: app/config.json
+        content: '"database_host": "db.internal"'
+hints:
+  - "Read `recovery_check.txt` — it lists all 5 issues. Work through them one at a time."
+  - "Permissions: `chmod 755 app/server.py && chmod 644 app/config.json`. Directory: `mkdir data`. Symlink: `ln -sfn logs/2024-03-15 logs/current`. Config: `sed -i 's/localhost/db.internal/' app/config.json`."
+  - "All five fixes in one shot: `chmod 755 app/server.py && chmod 644 app/config.json && mkdir data && ln -sfn logs/2024-03-15 logs/current && sed -i 's/localhost/db.internal/' app/config.json`"
+solution: |
+  chmod 755 app/server.py
+  chmod 644 app/config.json
+  mkdir data
+  ln -sfn logs/2024-03-15 logs/current
+  sed -i 's/localhost/db.internal/' app/config.json
+explanation: |
+  After a power outage, systems often come back in a degraded state. File
+  permissions may have been reset, directories from tmpfs mounts are gone,
+  symlinks point to yesterday's logs, and configs may have been overwritten
+  by recovery scripts with wrong defaults. A recovery checklist is
+  essential — it turns "is everything working?" from a guessing game into
+  a verifiable procedure. In production, this checklist should be automated
+  and run on every boot.

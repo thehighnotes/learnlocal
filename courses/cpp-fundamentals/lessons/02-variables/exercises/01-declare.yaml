@@ -1,0 +1,47 @@
+id: declare
+title: "Declare a Variable"
+type: write
+
+prompt: |
+  Declare an integer variable named `age` with the value `25`, then print it.
+
+  The starter code already prints `age` — you just need to declare and
+  initialize it on the line marked with a comment.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Declare an integer variable named "age" with value 25
+
+      std::cout << age << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "25"
+
+hints:
+  - "Variables in C++ need a type before the name."
+  - "The syntax is: type name = value;"
+  - "For integers, the type is `int`. So: int age = 25;"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int age = 25;
+
+      std::cout << age << std::endl;
+      return 0;
+  }
+
+explanation: |
+  `int age = 25;` does three things:
+  1. Declares a variable named `age`
+  2. Specifies its type as `int` (integer)
+  3. Initializes it with the value `25`
+
+  The variable must be declared before the `std::cout` line that uses it,
+  otherwise the compiler will not know what `age` refers to.

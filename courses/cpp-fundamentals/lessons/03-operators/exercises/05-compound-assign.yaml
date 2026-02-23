@@ -1,0 +1,59 @@
+id: compound-assign
+title: "Compound Assignment"
+type: write
+
+prompt: |
+  Start with `int score = 100`. Use compound assignment operators to:
+  1. Add 50 to score
+  2. Subtract 30 from score
+  3. Multiply score by 2
+
+  Each operation should be on its own line. Then print the final value of score.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      int score = 100;
+
+      // Use +=, -=, and *= to modify score
+      // Your code here
+
+      std::cout << score << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "240"
+
+hints:
+  - "Compound assignment operators combine an operation with assignment. For example, `score += 50` is the same as `score = score + 50`."
+  - "Apply the operations in order: += 50 first, then -= 30, then *= 2. After adding 50, score is 150. After subtracting 30, it's 120."
+  - "The three lines are: `score += 50;` then `score -= 30;` then `score *= 2;`. That gives 100 → 150 → 120 → 240."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int score = 100;
+
+      score += 50;
+      score -= 30;
+      score *= 2;
+
+      std::cout << score << std::endl;
+      return 0;
+  }
+
+explanation: |
+  Compound assignment operators are shorthand for a common pattern:
+
+  - `score += 50` means `score = score + 50` → 100 + 50 = 150
+  - `score -= 30` means `score = score - 30` → 150 - 30 = 120
+  - `score *= 2`  means `score = score * 2`  → 120 * 2 = 240
+
+  The operations happen sequentially, each one modifying `score` in place.
+  These operators exist for every arithmetic operator: `+=`, `-=`, `*=`,
+  `/=`, and `%=`. They make code shorter and easier to read, and you will
+  see them constantly in real C++ code.

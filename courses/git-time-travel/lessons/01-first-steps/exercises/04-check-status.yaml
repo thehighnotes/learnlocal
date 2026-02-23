@@ -1,0 +1,57 @@
+id: check-status
+title: "Craft a Status"
+type: command
+prompt: |
+  The repo has one commit with `README.md` in it. Your job is to create a
+  specific repo state. When you're done, `git status` should show all three
+  of these at once:
+
+  1. One file **staged** for commit (in the index, ready to go)
+  2. One file **modified** but not staged (tracked, changed, not added)
+  3. One file **untracked** (brand new, git doesn't know about it)
+
+  You need to create this exact situation using any combination of commands.
+  The teardown will capture `git status --porcelain` and check for all three
+  states.
+starter: |
+  # Create a repo state with: one staged, one modified, one untracked file
+environment:
+  setup:
+    - name: create-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'readme' > README.md && git add README.md && git commit -m 'initial'"]
+  teardown:
+    - name: capture-status
+      command: sh
+      args: ["-c", "cd {dir}/repo && git status --porcelain"]
+      capture_to: __status.txt
+  cwd: repo
+validation:
+  method: state
+  assertions:
+    - file_matches:
+        path: __status.txt
+        pattern: "(?m)^A "
+    - file_matches:
+        path: __status.txt
+        pattern: "(?m)^ M"
+    - file_matches:
+        path: __status.txt
+        pattern: "(?m)^\\?\\?"
+hints:
+  - "`git status --porcelain` shows: `A ` for staged, ` M` for modified, `??` for untracked."
+  - "Create a new file and `git add` it (staged). Modify an existing tracked file without adding (modified). Create another new file and don't add it (untracked)."
+  - "Example: `echo x > new.txt && git add new.txt` (staged), `echo changed >> README.md` (modified), `echo y > other.txt` (untracked)."
+solution: |
+  echo "staged" > staged.txt
+  git add staged.txt
+  echo "changed" >> README.md
+  echo "untracked" > untracked.txt
+explanation: |
+  `git status --porcelain` uses a two-column code: the first column is the
+  staging area status, the second is the working tree status.
+  - `A ` means a new file has been staged (added to the index).
+  - ` M` means a tracked file is modified in the working tree but not staged.
+  - `??` means a file is completely untracked.
+  Understanding these states is key to knowing what `git add` and `git commit`
+  actually do.

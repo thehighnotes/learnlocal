@@ -1,0 +1,95 @@
+id: pub-visibility
+title: "Fix the Visibility"
+type: fix
+
+prompt: |
+  This program defines a `stats` module with a `Counter` struct, but it
+  won't compile because of visibility issues. Add `pub` keywords where
+  needed so the code in `main` can create a `Counter` and call its methods.
+
+  Do not change main or restructure the code — only add `pub` where needed.
+
+  Expected output:
+  ```
+  Count: 3
+  ```
+
+starter: |
+  mod stats {
+      struct Counter {
+          value: i32,
+      }
+
+      impl Counter {
+          fn new() -> Counter {
+              Counter { value: 0 }
+          }
+
+          fn increment(&mut self) {
+              self.value += 1;
+          }
+
+          fn get(&self) -> i32 {
+              self.value
+          }
+      }
+  }
+
+  fn main() {
+      let mut c = stats::Counter::new();
+      c.increment();
+      c.increment();
+      c.increment();
+      println!("Count: {}", c.get());
+  }
+
+validation:
+  method: output
+  expected_output: "Count: 3"
+
+hints:
+  - "The struct itself needs to be public: pub struct Counter. But notice that main never accesses the value field directly — it uses new() to construct, so the field can stay private."
+  - "The three methods (new, increment, get) are all called from main, so they all need pub: pub fn new(), pub fn increment(), pub fn get()."
+  - "You need pub on: the struct definition, and all three methods. The value field does NOT need pub because main never touches it directly — new() handles construction internally."
+
+solution: |
+  mod stats {
+      pub struct Counter {
+          value: i32,
+      }
+
+      impl Counter {
+          pub fn new() -> Counter {
+              Counter { value: 0 }
+          }
+
+          pub fn increment(&mut self) {
+              self.value += 1;
+          }
+
+          pub fn get(&self) -> i32 {
+              self.value
+          }
+      }
+  }
+
+  fn main() {
+      let mut c = stats::Counter::new();
+      c.increment();
+      c.increment();
+      c.increment();
+      println!("Count: {}", c.get());
+  }
+
+explanation: |
+  Rust's visibility defaults to private. Four things need `pub` here:
+
+  1. `pub struct Counter` — so main can name the type
+  2. `pub fn new()` — so main can construct one
+  3. `pub fn increment()` — so main can call it
+  4. `pub fn get()` — so main can read the count
+
+  The `value` field stays private. This is actually good design — it means
+  outside code can only change the count through `increment()`, not by
+  setting `value` directly. This pattern (public type, private fields,
+  public constructor) is extremely common in Rust and is called *encapsulation*.

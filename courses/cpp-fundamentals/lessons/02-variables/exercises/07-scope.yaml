@@ -1,0 +1,60 @@
+id: scope
+title: "Fix the Scope Bug"
+type: fix
+
+prompt: |
+  This code declares a variable inside an `if` block, then tries to use it
+  outside. The compiler will reject it because the variable goes out of scope
+  when the block ends.
+
+  Fix the code so that `result` is accessible on the `std::cout` line.
+
+  Expected output: `20`
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      int x = 10;
+
+      if (x > 5) {
+          int result = x * 2;
+      }
+
+      std::cout << result << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "20"
+
+hints:
+  - "The variable `result` is declared inside the `if` block's curly braces, so it only exists inside that block."
+  - "To make `result` available after the `if` block, declare it before the block and assign to it inside."
+  - "Move the declaration: `int result = 0;` before the `if`, then change the inside to `result = x * 2;` (no `int`)."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int x = 10;
+      int result = 0;
+
+      if (x > 5) {
+          result = x * 2;
+      }
+
+      std::cout << result << std::endl;
+      return 0;
+  }
+
+explanation: |
+  In the original code, `int result = x * 2;` declares `result` inside the
+  `if` block. When that block's closing brace `}` is reached, `result` is
+  destroyed. The `std::cout` line is outside the block, so `result` does not
+  exist there — causing a compile error.
+
+  The fix is to declare `result` in the outer scope (before the `if`) so it
+  survives past the block. Inside the `if`, we assign to the existing variable
+  without re-declaring it. Now `result` is still in scope when we print it.

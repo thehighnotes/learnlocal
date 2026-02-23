@@ -1,0 +1,64 @@
+id: escape-chars
+title: "Escape Characters: Tabs and Newlines"
+type: write
+
+prompt: |
+  Print a tab-separated table with three lines. Use the \t escape character
+  for tabs and \n or std::endl for newlines.
+
+  The exact output should be:
+
+  Item	Price
+  Apple	1.50
+  Banana	0.75
+
+  (There is a tab character between each column, not spaces.)
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Print a tab-separated table:
+      // Item    Price
+      // Apple   1.50
+      // Banana  0.75
+      // Use \t for tabs between columns
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Item\tPrice\nApple\t1.50\nBanana\t0.75"
+
+hints:
+  - "The \\t escape character produces a tab. Put it inside your string where you want the tab to appear: \"Item\\tPrice\""
+  - "You can print each line with a separate std::cout statement, or combine everything into one string using \\n for newlines."
+  - "One approach: std::cout << \"Item\\tPrice\" << std::endl; std::cout << \"Apple\\t1.50\" << std::endl; std::cout << \"Banana\\t0.75\" << std::endl;"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      std::cout << "Item\tPrice" << std::endl;
+      std::cout << "Apple\t1.50" << std::endl;
+      std::cout << "Banana\t0.75" << std::endl;
+      return 0;
+  }
+
+explanation: |
+  Escape characters let you embed special characters inside string literals:
+
+  - `\t` inserts a horizontal tab, which aligns text in columns
+  - `\n` inserts a newline (same effect as std::endl but without flushing)
+
+  In this solution, each line uses `\t` to separate the two columns. The
+  `std::endl` at the end of each line moves to the next row.
+
+  You could also write the entire table as a single string:
+
+      std::cout << "Item\tPrice\nApple\t1.50\nBanana\t0.75" << std::endl;
+
+  Both approaches produce identical output. Escape characters are processed
+  by the compiler — the actual string stored in memory contains the real tab
+  and newline bytes, not the backslash characters.

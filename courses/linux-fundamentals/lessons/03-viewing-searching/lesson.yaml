@@ -1,0 +1,18 @@
+id: viewing-searching
+title: "Viewing & Searching"
+description: "View file contents with cat/head/tail, search with grep, find files, and count with wc."
+estimated_minutes: 30
+content: content.md
+teaches: [cat, head, tail, grep, find, wc]
+exercises:
+  - view-files
+  - head-tail
+  - grep-search
+  - grep-flags
+  - find-files
+  - word-count
+  - predict-grep
+recap: |
+  You learned to view files (cat, head, tail), search inside files (grep),
+  find files by name (find), and count lines/words (wc). These tools combine
+  powerfully with pipes, which you'll learn next.

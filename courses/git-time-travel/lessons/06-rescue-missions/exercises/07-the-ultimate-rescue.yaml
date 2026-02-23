@@ -1,0 +1,103 @@
+id: the-ultimate-rescue
+title: "FINAL MISSION: The Ultimate Rescue"
+type: command
+prompt: |
+  ============================================================
+       F I N A L   M I S S I O N :   T H E   U L T I M A T E
+  ============================================================
+
+  Everything has gone wrong at once. Here's the situation:
+
+  1. You're in DETACHED HEAD state (someone checked out a random commit)
+  2. A branch called `feature` was deleted — it had important work
+  3. There are untracked files cluttering the working directory
+  4. The working tree is a mess
+
+  YOUR MISSION — fix ALL of the following:
+
+  [x] Get back on the `main` branch (escape detached HEAD)
+  [x] Recover the deleted `feature` branch (it had a commit called
+      "feature: add payment module")
+  [x] Remove ALL untracked files (clean working directory)
+  [x] Working tree must be clean (`git status` shows nothing)
+
+  This is everything you've learned. Reflog. Branch recovery. Cleanup.
+  All at once. You've trained for this.
+
+  COMPLETE THE MISSION.
+
+  ============================================================
+starter: |
+  #!/bin/bash
+  # 1. Get back on main
+  # 2. Recover the deleted "feature" branch
+  # 3. Clean up all untracked files
+  # 4. Working tree must be spotless
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'project base' > project.txt && git add project.txt && git commit -m 'initial project setup' && echo 'core module' > core.py && git add core.py && git commit -m 'add core module' && git checkout -b feature && echo 'payment module' > payment.py && git add payment.py && git commit -m 'feature: add payment module' && git checkout main && git branch -D feature && echo 'temp junk' > temp_debug.log && echo 'more junk' > scratch.tmp && echo 'notes' > TODO.txt && git checkout HEAD~1"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-current-branch
+      command: sh
+      args: ["-c", "cd {dir}/repo && git branch --show-current > {dir}/__current.txt"]
+      timeout_seconds: 5
+    - name: capture-branches
+      command: sh
+      args: ["-c", "cd {dir}/repo && git branch > {dir}/__branches.txt"]
+      timeout_seconds: 5
+    - name: capture-feature-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline feature 2>/dev/null > {dir}/__feature_log.txt || echo 'NO_BRANCH' > {dir}/__feature_log.txt"]
+      timeout_seconds: 5
+    - name: capture-status
+      command: sh
+      args: ["-c", "cd {dir}/repo && git status --porcelain > {dir}/__status.txt"]
+      timeout_seconds: 5
+    - name: capture-untracked
+      command: sh
+      args: ["-c", "cd {dir}/repo && git status --porcelain | grep '^??' | wc -l | tr -d ' ' > {dir}/__untracked_count.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __current.txt
+        content: "main"
+    - file_contains:
+        path: __branches.txt
+        content: "feature"
+    - file_contains:
+        path: __feature_log.txt
+        content: "feature: add payment module"
+    - file_contains:
+        path: __untracked_count.txt
+        content: "0"
+    - file_equals:
+        path: __status.txt
+        content: ""
+hints:
+  - "Start by escaping detached HEAD: `git checkout main`"
+  - "Use `git reflog` to find the 'feature: add payment module' commit, then `git branch feature <hash>`"
+  - "Clean untracked files with `git clean -f` (force is required — git protects you from accidental deletion)"
+solution: |
+  #!/bin/bash
+  git checkout main
+  HASH=$(git reflog --format='%h %s' | grep 'feature: add payment module' | head -1 | awk '{print $1}')
+  git branch feature "$HASH"
+  git clean -f
+explanation: |
+  This mission combined three skills:
+
+  1. `git checkout main` escapes detached HEAD by switching to a named branch.
+  2. `git reflog` + `git branch feature <hash>` recovers the deleted branch —
+     the reflog remembers the commit even after the branch pointer was deleted.
+  3. `git clean -f` removes untracked files. The `-f` flag is required because
+     git's `clean.requireForce` setting defaults to true.
+
+  In a real emergency, staying calm and tackling problems one at a time is the
+  key. Git almost never truly loses data. The reflog is your safety net, and
+  methodical recovery always works.

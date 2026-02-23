@@ -1,0 +1,31 @@
+id: pipe-basics
+title: "Pipe Two Commands"
+type: command
+prompt: |
+  Five .txt files already exist in your workspace: a.txt through e.txt.
+  Use ls piped to wc -l to count them. Print just the number.
+starter: |
+  # Five .txt files exist — count them with ls | wc -l
+environment:
+  files:
+    - path: a.txt
+      content: ""
+    - path: b.txt
+      content: ""
+    - path: c.txt
+      content: ""
+    - path: d.txt
+      content: ""
+    - path: e.txt
+      content: ""
+validation:
+  method: output
+  expected_output: "5"
+hints:
+  - "ls *.txt | wc -l counts matching files"
+  - "The glob *.txt matches only .txt files"
+solution: |
+  ls *.txt | wc -l
+explanation: |
+  The pipe | connects ls's stdout to wc's stdin. ls *.txt lists the
+  5 .txt files (one per line), and wc -l counts those lines.

@@ -1,0 +1,59 @@
+id: restore-config
+title: "Restore Config from Backup"
+type: command
+prompt: |
+  ALERT: Application fails to start. Config file is MISSING.
+
+  Someone deleted app/config/server.conf during a cleanup. The app
+  won't start without it. Fortunately, a backup exists at
+  backup/server.conf.bak.
+
+  Restore the config file to its correct location:
+  app/config/server.conf
+
+  The content must match the backup exactly.
+starter: |
+  # Copy the backup to restore the missing config file
+environment:
+  dirs:
+    - app/config
+    - backup
+  files:
+    - path: backup/server.conf.bak
+      content: |
+        # Server Configuration — Production
+        server.host=0.0.0.0
+        server.port=8080
+        server.workers=4
+        database.host=db-primary.internal
+        database.port=5432
+        database.pool_size=20
+        cache.backend=redis
+        cache.host=redis.internal
+    - path: app/startup.log
+      content: |
+        2024-03-15 04:20:00 ERROR Config file not found: /app/config/server.conf
+        2024-03-15 04:20:00 ERROR Cannot start without configuration
+        2024-03-15 04:20:01 FATAL Exiting with code 1
+validation:
+  method: state
+  assertions:
+    - file_exists: app/config/server.conf
+    - file_contains:
+        path: app/config/server.conf
+        content: "server.host=0.0.0.0"
+    - file_contains:
+        path: app/config/server.conf
+        content: "database.pool_size=20"
+hints:
+  - "`cp backup/server.conf.bak app/config/server.conf` copies the backup into place."
+  - "Make sure you use the correct destination path: app/config/server.conf (not .bak)."
+  - "After copying, `cat app/config/server.conf` to verify the content is there."
+solution: |
+  cp backup/server.conf.bak app/config/server.conf
+explanation: |
+  Restoring from backup is the fastest way to recover a deleted config.
+  The key lessons: always have backups, and know where they are BEFORE
+  an incident happens. In production, config files are often managed by
+  tools like Ansible, Puppet, or stored in version control — so the
+  "backup" is really just re-running the config management tool.

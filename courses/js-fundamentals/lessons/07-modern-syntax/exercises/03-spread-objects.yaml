@@ -1,0 +1,60 @@
+id: spread-objects
+title: "Spread with Objects"
+type: write
+
+prompt: |
+  Given two objects (in the starter code):
+  - defaults = { color: "red", size: "medium", theme: "light" }
+  - userPrefs = { color: "blue", theme: "dark" }
+
+  Merge them using the spread operator so that userPrefs overrides defaults.
+  Then print the color, size, and theme of the merged object, each on its
+  own line.
+
+  Expected output:
+  blue
+  large
+  dark
+
+  Wait — the expected size is "large", not "medium". After merging, also
+  override the size to "large".
+
+starter: |
+  const defaults = { color: "red", size: "medium", theme: "light" };
+  const userPrefs = { color: "blue", theme: "dark" };
+  // Merge with spread, overriding size to "large"
+  // Print color, size, theme
+
+validation:
+  method: output
+  expected_output: "blue\nlarge\ndark"
+
+hints:
+  - "Spread merge: {...defaults, ...userPrefs} — later properties override earlier ones."
+  - "You can add extra overrides: {...defaults, ...userPrefs, size: \"large\"}"
+  - "const config = {...defaults, ...userPrefs, size: \"large\"}; then print each property."
+
+solution: |
+  const defaults = { color: "red", size: "medium", theme: "light" };
+  const userPrefs = { color: "blue", theme: "dark" };
+  const config = { ...defaults, ...userPrefs, size: "large" };
+  console.log(config.color);
+  console.log(config.size);
+  console.log(config.theme);
+
+explanation: |
+  Object spread copies properties into a new object, with later values
+  winning when keys conflict:
+
+  `{ ...defaults, ...userPrefs, size: "large" }` produces:
+  - color: "blue" (userPrefs overrides defaults)
+  - size: "large" (explicit override wins over defaults)
+  - theme: "dark" (userPrefs overrides defaults)
+
+  The order matters:
+  - `{ ...defaults, ...userPrefs }` — userPrefs wins
+  - `{ ...userPrefs, ...defaults }` — defaults would win
+
+  This pattern is extremely common for configuration objects: start with
+  sensible defaults, spread user preferences over them, then apply any
+  final overrides.

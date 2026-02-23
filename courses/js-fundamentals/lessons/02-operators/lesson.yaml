@@ -1,0 +1,30 @@
+id: operators
+title: "Operators and Expressions"
+description: "Master arithmetic, comparison, logical, and string operators"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - arithmetic
+  - comparison
+  - strict-equality
+  - logical
+  - string-ops
+  - augmented-assign
+  - ternary
+teaches:
+  - arithmetic-operators
+  - comparison-operators
+  - strict-equality
+  - logical-operators
+  - string-operations
+  - augmented-assignment
+  - ternary-operator
+recap: |
+  You learned:
+  - Arithmetic operators: +, -, *, /, %, ** and Math.floor()
+  - Comparison operators: <, >, <=, >=, ===, !==
+  - Always use === instead of == to avoid type coercion surprises
+  - Logical operators: && (and), || (or), ! (not)
+  - Strings support .repeat(), concatenation, and comparison
+  - Augmented assignment: +=, -=, *=, /=, %=
+  - The ternary operator: condition ? valueIfTrue : valueIfFalse

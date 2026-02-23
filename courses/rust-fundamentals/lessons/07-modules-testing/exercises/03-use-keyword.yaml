@@ -1,0 +1,74 @@
+id: use-keyword
+title: "Import with use"
+type: fill-blank
+
+prompt: |
+  Fill in the two blanks to import `add` and `multiply` from the `math`
+  module so they can be called without the `math::` prefix.
+
+  Expected output:
+  ```
+  Sum: 8
+  Product: 15
+  ```
+
+starter: |
+  mod math {
+      pub fn add(a: i32, b: i32) -> i32 {
+          a + b
+      }
+
+      pub fn multiply(a: i32, b: i32) -> i32 {
+          a * b
+      }
+  }
+
+  use math::___;
+  use math::___;
+
+  fn main() {
+      println!("Sum: {}", add(3, 5));
+      println!("Product: {}", multiply(3, 5));
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Sum: 8
+    Product: 15
+
+hints:
+  - "The use keyword brings a module item into the current scope. The first blank should import the function called in the first println."
+  - "use math::add; brings the add function into scope. use math::multiply; brings multiply into scope."
+  - "Replace the blanks: use math::add; and use math::multiply; — now you can call add() and multiply() directly without the math:: prefix."
+
+solution: |
+  mod math {
+      pub fn add(a: i32, b: i32) -> i32 {
+          a + b
+      }
+
+      pub fn multiply(a: i32, b: i32) -> i32 {
+          a * b
+      }
+  }
+
+  use math::add;
+  use math::multiply;
+
+  fn main() {
+      println!("Sum: {}", add(3, 5));
+      println!("Product: {}", multiply(3, 5));
+  }
+
+explanation: |
+  `use math::add;` brings `add` into the current scope, so you can write
+  `add(3, 5)` instead of `math::add(3, 5)`. Same for `multiply`.
+
+  You could also combine them into a single line: `use math::{add, multiply};`
+  The brace syntax is convenient when importing multiple items from the same
+  module.
+
+  The `use` keyword does not copy or move anything — it just creates a name
+  shortcut. The function still lives in the `math` module; `use` simply lets
+  you refer to it with a shorter path.

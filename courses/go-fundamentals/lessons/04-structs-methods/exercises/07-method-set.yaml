@@ -1,0 +1,133 @@
+id: method-set
+title: "Fix the Method Set"
+type: fix
+
+prompt: |
+  This program defines a `BankAccount` with `Deposit`, `Withdraw`, and `Balance`
+  methods. It has two bugs:
+
+  1. `Deposit` uses a value receiver, so deposits are lost (the original is never
+     modified).
+  2. `Withdraw` has a logic error — it always withdraws, even when funds are
+     insufficient.
+
+  Fix both methods so the program produces the correct output.
+
+  Expected output:
+  ```
+  balance=100
+  balance=70
+  insufficient funds
+  balance=70
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  type BankAccount struct {
+      balance float64
+  }
+
+  func NewBankAccount(initial float64) *BankAccount {
+      return &BankAccount{balance: initial}
+  }
+
+  func (a BankAccount) Deposit(amount float64) {
+      a.balance += amount
+  }
+
+  func (a *BankAccount) Withdraw(amount float64) bool {
+      a.balance -= amount
+      return true
+  }
+
+  func (a BankAccount) Balance() float64 {
+      return a.balance
+  }
+
+  func main() {
+      acct := NewBankAccount(0)
+      acct.Deposit(100)
+      fmt.Printf("balance=%g\n", acct.Balance())
+      if acct.Withdraw(30) {
+          fmt.Printf("balance=%g\n", acct.Balance())
+      }
+      if !acct.Withdraw(50) {
+          fmt.Println("insufficient funds")
+      }
+      fmt.Printf("balance=%g\n", acct.Balance())
+  }
+
+validation:
+  method: output
+  expected_output: |
+    balance=100
+    balance=70
+    insufficient funds
+    balance=70
+
+hints:
+  - "Deposit uses a value receiver `(a BankAccount)` — it modifies a copy. Change it to a pointer receiver `(a *BankAccount)`."
+  - "Withdraw always subtracts and returns true. Add a check: if amount > a.balance, return false without modifying the balance."
+  - "After both fixes: Deposit(100) sets balance to 100, Withdraw(30) succeeds leaving 70, Withdraw(50) fails because 50 > 70."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type BankAccount struct {
+      balance float64
+  }
+
+  func NewBankAccount(initial float64) *BankAccount {
+      return &BankAccount{balance: initial}
+  }
+
+  func (a *BankAccount) Deposit(amount float64) {
+      a.balance += amount
+  }
+
+  func (a *BankAccount) Withdraw(amount float64) bool {
+      if amount > a.balance {
+          return false
+      }
+      a.balance -= amount
+      return true
+  }
+
+  func (a BankAccount) Balance() float64 {
+      return a.balance
+  }
+
+  func main() {
+      acct := NewBankAccount(0)
+      acct.Deposit(100)
+      fmt.Printf("balance=%g\n", acct.Balance())
+      if acct.Withdraw(30) {
+          fmt.Printf("balance=%g\n", acct.Balance())
+      }
+      if !acct.Withdraw(50) {
+          fmt.Println("insufficient funds")
+      }
+      fmt.Printf("balance=%g\n", acct.Balance())
+  }
+
+explanation: |
+  Two bugs, two fixes:
+
+  **Bug 1: Value receiver on Deposit.** The original `func (a BankAccount) Deposit`
+  receives a copy of the account. Adding to the copy does nothing to the original.
+  Changing to `func (a *BankAccount) Deposit` makes it modify the actual account.
+  This is the most common pointer-receiver mistake in Go.
+
+  **Bug 2: Missing balance check in Withdraw.** The original always subtracts and
+  returns `true`. The fix adds `if amount > a.balance { return false }` before the
+  subtraction. Now withdrawing 50 from a balance of 70 fails, and the balance
+  stays at 70.
+
+  Notice that `Balance()` correctly uses a value receiver — it only reads data, so
+  a copy is fine. The general pattern: methods that read use value receivers,
+  methods that write use pointer receivers.

@@ -1,0 +1,32 @@
+id: umask-effect
+title: "Understand umask"
+type: command
+prompt: |
+  In a subshell, set umask to 0077, then create a new file and a new
+  directory. Use stat to print the octal permissions of each.
+  (umask 0077 means only the owner gets permissions)
+starter: |
+  # Set umask, create file and dir, check permissions
+validation:
+  method: output
+  expected_output: |
+    600
+    700
+hints:
+  - "Run commands in a subshell: (umask 0077; touch file; ...)"
+  - "Files start at 666, dirs at 777. umask subtracts."
+  - "666 - 077 = 600 for files, 777 - 077 = 700 for dirs"
+solution: |
+  TMPD=$(mktemp -d)
+  (
+    umask 0077
+    touch "$TMPD/secret.txt"
+    mkdir "$TMPD/private"
+  )
+  stat --format='%a' "$TMPD/secret.txt"
+  stat --format='%a' "$TMPD/private"
+  rm -rf "$TMPD"
+explanation: |
+  umask 0077 subtracts all group and other permissions. New files get
+  600 (rw-------) and new directories get 700 (rwx------). The subshell
+  ensures the umask change doesn't affect the parent shell.

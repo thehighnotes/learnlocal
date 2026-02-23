@@ -1,0 +1,58 @@
+id: vec-basics
+title: "Vec Basics"
+type: write
+
+prompt: |
+  Create a mutable vector of integers, push the values 10, 20, and 30 onto it,
+  then print the vector's length and each element on its own line.
+
+  Your output should be exactly:
+  ```
+  len: 3
+  10
+  20
+  30
+  ```
+
+starter: |
+  fn main() {
+      // Create a mutable Vec<i32> using Vec::new()
+
+      // Push 10, 20, and 30
+
+      // Print the length as "len: N"
+
+      // Use a for loop to print each element on its own line
+
+  }
+
+validation:
+  method: output
+  expected_output: "len: 3\n10\n20\n30"
+
+hints:
+  - "Declare the vector with: let mut v: Vec<i32> = Vec::new();"
+  - "Use v.push(10); v.push(20); v.push(30); to add elements. Print the length with println!(\"len: {}\", v.len());"
+  - "Iterate with: for val in &v { println!(\"{}\", val); }"
+
+solution: |
+  fn main() {
+      let mut v: Vec<i32> = Vec::new();
+      v.push(10);
+      v.push(20);
+      v.push(30);
+
+      println!("len: {}", v.len());
+      for val in &v {
+          println!("{}", val);
+      }
+  }
+
+explanation: |
+  `Vec::new()` creates an empty vector. The type `Vec<i32>` can be specified
+  explicitly or inferred from the first `push` call. `push` appends to the
+  end, and `len()` returns the current number of elements.
+
+  The `&v` in the for loop borrows the vector, so it remains usable after
+  the loop. Each `val` is a reference `&i32`, but `println!` automatically
+  dereferences it for display.

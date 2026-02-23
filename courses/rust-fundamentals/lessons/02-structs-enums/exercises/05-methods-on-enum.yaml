@@ -1,0 +1,117 @@
+id: methods-on-enum
+title: "Methods on Enums"
+type: fill-blank
+
+prompt: |
+  The `Coin` enum represents US coins with their values. The `value_in_cents`
+  method is missing its match arms. Fill in the four blanks (`___`) with the
+  correct cent values for each coin.
+
+  - Penny = 1
+  - Nickel = 5
+  - Dime = 10
+  - Quarter = 25
+
+starter: |
+  enum Coin {
+      Penny,
+      Nickel,
+      Dime,
+      Quarter,
+  }
+
+  impl Coin {
+      fn value_in_cents(&self) -> u32 {
+          match self {
+              Coin::Penny => ___,
+              Coin::Nickel => ___,
+              Coin::Dime => ___,
+              Coin::Quarter => ___,
+          }
+      }
+
+      fn name(&self) -> &str {
+          match self {
+              Coin::Penny => "penny",
+              Coin::Nickel => "nickel",
+              Coin::Dime => "dime",
+              Coin::Quarter => "quarter",
+          }
+      }
+  }
+
+  fn main() {
+      let coins = [Coin::Quarter, Coin::Dime, Coin::Nickel, Coin::Penny];
+      let mut total = 0;
+      for coin in &coins {
+          let val = coin.value_in_cents();
+          println!("{}: {} cents", coin.name(), val);
+          total += val;
+      }
+      println!("total: {} cents", total);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    quarter: 25 cents
+    dime: 10 cents
+    nickel: 5 cents
+    penny: 1 cents
+    total: 41 cents
+
+hints:
+  - "Each blank should be a simple integer literal -- the cent value of that coin."
+  - "Penny is 1, Nickel is 5, Dime is 10, Quarter is 25."
+  - "The completed arms look like: Coin::Penny => 1, Coin::Nickel => 5, Coin::Dime => 10, Coin::Quarter => 25,"
+
+solution: |
+  enum Coin {
+      Penny,
+      Nickel,
+      Dime,
+      Quarter,
+  }
+
+  impl Coin {
+      fn value_in_cents(&self) -> u32 {
+          match self {
+              Coin::Penny => 1,
+              Coin::Nickel => 5,
+              Coin::Dime => 10,
+              Coin::Quarter => 25,
+          }
+      }
+
+      fn name(&self) -> &str {
+          match self {
+              Coin::Penny => "penny",
+              Coin::Nickel => "nickel",
+              Coin::Dime => "dime",
+              Coin::Quarter => "quarter",
+          }
+      }
+  }
+
+  fn main() {
+      let coins = [Coin::Quarter, Coin::Dime, Coin::Nickel, Coin::Penny];
+      let mut total = 0;
+      for coin in &coins {
+          let val = coin.value_in_cents();
+          println!("{}: {} cents", coin.name(), val);
+          total += val;
+      }
+      println!("total: {} cents", total);
+  }
+
+explanation: |
+  Enums can have impl blocks just like structs. The `match` expression is the
+  standard way to branch on which variant an enum value holds.
+
+  Since `Coin` variants carry no data (they are "unit-like"), the match arms
+  simply return the corresponding integer. This is a very common pattern --
+  mapping enum variants to values.
+
+  The `&self` receiver lets us call `coin.value_in_cents()` and `coin.name()`
+  without consuming the coin. The loop iterates over `&coins`, so each `coin`
+  is a `&Coin` reference, which matches the `&self` parameter.

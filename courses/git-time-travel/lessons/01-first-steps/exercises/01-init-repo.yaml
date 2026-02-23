@@ -1,0 +1,30 @@
+id: init-repo
+title: "Initialize a Repository"
+type: command
+prompt: |
+  You've just created a new project directory and it's time to put it under
+  version control. Initialize a git repository in the current directory.
+
+  After you run your command, a `.git/` directory should exist.
+starter: |
+  # Initialize a git repository here
+environment:
+  setup:
+    - name: create-repo-dir
+      command: sh
+      args: ["-c", "mkdir -p {dir}/repo"]
+  cwd: repo
+validation:
+  method: state
+  assertions:
+    - dir_exists: repo/.git
+hints:
+  - "The command to create a new git repository is `git init`."
+  - "Just one command — no arguments needed."
+solution: |
+  git init
+explanation: |
+  `git init` creates a `.git/` subdirectory in the current directory. This
+  hidden directory contains everything git needs: the object database, refs,
+  hooks, and configuration. Every git command you run later reads from and
+  writes to this directory.

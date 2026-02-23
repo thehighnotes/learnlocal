@@ -1,0 +1,98 @@
+id: word-analogy
+title: "Word Analogy"
+type: write
+
+prompt: |
+  Implement the famous word analogy: king - man + woman = ?
+
+  The idea: subtract the "man" vector from "king" to get a "royalty" direction,
+  then add "woman" to get the female equivalent.
+
+  Steps:
+  1. Compute `target = king - man + woman` (element-by-element)
+  2. Find which remaining word's vector is most similar to target
+
+  Print just the word.
+
+starter: |
+  import math
+
+  words = {
+      "king":   [0.9, 0.8, 0.1, 0.0],
+      "queen":  [0.9, 0.1, 0.8, 0.0],
+      "man":    [0.1, 0.9, 0.1, 0.0],
+      "woman":  [0.1, 0.1, 0.9, 0.0],
+  }
+
+  def dot(a, b):
+      return sum(a[i] * b[i] for i in range(len(a)))
+
+  def mag(v):
+      return math.sqrt(sum(x**2 for x in v))
+
+  def cosine_sim(a, b):
+      return dot(a, b) / (mag(a) * mag(b))
+
+  # Step 1: Compute target = king - man + woman
+
+
+  # Step 2: Find the most similar word (skip king, man, woman)
+
+
+  print(best_word)
+
+validation:
+  method: output
+  expected_output: "queen"
+
+hints:
+  - "Compute the target vector: `target = [words['king'][i] - words['man'][i] + words['woman'][i] for i in range(4)]`"
+  - "Then loop through words, skip 'king', 'man', 'woman', and find the one with highest cosine similarity to target."
+
+solution: |
+  import math
+
+  words = {
+      "king":   [0.9, 0.8, 0.1, 0.0],
+      "queen":  [0.9, 0.1, 0.8, 0.0],
+      "man":    [0.1, 0.9, 0.1, 0.0],
+      "woman":  [0.1, 0.1, 0.9, 0.0],
+  }
+
+  def dot(a, b):
+      return sum(a[i] * b[i] for i in range(len(a)))
+
+  def mag(v):
+      return math.sqrt(sum(x**2 for x in v))
+
+  def cosine_sim(a, b):
+      return dot(a, b) / (mag(a) * mag(b))
+
+  a = words["king"]
+  b = words["man"]
+  c = words["woman"]
+  target = [a[i] - b[i] + c[i] for i in range(len(a))]
+
+  best_word = ""
+  best_sim = -2
+  for word, vec in words.items():
+      if word in ("king", "man", "woman"):
+          continue
+      sim = cosine_sim(target, vec)
+      if sim > best_sim:
+          best_sim = sim
+          best_word = word
+
+  print(best_word)
+
+explanation: |
+  target = king - man + woman = [0.9-0.1+0.1, 0.8-0.9+0.1, 0.1-0.1+0.9, 0.0]
+         = [0.9, 0.0, 0.9, 0.0]
+
+  Comparing with queen [0.9, 0.1, 0.8, 0.0]: very high similarity.
+
+  This works because the vectors encode relationships as directions. The
+  direction from "man" to "king" (add royalty) is similar to the direction from
+  "woman" to "queen." Vector arithmetic captures semantic relationships. This
+  was one of the most surprising discoveries in AI — first demonstrated by
+  Word2Vec in 2013.

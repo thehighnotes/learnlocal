@@ -1,0 +1,47 @@
+id: remove-untracked
+title: "Remove Untracked Files"
+type: command
+prompt: |
+  After a messy build, your repo is littered with untracked files:
+  `build.log`, `temp.dat`, and `cache.tmp`. None of these are tracked
+  by git and none are in `.gitignore`.
+
+  Use `git clean` to remove all untracked files. Remember that git clean
+  requires a force flag for safety.
+starter: |
+  #!/bin/bash
+  # Remove all untracked files from the working directory
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'source' > main.c && git add main.c && git commit -m 'initial' && echo 'build output' > build.log && echo 'temp data' > temp.dat && echo 'cached stuff' > cache.tmp"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-untracked
+      command: sh
+      args: ["-c", "cd {dir}/repo && git ls-files --others --exclude-standard > {dir}/untracked.txt 2>&1"]
+      timeout_seconds: 5
+      capture_to: untracked.log
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/main.c
+    - file_not_exists: repo/build.log
+    - file_not_exists: repo/temp.dat
+    - file_not_exists: repo/cache.tmp
+    - file_equals:
+        path: untracked.txt
+        content: ""
+hints:
+  - "git clean -n shows what would be deleted (dry run)"
+  - "git clean -f actually deletes untracked files"
+solution: |
+  #!/bin/bash
+  git clean -f
+explanation: |
+  git clean -f removes all untracked files from the working directory. The -f
+  (force) flag is required — git refuses to clean without it as a safety
+  measure. Use -n first for a dry run. Add -d to also remove untracked
+  directories, or -x to include files matched by .gitignore.

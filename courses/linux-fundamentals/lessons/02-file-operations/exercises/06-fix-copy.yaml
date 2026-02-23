@@ -1,0 +1,37 @@
+id: fix-copy
+title: "Fix the Directory Copy"
+type: fix
+prompt: |
+  This script tries to copy a directory but fails because it's missing
+  a required flag. Fix the cp command so it copies the entire directory.
+starter: |
+  #!/bin/bash
+  TMPD=$(mktemp -d)
+  mkdir -p "$TMPD/source/inner"
+  echo "file1" > "$TMPD/source/a.txt"
+  echo "file2" > "$TMPD/source/inner/b.txt"
+  cp "$TMPD/source" "$TMPD/dest"
+  cat "$TMPD/dest/a.txt"
+  cat "$TMPD/dest/inner/b.txt"
+  rm -rf "$TMPD"
+validation:
+  method: output
+  expected_output: |
+    file1
+    file2
+hints:
+  - "cp can't copy directories without a special flag"
+  - "The -r flag means recursive — copies directories and all their contents"
+solution: |
+  #!/bin/bash
+  TMPD=$(mktemp -d)
+  mkdir -p "$TMPD/source/inner"
+  echo "file1" > "$TMPD/source/a.txt"
+  echo "file2" > "$TMPD/source/inner/b.txt"
+  cp -r "$TMPD/source" "$TMPD/dest"
+  cat "$TMPD/dest/a.txt"
+  cat "$TMPD/dest/inner/b.txt"
+  rm -rf "$TMPD"
+explanation: |
+  cp requires the -r (recursive) flag to copy directories. Without it,
+  cp will error: "omitting directory". This is a safety measure.

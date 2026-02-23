@@ -1,0 +1,55 @@
+id: process-tree
+title: "Trace the Process Tree"
+type: command
+prompt: |
+  INCIDENT: A rogue worker process (PID 4517) is causing intermittent failures.
+  Before you kill it, you need to understand its lineage — killing the wrong
+  parent could take down the whole application.
+
+  The process tree is captured in `ps_tree.txt` (output of `ps -ef`).
+  Trace PID 4517 back to its ultimate parent and write the **full chain**
+  to `answer.txt` in this format:
+
+  ```
+  <root_pid> -> <child_pid> -> ... -> 4517
+  ```
+
+  Follow the PPID column from 4517 upward until you reach a process whose
+  parent is PID 1 (init). Include PID 1 if the chain reaches it.
+starter: |
+  # Read ps_tree.txt, trace PID 4517 back through its parents
+  # Write the chain to answer.txt
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > ps_tree.txt << 'PSEOF'\nUID        PID  PPID  C STIME TTY          TIME CMD\nroot         1     0  0 08:00 ?        00:00:03 /sbin/init\nroot       142     1  0 08:00 ?        00:00:00 /usr/sbin/sshd\nroot       340     1  0 08:00 ?        00:00:01 /usr/bin/supervisord\nappuser   1200   340  0 08:01 ?        00:00:12 python3 /app/manager.py\nappuser   2850  1200  0 08:05 ?        00:01:30 python3 /app/worker_pool.py\nappuser   3400  2850  0 09:10 ?        00:00:45 python3 /app/worker.py --id=1\nappuser   3401  2850  0 09:10 ?        00:00:42 python3 /app/worker.py --id=2\nappuser   4517  2850  2 09:15 ?        00:05:18 python3 /app/worker.py --id=3\nappuser   3402  2850  0 09:10 ?        00:00:38 python3 /app/worker.py --id=4\nroot       744     1  0 08:03 ?        00:00:00 /usr/sbin/cron\npostgres   512     1  0 08:02 ?        00:00:45 /usr/lib/postgresql/14/bin/postgres\npostgres   520   512  0 08:02 ?        00:00:12 postgres: writer process\npostgres   521   512  0 08:02 ?        00:00:08 postgres: stats collector\nwww-data   387     1  0 08:01 ?        00:00:12 nginx: worker process\nPSEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_contains:
+        path: answer.txt
+        content: "340"
+    - file_contains:
+        path: answer.txt
+        content: "1200"
+    - file_contains:
+        path: answer.txt
+        content: "2850"
+    - file_contains:
+        path: answer.txt
+        content: "4517"
+hints:
+  - "Start at PID 4517 — its PPID is 2850. Then find PID 2850 — its PPID is 1200. Keep going."
+  - "The chain is: 4517 ← 2850 ← 1200 ← 340 ← 1 (init). Reverse it for the answer."
+  - "echo '1 -> 340 -> 1200 -> 2850 -> 4517' > answer.txt"
+solution: |
+  echo '1 -> 340 -> 1200 -> 2850 -> 4517' > answer.txt
+explanation: |
+  The process tree: init (1) → supervisord (340) → manager.py (1200) →
+  worker_pool.py (2850) → worker.py --id=3 (4517). Knowing this chain tells
+  you that killing supervisord (340) would take down ALL workers plus the
+  manager. Killing worker_pool (2850) would kill all 4 workers. The safest
+  fix is to kill just 4517 (the rogue worker) and let the pool manager
+  respawn it. In real life, `pstree -p <pid>` shows this visually.

@@ -1,0 +1,61 @@
+id: create-table
+title: "Create a Table"
+type: write
+
+prompt: |
+  Create a table called `books` with three columns:
+
+  - `id` — INTEGER
+  - `title` — TEXT
+  - `author` — TEXT
+
+  Then insert two rows:
+  - id 1, title 'Dune', author 'Frank Herbert'
+  - id 2, title '1984', author 'George Orwell'
+
+  Finally, select all rows from the table to verify your work.
+
+starter: |
+  -- Create the books table, insert two rows, then select all rows
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        -- No setup needed — you are building the schema from scratch
+
+validation:
+  method: output
+  expected_output: |
+    1|Dune|Frank Herbert
+    2|1984|George Orwell
+
+hints:
+  - "Use CREATE TABLE books (...) to define the table with its columns"
+  - "Insert rows with: INSERT INTO books VALUES (1, 'Dune', 'Frank Herbert');"
+  - |
+    Full solution:
+    CREATE TABLE books (id INTEGER, title TEXT, author TEXT);
+    INSERT INTO books VALUES (1, 'Dune', 'Frank Herbert');
+    INSERT INTO books VALUES (2, '1984', 'George Orwell');
+    SELECT * FROM books;
+
+solution: |
+  CREATE TABLE books (id INTEGER, title TEXT, author TEXT);
+  INSERT INTO books VALUES (1, 'Dune', 'Frank Herbert');
+  INSERT INTO books VALUES (2, '1984', 'George Orwell');
+  SELECT * FROM books;
+
+explanation: |
+  `CREATE TABLE books (id INTEGER, title TEXT, author TEXT);` defines a new table
+  with three columns. Each column has a name and a type.
+
+  The `INSERT INTO books VALUES (...)` statements add rows. When you use VALUES
+  without listing column names, you must provide values for every column in the
+  order they were defined.
+
+  `SELECT * FROM books;` retrieves all rows and columns so you can verify the
+  table was created and populated correctly.
+
+  This is the fundamental pattern for schema design: define the structure first,
+  then populate it with data.

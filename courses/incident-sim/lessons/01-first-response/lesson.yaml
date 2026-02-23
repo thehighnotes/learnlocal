@@ -1,0 +1,17 @@
+id: first-response
+title: "First Response"
+description: "Alert fired. Something's wrong. Learn the first commands to run when an incident hits."
+estimated_minutes: 20
+content: content.md
+teaches: [ls, cat, grep, ps, df, file-inspection, quick-diagnosis]
+exercises:
+  - find-the-error
+  - read-the-logs
+  - whats-running
+  - disk-check
+  - find-large-files
+  - config-diff
+  - write-the-status
+recap: |
+  First response is about gathering information fast. ls, cat, grep, ps, df —
+  these are your diagnostic tools. Read before you fix. Diagnose before you act.

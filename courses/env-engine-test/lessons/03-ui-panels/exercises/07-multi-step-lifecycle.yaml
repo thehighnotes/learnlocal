@@ -1,0 +1,69 @@
+id: multi-step-lifecycle
+title: "Multi-Step Lifecycle"
+type: write
+prompt: |
+  This exercise runs 2 setup commands in sequence and 2 teardown
+  commands that each capture output to a file.
+
+  Setup creates `data/schema.sql` and `data/seed.sql`.
+  Print $DB_NAME, then write "complete" to `data/output.txt`.
+  Teardown captures both output.txt and schema.sql.
+starter: |
+  #!/bin/bash
+  # $DB_NAME is set by the environment engine
+  # Write "complete" to data/output.txt
+environment:
+  dirs:
+    - data
+  env:
+    DB_NAME: "testdb"
+  setup:
+    - name: create-schema
+      command: sh
+      args: ["-c", "echo 'CREATE TABLE users (id INT, name TEXT)' > {dir}/data/schema.sql"]
+      timeout_seconds: 5
+    - name: seed-data
+      command: sh
+      args: ["-c", "echo 'INSERT INTO users VALUES (1, Alice)' > {dir}/data/seed.sql"]
+      timeout_seconds: 5
+  teardown:
+    - name: capture-output
+      command: cat
+      args: ["{dir}/data/output.txt"]
+      capture_to: final-output.txt
+      timeout_seconds: 5
+    - name: capture-schema
+      command: cat
+      args: ["{dir}/data/schema.sql"]
+      capture_to: final-schema.txt
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: data/schema.sql
+    - file_exists: data/seed.sql
+    - file_contains:
+        path: data/seed.sql
+        content: "INSERT INTO users"
+    - file_exists: data/output.txt
+    - file_exists: final-output.txt
+    - file_contains:
+        path: final-output.txt
+        content: "complete"
+    - file_exists: final-schema.txt
+    - file_contains:
+        path: final-schema.txt
+        content: "CREATE TABLE users"
+hints:
+  - 'echo "$DB_NAME" prints the env var'
+  - 'echo "complete" > data/output.txt'
+solution: |
+  #!/bin/bash
+  echo "$DB_NAME"
+  echo "complete" > data/output.txt
+explanation: |
+  Two setup commands ran in sequence: first creating schema.sql, then
+  seed.sql. Both files existed when your code ran. Two teardown
+  commands captured output.txt and schema.sql to separate files.
+  This verifies that multiple setup/teardown commands execute in
+  order and that capture_to works across multiple teardown steps.

@@ -1,0 +1,50 @@
+id: type-inference
+title: "Type Inference"
+type: fill-blank
+
+prompt: |
+  The program below is missing one type annotation. The compiler cannot figure
+  out which integer type to use for the parse() call because the result could
+  be i32, i64, u32, or many other types.
+
+  Fill in the blank with the correct type so the program compiles and prints:
+
+  The answer is 42
+
+starter: |
+  fn main() {
+      let text = "42";
+      let number: ___ = text.parse().unwrap();
+      println!("The answer is {}", number);
+  }
+
+validation:
+  method: output
+  expected_output: "The answer is 42"
+
+hints:
+  - "The parse() method can convert a string to many different numeric types. Rust needs you to specify which one."
+  - "The most common integer type in Rust is i32. That is the default when Rust can infer an integer type on its own."
+  - "Replace the blank with i32: let number: i32 = text.parse().unwrap();"
+
+solution: |
+  fn main() {
+      let text = "42";
+      let number: i32 = text.parse().unwrap();
+      println!("The answer is {}", number);
+  }
+
+explanation: |
+  Rust's type inference is powerful, but it has limits. The `parse()` method can
+  convert a string into many different types — `i32`, `i64`, `u32`, `f64`, and
+  more. Without a type annotation, the compiler does not know which conversion
+  you want, so it asks you to specify.
+
+  Writing `let number: i32 = ...` tells Rust to parse the string as a 32-bit
+  signed integer. The `unwrap()` call handles the possibility that the string
+  might not be a valid number — it extracts the value on success or panics on
+  failure. Error handling with `Result` is covered in a later lesson.
+
+  Other valid answers would include `i64`, `u32`, or even `f64` (which would
+  print `42` as well). But `i32` is the conventional default integer type in
+  Rust.

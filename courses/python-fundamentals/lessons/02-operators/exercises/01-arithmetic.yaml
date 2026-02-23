@@ -1,0 +1,51 @@
+id: arithmetic
+title: "Basic Arithmetic"
+type: write
+
+prompt: |
+  Perform four calculations and print each result on its own line:
+  1. 15 + 7
+  2. 20 - 8
+  3. 6 * 4
+  4. 15 / 4
+
+  Remember that `/` in Python always returns a float.
+
+starter: |
+  # Calculate and print each result on its own line:
+  # 1. 15 + 7
+  # 2. 20 - 8
+  # 3. 6 * 4
+  # 4. 15 / 4
+
+validation:
+  method: output
+  expected_output: |
+    22
+    12
+    24
+    3.75
+
+hints:
+  - "Use print() for each calculation. For example: print(15 + 7)"
+  - "Division with / always gives a float. 15 / 4 produces 3.75, not 3."
+  - "You can compute directly inside print(): print(15 + 7), print(20 - 8), print(6 * 4), print(15 / 4)"
+
+solution: |
+  print(15 + 7)
+  print(20 - 8)
+  print(6 * 4)
+  print(15 / 4)
+
+explanation: |
+  Each print() call evaluates the arithmetic expression and prints the result:
+
+  1. `15 + 7` = 22 (integer addition)
+  2. `20 - 8` = 12 (integer subtraction)
+  3. `6 * 4` = 24 (integer multiplication)
+  4. `15 / 4` = 3.75 (float division)
+
+  The `/` operator always returns a float in Python, even when the result
+  is a whole number (e.g., `10 / 2` gives `5.0`). This is a deliberate design
+  choice to prevent the silent data loss that happens in languages where
+  integer division truncates the result.

@@ -1,0 +1,46 @@
+id: dot-product
+title: "Dot Product"
+type: write
+
+prompt: |
+  Implement the dot product of two vectors. The dot product multiplies
+  corresponding elements and sums the results.
+
+  Given `a = [1, 2, 3]` and `b = [4, 5, 6]`:
+  - Multiply pairs: 1*4=4, 2*5=10, 3*6=18
+  - Sum them: 4+10+18 = 32
+
+  Print the result (a single number).
+
+starter: |
+  a = [1, 2, 3]
+  b = [4, 5, 6]
+
+  # Compute the dot product of a and b
+
+
+  print(dot)
+
+validation:
+  method: output
+  expected_output: "32"
+
+hints:
+  - "Multiply each pair of elements at the same index, then add all the products together. You can use `sum()` with a generator expression."
+  - "Try: `dot = sum(a[i] * b[i] for i in range(len(a)))`"
+
+solution: |
+  a = [1, 2, 3]
+  b = [4, 5, 6]
+
+  dot = sum(a[i] * b[i] for i in range(len(a)))
+
+  print(dot)
+
+explanation: |
+  `sum(a[i] * b[i] for i in range(len(a)))` multiplies corresponding elements
+  (1*4, 2*5, 3*6) and sums the products (4+10+18 = 32).
+
+  The dot product is the most important single operation in AI. It measures how
+  similar two vectors are and is the core computation in every neural network
+  layer. You will use this in almost every exercise going forward.

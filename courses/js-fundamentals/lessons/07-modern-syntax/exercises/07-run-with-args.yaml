@@ -1,0 +1,26 @@
+id: run-with-args
+title: "Run with Arguments"
+type: command
+prompt: |
+  A greet.js script takes a name as a command-line argument. Run it with
+  the argument "Alice".
+environment:
+  files:
+    - path: greet.js
+      content: |
+        const name = process.argv[2];
+        console.log(`Hello, ${name}!`);
+starter: |
+  # Run greet.js with a command-line argument
+validation:
+  method: output
+  expected_output: "Hello, Alice!"
+hints:
+  - "Arguments go after the filename: node greet.js Alice"
+  - "process.argv[2] is the first user argument (0 is node, 1 is the file)"
+solution: |
+  node greet.js Alice
+explanation: |
+  process.argv is an array of command-line arguments. process.argv[0] is
+  the node binary, process.argv[1] is the script path, and process.argv[2]
+  onwards are your arguments.

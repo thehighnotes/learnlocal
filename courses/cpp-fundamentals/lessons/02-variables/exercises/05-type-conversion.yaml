@@ -1,0 +1,67 @@
+id: type-conversion
+title: "Type Conversion"
+type: write
+
+prompt: |
+  Demonstrate implicit and explicit type conversion.
+
+  Create an `int` named `value` with the value `7`. Then:
+
+  1. Divide `value` by `2` (integer division) and print the result.
+  2. Divide `value` by `2.0` (floating-point division) and print the result.
+
+  Each result should be on its own line.
+
+  Expected output:
+  ```
+  3
+  3.5
+  ```
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Declare an int named "value" with value 7
+
+      // Print value / 2 (integer division)
+
+      // Print value / 2.0 (floating-point division)
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: |
+    3
+    3.5
+
+hints:
+  - "When both operands are integers, C++ performs integer division and drops the decimal part."
+  - "To get a floating-point result, make at least one operand a double — for example, divide by `2.0` instead of `2`."
+  - "The solution is: `std::cout << value / 2 << std::endl;` followed by `std::cout << value / 2.0 << std::endl;`"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int value = 7;
+
+      std::cout << value / 2 << std::endl;
+      std::cout << value / 2.0 << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  When you write `value / 2`, both operands are `int`, so C++ performs
+  **integer division**: 7 / 2 = 3 with the remainder discarded.
+
+  When you write `value / 2.0`, the literal `2.0` is a `double`. C++
+  **implicitly converts** the `int` operand to `double` before dividing,
+  giving the floating-point result 3.5.
+
+  This implicit widening (int to double) is one of the most common type
+  conversions in C++. It happens automatically whenever an expression mixes
+  integer and floating-point types.

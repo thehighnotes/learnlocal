@@ -1,0 +1,110 @@
+id: custom-errors
+title: "Custom Error Types"
+type: write
+
+prompt: |
+  Define a custom error enum `TempError` with two variants:
+  - `ParseFailed` — when the input string cannot be parsed as an f64
+  - `BelowAbsoluteZero` — when the temperature is below -273.15
+
+  Implement `std::fmt::Display` for `TempError`:
+  - `ParseFailed` should display: `invalid temperature`
+  - `BelowAbsoluteZero` should display: `below absolute zero`
+
+  Also derive `Debug` and implement `std::error::Error` (empty impl is fine).
+
+  Then write `parse_temp(s: &str) -> Result<f64, TempError>` that:
+  1. Parses the string as f64 (return `TempError::ParseFailed` on failure)
+  2. Checks if the value is below -273.15 (return `TempError::BelowAbsoluteZero`)
+  3. Returns Ok(value) otherwise
+
+  In `main`, test with "25.0", "hot", and "-300.0", printing the result or
+  error for each.
+
+starter: |
+  use std::fmt;
+
+  // Define TempError enum with ParseFailed and BelowAbsoluteZero variants
+  // Derive Debug
+  // Implement fmt::Display
+  // Implement std::error::Error
+
+  fn parse_temp(s: &str) -> Result<f64, TempError> {
+      // Parse s as f64, map error to TempError::ParseFailed
+      // Check if value < -273.15
+      // Return Ok(value)
+      todo!()
+  }
+
+  fn main() {
+      for input in &["25.0", "hot", "-300.0"] {
+          match parse_temp(input) {
+              Ok(t) => println!("{} => {:.1}C", input, t),
+              Err(e) => println!("{} => error: {}", input, e),
+          }
+      }
+  }
+
+validation:
+  method: output
+  expected_output: "25.0 => 25.0C\nhot => error: invalid temperature\n-300.0 => error: below absolute zero"
+
+hints:
+  - "Start with `#[derive(Debug)] enum TempError { ParseFailed, BelowAbsoluteZero }`. Then add `impl fmt::Display for TempError` with a match in the fmt method."
+  - "For parsing: `s.parse::<f64>().map_err(|_| TempError::ParseFailed)?` converts the parse error. Then check `if temp < -273.15`."
+  - "The Error trait impl can be empty: `impl std::error::Error for TempError {}` — Display and Debug are the required supertraits, and you already have those."
+
+solution: |
+  use std::fmt;
+
+  #[derive(Debug)]
+  enum TempError {
+      ParseFailed,
+      BelowAbsoluteZero,
+  }
+
+  impl fmt::Display for TempError {
+      fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+          match self {
+              TempError::ParseFailed => write!(f, "invalid temperature"),
+              TempError::BelowAbsoluteZero => write!(f, "below absolute zero"),
+          }
+      }
+  }
+
+  impl std::error::Error for TempError {}
+
+  fn parse_temp(s: &str) -> Result<f64, TempError> {
+      let temp = s.parse::<f64>().map_err(|_| TempError::ParseFailed)?;
+      if temp < -273.15 {
+          return Err(TempError::BelowAbsoluteZero);
+      }
+      Ok(temp)
+  }
+
+  fn main() {
+      for input in &["25.0", "hot", "-300.0"] {
+          match parse_temp(input) {
+              Ok(t) => println!("{} => {:.1}C", input, t),
+              Err(e) => println!("{} => error: {}", input, e),
+          }
+      }
+  }
+
+explanation: |
+  A proper Rust error type has three parts:
+
+  1. `#[derive(Debug)]` — required by the Error trait and useful for `{:?}` printing.
+  2. `impl Display` — provides the user-friendly error message via `{}`.
+  3. `impl std::error::Error` — marks the type as a standard error. The default
+     implementation is empty because Display and Debug (the required supertraits)
+     are already implemented.
+
+  The `parse_temp` function demonstrates a common pattern: parse input, validate
+  it, and return specific error variants for each failure mode. The `map_err`
+  call converts the standard library's `ParseFloatError` into our `TempError`,
+  and `?` propagates it if parsing fails.
+
+  Having named error variants (`ParseFailed`, `BelowAbsoluteZero`) is much more
+  useful than a plain `String` — callers can match on specific variants and
+  handle each case differently.

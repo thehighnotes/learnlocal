@@ -1,0 +1,30 @@
+id: modern-syntax
+title: "Modern JavaScript"
+description: "Master modern ES2015+ syntax and patterns"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - template-expr
+  - rest-params
+  - spread-objects
+  - nullish-coalesce
+  - optional-chain
+  - run-with-args
+  - combine-modern
+teaches:
+  - template-expressions
+  - rest-parameters
+  - spread-objects
+  - nullish-coalescing
+  - optional-chaining
+  - command-line-args
+  - combined-patterns
+recap: |
+  You learned:
+  - Template literals can contain any expression in ${...}
+  - Rest parameters (...args) collect remaining arguments into an array
+  - The spread operator merges and copies objects
+  - ?? (nullish coalescing) only falls back for null/undefined, not 0 or ""
+  - ?. (optional chaining) safely accesses nested properties
+  - process.argv passes command-line arguments to Node.js scripts
+  - These features combine elegantly for concise, readable code

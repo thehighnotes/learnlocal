@@ -1,0 +1,70 @@
+id: insert-multiple
+title: "Insert Multiple Rows"
+type: write
+
+prompt: |
+  The `contacts` table has five existing rows (ids 1–5). Insert three new
+  contacts in a single INSERT statement:
+
+  - id: 6, name: Frank, email: frank@example.com, phone: 555-0106, city: Denver
+  - id: 7, name: Grace, email: grace@example.com, phone: 555-0107, city: Austin
+  - id: 8, name: Hank, email: hank@example.com, phone: 555-0108, city: Portland
+
+  Use a single INSERT with multiple value tuples (not three separate INSERTs).
+
+  After inserting, write a SELECT that shows all contacts with id >= 6,
+  ordered by id.
+
+starter: |
+  -- Insert three new contacts in a single INSERT statement
+  -- Then SELECT to verify (WHERE id >= 6 ORDER BY id)
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT, phone TEXT, city TEXT);
+        INSERT INTO contacts VALUES (1, 'Alice', 'alice@example.com', '555-0101', 'Portland');
+        INSERT INTO contacts VALUES (2, 'Bob', 'bob@example.com', '555-0102', 'Seattle');
+        INSERT INTO contacts VALUES (3, 'Charlie', 'charlie@example.com', '555-0103', 'Portland');
+        INSERT INTO contacts VALUES (4, 'Diana', 'diana@example.com', '555-0104', 'Austin');
+        INSERT INTO contacts VALUES (5, 'Eve', 'eve@example.com', '555-0105', 'Seattle');
+
+validation:
+  method: output
+  expected_output: |
+    6|Frank|frank@example.com|555-0106|Denver
+    7|Grace|grace@example.com|555-0107|Austin
+    8|Hank|hank@example.com|555-0108|Portland
+
+hints:
+  - "Separate multiple value tuples with commas: VALUES (...), (...), (...);"
+  - "The syntax is: INSERT INTO contacts (id, name, email, phone, city) VALUES (6, ...), (7, ...), (8, ...);"
+  - "After the INSERT, add: SELECT * FROM contacts WHERE id >= 6 ORDER BY id;"
+
+solution: |
+  INSERT INTO contacts (id, name, email, phone, city) VALUES
+    (6, 'Frank', 'frank@example.com', '555-0106', 'Denver'),
+    (7, 'Grace', 'grace@example.com', '555-0107', 'Austin'),
+    (8, 'Hank', 'hank@example.com', '555-0108', 'Portland');
+
+  SELECT * FROM contacts WHERE id >= 6 ORDER BY id;
+
+explanation: |
+  Multi-row INSERT uses commas to separate value tuples. This is more efficient
+  than three separate INSERT statements because the database processes them as a
+  single operation.
+
+  The syntax is:
+
+      INSERT INTO table (columns) VALUES
+        (row1_values),
+        (row2_values),
+        (row3_values);
+
+  Each tuple must have the same number of values, matching the column list.
+  SQLite supports inserting many rows this way — up to the SQLITE_MAX_COMPOUND_SELECT
+  limit (default 500).
+
+  The SELECT at the end uses `WHERE id >= 6` to show only the newly inserted
+  rows, and `ORDER BY id` ensures they appear in a predictable order.

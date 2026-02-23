@@ -1,0 +1,30 @@
+id: neural-networks
+title: "Neural Networks"
+description: "Stack neurons into layers, implement forward and backward propagation, and train a network to solve XOR"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - layer-forward
+  - two-layer-forward
+  - mse-loss
+  - sigmoid-derivative
+  - gradient-step
+  - train-one-step
+  - solve-xor
+teaches:
+  - layer-computation
+  - forward-propagation
+  - multi-layer-networks
+  - loss-functions
+  - backpropagation
+  - gradient-descent
+  - training-loop
+recap: |
+  You learned:
+  - A layer applies matrix-vector multiply + bias + activation to all neurons at once
+  - Forward propagation chains layers: input → hidden → output
+  - MSE loss measures how far predictions are from targets
+  - The sigmoid derivative is sigmoid(x) * (1 - sigmoid(x))
+  - Gradient descent updates weights by subtracting lr * gradient
+  - Backpropagation computes gradients via the chain rule
+  - A 2-layer network can solve XOR — the problem one perceptron could not

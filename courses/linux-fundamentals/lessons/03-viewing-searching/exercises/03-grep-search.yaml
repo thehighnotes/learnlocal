@@ -1,0 +1,36 @@
+id: grep-search
+title: "Search with grep"
+type: command
+prompt: |
+  A file called fruits.txt already exists with these lines:
+    apple pie
+    banana split
+    apple sauce
+    cherry tart
+    apple crisp
+  Use grep to print only the lines containing "apple".
+starter: |
+  # fruits.txt exists — grep for apple
+environment:
+  files:
+    - path: fruits.txt
+      content: |
+        apple pie
+        banana split
+        apple sauce
+        cherry tart
+        apple crisp
+validation:
+  method: output
+  expected_output: |
+    apple pie
+    apple sauce
+    apple crisp
+hints:
+  - 'grep "apple" fruits.txt prints matching lines'
+  - "grep is case-sensitive by default"
+solution: |
+  grep "apple" fruits.txt
+explanation: |
+  grep scans each line and prints those containing the given pattern.
+  By default, it's case-sensitive and matches anywhere in the line.

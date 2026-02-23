@@ -1,0 +1,24 @@
+id: chmod-octal
+title: "Set Permissions (Octal)"
+type: command
+prompt: |
+  A file called file.txt already exists in your workspace.
+  Use chmod to set its permissions to 755 (octal notation),
+  and print the octal permissions with stat.
+starter: |
+  # file.txt already exists — chmod to 755, print with stat
+environment:
+  files:
+    - path: file.txt
+      content: ""
+validation:
+  method: output
+  expected_output: "755"
+hints:
+  - "chmod 755 file.txt"
+  - "stat --format='%a' file.txt"
+solution: |
+  chmod 755 file.txt && stat --format='%a' file.txt
+explanation: |
+  755 means rwxr-xr-x — the owner can do everything, group and others
+  can read and execute but not write.

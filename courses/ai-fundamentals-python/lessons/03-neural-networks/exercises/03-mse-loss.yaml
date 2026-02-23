@@ -1,0 +1,48 @@
+id: mse-loss
+title: "Mean Squared Error Loss"
+type: write
+
+prompt: |
+  Implement Mean Squared Error (MSE) loss. MSE measures how far predictions are
+  from the actual values:
+
+      MSE = average of (predicted[i] - actual[i])² for all i
+
+  Given:
+  - predicted = [1.0, 0.0]
+  - actual = [0.5, 0.5]
+
+  Print the MSE rounded to 2 decimal places.
+
+starter: |
+  predicted = [1.0, 0.0]
+  actual = [0.5, 0.5]
+
+  # Compute MSE: average of squared differences
+
+
+  print(round(mse, 2))
+
+validation:
+  method: output
+  expected_output: "0.25"
+
+hints:
+  - "Compute each squared difference: (predicted[i] - actual[i])**2, sum them, then divide by the number of elements."
+  - "Try: `mse = sum((predicted[i] - actual[i])**2 for i in range(len(predicted))) / len(predicted)`"
+
+solution: |
+  predicted = [1.0, 0.0]
+  actual = [0.5, 0.5]
+
+  mse = sum((predicted[i] - actual[i])**2 for i in range(len(predicted))) / len(predicted)
+
+  print(round(mse, 2))
+
+explanation: |
+  Errors: 1.0-0.5=0.5, 0.0-0.5=-0.5. Squared: 0.25, 0.25. Mean: 0.25.
+
+  MSE is the most common loss function for regression. Squaring ensures all
+  errors are positive and penalizes large errors more heavily than small ones.
+  During training, the goal is to minimize this loss — driving predictions
+  closer to the actual values.

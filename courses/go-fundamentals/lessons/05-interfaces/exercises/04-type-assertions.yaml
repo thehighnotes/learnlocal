@@ -1,0 +1,66 @@
+id: type-assertions
+title: "Type Assertions"
+type: write
+
+prompt: |
+  Given an `interface{}` variable holding the string `"hello"`, use type
+  assertions with the comma-ok pattern to test whether the value is a `string`
+  and whether it is an `int`.
+
+  Print three lines:
+  - `"value: hello"` — the extracted string value
+  - `"is string: true"` — whether the string assertion succeeded
+  - `"is int: false"` — whether the int assertion succeeded
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+  	var i interface{} = "hello"
+  	_ = fmt.Println
+  	_ = i
+
+  	// Use type assertion with comma-ok to test for string
+  	// Print: value: <the string>
+
+  	// Print: is string: <true or false>
+
+  	// Use type assertion with comma-ok to test for int
+  	// Print: is int: <true or false>
+
+  }
+
+validation:
+  method: output
+  expected_output: "value: hello\nis string: true\nis int: false\n"
+
+hints:
+  - "Use the comma-ok pattern: `s, ok := i.(string)` — `ok` is true if `i` holds a string."
+  - "Print the value with `fmt.Printf(\"value: %s\\n\", s)` and the bool with `fmt.Printf(\"is string: %v\\n\", ok)`."
+  - "For the int test: `_, ok2 := i.(int)` — this will set `ok2` to false since `i` is a string."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+  	var i interface{} = "hello"
+
+  	s, ok := i.(string)
+  	fmt.Printf("value: %s\n", s)
+  	fmt.Printf("is string: %v\n", ok)
+
+  	_, ok2 := i.(int)
+  	fmt.Printf("is int: %v\n", ok2)
+  }
+
+explanation: |
+  A type assertion `i.(T)` extracts the concrete value of type `T` from an
+  interface. Without the comma-ok pattern, a failed assertion panics. With the
+  comma-ok pattern (`v, ok := i.(T)`), a failed assertion returns the zero value
+  of `T` and `ok` as `false`. This is the safe way to test interface values.
+  Here, `i.(string)` succeeds because `i` holds `"hello"`, but `i.(int)` fails
+  because the concrete type is `string`, not `int`.

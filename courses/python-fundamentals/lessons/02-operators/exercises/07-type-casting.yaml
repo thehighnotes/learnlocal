@@ -1,0 +1,46 @@
+id: type-casting
+title: "Type Casting with Input"
+type: write
+
+prompt: |
+  Read a number from standard input (as a string), convert it to an integer,
+  double it, and print the result.
+
+  For example, if the input is "21", the output should be "42".
+
+starter: |
+  # Read a number string from input
+  # Convert it to an integer
+  # Double it (multiply by 2)
+  # Print the result
+
+input: "21\n"
+
+validation:
+  method: output
+  expected_output: "42"
+
+hints:
+  - "input() reads a line from stdin as a string. You need to convert it to an int before doing math."
+  - "Use int() to convert a string to an integer: int(\"21\") gives 21."
+  - "A common pattern: number = int(input()). Then print(number * 2)."
+
+solution: |
+  number = int(input())
+  print(number * 2)
+
+explanation: |
+  This exercise teaches the essential `int(input())` pattern:
+
+  1. `input()` reads a line from stdin and returns it as a string ("21").
+  2. `int()` converts that string to an integer (21).
+  3. `number * 2` multiplies the integer (42).
+  4. `print()` outputs the result.
+
+  Without the `int()` conversion, `"21" * 2` would give `"2121"` (string
+  repetition, not multiplication). This is one of the most common beginner
+  mistakes in Python -- always convert input to the appropriate type before
+  doing arithmetic.
+
+  You can combine the first two steps: `number = int(input())`. This reads
+  and converts in one line, which is idiomatic Python.

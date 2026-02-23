@@ -1,0 +1,49 @@
+id: obj-access
+title: "Dot vs Bracket Notation"
+type: write
+
+prompt: |
+  Given the object in the starter code, print two scores using different
+  access methods:
+  1. Access the "math" score using dot notation
+  2. Access the "science" score using bracket notation with a variable
+
+  Expected output:
+  87
+  95
+
+starter: |
+  const scores = { math: 87, science: 95, english: 91 };
+  const subject = "science";
+  // 1. Print scores.math (dot notation)
+  // 2. Print scores[subject] (bracket notation with variable)
+
+validation:
+  method: output
+  expected_output: "87\n95"
+
+hints:
+  - "Dot notation: console.log(scores.math);"
+  - "Bracket notation with a variable: console.log(scores[subject]); — the variable's value is used as the key."
+  - "scores[subject] is equivalent to scores[\"science\"] which is 95."
+
+solution: |
+  const scores = { math: 87, science: 95, english: 91 };
+  const subject = "science";
+  console.log(scores.math);
+  console.log(scores[subject]);
+
+explanation: |
+  Two ways to access object properties:
+
+  **Dot notation** (`scores.math`): Direct and readable. Use when you know
+  the exact key name at the time you write the code.
+
+  **Bracket notation** (`scores[subject]`): The expression inside brackets
+  is evaluated to get the key. When `subject` is "science",
+  `scores[subject]` becomes `scores["science"]` → 95.
+
+  Bracket notation is required when:
+  - The key is stored in a variable (like this exercise)
+  - The key contains spaces or special characters: `obj["first name"]`
+  - The key is computed dynamically: `obj["score" + num]`

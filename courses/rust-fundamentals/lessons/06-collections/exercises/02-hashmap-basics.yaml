@@ -1,0 +1,60 @@
+id: hashmap-basics
+title: "HashMap Basics"
+type: write
+
+prompt: |
+  Create a HashMap that maps fruit names to their quantities. Insert these
+  entries: "apple" -> 3, "banana" -> 5, "cherry" -> 2. Then look up "banana"
+  and print its quantity, and print the total number of entries in the map.
+
+  Your output should be exactly:
+  ```
+  banana: 5
+  entries: 3
+  ```
+
+starter: |
+  use std::collections::HashMap;
+
+  fn main() {
+      // Create a mutable HashMap<&str, i32>
+
+      // Insert "apple" -> 3, "banana" -> 5, "cherry" -> 2
+
+      // Look up "banana" with .get() and print its value
+
+      // Print the number of entries with .len()
+
+  }
+
+validation:
+  method: output
+  expected_output: "banana: 5\nentries: 3"
+
+hints:
+  - "Create the map with: let mut fruits = HashMap::new(); then use fruits.insert(\"apple\", 3); for each entry."
+  - "Use .get(\"banana\") which returns Option<&i32>. You can unwrap it since you know the key exists: *fruits.get(\"banana\").unwrap()"
+  - "Print with: println!(\"banana: {}\", fruits.get(\"banana\").unwrap()); and println!(\"entries: {}\", fruits.len());"
+
+solution: |
+  use std::collections::HashMap;
+
+  fn main() {
+      let mut fruits = HashMap::new();
+      fruits.insert("apple", 3);
+      fruits.insert("banana", 5);
+      fruits.insert("cherry", 2);
+
+      println!("banana: {}", fruits.get("banana").unwrap());
+      println!("entries: {}", fruits.len());
+  }
+
+explanation: |
+  `HashMap::new()` creates an empty hash map. The key and value types are
+  inferred from the first `insert` call. `.get("banana")` returns
+  `Option<&i32>` -- `Some(&5)` in this case. `.unwrap()` extracts the inner
+  value, and `println!` automatically dereferences the `&i32`.
+
+  In production code you would handle the `None` case with `match` or
+  `if let`, but `.unwrap()` is fine here since we just inserted the key.
+  `.len()` returns the number of key-value pairs in the map.

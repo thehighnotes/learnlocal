@@ -1,0 +1,79 @@
+id: not-null-default
+title: "NOT NULL and DEFAULT Constraints"
+type: write
+
+prompt: |
+  Create a `products` table with these columns and constraints:
+
+  - `id` — INTEGER PRIMARY KEY
+  - `name` — TEXT, NOT NULL (every product must have a name)
+  - `price` — REAL, NOT NULL (every product must have a price)
+  - `in_stock` — INTEGER, NOT NULL, DEFAULT 1 (defaults to 1 if omitted)
+
+  Then insert three rows:
+  1. id 1, name 'Laptop', price 999.99 — do NOT specify in_stock (let it default)
+  2. id 2, name 'Mouse', price 29.99, in_stock 1
+  3. id 3, name 'Keyboard', price 79.99, in_stock 0
+
+  Finally, select all rows ordered by id.
+
+starter: |
+  -- Create the products table with NOT NULL and DEFAULT constraints
+  -- Insert three rows (first one should use the default for in_stock)
+  -- Select all rows ordered by id
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        -- No setup needed
+
+validation:
+  method: output
+  expected_output: |
+    1|Laptop|999.99|1
+    2|Mouse|29.99|1
+    3|Keyboard|79.99|0
+
+hints:
+  - "Use NOT NULL after the type to require a value, and DEFAULT value to set a fallback"
+  - "For the first INSERT, list only (id, name, price) so in_stock uses its default"
+  - |
+    Full solution:
+    CREATE TABLE products (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        price REAL NOT NULL,
+        in_stock INTEGER NOT NULL DEFAULT 1
+    );
+    INSERT INTO products (id, name, price) VALUES (1, 'Laptop', 999.99);
+    INSERT INTO products VALUES (2, 'Mouse', 29.99, 1);
+    INSERT INTO products VALUES (3, 'Keyboard', 79.99, 0);
+    SELECT * FROM products ORDER BY id;
+
+solution: |
+  CREATE TABLE products (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      price REAL NOT NULL,
+      in_stock INTEGER NOT NULL DEFAULT 1
+  );
+  INSERT INTO products (id, name, price) VALUES (1, 'Laptop', 999.99);
+  INSERT INTO products VALUES (2, 'Mouse', 29.99, 1);
+  INSERT INTO products VALUES (3, 'Keyboard', 79.99, 0);
+  SELECT * FROM products ORDER BY id;
+
+explanation: |
+  The `NOT NULL` constraint on name and price means any INSERT that omits or
+  explicitly sets these to NULL will fail. Every product must have both.
+
+  The `DEFAULT 1` on in_stock provides a fallback value. When the first INSERT
+  lists only `(id, name, price)`, the in_stock column is not mentioned, so
+  SQLite fills it with the default value of 1.
+
+  The second INSERT explicitly sets in_stock to 1 (same as the default), and the
+  third sets it to 0 (overriding the default). Both are valid because they
+  satisfy the NOT NULL constraint.
+
+  Combining NOT NULL with DEFAULT is a common pattern: you require a value but
+  also provide a sensible fallback so callers do not always need to specify it.

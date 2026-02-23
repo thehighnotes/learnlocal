@@ -1,0 +1,18 @@
+id: whoami
+title: "Current User"
+type: command
+prompt: |
+  Use whoami to print your current username.
+starter: |
+  # Print your username
+validation:
+  method: regex
+  pattern: "^[a-z_][a-z0-9_-]*$"
+hints:
+  - "The command is simply: whoami"
+  - "It prints your login name"
+solution: |
+  whoami
+explanation: |
+  whoami prints the effective username of the current user.
+  It's equivalent to id -un.

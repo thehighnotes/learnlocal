@@ -1,0 +1,55 @@
+id: array-sum
+title: "Sum Array Elements"
+type: write
+
+prompt: |
+  Create an array with the values {3, 7, 2, 8, 5} and calculate the sum
+  of all elements using a for loop. Print just the sum.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Declare an int array with values 3, 7, 2, 8, 5
+
+      // Create a sum variable, initialized to 0
+
+      // Loop through the array, adding each element to sum
+
+      // Print the sum
+      std::cout << /* your code here */ << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "25"
+
+hints:
+  - "Declare a variable `int sum = 0;` before the loop to use as an accumulator."
+  - "Inside the loop, add each element: `sum += data[i];`"
+  - "After the loop finishes, `sum` holds the total. Print it with std::cout."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int data[] = {3, 7, 2, 8, 5};
+      int sum = 0;
+
+      for (int i = 0; i < 5; i++) {
+          sum += data[i];
+      }
+
+      std::cout << sum << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  This is the **accumulator pattern**: start with `sum = 0`, then add each
+  element to it as you iterate. After the loop, `sum` holds the total:
+  3 + 7 + 2 + 8 + 5 = 25. The `+=` operator is shorthand for
+  `sum = sum + data[i]`. This pattern is one of the most fundamental
+  in programming -- you'll use it constantly.

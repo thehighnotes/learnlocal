@@ -1,0 +1,91 @@
+id: at-bindings
+title: "Name and Test with @"
+type: fix
+
+prompt: |
+  This program uses `@` bindings to categorize a score into letter grades
+  while also printing the numeric value. It has two bugs:
+
+  1. One arm uses the wrong range syntax.
+  2. The grade labels are in the wrong order for two arms.
+
+  Fix the code so it compiles and prints the correct output.
+
+  Grading scale: 90-100 = A, 80-89 = B, 70-79 = C, 60-69 = D, 0-59 = F
+
+  Expected output (four lines):
+  Score 95: A
+  Score 82: B
+  Score 45: F
+  Score 73: C
+
+starter: |
+  fn grade(score: i32) {
+      match score {
+          s @ 90..=100 => println!("Score {}: A", s),
+          s @ 80..89   => println!("Score {}: C", s),
+          s @ 70..=79  => println!("Score {}: C", s),
+          s @ 60..=69  => println!("Score {}: B", s),
+          s @ 0..=59   => println!("Score {}: F", s),
+          _ => println!("Invalid score"),
+      }
+  }
+
+  fn main() {
+      grade(95);
+      grade(82);
+      grade(45);
+      grade(73);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Score 95: A
+    Score 82: B
+    Score 45: F
+    Score 73: C
+
+hints:
+  - "Look at the range syntax. Rust inclusive ranges use `..=` (two dots and equals). `80..89` is an exclusive range that does NOT include 89."
+  - "Compare the grade letters to the grading scale. The 80-89 arm should print B, and the 60-69 arm should print D."
+  - "Fix `80..89` to `80..=89`, change the 80-89 arm's label from C to B, and change the 60-69 arm's label from B to D."
+
+solution: |
+  fn grade(score: i32) {
+      match score {
+          s @ 90..=100 => println!("Score {}: A", s),
+          s @ 80..=89  => println!("Score {}: B", s),
+          s @ 70..=79  => println!("Score {}: C", s),
+          s @ 60..=69  => println!("Score {}: D", s),
+          s @ 0..=59   => println!("Score {}: F", s),
+          _ => println!("Invalid score"),
+      }
+  }
+
+  fn main() {
+      grade(95);
+      grade(82);
+      grade(45);
+      grade(73);
+  }
+
+explanation: |
+  Two fixes were needed:
+
+  1. **Range syntax:** `80..89` is an exclusive range (80 to 88). The score 89
+     would fall through to the 70-79 arm and be labeled wrong. Changing it to
+     `80..=89` makes the range inclusive, matching 80 through 89.
+
+  2. **Swapped labels:** The 80-89 arm printed "C" instead of "B", and the
+     60-69 arm printed "B" instead of "D". These were simply swapped.
+
+  The `@` binding (`s @ 90..=100`) does two things at once:
+  - Tests whether the value falls in the range `90..=100`
+  - Binds the matched value to `s` so it can be used in the print statement
+
+  Without `@`, you would need either a match guard (`s if s >= 90 && s <= 100`)
+  or a separate variable outside the match. The `@` syntax keeps it concise.
+
+  The wildcard `_` at the end handles negative numbers and values over 100,
+  making the match exhaustive.

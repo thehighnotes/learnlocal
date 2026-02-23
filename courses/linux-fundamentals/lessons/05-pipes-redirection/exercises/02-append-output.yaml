@@ -1,0 +1,26 @@
+id: append-output
+title: "Append to a File"
+type: command
+prompt: |
+  Use > to write "line 1" to out.txt, then >> to append "line 2"
+  and "line 3". Print the file contents with cat.
+starter: |
+  # Write first line with >, append rest with >>
+validation:
+  method: output
+  expected_output: |
+    line 1
+    line 2
+    line 3
+hints:
+  - '> creates/overwrites, >> appends'
+  - 'echo "line 1" > out.txt; echo "line 2" >> out.txt'
+  - "cat out.txt to see the result"
+solution: |
+  echo "line 1" > out.txt
+  echo "line 2" >> out.txt
+  echo "line 3" >> out.txt
+  cat out.txt
+explanation: |
+  > overwrites the file each time. >> appends to the end without
+  removing existing content. This is how log files grow over time.

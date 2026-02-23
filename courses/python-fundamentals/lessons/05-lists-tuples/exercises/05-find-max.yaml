@@ -1,0 +1,44 @@
+id: find-max
+title: "Find the Maximum"
+type: write
+
+prompt: |
+  Find the maximum value in `[14, 3, 27, 8, 19]` **without** using the
+  built-in `max()` function. Use a loop to check each element. Print the
+  maximum.
+
+starter: |
+  numbers = [14, 3, 27, 8, 19]
+
+  # Find the maximum without using max()
+  # Hint: start with the first element as your current max
+
+
+  # Print the maximum
+
+validation:
+  method: output
+  expected_output: "27"
+
+hints:
+  - "Start by setting `biggest = numbers[0]`. Then loop through the rest of the list and update `biggest` whenever you find something larger."
+  - "Inside the loop: `if n > biggest: biggest = n`. After the loop, `print(biggest)`."
+  - "The full pattern: `biggest = numbers[0]`, then `for n in numbers:` with `if n > biggest: biggest = n`."
+
+solution: |
+  numbers = [14, 3, 27, 8, 19]
+
+  biggest = numbers[0]
+  for n in numbers:
+      if n > biggest:
+          biggest = n
+
+  print(biggest)
+
+explanation: |
+  We initialize `biggest` to the first element (14). Then we iterate through
+  every element: 14 (not bigger), 3 (not bigger), 27 (bigger — update biggest),
+  8 (not bigger), 19 (not bigger). After the loop, `biggest` holds 27. This is
+  the fundamental algorithm behind `max()`. Starting with the first element
+  rather than 0 is important — if all values were negative, starting at 0 would
+  give the wrong answer.

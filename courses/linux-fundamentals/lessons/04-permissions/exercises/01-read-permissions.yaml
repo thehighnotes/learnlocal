@@ -1,0 +1,24 @@
+id: read-permissions
+title: "Read Permission Strings"
+type: command
+prompt: |
+  A file called practice.txt already exists in your workspace.
+  Use chmod to set its permissions to 754, then print the octal
+  permissions using stat --format='%a'.
+starter: |
+  # practice.txt already exists — set permissions and read them
+environment:
+  files:
+    - path: practice.txt
+      content: "Hello, permissions!"
+validation:
+  method: output
+  expected_output: "754"
+hints:
+  - "chmod 754 practice.txt sets the permissions"
+  - "stat --format='%a' practice.txt prints the octal permission number"
+solution: |
+  chmod 754 practice.txt && stat --format='%a' practice.txt
+explanation: |
+  chmod 754 sets user=rwx(7), group=r-x(5), other=r--(4).
+  stat --format='%a' reads back the octal representation.

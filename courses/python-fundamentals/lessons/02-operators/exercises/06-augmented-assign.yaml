@@ -1,0 +1,52 @@
+id: augmented-assign
+title: "Augmented Assignment"
+type: write
+
+prompt: |
+  Start with `score = 100`. Apply these operations in order using augmented
+  assignment operators:
+  1. Subtract 15
+  2. Add 30
+  3. Multiply by 2
+
+  Print the final value of `score`.
+
+starter: |
+  score = 100
+
+  # 1. Subtract 15 using -=
+  # 2. Add 30 using +=
+  # 3. Multiply by 2 using *=
+
+  # Print the final score
+
+validation:
+  method: output
+  expected_output: "230"
+
+hints:
+  - "Augmented assignment updates a variable in place. `score -= 15` is the same as `score = score - 15`."
+  - "After subtracting 15 from 100 you get 85. After adding 30 you get 115. After multiplying by 2 you get 230."
+  - "The operations: score -= 15, then score += 30, then score *= 2, then print(score)."
+
+solution: |
+  score = 100
+  score -= 15
+  score += 30
+  score *= 2
+  print(score)
+
+explanation: |
+  Tracing through each step:
+
+  1. `score = 100` -- starting value.
+  2. `score -= 15` -- 100 - 15 = 85.
+  3. `score += 30` -- 85 + 30 = 115.
+  4. `score *= 2` -- 115 * 2 = 230.
+
+  Augmented assignment operators (`+=`, `-=`, `*=`, `/=`, `//=`, `**=`, `%=`)
+  are shorthand for `variable = variable op value`. They make code more concise
+  and reduce the chance of typos, since you only write the variable name once.
+
+  Note: Python does not have `++` or `--` operators like C or Java. To
+  increment by 1, use `x += 1`.

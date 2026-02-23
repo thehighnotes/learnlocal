@@ -1,0 +1,66 @@
+id: basic-struct
+title: "Define a Struct"
+type: write
+
+prompt: |
+  Define a `Person` struct with two fields: `Name string` and `Age int`.
+  In `main`, create two `Person` values — one for Alice (age 30) and one for
+  Bob (age 25). Print each person on their own line in the format shown below.
+
+  Expected output:
+  ```
+  Alice is 30
+  Bob is 25
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Define your Person struct here
+
+  func main() {
+      // Create two Person values and print them
+      // Format: "Name is Age"
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Alice is 30
+    Bob is 25
+
+hints:
+  - "Define the struct with: type Person struct { Name string; Age int }"
+  - "Create a value with a struct literal: alice := Person{Name: \"Alice\", Age: 30}"
+  - "Print with fmt.Printf(\"%s is %d\\n\", alice.Name, alice.Age) — or use fmt.Println with manual formatting."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type Person struct {
+      Name string
+      Age  int
+  }
+
+  func main() {
+      alice := Person{Name: "Alice", Age: 30}
+      bob := Person{Name: "Bob", Age: 25}
+      fmt.Printf("%s is %d\n", alice.Name, alice.Age)
+      fmt.Printf("%s is %d\n", bob.Name, bob.Age)
+  }
+
+explanation: |
+  `type Person struct { ... }` defines a new type with named fields. Each field
+  has a name and a type. Field names starting with an uppercase letter are
+  exported (visible outside the package).
+
+  `Person{Name: "Alice", Age: 30}` is a struct literal with named fields. This
+  is the preferred form in Go because it is self-documenting and does not break
+  if the field order changes.
+
+  Fields are accessed with the dot operator: `alice.Name`, `alice.Age`. Each
+  struct variable has its own independent copy of the fields.

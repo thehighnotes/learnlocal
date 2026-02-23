@@ -1,0 +1,55 @@
+id: default-params
+title: "Default Parameters"
+type: write
+
+prompt: |
+  Write a function `void greet(std::string name, std::string greeting = "Hello")`
+  that prints the greeting and name in the format "{greeting}, {name}!".
+
+  Call it twice from `main`:
+  - Once with just `"Alice"` (uses the default greeting)
+  - Once with `"Bob"` and `"Hi"`
+
+starter: |
+  #include <iostream>
+  #include <string>
+
+  // Define your greet() function here
+  // The second parameter should have a default value
+
+  int main() {
+      // Call greet("Alice") here
+      // Call greet("Bob", "Hi") here
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Hello, Alice!\nHi, Bob!"
+
+hints:
+  - "Default parameter syntax: `std::string greeting = \"Hello\"`. The caller can omit this argument and the default is used."
+  - "Print with: `std::cout << greeting << \", \" << name << \"!\" << std::endl;`"
+  - "Call it as `greet(\"Alice\");` for the default greeting and `greet(\"Bob\", \"Hi\");` to override it."
+
+solution: |
+  #include <iostream>
+  #include <string>
+
+  void greet(std::string name, std::string greeting = "Hello") {
+      std::cout << greeting << ", " << name << "!" << std::endl;
+  }
+
+  int main() {
+      greet("Alice");
+      greet("Bob", "Hi");
+      return 0;
+  }
+
+explanation: |
+  The second parameter `std::string greeting = "Hello"` has a default value.
+  When we call `greet("Alice")`, the compiler fills in `"Hello"` for the missing
+  argument. When we call `greet("Bob", "Hi")`, our explicit `"Hi"` overrides the
+  default. Default parameters must be the rightmost parameters --- you cannot
+  have a default parameter followed by a non-default one.

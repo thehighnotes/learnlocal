@@ -1,0 +1,91 @@
+id: case-expression
+title: "CASE Expression"
+type: write
+
+prompt: |
+  Write a query that selects each employee's `name`, `salary`, and a new column
+  called `band` that categorizes their salary:
+
+  - 90000 or above: 'Senior'
+  - 75000 or above (but below 90000): 'Mid'
+  - Below 75000: 'Junior'
+
+  Order the results by salary descending.
+
+  Table schema: employees (id INTEGER, name TEXT, department TEXT, salary INTEGER,
+  hire_date TEXT, email TEXT)
+
+starter: |
+  -- Select name, salary, and a CASE expression aliased as 'band'
+  -- Order by salary descending
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+            id INTEGER, name TEXT, department TEXT,
+            salary INTEGER, hire_date TEXT, email TEXT
+        );
+        INSERT INTO employees VALUES (1, 'Alice Chen', 'Engineering', 92000, '2020-03-15', 'alice@company.com');
+        INSERT INTO employees VALUES (2, 'Bob Martinez', 'Engineering', 85000, '2021-07-01', NULL);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Marketing', 78000, '2019-11-20', 'carol@company.com');
+        INSERT INTO employees VALUES (4, 'Dan Wilson', 'Marketing', 72000, '2022-01-10', 'dan@company.com');
+        INSERT INTO employees VALUES (5, 'Eve Johnson', 'Sales', 68000, '2023-06-01', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Lee', 'Engineering', 95000, '2018-09-12', 'frank@company.com');
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Sales', 71000, '2021-04-05', 'grace@company.com');
+        INSERT INTO employees VALUES (8, 'Hank Brown', 'Marketing', 82000, '2020-08-30', NULL);
+        INSERT INTO employees VALUES (9, 'Iris Patel', 'Sales', 74000, '2022-12-15', 'iris@company.com');
+
+validation:
+  method: output
+  expected_output: |
+    Frank Lee|95000|Senior
+    Alice Chen|92000|Senior
+    Bob Martinez|85000|Mid
+    Hank Brown|82000|Mid
+    Carol Davis|78000|Mid
+    Iris Patel|74000|Junior
+    Dan Wilson|72000|Junior
+    Grace Kim|71000|Junior
+    Eve Johnson|68000|Junior
+
+hints:
+  - "Use CASE WHEN salary >= 90000 THEN 'Senior' to start the expression"
+  - "Chain conditions with WHEN ... THEN, and end with ELSE 'Junior' END"
+  - |
+    The full query is:
+    SELECT name, salary,
+           CASE
+               WHEN salary >= 90000 THEN 'Senior'
+               WHEN salary >= 75000 THEN 'Mid'
+               ELSE 'Junior'
+           END AS band
+    FROM employees
+    ORDER BY salary DESC;
+
+solution: |
+  SELECT name, salary,
+         CASE
+             WHEN salary >= 90000 THEN 'Senior'
+             WHEN salary >= 75000 THEN 'Mid'
+             ELSE 'Junior'
+         END AS band
+  FROM employees
+  ORDER BY salary DESC;
+
+explanation: |
+  The CASE expression evaluates conditions top to bottom for each row:
+
+  1. If salary >= 90000, it returns 'Senior' (Frank 95000, Alice 92000).
+  2. Otherwise, if salary >= 75000, it returns 'Mid' (Bob 85000, Hank 82000,
+     Carol 78000).
+  3. If neither condition matches, ELSE returns 'Junior' (Iris 74000, Dan 72000,
+     Grace 71000, Eve 68000).
+
+  The order of WHEN clauses matters. Because we check >= 90000 first, employees
+  earning 90000+ never reach the >= 75000 check. If you reversed the order,
+  everyone above 75000 (including those above 90000) would be labeled 'Mid'.
+
+  CASE expressions are standard SQL and work in SELECT, WHERE, ORDER BY, and
+  even inside aggregate functions like COUNT or SUM.

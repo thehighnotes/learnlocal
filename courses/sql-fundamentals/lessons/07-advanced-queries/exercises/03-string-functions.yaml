@@ -1,0 +1,84 @@
+id: string-functions
+title: "String Functions"
+type: fill-blank
+
+prompt: |
+  Fill in the blanks to build a query that creates a short profile for each
+  employee. The query should produce three columns:
+
+  1. `initials` — the first letter of the name (use SUBSTR)
+  2. `upper_dept` — the department name in uppercase (use UPPER)
+  3. `tag` — the initials, a dash, and the uppercase department concatenated
+     together (use || to concatenate)
+
+  For example, Alice Chen in Engineering would produce: `A`, `ENGINEERING`,
+  `A-ENGINEERING`.
+
+  Order by name. The table has the usual 9 employees.
+
+starter: |
+  SELECT ___(name, 1, 1) AS initials,
+         ___(department) AS upper_dept,
+         SUBSTR(name, 1, 1) ___ '-' ___ UPPER(department) AS tag
+  FROM employees
+  ORDER BY name;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+            id INTEGER, name TEXT, department TEXT,
+            salary INTEGER, hire_date TEXT, email TEXT
+        );
+        INSERT INTO employees VALUES (1, 'Alice Chen', 'Engineering', 92000, '2020-03-15', 'alice@company.com');
+        INSERT INTO employees VALUES (2, 'Bob Martinez', 'Engineering', 85000, '2021-07-01', NULL);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Marketing', 78000, '2019-11-20', 'carol@company.com');
+        INSERT INTO employees VALUES (4, 'Dan Wilson', 'Marketing', 72000, '2022-01-10', 'dan@company.com');
+        INSERT INTO employees VALUES (5, 'Eve Johnson', 'Sales', 68000, '2023-06-01', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Lee', 'Engineering', 95000, '2018-09-12', 'frank@company.com');
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Sales', 71000, '2021-04-05', 'grace@company.com');
+        INSERT INTO employees VALUES (8, 'Hank Brown', 'Marketing', 82000, '2020-08-30', NULL);
+        INSERT INTO employees VALUES (9, 'Iris Patel', 'Sales', 74000, '2022-12-15', 'iris@company.com');
+
+validation:
+  method: output
+  expected_output: |
+    A|ENGINEERING|A-ENGINEERING
+    B|ENGINEERING|B-ENGINEERING
+    C|MARKETING|C-MARKETING
+    D|MARKETING|D-MARKETING
+    E|SALES|E-SALES
+    F|ENGINEERING|F-ENGINEERING
+    G|SALES|G-SALES
+    H|MARKETING|H-MARKETING
+    I|SALES|I-SALES
+
+hints:
+  - "The first blank is SUBSTR — to extract a substring from a string"
+  - "The second blank is UPPER — to convert text to uppercase"
+  - "The last two blanks are both || — the string concatenation operator in SQLite"
+
+solution: |
+  SELECT SUBSTR(name, 1, 1) AS initials,
+         UPPER(department) AS upper_dept,
+         SUBSTR(name, 1, 1) || '-' || UPPER(department) AS tag
+  FROM employees
+  ORDER BY name;
+
+explanation: |
+  This exercise uses three key string operations:
+
+  - SUBSTR(name, 1, 1) extracts the first character. The arguments are the
+    string, the 1-based start position, and the length. So SUBSTR('Alice Chen',
+    1, 1) returns 'A'.
+
+  - UPPER(department) converts the entire department name to uppercase.
+    UPPER('Engineering') returns 'ENGINEERING'.
+
+  - The || operator concatenates strings. SUBSTR(name, 1, 1) || '-' ||
+    UPPER(department) joins the initial, a dash, and the uppercase department
+    into a single string like 'A-ENGINEERING'.
+
+  SQLite does not have a CONCAT function like some other databases. The ||
+  operator is the standard SQL way to concatenate strings.

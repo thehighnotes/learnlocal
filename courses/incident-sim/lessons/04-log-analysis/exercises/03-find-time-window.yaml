@@ -1,0 +1,45 @@
+id: find-time-window
+title: "Find Events in a Time Window"
+type: command
+prompt: |
+  INCIDENT REPORT: The outage started at approximately 14:35 and was resolved
+  by 14:40. Management wants every log entry from that 5-minute window for the
+  post-mortem.
+
+  Extract all log lines from `app.log` that fall between **14:35:00** and
+  **14:39:59** (inclusive). Write them to `window.txt`.
+
+  No entries before 14:35. No entries at or after 14:40.
+starter: |
+  # Extract log entries from 14:35:00 through 14:39:59
+  # Write them to window.txt
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > app.log << 'LOGEOF'\n2024-03-15 14:30:12 [INFO] Health check passed\n2024-03-15 14:31:45 [INFO] Request processed in 23ms\n2024-03-15 14:32:18 [INFO] Cache refresh completed\n2024-03-15 14:33:02 [WARN] Slow query: 450ms\n2024-03-15 14:34:55 [INFO] Background job completed\n2024-03-15 14:35:01 [WARN] Connection pool exhausted, waiting for available connection\n2024-03-15 14:35:18 [ERROR] Database connection timeout after 30000ms\n2024-03-15 14:35:42 [ERROR] Failed to process request req-001: db timeout\n2024-03-15 14:36:05 [WARN] Circuit breaker OPEN for database-primary\n2024-03-15 14:36:30 [ERROR] 15 requests queued, oldest waiting 28 seconds\n2024-03-15 14:37:01 [CRIT] Out of memory: killing process 2847\n2024-03-15 14:37:15 [ERROR] Worker process 2847 terminated unexpectedly\n2024-03-15 14:38:00 [WARN] Restarting worker pool\n2024-03-15 14:38:22 [INFO] Worker process 3012 started\n2024-03-15 14:38:45 [INFO] Database connection re-established\n2024-03-15 14:39:10 [INFO] Circuit breaker CLOSED for database-primary\n2024-03-15 14:39:30 [INFO] Request backlog cleared, processing normally\n2024-03-15 14:40:01 [INFO] Health check passed\n2024-03-15 14:41:15 [INFO] Request processed in 18ms\n2024-03-15 14:42:00 [INFO] Metrics exported\nLOGEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: window.txt
+    - file_contains:
+        path: window.txt
+        content: "Connection pool exhausted"
+    - file_contains:
+        path: window.txt
+        content: "Out of memory"
+    - file_contains:
+        path: window.txt
+        content: "Request backlog cleared"
+hints:
+  - "grep can match time prefixes: grep '14:3[5-9]' app.log catches 14:35 through 14:39."
+  - "grep -E '14:3[5-9]' app.log > window.txt"
+  - "Alternative: awk '$2 >= \"14:35:00\" && $2 < \"14:40:00\"' app.log > window.txt"
+solution: |
+  grep -E ' 14:3[5-9]:' app.log > window.txt
+explanation: |
+  The regex 14:3[5-9]: matches timestamps from 14:35 through 14:39 (the colon
+  after the digit ensures we match the minute, not something else). The window
+  captured 12 entries showing the full incident arc: connection pool exhaustion
+  → database timeouts → OOM kill → worker restart → recovery. This is exactly
+  what a post-mortem needs — the complete sequence of events in the failure window.

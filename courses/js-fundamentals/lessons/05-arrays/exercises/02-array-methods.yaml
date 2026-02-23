@@ -1,0 +1,45 @@
+id: array-methods
+title: "Array Methods"
+type: write
+
+prompt: |
+  Start with the array [1, 2, 3]. Then:
+  1. Push 4 onto the end
+  2. Push 5 onto the end
+  3. Pop the last element off
+  4. Print the array elements joined with ", "
+
+  Expected output: 1, 2, 3, 4
+
+starter: |
+  const arr = [1, 2, 3];
+  // Push 4, push 5, pop, then print joined with ", "
+
+validation:
+  method: output
+  expected_output: "1, 2, 3, 4"
+
+hints:
+  - "arr.push(4) adds 4 to the end. arr.push(5) adds 5. arr.pop() removes the last element."
+  - "arr.join(\", \") converts the array to a string with elements separated by \", \"."
+  - "After push(4), push(5), pop(): the array is [1, 2, 3, 4]. Then console.log(arr.join(\", \"));"
+
+solution: |
+  const arr = [1, 2, 3];
+  arr.push(4);
+  arr.push(5);
+  arr.pop();
+  console.log(arr.join(", "));
+
+explanation: |
+  These are the most common array mutation methods:
+
+  - `.push(4)` adds 4 to the end → [1, 2, 3, 4]
+  - `.push(5)` adds 5 to the end → [1, 2, 3, 4, 5]
+  - `.pop()` removes and returns the last element → [1, 2, 3, 4]
+  - `.join(", ")` creates a string with elements separated by ", "
+
+  Note that `arr` is declared with `const`, but we can still modify its
+  contents. `const` prevents reassignment of the variable (you cannot write
+  `arr = [...]`), but it does not make the array immutable. The array's
+  methods can still add, remove, and change elements.

@@ -1,0 +1,66 @@
+id: basic-types
+title: "Basic Type Annotations"
+type: fill-blank
+
+prompt: |
+  The program below declares four variables but the type annotations are
+  missing. Fill in the blanks with the correct Go types so the program
+  compiles and prints:
+
+  count=42 price=9.99 label=Go active=true
+
+  Each blank (___) should be replaced with one of: int, float64, string, bool
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      var count ___ = 42
+      var price ___ = 9.99
+      var label ___ = "Go"
+      var active ___ = true
+      fmt.Printf("count=%d price=%.2f label=%s active=%t\n", count, price, label, active)
+  }
+
+validation:
+  method: output
+  expected_output: "count=42 price=9.99 label=Go active=true"
+
+hints:
+  - "42 is a whole number — that is an int in Go."
+  - "9.99 has a decimal point — Go's default floating-point type is float64."
+  - "\"Go\" is text in double quotes — that is a string."
+  - "true is a boolean value — that is bool."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      var count int = 42
+      var price float64 = 9.99
+      var label string = "Go"
+      var active bool = true
+      fmt.Printf("count=%d price=%.2f label=%s active=%t\n", count, price, label, active)
+  }
+
+explanation: |
+  Go's basic types map directly to the kinds of values you assign:
+
+  - `int` for whole numbers like 42
+  - `float64` for decimal numbers like 9.99 (Go defaults to 64-bit floats)
+  - `string` for text enclosed in double quotes
+  - `bool` for true/false values
+
+  The format verbs in Printf match these types:
+
+  - `%d` — decimal integer
+  - `%.2f` — float with 2 decimal places
+  - `%s` — string
+  - `%t` — boolean (prints "true" or "false")
+
+  In practice, Go programmers often omit the type annotation and let the
+  compiler infer it. But knowing the types helps when you need to be explicit.

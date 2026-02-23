@@ -1,0 +1,20 @@
+id: check-compiler
+title: "Check Your Compiler"
+type: command
+prompt: |
+  Before writing C++, let's make sure your compiler is ready.
+  Print the first line of your g++ version info.
+starter: |
+  # Print your g++ version
+validation:
+  method: regex
+  pattern: "g\\+\\+.*\\d+\\.\\d+"
+hints:
+  - "Run g++ --version to see compiler info"
+  - "Pipe to head -1 to get just the first line"
+solution: |
+  g++ --version | head -1
+explanation: |
+  g++ is the GNU C++ compiler. The --version flag shows which version
+  is installed. Knowing your compiler version matters because different
+  versions support different C++ standards.

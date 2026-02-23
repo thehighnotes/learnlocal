@@ -1,0 +1,46 @@
+id: assertion-checklist
+title: "Assertion Checklist"
+type: write
+prompt: |
+  Look below the code box — you should see an EXPECTED panel
+  with ○ (unchecked) items listing what will be validated.
+
+  After submitting [t], the panel changes to RESULTS with ✔ icons.
+
+  Create a file `output/report.txt` containing "Total: 42",
+  set it to mode 644, and create `output/notes.txt` (any content).
+starter: |
+  #!/bin/bash
+  # 1. Write "Total: 42" to output/report.txt
+  # 2. chmod 644 output/report.txt
+  # 3. Create output/notes.txt with any content
+environment:
+  dirs:
+    - output
+validation:
+  method: state
+  assertions:
+    - dir_exists: output
+    - file_exists: output/report.txt
+    - file_contains:
+        path: output/report.txt
+        content: "Total: 42"
+    - permissions:
+        path: output/report.txt
+        mode: "644"
+    - file_exists: output/notes.txt
+    - file_count:
+        path: output
+        count: 2
+hints:
+  - "echo 'Total: 42' > output/report.txt"
+  - "chmod 644 output/report.txt && echo done > output/notes.txt"
+solution: |
+  #!/bin/bash
+  echo "Total: 42" > output/report.txt
+  chmod 644 output/report.txt
+  echo "done" > output/notes.txt
+explanation: |
+  The EXPECTED panel showed 6 assertions as ○ before running.
+  After submitting, the RESULTS panel shows ✔ for each:
+  dir_exists, file_exists, file_contains, permissions, and file_count.

@@ -1,0 +1,53 @@
+id: escape-chars
+title: "Escape Characters: Tabs and Newlines"
+type: write
+
+prompt: |
+  Print a tab-separated table with three lines. Use the \t escape character
+  for tabs.
+
+  The exact output should be:
+
+  Item	Price
+  Apple	1.50
+  Bread	2.75
+
+  (There is a tab character between each column, not spaces.)
+
+starter: |
+  # Print a tab-separated table:
+  # Item    Price
+  # Apple   1.50
+  # Bread   2.75
+  # Use \t for tabs between columns
+
+validation:
+  method: output
+  expected_output: "Item\tPrice\nApple\t1.50\nBread\t2.75"
+
+hints:
+  - "The \\t escape character produces a tab inside a string: \"Item\\tPrice\" prints Item and Price separated by a tab."
+  - "Each print() call produces one line. You need three print() calls, one for each row of the table."
+  - "The solution is: print(\"Item\\tPrice\"), print(\"Apple\\t1.50\"), print(\"Bread\\t2.75\")"
+
+solution: |
+  print("Item\tPrice")
+  print("Apple\t1.50")
+  print("Bread\t2.75")
+
+explanation: |
+  Escape characters let you embed special characters inside string literals:
+
+  - `\t` inserts a horizontal tab, which aligns text in columns
+  - `\n` inserts a newline (same effect as what print() adds automatically)
+
+  In this solution, each line uses `\t` to separate the two columns. Each
+  `print()` call handles one row and automatically adds a newline at the end.
+
+  You could also write the entire table as a single string:
+
+      print("Item\tPrice\nApple\t1.50\nBread\t2.75")
+
+  Both approaches produce identical output. The escape characters are processed
+  by Python when it reads the string — the actual string in memory contains the
+  real tab and newline bytes, not the backslash characters.

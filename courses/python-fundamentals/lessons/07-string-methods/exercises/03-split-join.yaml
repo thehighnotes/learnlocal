@@ -1,0 +1,46 @@
+id: split-join
+title: "Split and Join"
+type: write
+
+prompt: |
+  Given `csv = "Alice,Bob,Charlie,Diana"`, split the string by commas into
+  a list, then join the names with " and " between them, and print the
+  result.
+
+  Expected output: Alice and Bob and Charlie and Diana
+
+starter: |
+  csv = "Alice,Bob,Charlie,Diana"
+  # Split by comma, join with " and ", and print
+
+validation:
+  method: output
+  expected_output: "Alice and Bob and Charlie and Diana"
+
+hints:
+  - "Use .split(\",\") to break the string at each comma: csv.split(\",\")"
+  - "Use \" and \".join(list) to combine the list back into a string with \" and \" between each name"
+  - "Full solution: names = csv.split(\",\") then print(\" and \".join(names))"
+
+solution: |
+  csv = "Alice,Bob,Charlie,Diana"
+  names = csv.split(",")
+  print(" and ".join(names))
+
+explanation: |
+  This exercise demonstrates the split/join pattern — one of the most useful
+  string operations in Python.
+
+  1. `csv.split(",")` breaks the string at each comma, producing a list:
+     `["Alice", "Bob", "Charlie", "Diana"]`
+
+  2. `" and ".join(names)` takes each element in the list and glues them
+     together with " and " between each pair, producing:
+     `"Alice and Bob and Charlie and Diana"`
+
+  The `join()` syntax often surprises beginners: the separator calls the
+  method, and the list is the argument. Think of it as "the glue joins the
+  pieces."
+
+  This split-then-join pattern is extremely common when processing CSV data,
+  reformatting text, or converting between different delimiter formats.

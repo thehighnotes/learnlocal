@@ -1,0 +1,76 @@
+id: unwrap-expect
+title: "unwrap() and expect()"
+type: predict
+
+prompt: |
+  Read the code below carefully. It calls `parse` on three different strings,
+  using `unwrap()` and `expect()` on the results that succeed.
+
+  The program uses `std::panic::catch_unwind` to catch panics without crashing.
+  What are the three lines of output?
+
+  Think about: which parses succeed (returning the number), and which one
+  panics (with the catch_unwind printing the panic message)?
+
+starter: |
+  use std::panic;
+
+  fn main() {
+      let a: i32 = "100".parse().unwrap();
+      println!("a = {}", a);
+
+      let b: i32 = "200".parse().expect("b must be a number");
+      println!("b = {}", b);
+
+      let result = panic::catch_unwind(|| {
+          let _c: i32 = "hello".parse().expect("c must be a number");
+      });
+      if result.is_err() {
+          println!("caught a panic!");
+      }
+  }
+
+validation:
+  method: output
+  expected_output: "a = 100\nb = 200\ncaught a panic!"
+
+hints:
+  - "`\"100\".parse()` and `\"200\".parse()` both succeed, so `unwrap()` and `expect()` return the parsed integers."
+  - "`\"hello\".parse::<i32>()` fails. `expect(\"c must be a number\")` would panic, but `catch_unwind` catches the panic."
+  - "The output is three lines: `a = 100`, then `b = 200`, then `caught a panic!`"
+
+solution: |
+  use std::panic;
+
+  fn main() {
+      let a: i32 = "100".parse().unwrap();
+      println!("a = {}", a);
+
+      let b: i32 = "200".parse().expect("b must be a number");
+      println!("b = {}", b);
+
+      let result = panic::catch_unwind(|| {
+          let _c: i32 = "hello".parse().expect("c must be a number");
+      });
+      if result.is_err() {
+          println!("caught a panic!");
+      }
+  }
+
+explanation: |
+  `unwrap()` and `expect()` both extract the `Ok` value from a Result. The
+  difference is what happens on `Err`:
+
+  - `unwrap()` panics with a generic message showing the error.
+  - `expect("msg")` panics with your custom message, making it easier to
+    debug which unwrap failed.
+
+  In this code:
+  - `"100".parse()` succeeds, so `unwrap()` returns 100. Prints `a = 100`.
+  - `"200".parse()` succeeds, so `expect()` returns 200. Prints `b = 200`.
+  - `"hello".parse::<i32>()` fails. `expect()` would panic, but
+    `catch_unwind` catches the panic and returns `Err`. The `if` prints
+    `caught a panic!`.
+
+  In real code, prefer `?` over `unwrap`/`expect`. Reserve them for cases
+  where failure is genuinely impossible or for quick prototypes.

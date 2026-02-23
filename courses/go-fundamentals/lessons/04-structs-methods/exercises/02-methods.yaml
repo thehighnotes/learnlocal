@@ -1,0 +1,82 @@
+id: methods
+title: "Methods on Structs"
+type: write
+
+prompt: |
+  Define a `Rectangle` struct with `Width` and `Height` fields (both `float64`).
+  Add two methods:
+
+  1. `Area() float64` — returns width × height
+  2. `Perimeter() float64` — returns 2 × (width + height)
+
+  In `main`, create a 5×3 rectangle and print its area and perimeter as integers.
+
+  Expected output:
+  ```
+  area=15
+  perimeter=16
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Define Rectangle struct here
+
+  // Add Area() method here
+
+  // Add Perimeter() method here
+
+  func main() {
+      r := Rectangle{Width: 5, Height: 3}
+      fmt.Printf("area=%g\n", r.Area())
+      fmt.Printf("perimeter=%g\n", r.Perimeter())
+  }
+
+validation:
+  method: output
+  expected_output: |
+    area=15
+    perimeter=16
+
+hints:
+  - "Define the struct: type Rectangle struct { Width float64; Height float64 }"
+  - "A method has a receiver before the name: func (r Rectangle) Area() float64 { return r.Width * r.Height }"
+  - "Perimeter is 2 * (width + height). The method signature is the same pattern as Area."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type Rectangle struct {
+      Width  float64
+      Height float64
+  }
+
+  func (r Rectangle) Area() float64 {
+      return r.Width * r.Height
+  }
+
+  func (r Rectangle) Perimeter() float64 {
+      return 2 * (r.Width + r.Height)
+  }
+
+  func main() {
+      r := Rectangle{Width: 5, Height: 3}
+      fmt.Printf("area=%g\n", r.Area())
+      fmt.Printf("perimeter=%g\n", r.Perimeter())
+  }
+
+explanation: |
+  A method in Go is a function with a **receiver** parameter between `func` and
+  the method name. The receiver `(r Rectangle)` is a value receiver — the method
+  gets a copy of the `Rectangle`.
+
+  Both `Area` and `Perimeter` only read the fields, so a value receiver is
+  appropriate. The `%g` verb in `fmt.Printf` prints floats without trailing
+  zeros, so `15.0` prints as `15` and `16.0` prints as `16`.
+
+  Methods are called with dot syntax: `r.Area()`. This is the same syntax you
+  would use in any object-oriented language, but Go achieves it without classes.

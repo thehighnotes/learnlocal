@@ -1,0 +1,39 @@
+id: default-params
+title: "Default Parameters"
+type: write
+
+prompt: |
+  Write a function `power(base, exp=2)` that returns `base` raised to the
+  power `exp`. The `exp` parameter should default to 2.
+
+  Print the results of:
+  - `power(3)` (should use default exp=2, giving 9)
+  - `power(2, 10)` (should give 1024)
+
+starter: |
+  # Define power(base, exp=2) here
+
+
+  # Print power(3) and power(2, 10)
+
+validation:
+  method: output
+  expected_output: "9\n1024"
+
+hints:
+  - "Use `def power(base, exp=2):` and `return base ** exp`. The `**` operator raises base to a power."
+  - "Call `print(power(3))` — since no second argument is given, `exp` defaults to 2. Then `print(power(2, 10))` overrides the default."
+
+solution: |
+  def power(base, exp=2):
+      return base ** exp
+
+  print(power(3))
+  print(power(2, 10))
+
+explanation: |
+  The parameter `exp=2` provides a default value. When `power(3)` is called with
+  only one argument, `exp` is automatically set to 2, so the function computes
+  3 ** 2 = 9. When `power(2, 10)` is called, the explicit 10 overrides the
+  default, computing 2 ** 10 = 1024. Default parameters must come after
+  non-default parameters in the function definition.

@@ -1,0 +1,18 @@
+id: conflicts
+title: "Conflict Resolution"
+description: "When two branches edit the same lines — learn to resolve merge conflicts like a pro."
+estimated_minutes: 30
+content: content.md
+teaches: [merge-conflicts, conflict-markers, resolution, abort-merge, ours-theirs]
+exercises:
+  - simple-conflict
+  - multi-file-conflict
+  - abort-merge
+  - keep-ours
+  - keep-theirs
+  - manual-resolution
+  - three-way-merge
+recap: |
+  Merge conflicts are normal — they mean two people cared about the same code.
+  You can now read conflict markers, resolve them manually, and use strategies
+  to pick sides when needed.

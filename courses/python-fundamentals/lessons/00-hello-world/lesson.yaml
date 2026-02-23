@@ -1,0 +1,32 @@
+id: hello-world
+title: "Hello World & Getting Started"
+description: "Write your first Python program and learn the basics"
+estimated_minutes: 20
+content: content.md
+exercises:
+  - check-python
+  - hello
+  - run-a-script
+  - one-liner
+  - fix-print
+  - multi-line
+  - escape-chars
+  - input-output
+teaches:
+  - python-version
+  - running-scripts
+  - python-cli
+  - print-function
+  - strings
+  - escape-sequences
+  - input-function
+  - program-execution
+recap: |
+  You learned:
+  - python3 --version checks your Python installation
+  - python3 script.py runs a Python script
+  - python3 -c lets you run Python one-liners from the terminal
+  - print() displays output to the terminal
+  - Strings use single or double quotes
+  - Escape sequences like \n and \t insert special characters
+  - input() reads text from the user

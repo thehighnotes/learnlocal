@@ -1,0 +1,67 @@
+id: error-wrapping
+title: "Error Wrapping with %w"
+type: write
+
+prompt: |
+  Demonstrate error wrapping by building a chain of three errors.
+
+  1. Start with a base error: `errors.New("file not found")`
+  2. Wrap it: `fmt.Errorf("read failed: %w", base)`
+  3. Wrap again: `fmt.Errorf("parse failed: %w", wrapped)`
+
+  Print the final wrapped error.
+
+  Expected output:
+  parse failed: read failed: file not found
+
+starter: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  func main() {
+      // TODO: create base error with errors.New
+      // TODO: wrap it with fmt.Errorf and %w
+      // TODO: wrap again with fmt.Errorf and %w
+      // TODO: print the final error
+  }
+
+validation:
+  method: output
+  expected_output: "parse failed: read failed: file not found"
+
+hints:
+  - "Create the base: `base := errors.New(\"file not found\")`"
+  - "Wrap with %w: `wrapped := fmt.Errorf(\"read failed: %w\", base)`"
+  - "The %w verb is special — it wraps the error so errors.Is and errors.As can unwrap it later."
+
+solution: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  func main() {
+      base := errors.New("file not found")
+      wrapped := fmt.Errorf("read failed: %w", base)
+      final := fmt.Errorf("parse failed: %w", wrapped)
+      fmt.Println(final)
+  }
+
+explanation: |
+  The `%w` verb in `fmt.Errorf` is Go's error wrapping mechanism. It creates a
+  new error whose message includes the wrapped error's text, and it preserves
+  the original error for later inspection with `errors.Is` and `errors.As`.
+
+  Each layer of wrapping adds context. Reading the final message from left to
+  right tells you the story: parsing failed because reading failed because the
+  file was not found.
+
+  This is different from `%v`, which would format the error as a string but
+  would NOT preserve the wrapping chain. Always use `%w` when you want to add
+  context while keeping the original error inspectable.

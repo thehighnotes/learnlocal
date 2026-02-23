@@ -1,0 +1,30 @@
+id: variables
+title: "Variables and Types"
+description: "Learn how to declare and use variables in C++"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - declare
+  - assign
+  - types
+  - constants
+  - type-conversion
+  - auto-keyword
+  - scope
+teaches:
+  - variable-declaration
+  - primitive-types
+  - initialization
+  - constants
+  - type-conversion
+  - auto
+  - scope
+recap: |
+  You learned:
+  - Variables store data with a specific type
+  - int, float, double, char, bool are primitive types
+  - Variables must be declared before use
+  - const makes variables immutable
+  - Types can be converted implicitly or explicitly
+  - auto lets the compiler deduce the type
+  - Variables only exist within their scope (curly braces)

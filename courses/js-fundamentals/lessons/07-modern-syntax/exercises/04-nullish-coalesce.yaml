@@ -1,0 +1,48 @@
+id: nullish-coalesce
+title: "Nullish Coalescing"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```javascript
+  console.log(0 || "default");
+  console.log(0 ?? "default");
+  console.log(null || "fallback");
+  console.log("" ?? "backup");
+  ```
+
+  The || and ?? operators look similar but handle falsy values differently.
+  Run the code to see.
+
+validation:
+  method: output
+  expected_output: "default\n0\nfallback\n"
+
+hints:
+  - "|| uses falsy check: 0, \"\", false, null, undefined, NaN are all falsy."
+  - "?? uses nullish check: only null and undefined trigger the fallback."
+  - "0 || \"default\" → \"default\" (0 is falsy). 0 ?? \"default\" → 0 (0 is not null/undefined)."
+
+solution: |
+  console.log(0 || "default");
+  console.log(0 ?? "default");
+  console.log(null || "fallback");
+  console.log("" ?? "backup");
+
+explanation: |
+  The key difference between || and ??:
+
+  - `||` (logical OR) returns the right side if the left is **falsy**.
+    Falsy values: 0, "", false, null, undefined, NaN.
+  - `??` (nullish coalescing) returns the right side only if the left is
+    **null or undefined**. All other values (including 0, "", false) are kept.
+
+  Line by line:
+  - `0 || "default"` → "default" (0 is falsy)
+  - `0 ?? "default"` → 0 (0 is not null/undefined, so it is kept)
+  - `null || "fallback"` → "fallback" (null is falsy)
+  - `"" ?? "backup"` → "" (empty string is not null/undefined, so it is kept)
+
+  Use ?? when 0 or "" are valid values you want to preserve. Use || when
+  you want to replace any falsy value.

@@ -1,0 +1,102 @@
+id: train-one-step
+title: "One Training Step"
+type: write
+
+prompt: |
+  Implement one complete training step for a single neuron:
+  1. Forward pass: output = sigmoid(input * weight + bias)
+  2. Compute loss: (output - target)²
+  3. Compute gradient using the chain rule
+  4. Update the weight
+
+  Given: input=1.0, target=0.0, weight=0.0, bias=0.0, learning_rate=0.1
+
+  Print the loss before and after the update, each rounded to 2 decimals:
+  ```
+  before: 0.25
+  after: 0.24
+  ```
+
+  The gradient uses the chain rule:
+  d(loss)/d(weight) = 2*(output-target) * sigmoid'(z) * input
+
+starter: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  inp = 1.0
+  target = 0.0
+  weight = 0.0
+  bias = 0.0
+  lr = 0.1
+
+  # Forward pass
+  z = inp * weight + bias
+  out = sigmoid(z)
+  loss_before = (out - target) ** 2
+  print(f"before: {round(loss_before, 2)}")
+
+  # Compute gradient: d(loss)/d(weight) = 2*(out-target) * out*(1-out) * inp
+
+
+  # Update weight
+
+
+  # Forward pass again with new weight to see improved loss
+
+
+  print(f"after: {round(loss_after, 2)}")
+
+validation:
+  method: output
+  expected_output: "before: 0.25\nafter: 0.24"
+
+hints:
+  - "The gradient is: `grad = 2 * (out - target) * out * (1 - out) * inp`. The term `out * (1 - out)` is the sigmoid derivative."
+  - "After computing the gradient, update: `weight = weight - lr * grad`. Then do another forward pass to compute the new loss."
+
+solution: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  inp = 1.0
+  target = 0.0
+  weight = 0.0
+  bias = 0.0
+  lr = 0.1
+
+  # Forward pass
+  z = inp * weight + bias
+  out = sigmoid(z)
+  loss_before = (out - target) ** 2
+  print(f"before: {round(loss_before, 2)}")
+
+  # Compute gradient
+  grad = 2 * (out - target) * out * (1 - out) * inp
+
+  # Update weight
+  weight = weight - lr * grad
+
+  # Forward pass with updated weight
+  z = inp * weight + bias
+  out = sigmoid(z)
+  loss_after = (out - target) ** 2
+
+  print(f"after: {round(loss_after, 2)}")
+
+explanation: |
+  Forward: z = 1.0*0.0 + 0.0 = 0.0. sigmoid(0.0) = 0.5. Loss = 0.5² = 0.25.
+
+  Gradient: 2*0.5 * 0.5*0.5 * 1.0 = 0.25.
+  New weight: 0.0 - 0.1*0.25 = -0.025.
+
+  New forward: z = 1.0*(-0.025) = -0.025. sigmoid(-0.025) ≈ 0.494.
+  New loss: 0.494² ≈ 0.244 → 0.24.
+
+  The loss decreased from 0.25 to 0.24 — one small step in the right direction.
+  Training repeats this thousands of times, gradually improving predictions.
+  This is the fundamental loop: forward → loss → gradient → update.

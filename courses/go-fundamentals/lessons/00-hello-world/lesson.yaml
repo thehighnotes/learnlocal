@@ -1,0 +1,41 @@
+id: hello-world
+title: "Hello, Go!"
+description: "Write your first Go program and learn the language basics"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - check-go
+  - hello-world
+  - go-run-build
+  - go-fmt
+  - variables
+  - basic-types
+  - constants
+  - zero-values
+  - type-inference
+teaches:
+  - go-toolchain
+  - go-run
+  - go-build
+  - gofmt
+  - package-main
+  - import
+  - fmt-println
+  - var-declarations
+  - basic-types
+  - constants
+  - zero-values
+  - short-declarations
+  - type-inference
+recap: |
+  You learned:
+  - The `go` command is your all-in-one tool: run, build, test, fmt
+  - `go run` compiles and runs in one step; `go build` creates a binary
+  - `gofmt` enforces Go's single standard code style
+  - Every Go program starts with `package main` and a `func main()`
+  - `import "fmt"` gives you access to print functions like Println and Printf
+  - Variables are declared with `var` or the short declaration `:=`
+  - Go has basic types: int, float64, string, bool
+  - Constants are declared with `const` and cannot be changed after declaration
+  - Uninitialized variables get zero values: 0, "", false, 0.0
+  - Go infers types from the right-hand side of `:=` declarations

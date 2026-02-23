@@ -1,0 +1,107 @@
+id: impl-trait
+title: "Implement a Trait for Multiple Types"
+type: fix
+
+prompt: |
+  The code below defines a `HasArea` trait and two structs: `Circle` and
+  `Rectangle`. Both have `impl HasArea` blocks, but there are bugs in each.
+
+  Fix the implementations so the program compiles and prints the correct
+  areas.
+
+  Circle area = pi * radius^2 (use std::f64::consts::PI)
+  Rectangle area = width * height
+
+starter: |
+  use std::f64::consts::PI;
+
+  trait HasArea {
+      fn area(&self) -> f64;
+  }
+
+  struct Circle {
+      radius: f64,
+  }
+
+  struct Rectangle {
+      width: f64,
+      height: f64,
+  }
+
+  impl HasArea for Circle {
+      fn area(&self) -> f64 {
+          PI * self.radius
+      }
+  }
+
+  impl HasArea for Rectangle {
+      fn area(self) -> f64 {
+          self.width * self.height
+      }
+  }
+
+  fn main() {
+      let c = Circle { radius: 5.0 };
+      let r = Rectangle { width: 4.0, height: 6.0 };
+      println!("{:.2}", c.area());
+      println!("{:.2}", r.area());
+  }
+
+validation:
+  method: output
+  expected_output: |
+    78.54
+    24.00
+
+hints:
+  - "Circle area is PI * radius * radius, not PI * radius. You need to square the radius."
+  - "The Rectangle impl uses `fn area(self)` but the trait requires `fn area(&self)`. The signature must match exactly."
+  - "Fix Circle: PI * self.radius * self.radius. Fix Rectangle: change `self` to `&self` in the method signature."
+
+solution: |
+  use std::f64::consts::PI;
+
+  trait HasArea {
+      fn area(&self) -> f64;
+  }
+
+  struct Circle {
+      radius: f64,
+  }
+
+  struct Rectangle {
+      width: f64,
+      height: f64,
+  }
+
+  impl HasArea for Circle {
+      fn area(&self) -> f64 {
+          PI * self.radius * self.radius
+      }
+  }
+
+  impl HasArea for Rectangle {
+      fn area(&self) -> f64 {
+          self.width * self.height
+      }
+  }
+
+  fn main() {
+      let c = Circle { radius: 5.0 };
+      let r = Rectangle { width: 4.0, height: 6.0 };
+      println!("{:.2}", c.area());
+      println!("{:.2}", r.area());
+  }
+
+explanation: |
+  Two bugs were fixed:
+
+  1. Circle's area used `PI * self.radius` instead of `PI * self.radius * self.radius`.
+     The area of a circle is pi * r^2, so the radius must be squared.
+
+  2. Rectangle's `area` method took `self` by value instead of `&self` by reference.
+     When implementing a trait, the method signature must match the trait definition
+     exactly. The trait declared `fn area(&self) -> f64`, so the impl must use `&self`.
+
+  Both types now correctly implement the same `HasArea` trait, each computing area
+  according to their own geometry.

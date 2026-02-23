@@ -1,0 +1,54 @@
+id: mod-basics
+title: "Define a Module"
+type: write
+
+prompt: |
+  Create an inline module called `greet` that contains a public function
+  `hello` which takes a `&str` name and returns a `String` greeting.
+
+  In `main`, call `greet::hello("World")` and print the result.
+
+  Expected output:
+  ```
+  Hello, World!
+  ```
+
+starter: |
+  // Define a module called `greet` with a public function `hello`
+  // hello takes a &str and returns a String in the format "Hello, {name}!"
+
+  fn main() {
+      let message = greet::hello("World");
+      println!("{}", message);
+  }
+
+validation:
+  method: output
+  expected_output: "Hello, World!"
+
+hints:
+  - "Define the module above main: mod greet { ... } — everything inside the braces belongs to the module."
+  - "The function must be marked pub so main can call it: pub fn hello(name: &str) -> String { ... }"
+  - "Use format! to build the string: format!(\"Hello, {}!\", name)"
+
+solution: |
+  mod greet {
+      pub fn hello(name: &str) -> String {
+          format!("Hello, {}!", name)
+      }
+  }
+
+  fn main() {
+      let message = greet::hello("World");
+      println!("{}", message);
+  }
+
+explanation: |
+  `mod greet { ... }` creates an inline module named `greet`. The function
+  inside must be marked `pub` so code outside the module (like `main`) can
+  call it. Without `pub`, the compiler would reject `greet::hello("World")`
+  with a "function is private" error.
+
+  The `::` syntax is Rust's path separator — `greet::hello` means "the `hello`
+  function inside the `greet` module." The `format!` macro works like `println!`
+  but returns a `String` instead of printing to stdout.

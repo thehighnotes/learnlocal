@@ -1,0 +1,66 @@
+id: variables
+title: "Declaring Variables"
+type: write
+
+prompt: |
+  Declare three variables using `var` with explicit types, assign them values,
+  and print them using fmt.Printf.
+
+  The output must be exactly:
+
+  name=Alice age=30 height=5.7
+
+  Use fmt.Printf with format verbs to produce this output. Remember that
+  Printf does not add a newline automatically — you need to include \n.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      // TODO: Declare three variables with var:
+      //   name (string) = "Alice"
+      //   age (int) = 30
+      //   height (float64) = 5.7
+      // Then print them in the format: name=Alice age=30 height=5.7
+
+  }
+
+validation:
+  method: output
+  expected_output: "name=Alice age=30 height=5.7"
+
+hints:
+  - "Declare variables with: var name string = \"Alice\""
+  - "For float64, use: var height float64 = 5.7"
+  - "Use fmt.Printf with format verbs: %s for string, %d for int, and a precision format for float."
+  - "To print 5.7 without extra decimal places, use %.1f as the format verb for float64."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      var name string = "Alice"
+      var age int = 30
+      var height float64 = 5.7
+      fmt.Printf("name=%s age=%d height=%.1f\n", name, age, height)
+  }
+
+explanation: |
+  The `var` keyword declares a variable with an explicit type:
+
+  - `var name string = "Alice"` — a string variable
+  - `var age int = 30` — an integer variable
+  - `var height float64 = 5.7` — a floating-point variable
+
+  `fmt.Printf` uses format verbs to interpolate values into a string:
+
+  - `%s` formats a string
+  - `%d` formats an integer in decimal
+  - `%.1f` formats a float with exactly 1 decimal place
+
+  Unlike `Println`, `Printf` does not add a trailing newline, so you must
+  include `\n` at the end of the format string.

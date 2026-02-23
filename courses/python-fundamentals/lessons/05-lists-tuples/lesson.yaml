@@ -1,0 +1,32 @@
+id: lists-tuples
+title: "Lists and Tuples"
+description: "Store and manipulate collections of data"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - list-basics
+  - list-methods
+  - list-slicing
+  - list-comprehension
+  - find-max
+  - tuples
+  - sort-list
+teaches:
+  - list-creation
+  - list-indexing
+  - list-methods
+  - list-slicing
+  - list-comprehensions
+  - finding-extremes
+  - tuples
+  - sorting
+recap: |
+  You learned:
+  - Lists are ordered, mutable collections created with []
+  - Access elements by index (0-based), negative indices count from the end
+  - append(), insert(), remove(), pop() modify lists in place
+  - Slicing [start:stop:step] extracts sublists
+  - List comprehensions [expr for x in iterable] create lists concisely
+  - min() and max() find extremes, or iterate manually
+  - Tuples are immutable sequences created with () — use for fixed data
+  - sorted() returns a new sorted list, .sort() sorts in place

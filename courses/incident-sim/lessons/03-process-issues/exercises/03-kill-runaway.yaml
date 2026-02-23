@@ -1,0 +1,39 @@
+id: kill-runaway
+title: "Kill a Runaway Process"
+type: command
+prompt: |
+  RED ALERT: A runaway process is eating all the CPU and the server is barely
+  responsive. You've managed to grab a `ps` snapshot — it's in `ps_output.txt`.
+
+  The offending process is `leak_detector.sh` and it's completely hung.
+  Normal SIGTERM won't work — you need to force-kill it.
+
+  Write the correct kill command into `kill_commands.sh`. Use the **exact PID**
+  from the ps output and the **force kill signal** (`-9`).
+starter: |
+  #!/bin/bash
+  # Write the kill command for the runaway process
+  # Use: kill -9 <PID>
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > ps_output.txt << 'PSEOF'\nUSER       PID %CPU %MEM    VSZ   RSS TTY  STAT START   TIME COMMAND\nroot         1  0.0  0.1 169344 11200 ?    Ss   08:00   0:03 /sbin/init\nroot       142  0.0  0.0  47852  3840 ?    Ss   08:00   0:00 /usr/sbin/sshd\nwww-data   387  0.5  1.8 412000 36864 ?    S    08:01   0:12 nginx: worker process\nappuser   2847 99.1  8.3 1200000 170000 ?  R    10:05  62:18 bash leak_detector.sh\nappuser   1023  1.5  4.2 890000 86016 ?    S    08:05   1:30 java -jar api-server.jar\nroot       744  0.0  0.0  26000  2048 ?    Ss   08:03   0:00 /usr/sbin/cron\nPSEOF\ncat > kill_commands.sh << 'KILLEOF'\n#!/bin/bash\n# Write the kill command below to terminate the runaway process\n# The process is unresponsive to SIGTERM — use SIGKILL (-9)\nKILLEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: kill_commands.sh
+    - file_matches:
+        path: kill_commands.sh
+        pattern: "kill\\s+-9\\s+2847"
+hints:
+  - "Find the PID of `leak_detector.sh` in ps_output.txt — look for the process with 99% CPU."
+  - "The PID is 2847. The command is: kill -9 2847"
+  - "Add the line `kill -9 2847` to kill_commands.sh"
+solution: |
+  echo 'kill -9 2847' >> kill_commands.sh
+explanation: |
+  `kill -9` sends SIGKILL, which the kernel handles directly — the process gets
+  no chance to intercept or ignore it. Use this only when SIGTERM (the default,
+  signal 15) doesn't work. SIGKILL can leave behind lock files, incomplete
+  writes, and orphaned child processes, so always try SIGTERM first in real life.

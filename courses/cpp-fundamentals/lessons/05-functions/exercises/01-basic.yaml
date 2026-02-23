@@ -1,0 +1,44 @@
+id: basic
+title: "Write a Simple Function"
+type: write
+
+prompt: |
+  Write a function called `greet()` that prints "Hello, World!" to the console.
+  Then call it from `main`.
+
+starter: |
+  #include <iostream>
+
+  // Define your greet() function here
+
+  int main() {
+      // Call greet() here
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Hello, World!"
+
+hints:
+  - "A function that prints but doesn't return a value uses the `void` return type."
+  - "Define: void greet() { ... } above main, then call it with greet(); inside main."
+
+solution: |
+  #include <iostream>
+
+  void greet() {
+      std::cout << "Hello, World!" << std::endl;
+  }
+
+  int main() {
+      greet();
+      return 0;
+  }
+
+explanation: |
+  `void greet()` declares a function that takes no parameters and returns nothing.
+  Inside the body, `std::cout` prints the greeting. In `main`, calling `greet();`
+  executes the function body. The function must be defined (or declared) before it
+  is called, which is why we place it above `main`.

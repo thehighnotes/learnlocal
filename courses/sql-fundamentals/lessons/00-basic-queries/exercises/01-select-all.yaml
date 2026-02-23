@@ -1,0 +1,49 @@
+id: select-all
+title: "Select All Rows"
+type: write
+
+prompt: |
+  Write a query to select all columns from the `users` table.
+
+  The table has three columns: id, name, and email. It contains three rows.
+  Your query should return every row and every column.
+
+starter: |
+  -- Select all rows and columns from the users table
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE users (id INTEGER, name TEXT, email TEXT);
+        INSERT INTO users VALUES (1, 'Alice', 'alice@example.com');
+        INSERT INTO users VALUES (2, 'Bob', 'bob@example.com');
+        INSERT INTO users VALUES (3, 'Charlie', 'charlie@example.com');
+
+validation:
+  method: output
+  expected_output: |
+    1|Alice|alice@example.com
+    2|Bob|bob@example.com
+    3|Charlie|charlie@example.com
+
+hints:
+  - "Use SELECT to retrieve data from a table"
+  - "The wildcard * selects all columns: SELECT * ..."
+  - "The full query is: SELECT * FROM users;"
+
+solution: |
+  SELECT * FROM users;
+
+explanation: |
+  `SELECT * FROM users;` retrieves all rows and all columns from the users table.
+
+  - `SELECT` tells SQLite you want to read data.
+  - `*` is a wildcard meaning "every column." It expands to `id, name, email`
+    in this case.
+  - `FROM users` specifies which table to query.
+  - The semicolon terminates the statement.
+
+  The result is three rows, each showing all three columns separated by pipes.
+  In a real application you would usually select specific columns rather than
+  using `*`, but it is perfect for exploring a table you are unfamiliar with.

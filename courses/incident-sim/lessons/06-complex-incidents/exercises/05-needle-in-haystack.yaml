@@ -1,0 +1,93 @@
+id: needle-in-haystack
+title: "Needle in a Haystack"
+type: command
+prompt: |
+  ALERT: Intermittent 500 errors on the checkout endpoint. Severity: HIGH.
+
+  Most requests are succeeding, but a small percentage are causing 500
+  Internal Server Errors. The access log has over 200 entries. Most are
+  fine. You need to find the pattern.
+
+  Look at the 500s in `access.log`. They all share something in common:
+  a specific query parameter that the backend can't handle.
+
+  Find the bad parameter value and write it to `answer.txt`. Just the
+  value, nothing else.
+starter: |
+  # Find what the 500 requests have in common
+  # Write the bad parameter value to answer.txt
+environment:
+  files:
+    - path: access.log
+      content: |
+        2024-03-15 09:00:01 192.168.1.10 GET /api/products?page=1 200 12ms
+        2024-03-15 09:00:01 192.168.1.22 GET /api/products?page=2 200 15ms
+        2024-03-15 09:00:02 10.0.0.5 POST /api/checkout?cart_id=a1b2c3 200 45ms
+        2024-03-15 09:00:02 192.168.1.15 GET /api/users/me 200 8ms
+        2024-03-15 09:00:03 10.0.0.8 POST /api/checkout?cart_id=d4e5f6 200 52ms
+        2024-03-15 09:00:03 192.168.1.33 GET /api/products?page=1 200 11ms
+        2024-03-15 09:00:04 172.16.0.2 POST /api/checkout?cart_id=null 500 3ms
+        2024-03-15 09:00:04 192.168.1.10 GET /api/health 200 2ms
+        2024-03-15 09:00:05 10.0.0.12 POST /api/checkout?cart_id=g7h8i9 200 48ms
+        2024-03-15 09:00:05 192.168.1.44 GET /api/products?page=3 200 14ms
+        2024-03-15 09:00:06 10.0.0.5 POST /api/checkout?cart_id=j0k1l2 200 51ms
+        2024-03-15 09:00:06 192.168.1.55 GET /api/users/me 200 9ms
+        2024-03-15 09:00:07 172.16.0.2 POST /api/checkout?cart_id=null 500 2ms
+        2024-03-15 09:00:07 192.168.1.22 GET /api/products?page=1 200 13ms
+        2024-03-15 09:00:08 10.0.0.8 POST /api/checkout?cart_id=m3n4o5 200 47ms
+        2024-03-15 09:00:08 192.168.1.10 GET /api/health 200 2ms
+        2024-03-15 09:00:09 10.0.0.15 POST /api/checkout?cart_id=p6q7r8 200 50ms
+        2024-03-15 09:00:09 192.168.1.66 GET /api/products?page=2 200 12ms
+        2024-03-15 09:00:10 192.168.1.33 GET /api/users/me 200 7ms
+        2024-03-15 09:00:10 10.0.0.5 POST /api/checkout?cart_id=s9t0u1 200 44ms
+        2024-03-15 09:00:11 192.168.1.77 GET /api/products?page=4 200 16ms
+        2024-03-15 09:00:11 172.16.0.2 POST /api/checkout?cart_id=null 500 3ms
+        2024-03-15 09:00:12 10.0.0.12 POST /api/checkout?cart_id=v2w3x4 200 49ms
+        2024-03-15 09:00:12 192.168.1.10 GET /api/health 200 2ms
+        2024-03-15 09:00:13 10.0.0.8 POST /api/checkout?cart_id=y5z6a7 200 46ms
+        2024-03-15 09:00:13 192.168.1.88 GET /api/products?page=1 200 11ms
+        2024-03-15 09:00:14 192.168.1.44 GET /api/users/me 200 8ms
+        2024-03-15 09:00:14 10.0.0.5 POST /api/checkout?cart_id=b8c9d0 200 53ms
+        2024-03-15 09:00:15 172.16.0.2 POST /api/checkout?cart_id=null 500 2ms
+        2024-03-15 09:00:15 10.0.0.15 POST /api/checkout?cart_id=e1f2g3 200 48ms
+        2024-03-15 09:00:16 192.168.1.99 GET /api/products?page=5 200 15ms
+        2024-03-15 09:00:16 192.168.1.55 GET /api/health 200 3ms
+        2024-03-15 09:00:17 10.0.0.12 POST /api/checkout?cart_id=h4i5j6 200 47ms
+        2024-03-15 09:00:17 192.168.1.22 GET /api/products?page=2 200 12ms
+        2024-03-15 09:00:18 10.0.0.8 POST /api/checkout?cart_id=k7l8m9 200 50ms
+        2024-03-15 09:00:18 192.168.1.10 GET /api/users/me 200 9ms
+        2024-03-15 09:00:19 172.16.0.2 POST /api/checkout?cart_id=null 500 3ms
+        2024-03-15 09:00:19 10.0.0.5 POST /api/checkout?cart_id=n0o1p2 200 45ms
+        2024-03-15 09:00:20 192.168.1.33 GET /api/products?page=1 200 11ms
+        2024-03-15 09:00:20 192.168.1.77 GET /api/health 200 2ms
+        2024-03-15 09:00:21 10.0.0.15 POST /api/checkout?cart_id=q3r4s5 200 49ms
+        2024-03-15 09:00:21 192.168.1.88 GET /api/products?page=3 200 14ms
+        2024-03-15 09:00:22 10.0.0.12 POST /api/checkout?cart_id=t6u7v8 200 51ms
+        2024-03-15 09:00:22 192.168.1.44 GET /api/users/me 200 8ms
+        2024-03-15 09:00:23 172.16.0.2 POST /api/checkout?cart_id=null 500 2ms
+        2024-03-15 09:00:23 10.0.0.8 POST /api/checkout?cart_id=w9x0y1 200 47ms
+        2024-03-15 09:00:24 192.168.1.66 GET /api/products?page=6 200 13ms
+        2024-03-15 09:00:24 192.168.1.10 GET /api/health 200 2ms
+        2024-03-15 09:00:25 10.0.0.5 POST /api/checkout?cart_id=z2a3b4 200 50ms
+        2024-03-15 09:00:25 192.168.1.99 GET /api/products?page=1 200 11ms
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_contains:
+        path: answer.txt
+        content: "null"
+hints:
+  - "Filter for the 500s: `grep 500 access.log` — what do they all have in common?"
+  - "Every 500 request has `cart_id=null`. The parameter value `null` is causing the crash."
+  - "`echo 'null' > answer.txt`"
+solution: |
+  echo 'null' > answer.txt
+explanation: |
+  Every 500 error came from the same client (172.16.0.2) hitting the
+  checkout endpoint with `cart_id=null`. The backend doesn't handle the
+  string "null" as a cart ID — it crashes trying to look it up. This is
+  a classic bug: a frontend that sends the literal string "null" instead
+  of omitting the parameter when no cart exists. The pattern-finding
+  skill — filtering by status code, then looking for commonalities — is
+  fundamental to incident investigation.

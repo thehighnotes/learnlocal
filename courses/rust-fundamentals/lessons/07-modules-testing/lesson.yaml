@@ -1,0 +1,31 @@
+id: modules-testing
+title: "Modules & Testing"
+description: "Organize code with modules, control visibility with pub, and verify correctness with assertions"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - mod-basics
+  - pub-visibility
+  - use-keyword
+  - nested-modules
+  - cargo-test
+  - assert-macros
+teaches:
+  - mod-keyword
+  - inline-modules
+  - pub-visibility
+  - use-keyword
+  - nested-modules
+  - cfg-test
+  - test-attribute
+  - assert-macros
+recap: |
+  You learned:
+  - The mod keyword defines an inline module that creates a separate namespace
+  - Items inside a module are private by default — only accessible within the module
+  - The pub keyword makes functions, structs, and fields visible outside their module
+  - use brings module items into the current scope so you can call them without the full path
+  - Modules can be nested, creating a tree of namespaces like outer::inner::func()
+  - #[cfg(test)] marks a module that is only compiled during testing (cargo test)
+  - #[test] marks individual functions as test cases
+  - assert!, assert_eq!, and assert_ne! verify conditions and panic with a message on failure

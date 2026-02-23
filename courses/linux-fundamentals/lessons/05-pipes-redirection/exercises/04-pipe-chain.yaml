@@ -1,0 +1,40 @@
+id: pipe-chain
+title: "Chain Multiple Pipes"
+type: command
+prompt: |
+  A file called fruits.txt already exists with these lines:
+    banana
+    apple
+    cherry
+    apple
+    date
+    banana
+    apple
+  Sort the lines, remove duplicates, and count the unique entries.
+  Print just the count number.
+starter: |
+  # fruits.txt exists — sort, deduplicate, and count
+environment:
+  files:
+    - path: fruits.txt
+      content: |
+        banana
+        apple
+        cherry
+        apple
+        date
+        banana
+        apple
+validation:
+  method: output
+  expected_output: "4"
+hints:
+  - "sort | uniq removes duplicate adjacent lines (sort first!)"
+  - "Pipe to wc -l to count unique entries"
+  - "apple, banana, cherry, date = 4 unique"
+solution: |
+  sort fruits.txt | uniq | wc -l
+explanation: |
+  sort orders lines alphabetically. uniq removes consecutive duplicates
+  (which is why sorting first is essential). wc -l counts the remaining
+  unique lines: apple, banana, cherry, date = 4.

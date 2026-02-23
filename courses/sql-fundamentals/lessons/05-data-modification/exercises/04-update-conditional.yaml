@@ -1,0 +1,61 @@
+id: update-conditional
+title: "Conditional Update"
+type: fill-blank
+
+prompt: |
+  All contacts in Seattle need their phone area code changed. Update every
+  contact whose city is 'Seattle' — change their phone to '206-0000'.
+
+  Fill in the blanks to complete the UPDATE statement and the verification
+  SELECT.
+
+starter: |
+  UPDATE contacts
+  SET ___ = '206-0000'
+  WHERE ___ = 'Seattle';
+
+  SELECT name, phone, city FROM contacts WHERE city = 'Seattle' ORDER BY name;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT, phone TEXT, city TEXT);
+        INSERT INTO contacts VALUES (1, 'Alice', 'alice@example.com', '555-0101', 'Portland');
+        INSERT INTO contacts VALUES (2, 'Bob', 'bob@example.com', '555-0102', 'Seattle');
+        INSERT INTO contacts VALUES (3, 'Charlie', 'charlie@example.com', '555-0103', 'Portland');
+        INSERT INTO contacts VALUES (4, 'Diana', 'diana@example.com', '555-0104', 'Austin');
+        INSERT INTO contacts VALUES (5, 'Eve', 'eve@example.com', '555-0105', 'Seattle');
+
+validation:
+  method: output
+  expected_output: |
+    Bob|206-0000|Seattle
+    Eve|206-0000|Seattle
+
+hints:
+  - "The SET clause names the column to change. Which column holds the phone number?"
+  - "The WHERE clause filters by city. The column name is 'city'."
+  - "Fill in: SET phone = '206-0000' WHERE city = 'Seattle'"
+
+solution: |
+  UPDATE contacts
+  SET phone = '206-0000'
+  WHERE city = 'Seattle';
+
+  SELECT name, phone, city FROM contacts WHERE city = 'Seattle' ORDER BY name;
+
+explanation: |
+  This UPDATE targets multiple rows — every contact in Seattle. The WHERE clause
+  acts as a filter: only rows where `city = 'Seattle'` are modified.
+
+  Two contacts match (Bob and Eve), so both get their phone changed to '206-0000'.
+  The other three contacts are untouched.
+
+  The verification SELECT uses the same WHERE condition to show only the affected
+  rows. ORDER BY name ensures a consistent display order (Bob before Eve
+  alphabetically).
+
+  This pattern — updating all rows that match a condition — is very common.
+  Think "change the status of all overdue invoices" or "set the department for
+  all employees in building 3."

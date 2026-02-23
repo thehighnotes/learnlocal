@@ -1,0 +1,18 @@
+id: time-travel
+title: "Time Travel"
+description: "The reflog remembers everything. Cherry-pick commits, explore the reflog, and recover the 'lost'."
+estimated_minutes: 30
+content: content.md
+teaches: [git-reflog, git-cherry-pick, git-stash, detached-head, history-rewriting]
+exercises:
+  - explore-reflog
+  - recover-branch
+  - cherry-pick
+  - stash-changes
+  - stash-pop-conflict
+  - detached-head
+  - rewrite-history
+recap: |
+  The reflog is your safety net — git almost never truly deletes anything.
+  Cherry-pick lets you steal individual commits. Stash lets you pause work.
+  You now have true time-travel powers.

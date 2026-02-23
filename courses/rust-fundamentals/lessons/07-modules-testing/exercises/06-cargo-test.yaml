@@ -1,0 +1,51 @@
+id: cargo-test
+title: "Run Your Tests"
+type: command
+prompt: |
+  A Rust project with tests is provided. Run the tests with cargo.
+environment:
+  files:
+    - path: Cargo.toml
+      content: |
+        [package]
+        name = "calculator"
+        version = "0.1.0"
+        edition = "2021"
+    - path: src/lib.rs
+      content: |
+        pub fn add(a: i32, b: i32) -> i32 {
+            a + b
+        }
+
+        pub fn multiply(a: i32, b: i32) -> i32 {
+            a * b
+        }
+
+        #[cfg(test)]
+        mod tests {
+            use super::*;
+
+            #[test]
+            fn test_add() {
+                assert_eq!(add(2, 3), 5);
+            }
+
+            #[test]
+            fn test_multiply() {
+                assert_eq!(multiply(4, 5), 20);
+            }
+        }
+starter: |
+  # Run the tests
+validation:
+  method: regex
+  pattern: "test result: ok\\. 2 passed"
+hints:
+  - "cargo test runs all tests in the project"
+  - "Make sure you're in the project directory (where Cargo.toml is)"
+solution: |
+  cargo test
+explanation: |
+  Rust has built-in testing. Functions marked #[test] inside #[cfg(test)]
+  modules are test functions. cargo test compiles and runs them automatically.
+  assert_eq! checks that two values are equal.

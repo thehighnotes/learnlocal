@@ -1,0 +1,59 @@
+id: mixed-reset
+title: "Mixed Reset (Default)"
+type: command
+prompt: |
+  You committed a batch of changes but now want to rethink what goes into the
+  commit. You want to undo the last commit AND unstage the changes — putting
+  everything back in the working directory so you can selectively re-add files.
+
+  Use `git reset` (the default mixed mode) to move HEAD back one commit.
+  Changes should end up in the working directory, NOT staged.
+starter: |
+  #!/bin/bash
+  # Mixed reset: undo last commit, unstage changes (keep in working dir)
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'v1' > readme.txt && git add readme.txt && git commit -m 'initial' && echo 'feature A' > feature.txt && echo 'v2' > readme.txt && git add feature.txt readme.txt && git commit -m 'add feature and update readme'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-commit-count
+      command: sh
+      args: ["-c", "cd {dir}/repo && git rev-list --count HEAD > {dir}/commit_count.txt"]
+      timeout_seconds: 5
+      capture_to: count.log
+    - name: capture-staged
+      command: sh
+      args: ["-c", "cd {dir}/repo && git diff --cached --name-only > {dir}/staged.txt 2>&1"]
+      timeout_seconds: 5
+      capture_to: staged.log
+    - name: capture-modified
+      command: sh
+      args: ["-c", "cd {dir}/repo && git diff --name-only | sort > {dir}/modified.txt 2>&1"]
+      timeout_seconds: 5
+      capture_to: modified.log
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: commit_count.txt
+        content: "1"
+    - file_equals:
+        path: staged.txt
+        content: ""
+    - file_contains:
+        path: modified.txt
+        content: "readme.txt"
+hints:
+  - "git reset without a mode flag defaults to --mixed"
+  - "git reset HEAD~1"
+solution: |
+  #!/bin/bash
+  git reset HEAD~1
+explanation: |
+  git reset HEAD~1 (without --soft or --hard) uses the default --mixed mode.
+  It moves HEAD back one commit AND clears the staging area. The actual file
+  changes remain in your working directory as unstaged modifications, so you
+  can selectively re-stage what you want.

@@ -1,0 +1,59 @@
+id: fix-access
+title: "Fix the Member Access"
+type: fix
+
+prompt: |
+  This code creates a `Book` struct and tries to set and print its members,
+  but it uses the wrong operator to access them. Fix the member access so the
+  code compiles and runs correctly.
+
+starter: |
+  #include <iostream>
+  #include <string>
+
+  struct Book {
+      std::string title;
+      int pages;
+  };
+
+  int main() {
+      Book b;
+      b->title = "C++ Primer";
+      b->pages = 1376;
+      std::cout << b->title << " (" << b->pages << " pages)" << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "C++ Primer (1376 pages)"
+
+hints:
+  - "The `->` operator is used with pointers to structs, not with regular struct variables."
+  - "For a regular struct variable, use the dot operator (`.`) to access members: `b.title` instead of `b->title`."
+  - "Change every `b->` to `b.` -- there are three occurrences to fix (two assignments and one print statement with two accesses)."
+
+solution: |
+  #include <iostream>
+  #include <string>
+
+  struct Book {
+      std::string title;
+      int pages;
+  };
+
+  int main() {
+      Book b;
+      b.title = "C++ Primer";
+      b.pages = 1376;
+      std::cout << b.title << " (" << b.pages << " pages)" << std::endl;
+      return 0;
+  }
+
+explanation: |
+  The arrow operator (`->`) is used to access members through a pointer to a
+  struct. Since `b` is a regular `Book` variable (not a pointer), the dot
+  operator (`.`) is the correct choice. This is a common mistake, especially
+  when switching between code that uses pointers and code that uses direct
+  variables. If `b` were a `Book*` pointer, then `b->title` would be correct
+  (it is shorthand for `(*b).title`).

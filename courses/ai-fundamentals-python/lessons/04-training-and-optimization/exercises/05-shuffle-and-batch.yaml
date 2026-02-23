@@ -1,0 +1,55 @@
+id: shuffle-and-batch
+title: "Shuffle and Batch"
+type: write
+
+prompt: |
+  Simulate one training epoch: shuffle the data, then split into batches.
+
+  Given a dataset of image-label pairs, shuffle with `random.seed(42)`, then
+  split into batches of 2. Print each batch showing just the image names.
+
+starter: |
+  import random
+  random.seed(42)
+
+  data = [("img1", "cat"), ("img2", "dog"), ("img3", "cat"),
+          ("img4", "dog"), ("img5", "cat"), ("img6", "dog")]
+
+  # Shuffle the data
+
+
+  # Split into batches of 2 and print image names
+  batch_size = 2
+
+validation:
+  method: output
+  expected_output: "batch 0: ['img4', 'img2']\nbatch 1: ['img3', 'img5']\nbatch 2: ['img1', 'img6']"
+
+hints:
+  - "After `random.shuffle(data)`, slice into batches. For each batch, extract just the image names (first element of each tuple)."
+  - "Use: `for i in range(0, len(data), batch_size): batch = data[i:i+batch_size]; items = [item[0] for item in batch]; print(f'batch {i//batch_size}: {items}')`"
+
+solution: |
+  import random
+  random.seed(42)
+
+  data = [("img1", "cat"), ("img2", "dog"), ("img3", "cat"),
+          ("img4", "dog"), ("img5", "cat"), ("img6", "dog")]
+
+  random.shuffle(data)
+
+  batch_size = 2
+  for i in range(0, len(data), batch_size):
+      batch = data[i:i+batch_size]
+      items = [item[0] for item in batch]
+      print(f"batch {i // batch_size}: {items}")
+
+explanation: |
+  After shuffling, the order is randomized. The 6 items are split into 3
+  batches of 2. Notice that cats and dogs are mixed within batches — this is
+  exactly what we want. If we did not shuffle, all cats would be in one batch
+  and all dogs in another, which would give biased gradient estimates.
+
+  In real training, you shuffle at the start of each epoch so the batches are
+  different every time. This prevents the model from learning the order of
+  examples.

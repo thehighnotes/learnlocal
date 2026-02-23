@@ -1,0 +1,35 @@
+id: tuples
+title: "Tuples and Unpacking"
+type: write
+
+prompt: |
+  Create a tuple `point = (3, 7)`. Unpack it into variables `x` and `y`.
+  Then print in the format: `x=3, y=7`
+
+starter: |
+  # Create the tuple point = (3, 7)
+
+  # Unpack into x and y
+
+  # Print: x=3, y=7
+
+validation:
+  method: output
+  expected_output: "x=3, y=7"
+
+hints:
+  - "Create with `point = (3, 7)` and unpack with `x, y = point`."
+  - "Print with `print(f\"x={x}, y={y}\")` to get the exact format."
+
+solution: |
+  point = (3, 7)
+  x, y = point
+  print(f"x={x}, y={y}")
+
+explanation: |
+  `(3, 7)` creates a tuple with two elements. `x, y = point` is tuple
+  unpacking: the first element (3) is assigned to `x` and the second (7) to
+  `y`. The f-string `f"x={x}, y={y}"` substitutes the values to produce
+  `x=3, y=7`. Tuples are immutable — once created, you cannot change their
+  elements. They are commonly used for fixed groups of related values like
+  coordinates, dimensions, or RGB colors.

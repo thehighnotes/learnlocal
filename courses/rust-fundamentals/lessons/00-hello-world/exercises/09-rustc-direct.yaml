@@ -1,0 +1,28 @@
+id: rustc-direct
+title: "Compile with rustc"
+type: command
+prompt: |
+  A hello.rs file is provided. Compile it directly with rustc (not cargo)
+  to an executable named 'hello', then run it.
+environment:
+  files:
+    - path: hello.rs
+      content: |
+        fn main() {
+            println!("Compiled with rustc!");
+        }
+starter: |
+  # Compile hello.rs with rustc and run it
+validation:
+  method: output
+  expected_output: "Compiled with rustc!"
+hints:
+  - "rustc -o hello hello.rs compiles to an executable"
+  - "Then: ./hello"
+solution: |
+  rustc -o hello hello.rs
+  ./hello
+explanation: |
+  While cargo is the standard build tool, rustc is the compiler underneath.
+  For simple single-file programs, rustc works directly. Understanding both
+  helps when you need to debug build issues.

@@ -1,0 +1,46 @@
+id: discard-changes
+title: "Discard Working Directory Changes"
+type: command
+prompt: |
+  You were experimenting with `config.yaml` and made a mess of it.
+  The original committed version is fine — you just want to throw away
+  your working directory changes and restore the file to its last
+  committed state.
+
+  Discard all modifications to `config.yaml`.
+starter: |
+  #!/bin/bash
+  # Discard changes to config.yaml — restore it to the committed version
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'port: 8080' > config.yaml && echo 'host: localhost' >> config.yaml && git add config.yaml && git commit -m 'add config' && echo 'BROKEN GARBAGE' > config.yaml"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-content
+      command: sh
+      args: ["-c", "cat {dir}/repo/config.yaml > {dir}/file_content.txt"]
+      timeout_seconds: 5
+      capture_to: teardown.log
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/config.yaml
+    - file_contains:
+        path: file_content.txt
+        content: "port: 8080"
+    - file_contains:
+        path: file_content.txt
+        content: "host: localhost"
+hints:
+  - "git restore <file> discards working directory changes"
+  - "git restore config.yaml"
+solution: |
+  #!/bin/bash
+  git restore config.yaml
+explanation: |
+  git restore (without --staged) replaces the working directory copy of a file
+  with the version from HEAD. This is destructive — uncommitted changes are
+  lost permanently. The older equivalent is git checkout -- config.yaml.

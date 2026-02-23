@@ -1,0 +1,54 @@
+id: detached-head
+title: "Fix a Detached HEAD"
+type: command
+prompt: |
+  You checked out a specific commit to "look at something" and now you're in
+  detached HEAD state. Git is warning you that commits you make here won't
+  belong to any branch.
+
+  You've realized the code at this point is exactly what you need for a
+  hotfix. Create a branch called `hotfix` from your current position, then
+  switch to it so you're no longer detached.
+
+  After this, `git branch --show-current` should say `hotfix`.
+starter: |
+  #!/bin/bash
+  # You're in detached HEAD. Create a branch "hotfix" here and switch to it.
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'v1' > app.txt && git add app.txt && git commit -m 'version 1' && echo 'v2' > app.txt && git add app.txt && git commit -m 'version 2' && echo 'v3' > app.txt && git add app.txt && git commit -m 'version 3' && git checkout HEAD~1"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-branch
+      command: sh
+      args: ["-c", "cd {dir}/repo && git branch --show-current > {dir}/__current_branch.txt"]
+      timeout_seconds: 5
+    - name: capture-head-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && git symbolic-ref HEAD > {dir}/__head_ref.txt 2>&1 || echo 'DETACHED' > {dir}/__head_ref.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __current_branch.txt
+        content: "hotfix"
+    - file_contains:
+        path: __head_ref.txt
+        content: "refs/heads/hotfix"
+hints:
+  - "`git checkout -b <name>` creates a new branch at the current position AND switches to it."
+  - "`git checkout -b hotfix` is a single command that fixes the detached HEAD."
+  - "Alternatively: `git switch -c hotfix`"
+solution: |
+  #!/bin/bash
+  git checkout -b hotfix
+explanation: |
+  In detached HEAD state, HEAD points directly at a commit instead of a branch
+  reference. Any commits you make will be orphaned when you switch away.
+  `git checkout -b hotfix` (or `git switch -c hotfix`) creates a new branch
+  pointing at the current commit AND moves HEAD to that branch — you're no
+  longer detached. This is the standard escape from detached HEAD.

@@ -1,0 +1,64 @@
+id: simple-conflict
+title: "Resolve Your First Conflict"
+type: command
+prompt: |
+  Your first merge conflict. Don't panic — this is completely normal.
+
+  Someone on the `feature` branch changed the greeting in `hello.txt` to
+  "Hello Universe", while you on `main` changed it to "Hello World".
+  The merge has already been started, and Git has placed conflict markers
+  in the file.
+
+  Your mission:
+
+  1. Open `hello.txt` — you'll see the conflict markers
+  2. Resolve the conflict by keeping "Hello World" (the main branch version)
+  3. Remove ALL conflict markers (the <<<, ===, and >>> lines)
+  4. Stage the resolved file with `git add`
+  5. Complete the merge with `git commit`
+
+  The file should contain exactly one line: `Hello World`
+
+  Take a breath. Read the markers. You've got this.
+starter: |
+  # Resolve the conflict in hello.txt, then add and commit.
+  # The file currently has conflict markers — edit it to contain
+  # only "Hello World" (no marker lines).
+
+environment:
+  setup:
+    - name: create-conflict-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'Hello' > hello.txt && git add hello.txt && git commit -m 'initial' && git checkout -b feature && echo 'Hello Universe' > hello.txt && git add hello.txt && git commit -m 'universe greeting' && git checkout main && echo 'Hello World' > hello.txt && git add hello.txt && git commit -m 'world greeting' && git merge feature || true"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && echo \"markers=$(grep -c '<<<<<<' hello.txt 2>/dev/null || echo 0)\" > {dir}/result.txt && echo \"content=$(cat hello.txt)\" >> {dir}/result.txt && git log --oneline --all >> {dir}/result.txt 2>/dev/null && echo \"merge_commit=$(git log -1 --format=%s)\" >> {dir}/result.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: repo/hello.txt
+        content: "Hello World"
+    - file_matches:
+        path: repo/hello.txt
+        pattern: "^Hello World\\n?$"
+    - file_matches:
+        path: result.txt
+        pattern: "markers=0"
+hints:
+  - "Look at hello.txt — you'll see <<<<<<< HEAD, =======, and >>>>>>> feature lines"
+  - "Delete the three marker lines and the line you DON'T want, leaving only 'Hello World'"
+  - "After editing: git add hello.txt && git commit -m 'resolve conflict'"
+solution: |
+  echo 'Hello World' > hello.txt
+  git add hello.txt
+  git commit -m "resolve merge conflict"
+explanation: |
+  When Git can't auto-merge, it writes conflict markers into the file showing
+  both versions. You resolve by editing the file to the desired state, removing
+  all markers, then staging and committing. The commit created is a merge commit
+  with two parents.

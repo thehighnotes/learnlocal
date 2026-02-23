@@ -1,0 +1,49 @@
+id: while-loop
+title: "Countdown"
+type: write
+
+prompt: |
+  Write a countdown from 5 to 1 using a while loop, then print "Go!"
+  after the loop ends.
+
+  Expected output:
+  5
+  4
+  3
+  2
+  1
+  Go!
+
+starter: |
+  // Use a while loop to count down from 5 to 1, then print "Go!"
+
+validation:
+  method: output
+  expected_output: "5\n4\n3\n2\n1\nGo!"
+
+hints:
+  - "Start with let count = 5; and loop while count > 0."
+  - "Inside the loop: print count, then decrement it with count-- or count -= 1."
+  - "After the loop ends (when count reaches 0), print \"Go!\"."
+
+solution: |
+  let count = 5;
+  while (count > 0) {
+    console.log(count);
+    count--;
+  }
+  console.log("Go!");
+
+explanation: |
+  The while loop works as follows:
+
+  1. Check the condition: `count > 0`. If true, enter the loop body.
+  2. Print the current value of count.
+  3. Decrement count with `count--` (shorthand for count = count - 1).
+  4. Go back to step 1.
+
+  When count reaches 0, the condition `count > 0` is false, so the loop
+  exits. Then `console.log("Go!")` runs after the loop.
+
+  The `--` operator (decrement) subtracts 1 from the variable. Similarly,
+  `++` (increment) adds 1. Both modify the variable in place.

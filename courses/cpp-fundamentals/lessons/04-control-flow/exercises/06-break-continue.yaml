@@ -1,0 +1,66 @@
+id: break-continue
+title: "Skip and Stop"
+type: write
+
+prompt: |
+  Loop through the numbers 1 to 10. Skip even numbers using `continue`.
+  When you reach 7, stop the loop entirely using `break`. Print each
+  number that isn't skipped, one per line.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      for (int i = 1; i <= 10; i++) {
+          // Skip even numbers with continue
+          // Stop at 7 with break (after printing 7)
+
+      }
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: |
+    1
+    3
+    5
+    7
+
+hints:
+  - "Use `if (i % 2 == 0) continue;` to skip even numbers. The modulo operator tells you if a number is divisible by 2."
+  - "Print the number first, then check if it's 7 and break. If you break before printing, 7 won't appear in the output."
+  - "The order inside the loop should be: (1) skip evens with continue, (2) print i, (3) if i == 7, break."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      for (int i = 1; i <= 10; i++) {
+          if (i % 2 == 0) {
+              continue;
+          }
+          std::cout << i << std::endl;
+          if (i == 7) {
+              break;
+          }
+      }
+
+      return 0;
+  }
+
+explanation: |
+  This exercise demonstrates both `continue` and `break` in the same loop:
+
+  1. `if (i % 2 == 0) continue;` -- when i is even, skip the rest of the
+     loop body and jump to the next iteration. So 2, 4, 6, 8, 10 are skipped.
+  2. `std::cout << i << std::endl;` -- print the odd numbers that weren't skipped.
+  3. `if (i == 7) break;` -- after printing 7, exit the loop entirely.
+
+  The sequence of events: i=1 (odd, print, not 7), i=2 (even, skip), i=3
+  (odd, print, not 7), i=4 (even, skip), i=5 (odd, print, not 7), i=6
+  (even, skip), i=7 (odd, print, is 7, break). Values 8-10 are never reached.
+
+  Notice that the print comes before the break check. If you reversed them,
+  7 would not appear in the output because break exits immediately.

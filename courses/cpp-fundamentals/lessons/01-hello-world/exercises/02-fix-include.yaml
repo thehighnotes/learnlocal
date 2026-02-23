@@ -1,0 +1,43 @@
+id: fix-include
+title: "Fix the Missing Include"
+type: fix
+
+prompt: |
+  This program tries to print a message, but it will not compile. Something
+  important is missing from the top of the file.
+
+  Fix the code so it compiles and prints: C++ is ready!
+
+starter: |
+  int main() {
+      std::cout << "C++ is ready!" << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "C++ is ready!"
+
+hints:
+  - "The compiler error will say something like 'cout is not a member of std' or 'cout was not declared'. This means the compiler does not know what std::cout is."
+  - "std::cout lives in a standard library header. You need to include that header before using it."
+  - "Add #include <iostream> as the very first line of the file."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      std::cout << "C++ is ready!" << std::endl;
+      return 0;
+  }
+
+explanation: |
+  The program was missing `#include <iostream>` at the top. Without this line,
+  the compiler does not know what `std::cout` or `std::endl` are.
+
+  The `#include` directive tells the preprocessor to insert the contents of
+  the `<iostream>` header into your file before compilation begins. This header
+  declares `std::cout`, `std::cin`, `std::endl`, and other I/O tools.
+
+  Whenever you see a compiler error about an undeclared name, the first thing
+  to check is whether you have the right `#include` at the top of your file.

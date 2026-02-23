@@ -1,0 +1,52 @@
+id: find-replace
+title: "Find and Replace"
+type: write
+
+prompt: |
+  Given `message = "I like cats. Cats are great."`, replace "cats" with
+  "dogs" and "Cats" with "Dogs", then print the result.
+
+  Remember that replace() is case-sensitive, so you need two separate
+  replacements.
+
+  Expected output: I like dogs. Dogs are great.
+
+starter: |
+  message = "I like cats. Cats are great."
+  # Replace "cats" with "dogs" and "Cats" with "Dogs"
+  # Print the result
+
+validation:
+  method: output
+  expected_output: "I like dogs. Dogs are great."
+
+hints:
+  - "The .replace() method substitutes text: message.replace(\"cats\", \"dogs\")"
+  - "Since replace() is case-sensitive, you need two calls — one for \"cats\" and one for \"Cats\""
+  - "You can chain the calls: message.replace(\"cats\", \"dogs\").replace(\"Cats\", \"Dogs\")"
+
+solution: |
+  message = "I like cats. Cats are great."
+  result = message.replace("cats", "dogs").replace("Cats", "Dogs")
+  print(result)
+
+explanation: |
+  The `.replace()` method takes two arguments: the substring to find and the
+  substring to replace it with. It replaces *all* occurrences.
+
+  Since `replace()` is case-sensitive, "cats" and "Cats" are treated as
+  different substrings. We need two separate calls:
+
+  1. `.replace("cats", "dogs")` handles the lowercase occurrence
+  2. `.replace("Cats", "Dogs")` handles the capitalized occurrence
+
+  Method chaining works because each `.replace()` returns a new string, so
+  we can immediately call another method on the result. This is equivalent
+  to:
+
+  ```python
+  temp = message.replace("cats", "dogs")
+  result = temp.replace("Cats", "Dogs")
+  ```
+
+  The chained version is more concise and avoids the temporary variable.

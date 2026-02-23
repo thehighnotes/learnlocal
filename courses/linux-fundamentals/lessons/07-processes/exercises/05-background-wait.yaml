@@ -1,0 +1,28 @@
+id: background-wait
+title: "Background and Wait"
+type: command
+prompt: |
+  Start a background process that sleeps briefly and then echoes "done".
+  Use wait to block until it completes, then print "waited".
+  Output:
+    done
+    waited
+starter: |
+  # Background a command, wait for it
+validation:
+  method: output
+  expected_output: |
+    done
+    waited
+hints:
+  - "Use & to run in the background"
+  - "(sleep 0.1; echo done) &"
+  - "wait pauses until all background jobs finish"
+solution: |
+  (sleep 0.1; echo "done") &
+  wait
+  echo "waited"
+explanation: |
+  & sends a command to the background. wait pauses the script until
+  all background jobs complete. This lets you run things in parallel
+  and synchronize when needed.

@@ -1,0 +1,18 @@
+id: check-python
+title: "Check Your Python"
+type: command
+prompt: |
+  AI code runs on Python. Print your Python version.
+starter: |
+  # Print your Python version
+validation:
+  method: regex
+  pattern: "Python 3\\.\\d+"
+hints:
+  - "Run: python3 --version"
+solution: |
+  python3 --version
+explanation: |
+  Python is the dominant language for AI and machine learning. Most AI
+  frameworks (PyTorch, TensorFlow, scikit-learn) are Python libraries.
+  Python 3.8+ is recommended for modern AI work.

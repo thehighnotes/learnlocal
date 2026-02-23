@@ -1,0 +1,52 @@
+id: variables
+title: "Mutable Variables"
+type: fix
+
+prompt: |
+  This program tries to change the value of a variable, but it will not compile.
+  Rust variables are immutable by default.
+
+  Fix the code so it compiles and prints:
+
+  count: 1
+  count: 5
+
+starter: |
+  fn main() {
+      let count = 1;
+      println!("count: {}", count);
+      count = 5;
+      println!("count: {}", count);
+  }
+
+validation:
+  method: output
+  expected_output: "count: 1\ncount: 5"
+
+hints:
+  - "The compiler error will say something like 'cannot assign twice to immutable variable'. By default, variables declared with let cannot be changed."
+  - "To make a variable changeable, add the keyword mut after let: let mut name = value;"
+  - "Change the declaration to: let mut count = 1;"
+
+solution: |
+  fn main() {
+      let mut count = 1;
+      println!("count: {}", count);
+      count = 5;
+      println!("count: {}", count);
+  }
+
+explanation: |
+  In Rust, `let` creates an immutable variable. Trying to assign a new value to
+  it is a compile error. Adding `mut` after `let` makes the variable mutable:
+
+      let mut count = 1;  // mutable — can be reassigned
+      count = 5;          // OK
+
+  Immutability by default is a deliberate design choice. It makes code easier to
+  reason about because you know a value will not change unexpectedly. When you
+  need mutation, you opt in explicitly with `mut`, making it visible to anyone
+  reading the code.
+
+  The Rust compiler will also warn you if you declare a variable as `mut` but
+  never actually change it — helping you keep your code clean.

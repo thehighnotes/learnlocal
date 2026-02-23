@@ -1,0 +1,67 @@
+id: stash-pop-conflict
+title: "Stash Pop Conflict"
+type: command
+prompt: |
+  You stashed some changes to `config.txt` a while ago. Since then, someone
+  committed different changes to the same file. Now when you try to pop the
+  stash, git hits a conflict.
+
+  The stash has already been popped (with conflicts). The file has conflict
+  markers in it. Resolve the conflict so that `config.txt` contains BOTH
+  changes — the committed line AND the stashed line. Then stage the file
+  and drop the stash entry.
+
+  The final file should contain both "debug=true" and "verbose=true" (in
+  any order), with NO conflict markers.
+starter: |
+  #!/bin/bash
+  # config.txt has conflict markers from a stash pop
+  # Resolve it: keep BOTH "debug=true" and "verbose=true"
+  # Stage the resolved file and drop the stash
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && printf 'mode=production\\nport=8080\\n' > config.txt && git add config.txt && git commit -m 'initial config' && printf 'mode=production\\nport=8080\\nverbose=true\\n' > config.txt && git stash && printf 'mode=production\\nport=8080\\ndebug=true\\n' > config.txt && git add config.txt && git commit -m 'add debug flag' && git stash pop || true"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-config
+      command: sh
+      args: ["-c", "cd {dir}/repo && cat config.txt > {dir}/__config.txt"]
+      timeout_seconds: 5
+    - name: capture-stash
+      command: sh
+      args: ["-c", "cd {dir}/repo && git stash list 2>/dev/null | wc -l | tr -d ' ' > {dir}/__stash_count.txt"]
+      timeout_seconds: 5
+    - name: capture-status
+      command: sh
+      args: ["-c", "cd {dir}/repo && git diff --check 2>&1 | wc -l | tr -d ' ' > {dir}/__conflict_count.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __config.txt
+        content: "debug=true"
+    - file_contains:
+        path: __config.txt
+        content: "verbose=true"
+    - file_contains:
+        path: __stash_count.txt
+        content: "0"
+hints:
+  - "Open config.txt and look for `<<<<<<<`, `=======`, and `>>>>>>>` markers."
+  - "Edit the file to keep both lines: `debug=true` and `verbose=true`. Remove the conflict markers."
+  - "After editing: `git add config.txt && git stash drop`"
+solution: |
+  #!/bin/bash
+  printf 'mode=production\nport=8080\ndebug=true\nverbose=true\n' > config.txt
+  git add config.txt
+  git stash drop
+explanation: |
+  When `git stash pop` encounters a conflict, it applies the stash but leaves
+  conflict markers in the file and does NOT drop the stash entry. You must
+  manually resolve the conflict (edit the file to remove markers and keep the
+  content you want), stage the resolved file with `git add`, and then run
+  `git stash drop` to remove the stash entry that wasn't auto-dropped.

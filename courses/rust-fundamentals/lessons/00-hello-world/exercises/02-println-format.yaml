@@ -1,0 +1,53 @@
+id: println-format
+title: "Format Strings"
+type: write
+
+prompt: |
+  Print three lines of output using println! with {} placeholders:
+
+  Line 1: Name: Alice
+  Line 2: Age: 30
+  Line 3: Language: Rust
+
+  Use a variable for each value (name, age, language) and insert them into
+  the println! strings with {}.
+
+starter: |
+  fn main() {
+      // Declare variables for name, age, and language
+      // Then print each on its own line using {} placeholders
+  }
+
+validation:
+  method: output
+  expected_output: "Name: Alice\nAge: 30\nLanguage: Rust"
+
+hints:
+  - "Declare variables with let: let name = \"Alice\"; — string literals use double quotes."
+  - "Use {} as a placeholder: println!(\"Name: {}\", name); inserts the value of name into the output."
+  - "Three statements: let name = \"Alice\"; let age = 30; let language = \"Rust\"; then println!(\"Name: {}\", name); println!(\"Age: {}\", age); println!(\"Language: {}\", language);"
+
+solution: |
+  fn main() {
+      let name = "Alice";
+      let age = 30;
+      let language = "Rust";
+      println!("Name: {}", name);
+      println!("Age: {}", age);
+      println!("Language: {}", language);
+  }
+
+explanation: |
+  The `{}` placeholder in a `println!` format string is replaced by the next
+  argument after the string. Each `println!` call outputs one line (it
+  automatically appends a newline).
+
+  Variables declared with `let` are immutable by default. Here, `name` is a
+  `&str` (string slice), `age` is an `i32` (integer), and `language` is a
+  `&str`. Rust inferred all three types from the values assigned.
+
+  You could also write all three values in a single `println!`:
+
+      println!("Name: {}\nAge: {}\nLanguage: {}", name, age, language);
+
+  Both approaches produce the same output.

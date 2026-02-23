@@ -1,0 +1,54 @@
+id: word-count
+title: "Word Frequency Counter"
+type: write
+
+prompt: |
+  Given the sentence "the cat sat on the mat the", count the frequency
+  of each word and print the results sorted alphabetically, one per line
+  in the format: word: count
+
+  Expected output:
+  cat: 1
+  mat: 1
+  on: 1
+  sat: 1
+  the: 3
+
+starter: |
+  const sentence = "the cat sat on the mat the";
+  // Split into words, count frequencies using an object, then print sorted
+
+validation:
+  method: output
+  expected_output: "cat: 1\nmat: 1\non: 1\nsat: 1\nthe: 3"
+
+hints:
+  - "Split the sentence: const words = sentence.split(\" \");"
+  - "Build a frequency object: for each word, counts[word] = (counts[word] || 0) + 1;"
+  - "Sort and print: Object.keys(counts).sort().forEach(word => console.log(`${word}: ${counts[word]}`));"
+
+solution: |
+  const sentence = "the cat sat on the mat the";
+  const words = sentence.split(" ");
+  const counts = {};
+  for (const word of words) {
+    counts[word] = (counts[word] || 0) + 1;
+  }
+  Object.keys(counts).sort().forEach(word => {
+    console.log(`${word}: ${counts[word]}`);
+  });
+
+explanation: |
+  This exercise combines several concepts:
+
+  1. `.split(" ")` breaks the string into an array of words.
+  2. An empty object `{}` serves as a frequency counter (dictionary).
+  3. `counts[word] || 0` handles the first occurrence: if the word is not
+     yet in the object, `counts[word]` is undefined, and `undefined || 0`
+     gives 0. Adding 1 sets the count to 1.
+  4. On subsequent occurrences, `counts[word]` is already a number, so
+     `n || 0` returns n, and we add 1.
+
+  The pattern `obj[key] = (obj[key] || 0) + 1` is the standard way to
+  count occurrences in JavaScript. It is used everywhere: word counting,
+  character frequency, vote tallying, log analysis, and more.

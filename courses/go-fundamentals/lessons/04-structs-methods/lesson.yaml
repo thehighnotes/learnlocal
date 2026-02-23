@@ -1,0 +1,32 @@
+id: structs-methods
+title: "Structs & Methods"
+description: "Define custom types with structs, attach behavior with methods, and compose types with embedding"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - basic-struct
+  - methods
+  - pointer-receivers
+  - embedding
+  - constructors
+  - struct-tags
+  - method-set
+teaches:
+  - struct-definition
+  - field-access
+  - value-receivers
+  - pointer-receivers
+  - struct-embedding
+  - constructor-functions
+  - struct-tags
+  - method-sets
+recap: |
+  You learned:
+  - Structs group related fields into a single custom type
+  - Fields are accessed with the dot operator (.)
+  - Methods with value receivers get a copy of the struct
+  - Methods with pointer receivers can modify the original struct
+  - Struct embedding composes types (Go favors composition over inheritance)
+  - Constructor functions follow the NewType pattern by convention
+  - Struct tags attach metadata to fields (used by encoding/json, etc.)
+  - Method sets determine which interfaces a type satisfies

@@ -1,0 +1,52 @@
+id: input-output
+title: "Reading Input"
+type: write
+
+prompt: |
+  Write a program that reads a name from the user and prints a greeting.
+
+  The program should:
+  1. Read one line of input (a name)
+  2. Print: Hello, {name}!
+
+  For example, if the user types "Alice", the output should be: Hello, Alice!
+
+  Use input() to read and print() to output.
+
+input: "Alice\n"
+
+starter: |
+  # Read a name and greet them
+  # Use input() to read, then print the greeting
+
+validation:
+  method: output
+  expected_output: "Hello, Alice!"
+
+hints:
+  - "The input() function reads one line of text from the user and returns it as a string. Store it in a variable: name = input()"
+  - "You need to combine the greeting text with the name. An f-string makes this easy: f\"Hello, {name}!\""
+  - "The full solution: name = input() on one line, then print(f\"Hello, {name}!\") on the next."
+
+solution: |
+  name = input()
+  print(f"Hello, {name}!")
+
+explanation: |
+  This program does two things:
+
+  1. `name = input()` — reads a line of text from standard input and stores it
+     in the variable `name`. The `input()` function waits for the user to type
+     something and press Enter, then returns what they typed (without the
+     trailing newline).
+
+  2. `print(f"Hello, {name}!")` — uses an **f-string** to embed the variable
+     `name` directly in the output string. The `f` prefix before the quotes
+     tells Python to evaluate any expressions inside `{curly braces}`.
+
+  You could also write this without f-strings:
+
+      print("Hello, " + name + "!")
+
+  Both produce the same output. f-strings are generally preferred because they
+  are more readable, especially when embedding multiple values.

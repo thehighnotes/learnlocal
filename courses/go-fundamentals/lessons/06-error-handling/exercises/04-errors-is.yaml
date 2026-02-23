@@ -1,0 +1,72 @@
+id: errors-is
+title: "errors.Is — Checking Error Identity"
+type: write
+
+prompt: |
+  Define two sentinel errors:
+  - `ErrNotFound` with message `"not found"`
+  - `ErrPermission` with message `"permission denied"`
+
+  Create a wrapped error that wraps `ErrNotFound`:
+    `fmt.Errorf("lookup: %w", ErrNotFound)`
+
+  Use `errors.Is` to check if the wrapped error contains `ErrNotFound` and
+  then if it contains `ErrPermission`. Print the results.
+
+  Expected output:
+  is not found: true
+  is permission denied: false
+
+starter: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  // TODO: define ErrNotFound and ErrPermission sentinel errors
+
+  func main() {
+      // TODO: create a wrapped error containing ErrNotFound
+      // TODO: check with errors.Is and print results
+  }
+
+validation:
+  method: output
+  expected_output: "is not found: true\nis permission denied: false"
+
+hints:
+  - "Define sentinels with `var ErrNotFound = errors.New(\"not found\")` at package level."
+  - "Wrap it: `err := fmt.Errorf(\"lookup: %w\", ErrNotFound)`"
+  - "Check: `fmt.Println(\"is not found:\", errors.Is(err, ErrNotFound))` — errors.Is unwraps the chain to find the match."
+
+solution: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  var ErrNotFound = errors.New("not found")
+  var ErrPermission = errors.New("permission denied")
+
+  func main() {
+      err := fmt.Errorf("lookup: %w", ErrNotFound)
+      fmt.Println("is not found:", errors.Is(err, ErrNotFound))
+      fmt.Println("is permission denied:", errors.Is(err, ErrPermission))
+  }
+
+explanation: |
+  `errors.Is` walks the error chain (created by `%w` wrapping) and checks if
+  any error in the chain matches the target. It uses `==` comparison by default,
+  which works for sentinel errors because they are specific variable values.
+
+  In this example, `err` wraps `ErrNotFound`, so `errors.Is(err, ErrNotFound)`
+  returns `true` — it finds the match inside the wrapping. But `ErrPermission`
+  is not in the chain, so that check returns `false`.
+
+  Always use `errors.Is` instead of `==` to check for sentinel errors. Direct
+  `==` comparison would fail on wrapped errors because the outer error is a
+  different value than the sentinel.

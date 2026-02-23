@@ -1,0 +1,28 @@
+id: fix-script
+title: "Fix the Diagnostic Script"
+type: fix
+prompt: |
+  This diagnostic script has two bugs:
+  1. It uses $username instead of $USER (wrong variable name)
+  2. It uses uname -x instead of uname -m (wrong flag)
+  Fix both issues so the output is:
+    User: <your_username>
+    Arch: <your_architecture>
+starter: |
+  #!/bin/bash
+  echo "User: $username"
+  echo "Arch: $(uname -x)"
+validation:
+  method: regex
+  pattern: "(?s)^User: [a-z_][a-z0-9_-]*\nArch: [a-z0-9_]+$"
+hints:
+  - "$USER is the standard variable for the current username (not $username)"
+  - "uname -m shows architecture (not -x, which doesn't exist)"
+solution: |
+  #!/bin/bash
+  echo "User: $USER"
+  echo "Arch: $(uname -m)"
+explanation: |
+  $USER is the standard environment variable for the username.
+  $username is undefined and expands to empty. uname -m shows the
+  machine architecture — there is no -x flag.

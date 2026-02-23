@@ -1,0 +1,29 @@
+id: command-sub
+title: "Command Substitution"
+type: command
+prompt: |
+  A file called data.txt with 3 lines already exists. Use command
+  substitution $() to capture the line count in a variable, then
+  print: "lines: 3"
+starter: |
+  # data.txt exists — capture line count with $() and print it
+environment:
+  files:
+    - path: data.txt
+      content: |
+        one
+        two
+        three
+validation:
+  method: output
+  expected_output: "lines: 3"
+hints:
+  - "COUNT=$(wc -l < data.txt)"
+  - 'echo "lines: $COUNT"'
+  - "Chain both in one command with &&"
+solution: |
+  COUNT=$(wc -l < data.txt) && echo "lines: $COUNT"
+explanation: |
+  $() runs the command inside and captures its stdout as a string.
+  The result is stored in the variable COUNT. Using < with wc avoids
+  the filename being included in the output.

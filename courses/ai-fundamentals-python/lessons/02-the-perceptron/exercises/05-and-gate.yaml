@@ -1,0 +1,68 @@
+id: and-gate
+title: "AND Gate Perceptron"
+type: write
+
+prompt: |
+  Find weights and a bias for a perceptron that computes the AND logic gate
+  using the step activation function.
+
+  AND truth table:
+  - (0,0) → 0
+  - (0,1) → 0
+  - (1,0) → 0
+  - (1,1) → 1
+
+  The perceptron computes: step(input[0]*w[0] + input[1]*w[1] + bias)
+
+  Set weights and bias so the output matches the truth table. Print each
+  output on its own line.
+
+starter: |
+  def step(x):
+      return 1 if x >= 0 else 0
+
+  def perceptron(inputs, weights, bias):
+      z = sum(inputs[i] * weights[i] for i in range(len(inputs))) + bias
+      return step(z)
+
+  # Set weights and bias for AND gate
+  weights = [0, 0]   # change these
+  bias = 0            # change this
+
+  test_inputs = [[0, 0], [0, 1], [1, 0], [1, 1]]
+  for inp in test_inputs:
+      print(perceptron(inp, weights, bias))
+
+validation:
+  method: output
+  expected_output: "0\n0\n0\n1"
+
+hints:
+  - "The weighted sum must be >= 0 only when both inputs are 1. Try weights that sum to more than the negative bias only when both are present."
+  - "Use weights = [1, 1] and bias = -1.5. With both inputs at 1: 1+1-1.5 = 0.5 >= 0 → 1. With one input: 1-1.5 = -0.5 < 0 → 0."
+
+solution: |
+  def step(x):
+      return 1 if x >= 0 else 0
+
+  def perceptron(inputs, weights, bias):
+      z = sum(inputs[i] * weights[i] for i in range(len(inputs))) + bias
+      return step(z)
+
+  weights = [1, 1]
+  bias = -1.5
+
+  test_inputs = [[0, 0], [0, 1], [1, 0], [1, 1]]
+  for inp in test_inputs:
+      print(perceptron(inp, weights, bias))
+
+explanation: |
+  With weights [1, 1] and bias -1.5:
+  - (0,0): 0+0-1.5 = -1.5 → step → 0
+  - (0,1): 0+1-1.5 = -0.5 → step → 0
+  - (1,0): 1+0-1.5 = -0.5 → step → 0
+  - (1,1): 1+1-1.5 = 0.5 → step → 1
+
+  The bias acts as a threshold. By setting it to -1.5, we require both inputs
+  to be 1 (summing to 2) to exceed the threshold. This is a linearly separable
+  problem — a single line can separate the (1,1) case from all others.

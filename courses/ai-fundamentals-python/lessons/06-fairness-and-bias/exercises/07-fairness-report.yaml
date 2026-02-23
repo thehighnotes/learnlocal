@@ -1,0 +1,92 @@
+id: fairness-report
+title: "Fairness Report"
+type: write
+
+prompt: |
+  Generate a complete fairness report combining all the metrics from this
+  lesson: demographic parity, disparate impact ratio, and equalized odds.
+
+  Use the data provided and print a summary with a recommendation.
+
+starter: |
+  # Predictions for each group
+  group_a_pred = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
+  group_b_pred = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+
+  # True labels for each group
+  group_a_true = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
+  group_b_true = [1, 1, 0, 1, 1, 0, 0, 0, 0, 0]
+
+  # 1. Demographic parity: compare positive prediction rates
+
+
+  # 2. Disparate impact ratio
+
+
+  # 3. Confusion matrix per group
+
+
+  # 4. Equalized odds: compare TPR and FPR
+
+
+  # Print the fairness report
+
+validation:
+  method: output
+  expected_output: "demographic_parity: False\ndisparate_impact: 0.43\nequalized_odds: False\nrecommendation: review training data"
+
+hints:
+  - "Compute each metric step by step: positive prediction rates, then their ratio, then confusion matrices (TP/FP/TN/FN), then TPR and FPR."
+  - "The recommendation is just a string: if any metric shows bias, recommend reviewing training data."
+
+solution: |
+  group_a_pred = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
+  group_b_pred = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+
+  group_a_true = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0]
+  group_b_true = [1, 1, 0, 1, 1, 0, 0, 0, 0, 0]
+
+  # Demographic parity
+  rate_a = sum(group_a_pred) / len(group_a_pred)
+  rate_b = sum(group_b_pred) / len(group_b_pred)
+  parity = rate_a == rate_b
+
+  # Disparate impact
+  ratio = round(min(rate_a, rate_b) / max(rate_a, rate_b), 2)
+
+  # Confusion matrices
+  def confusion(pred, true):
+      tp = sum(1 for p, t in zip(pred, true) if p == 1 and t == 1)
+      fp = sum(1 for p, t in zip(pred, true) if p == 1 and t == 0)
+      tn = sum(1 for p, t in zip(pred, true) if p == 0 and t == 0)
+      fn = sum(1 for p, t in zip(pred, true) if p == 0 and t == 1)
+      return tp, fp, tn, fn
+
+  tp_a, fp_a, tn_a, fn_a = confusion(group_a_pred, group_a_true)
+  tp_b, fp_b, tn_b, fn_b = confusion(group_b_pred, group_b_true)
+
+  # Equalized odds
+  tpr_a = round(tp_a / (tp_a + fn_a), 2) if (tp_a + fn_a) > 0 else 0
+  fpr_a = round(fp_a / (fp_a + tn_a), 2) if (fp_a + tn_a) > 0 else 0
+  tpr_b = round(tp_b / (tp_b + fn_b), 2) if (tp_b + fn_b) > 0 else 0
+  fpr_b = round(fp_b / (fp_b + tn_b), 2) if (fp_b + tn_b) > 0 else 0
+  equalized = (tpr_a == tpr_b) and (fpr_a == fpr_b)
+
+  print(f"demographic_parity: {parity}")
+  print(f"disparate_impact: {ratio}")
+  print(f"equalized_odds: {equalized}")
+  print("recommendation: review training data")
+
+explanation: |
+  The fairness report reveals multiple concerns:
+
+  - Demographic parity: False — group A gets positive predictions 70% of the
+    time vs 30% for group B.
+  - Disparate impact: 0.43 — far below the 0.80 threshold.
+  - Equalized odds: False — the model has different error rates for each group.
+  - Recommendation: review training data for historical bias.
+
+  This is the kind of report that data scientists produce before deploying
+  a model. Any single failing metric is cause for concern; all three failing
+  is a clear signal that the model needs significant correction before it
+  can be used fairly.

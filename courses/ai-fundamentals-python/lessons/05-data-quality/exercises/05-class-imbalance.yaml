@@ -1,0 +1,64 @@
+id: class-imbalance
+title: "Class Imbalance"
+type: write
+
+prompt: |
+  Demonstrate the accuracy paradox with imbalanced data.
+
+  Given a dataset with 90 items of class A (label 1) and 10 items of class B
+  (label 0), a "predict majority" classifier always predicts class A.
+
+  Compute:
+  1. Overall accuracy (should be high — 0.90)
+  2. Class B recall: what fraction of class B items are correctly predicted?
+     (should be 0.00 — the classifier never predicts class B)
+
+starter: |
+  data = [1] * 90 + [0] * 10
+
+  # The "predict majority" classifier always predicts 1 (class A)
+  prediction = 1
+
+  # Compute overall accuracy
+
+
+  # Compute class B recall: of items that ARE class B (0),
+  # how many did we correctly predict as class B?
+
+
+  print(f"accuracy: {accuracy}")
+  print(f"class_b_recall: {class_b_recall}")
+
+validation:
+  method: output
+  expected_output: "accuracy: 0.9\nclass_b_recall: 0.0"
+
+hints:
+  - "Overall accuracy: count how many items match the prediction (1), divide by total. Class B recall: count class B items predicted as 0 (which is zero, since we always predict 1)."
+  - "Accuracy: `round(sum(1 for x in data if x == prediction) / len(data), 2)`. Class B recall: `round(0 / 10, 2)` since we never predict class B."
+
+solution: |
+  data = [1] * 90 + [0] * 10
+
+  prediction = 1
+
+  correct = sum(1 for x in data if x == prediction)
+  accuracy = round(correct / len(data), 2)
+
+  class_b_total = sum(1 for x in data if x == 0)
+  class_b_correct = sum(1 for x in data if x == 0 and prediction == 0)
+  class_b_recall = round(class_b_correct / class_b_total, 2)
+
+  print(f"accuracy: {accuracy}")
+  print(f"class_b_recall: {class_b_recall}")
+
+explanation: |
+  The classifier gets 90% accuracy by always predicting class A. But it
+  completely fails on class B — zero recall. If class B represents fraud
+  detection, disease diagnosis, or system failures, this model is useless
+  despite its high accuracy.
+
+  This is the accuracy paradox: on imbalanced data, high accuracy does not
+  mean a good model. You need per-class metrics (recall, precision, F1) to
+  see the full picture. Solutions include oversampling the minority class,
+  undersampling the majority, or using class-weighted loss functions.

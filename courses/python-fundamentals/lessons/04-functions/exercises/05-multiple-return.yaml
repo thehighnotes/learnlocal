@@ -1,0 +1,44 @@
+id: multiple-return
+title: "Multiple Return Values"
+type: write
+
+prompt: |
+  Write a function `min_max(numbers)` that takes a list and returns two values:
+  the minimum and the maximum. Use the built-in `min()` and `max()` functions.
+
+  Call it with the list `[4, 1, 7, 3, 9]` and print the minimum on one line
+  and the maximum on the next.
+
+starter: |
+  # Define min_max(numbers) that returns (min, max)
+
+
+  data = [4, 1, 7, 3, 9]
+  low, high = min_max(data)
+  print(low)
+  print(high)
+
+validation:
+  method: output
+  expected_output: "1\n9"
+
+hints:
+  - "Return two values separated by a comma: `return min(numbers), max(numbers)`."
+  - "The starter code already unpacks the result with `low, high = min_max(data)` and prints both values. You just need to write the function."
+
+solution: |
+  def min_max(numbers):
+      return min(numbers), max(numbers)
+
+  data = [4, 1, 7, 3, 9]
+  low, high = min_max(data)
+  print(low)
+  print(high)
+
+explanation: |
+  `return min(numbers), max(numbers)` returns two values as a tuple. The
+  calling code uses tuple unpacking (`low, high = min_max(data)`) to assign
+  each returned value to a separate variable. This is a common Python pattern
+  for functions that naturally produce multiple results. Under the hood,
+  `min_max` returns the tuple `(1, 9)`, which is then unpacked into `low=1`
+  and `high=9`.

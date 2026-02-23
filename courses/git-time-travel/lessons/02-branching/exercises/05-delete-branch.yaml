@@ -1,0 +1,44 @@
+id: delete-branch
+title: "Delete a Merged Branch"
+type: command
+prompt: |
+  Spring cleaning time. The `old-feature` branch was merged into main
+  a while ago. It's just clutter now -- the commits are safely part
+  of main's history.
+
+  Delete the `old-feature` branch. You're currently on `main`.
+starter: |
+  #!/bin/bash
+  # Delete the old-feature branch (it's already been merged)
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base' > readme.txt && git add readme.txt && git commit -m 'Initial commit' && git checkout -b old-feature && echo 'old work' > old.txt && git add old.txt && git commit -m 'Old feature work' && git checkout main && git merge old-feature -m 'Merge old-feature'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && if git rev-parse --verify old-feature >/dev/null 2>&1; then echo 'EXISTS' > {dir}/repo/branch_status.txt; else echo 'DELETED' > {dir}/repo/branch_status.txt; fi"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/branch_status.txt
+    - file_contains:
+        path: repo/branch_status.txt
+        content: "DELETED"
+hints:
+  - "Use git branch -d to delete a merged branch."
+  - "git branch -d old-feature"
+  - "The -d flag is safe: git refuses to delete unmerged branches. Use -D to force."
+solution: |
+  #!/bin/bash
+  git branch -d old-feature
+explanation: |
+  `git branch -d old-feature` deletes the branch pointer. The commits
+  aren't lost -- they're still reachable through main's history because
+  the branch was merged. The -d flag is the safe version: git checks
+  that the branch has been merged and refuses if it hasn't. Use -D
+  (capital) to force-delete an unmerged branch.

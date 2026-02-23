@@ -1,0 +1,31 @@
+id: concurrency
+title: "Goroutines & Channels"
+description: "Write concurrent programs with goroutines, channels, and synchronization primitives"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - goroutines
+  - channels
+  - buffered-channels
+  - select-statement
+  - waitgroup
+  - mutex
+  - go-test
+teaches:
+  - goroutines
+  - channels
+  - buffered-channels
+  - select-statement
+  - sync-waitgroup
+  - sync-mutex
+  - go-test
+recap: |
+  You learned:
+  - Goroutines are lightweight threads launched with the `go` keyword
+  - Channels let goroutines communicate and synchronize with each other
+  - Unbuffered channels block until both sender and receiver are ready
+  - Buffered channels can hold a fixed number of values before blocking
+  - The `select` statement multiplexes across multiple channel operations
+  - `sync.WaitGroup` coordinates waiting for a group of goroutines to finish
+  - `sync.Mutex` protects shared state from data races in concurrent code
+  - `go test` discovers and runs test files automatically — no framework needed

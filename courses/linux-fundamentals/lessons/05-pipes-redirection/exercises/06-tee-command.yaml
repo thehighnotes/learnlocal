@@ -1,0 +1,29 @@
+id: tee-command
+title: "Use tee"
+type: command
+prompt: |
+  Use echo piped to tee to simultaneously save "tee works" to a file
+  AND print it to stdout. Then verify the file contents.
+  Output should be two identical lines:
+    tee works
+    tee works
+starter: |
+  # Use tee to save and display simultaneously
+validation:
+  method: output
+  expected_output: |
+    tee works
+    tee works
+hints:
+  - 'echo "tee works" | tee file.txt'
+  - "tee prints to stdout AND writes to the file"
+  - "cat the file to show the second line"
+solution: |
+  TMPD=$(mktemp -d)
+  echo "tee works" | tee "$TMPD/saved.txt"
+  cat "$TMPD/saved.txt"
+  rm -rf "$TMPD"
+explanation: |
+  tee reads from stdin and writes to both stdout and one or more files.
+  The first "tee works" comes from tee's stdout, the second from cat
+  reading the file that tee wrote.

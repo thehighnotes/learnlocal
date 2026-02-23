@@ -1,0 +1,66 @@
+id: read-the-logs
+title: "Read the Logs"
+type: command
+golf: true
+prompt: |
+  INCIDENT UPDATE: The error has been traced to app.log.
+
+  The log file has dozens of lines. Somewhere in there is a CRITICAL
+  message that explains the root cause. Extract that line and write
+  it to answer.txt.
+
+  Precision matters. Get the exact line.
+starter: |
+  # Find the CRITICAL line in app.log and write it to answer.txt
+environment:
+  files:
+    - path: app.log
+      content: |
+        2024-03-15 03:40:00 INFO Application started on port 8080
+        2024-03-15 03:40:01 INFO Loading configuration from /etc/app/config.yaml
+        2024-03-15 03:40:02 INFO Database pool initialized: 10 connections
+        2024-03-15 03:40:03 INFO Cache backend: redis://localhost:6379
+        2024-03-15 03:40:04 INFO Worker threads: 4
+        2024-03-15 03:41:00 INFO Health check: OK
+        2024-03-15 03:41:30 INFO Serving request: GET /api/users
+        2024-03-15 03:41:31 INFO Response: 200 OK (12ms)
+        2024-03-15 03:42:00 INFO Health check: OK
+        2024-03-15 03:42:10 WARN Memory usage: 78% (threshold: 80%)
+        2024-03-15 03:42:15 WARN Slow query detected: SELECT * FROM sessions (1.2s)
+        2024-03-15 03:42:20 INFO Serving request: POST /api/checkout
+        2024-03-15 03:42:21 WARN Payment gateway timeout: retrying (1/3)
+        2024-03-15 03:42:22 WARN Payment gateway timeout: retrying (2/3)
+        2024-03-15 03:42:23 WARN Payment gateway timeout: retrying (3/3)
+        2024-03-15 03:42:24 ERROR Payment processing failed for order #8891
+        2024-03-15 03:42:30 INFO Serving request: GET /api/products
+        2024-03-15 03:42:31 INFO Response: 200 OK (8ms)
+        2024-03-15 03:42:44 ERROR Connection refused: redis://localhost:6379
+        2024-03-15 03:42:44 ERROR Cache layer unavailable, falling back to direct DB
+        2024-03-15 03:42:45 WARN Response time degraded: avg 2.3s
+        2024-03-15 03:42:50 INFO Serving request: GET /api/health
+        2024-03-15 03:42:51 WARN Health check: DEGRADED
+        2024-03-15 03:43:00 ERROR Database connection pool exhausted
+        2024-03-15 03:43:01 CRITICAL database connection timeout — all queries failing
+        2024-03-15 03:43:02 ERROR Serving request failed: GET /api/users — 503
+        2024-03-15 03:43:03 ERROR Serving request failed: POST /api/orders — 503
+        2024-03-15 03:43:05 WARN Health check: UNHEALTHY
+        2024-03-15 03:43:10 INFO Auto-recovery: attempting database reconnect
+        2024-03-15 03:43:15 ERROR Database reconnect failed: connection refused
+        2024-03-15 03:43:20 INFO Circuit breaker activated for database
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_contains:
+        path: answer.txt
+        content: "database connection timeout"
+hints:
+  - "`grep CRITICAL app.log` will find the critical line."
+  - "Pipe it to a file: `grep CRITICAL app.log > answer.txt`"
+solution: |
+  grep CRITICAL app.log > answer.txt
+explanation: |
+  In a wall of log output, grep lets you zero in on the severity level
+  that matters most. During an incident, you triage by severity:
+  CRITICAL > ERROR > WARN > INFO. The CRITICAL line tells you the
+  root cause — everything else is a symptom.

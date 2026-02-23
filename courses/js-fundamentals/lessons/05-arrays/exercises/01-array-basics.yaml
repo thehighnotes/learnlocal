@@ -1,0 +1,47 @@
+id: array-basics
+title: "Array Basics"
+type: write
+
+prompt: |
+  Create an array called numbers with the values [10, 20, 30, 40, 50].
+  Then print three things, each on its own line:
+  1. The length of the array
+  2. The first element
+  3. The last element
+
+  Expected output:
+  5
+  10
+  50
+
+starter: |
+  // Create the array and print length, first, and last elements
+
+validation:
+  method: output
+  expected_output: "5\n10\n50"
+
+hints:
+  - "Create with: const numbers = [10, 20, 30, 40, 50];"
+  - "Length: numbers.length. First: numbers[0]. Last: numbers[numbers.length - 1]"
+  - "Or use .at(-1) for the last element: numbers.at(-1)"
+
+solution: |
+  const numbers = [10, 20, 30, 40, 50];
+  console.log(numbers.length);
+  console.log(numbers[0]);
+  console.log(numbers[numbers.length - 1]);
+
+explanation: |
+  Arrays use zero-based indexing:
+  - Index 0 is the first element (10)
+  - Index 4 is the last element (50) for an array of length 5
+
+  To access the last element, use `arr[arr.length - 1]`. Since the length
+  is 5 and indexing starts at 0, the last index is 5 - 1 = 4.
+
+  Modern JavaScript also provides `.at()` which accepts negative indices:
+  `numbers.at(-1)` returns the last element, `.at(-2)` returns the
+  second-to-last, and so on.
+
+  The `.length` property is always one more than the highest index.

@@ -1,0 +1,48 @@
+id: obj-destructure
+title: "Object Destructuring"
+type: write
+
+prompt: |
+  Given the user object in the starter code, use destructuring to extract
+  the name and role properties into variables, then print:
+  Bob is admin
+
+starter: |
+  const user = { name: "Bob", age: 25, role: "admin" };
+  // Destructure name and role, then print: "Bob is admin"
+
+validation:
+  method: output
+  expected_output: "Bob is admin"
+
+hints:
+  - "Destructuring syntax: const { name, role } = user;"
+  - "This creates two variables: name = \"Bob\" and role = \"admin\"."
+  - "Then: console.log(`${name} is ${role}`);"
+
+solution: |
+  const user = { name: "Bob", age: 25, role: "admin" };
+  const { name, role } = user;
+  console.log(`${name} is ${role}`);
+
+explanation: |
+  Object destructuring extracts properties into variables:
+
+  `const { name, role } = user;`
+
+  This creates:
+  - `name` = "Bob" (from user.name)
+  - `role` = "admin" (from user.role)
+
+  Unlike array destructuring (which uses position), object destructuring
+  uses the property name. The variable names must match the property names
+  unless you rename them:
+
+      const { name: userName, role: userRole } = user;
+
+  You can also set defaults for missing properties:
+
+      const { name, role, active = true } = user;
+
+  Destructuring is extremely common in modern JavaScript, especially in
+  function parameters and when importing from modules.

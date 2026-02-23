@@ -1,0 +1,70 @@
+id: make-append
+title: "Growing a Slice"
+type: fill-blank
+
+prompt: |
+  Fill in the blanks to create a slice with `make`, then grow it with
+  `append`. The program creates an empty int slice with capacity 4, appends
+  the numbers 10, 20, and 30, then prints the slice contents along with
+  its length and capacity at each step.
+
+  Expected output:
+  ```
+  start: [] len=0 cap=4
+  after: [10 20 30] len=3 cap=4
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      s := ___([]int, 0, 4)
+      fmt.Printf("start: %v len=%d cap=%d\n", s, len(s), cap(s))
+
+      s = ___(s, 10, 20, 30)
+      fmt.Printf("after: %v len=%d cap=%d\n", s, len(s), cap(s))
+  }
+
+validation:
+  method: output
+  expected_output: |
+    start: [] len=0 cap=4
+    after: [10 20 30] len=3 cap=4
+
+hints:
+  - "The first blank creates a slice: make([]int, 0, 4) -- length 0, capacity 4."
+  - "The second blank grows the slice: append(s, 10, 20, 30) adds three elements."
+  - "Replace the first ___ with `make` and the second ___ with `append`."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      s := make([]int, 0, 4)
+      fmt.Printf("start: %v len=%d cap=%d\n", s, len(s), cap(s))
+
+      s = append(s, 10, 20, 30)
+      fmt.Printf("after: %v len=%d cap=%d\n", s, len(s), cap(s))
+  }
+
+explanation: |
+  This exercise introduces make() and append():
+
+  1. `make([]int, 0, 4)` creates a slice with length 0 and capacity 4.
+     The length is how many elements the slice currently holds. The capacity
+     is how many it can hold before needing to allocate a new backing array.
+  2. `%v` in Printf prints the slice in default format: [] for empty,
+     [10 20 30] after appending.
+  3. `append(s, 10, 20, 30)` adds three elements at once. Since capacity
+     is 4 and we only add 3 to an empty slice, no reallocation happens.
+     The capacity stays at 4.
+  4. After appending, length is 3 (three elements) and capacity is still 4.
+
+  Pre-allocating capacity with make is a performance optimization. If you
+  know you will add ~1000 elements, `make([]int, 0, 1000)` avoids many
+  intermediate allocations as the slice grows. But functionally, starting
+  with `var s []int` and just appending works identically.

@@ -1,0 +1,21 @@
+id: check-toolchain
+title: "Check Your Toolchain"
+type: command
+prompt: |
+  Rust has two key tools: the compiler (rustc) and the package manager (cargo).
+  Print both versions, one per line.
+starter: |
+  # Print rustc and cargo versions
+validation:
+  method: regex
+  pattern: "rustc \\d+\\.\\d+[\\s\\S]*cargo \\d+\\.\\d+"
+hints:
+  - "Run rustc --version for the compiler version"
+  - "Run cargo --version for the package manager version"
+solution: |
+  rustc --version
+  cargo --version
+explanation: |
+  rustc compiles Rust code directly. cargo is Rust's build system and package
+  manager — you'll use it for almost everything. Both are installed together
+  via rustup.

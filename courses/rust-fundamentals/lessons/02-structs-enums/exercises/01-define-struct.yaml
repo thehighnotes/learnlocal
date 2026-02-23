@@ -1,0 +1,52 @@
+id: define-struct
+title: "Define a Struct"
+type: write
+
+prompt: |
+  Define a struct called `Rectangle` with two fields:
+  - `width` of type `f64`
+  - `height` of type `f64`
+
+  Then create an instance with width `10.0` and height `5.0`, and print both
+  fields. The starter code already has the `println!` line -- you need to define
+  the struct and create the variable `r`.
+
+starter: |
+  fn main() {
+      // Define the Rectangle struct above main, then create an instance here
+
+      println!("{} x {}", r.width, r.height);
+  }
+
+validation:
+  method: output
+  expected_output: "10 x 5"
+
+hints:
+  - "A struct is defined with: struct Name { field: Type, field: Type }"
+  - "Create an instance with: let r = Rectangle { width: 10.0, height: 5.0 };"
+  - "The struct definition goes above fn main(). The variable creation goes inside main where the comment is."
+
+solution: |
+  struct Rectangle {
+      width: f64,
+      height: f64,
+  }
+
+  fn main() {
+      let r = Rectangle { width: 10.0, height: 5.0 };
+
+      println!("{} x {}", r.width, r.height);
+  }
+
+explanation: |
+  `struct Rectangle { width: f64, height: f64 }` defines a new type with two
+  named fields. Each field has a name and a type, separated by a colon.
+
+  `let r = Rectangle { width: 10.0, height: 5.0 };` creates an instance by
+  providing a value for every field. Unlike some languages, Rust requires you
+  to name the fields explicitly (no positional construction for named-field
+  structs).
+
+  When printed with `{}`, f64 values like `10.0` and `5.0` display as `10`
+  and `5` (Rust omits the trailing `.0` when the fractional part is zero).

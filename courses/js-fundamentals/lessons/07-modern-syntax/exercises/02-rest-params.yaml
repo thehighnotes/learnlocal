@@ -1,0 +1,57 @@
+id: rest-params
+title: "Rest Parameters"
+type: write
+
+prompt: |
+  Write a function called sum that accepts any number of arguments using
+  rest parameters and returns their total.
+
+  Call it twice and print each result:
+  1. sum(1, 2, 3) → 6
+  2. sum(100) → 100
+
+  Expected output:
+  6
+  100
+
+starter: |
+  // Define sum using rest parameters: function sum(...nums)
+  // It should return the total of all arguments
+
+  // Print sum(1, 2, 3) and sum(100)
+
+validation:
+  method: output
+  expected_output: "6\n100"
+
+hints:
+  - "Rest parameters: function sum(...nums) { } — nums is an array of all arguments."
+  - "Use .reduce() to sum: nums.reduce((total, n) => total + n, 0)"
+  - "Or use a for loop: let total = 0; for (const n of nums) total += n;"
+
+solution: |
+  function sum(...nums) {
+    let total = 0;
+    for (const n of nums) {
+      total += n;
+    }
+    return total;
+  }
+  console.log(sum(1, 2, 3));
+  console.log(sum(100));
+
+explanation: |
+  The rest parameter syntax `...nums` collects all arguments into an array:
+
+  - `sum(1, 2, 3)` → nums = [1, 2, 3]
+  - `sum(100)` → nums = [100]
+  - `sum()` → nums = []
+
+  Rules for rest parameters:
+  - Must be the last parameter: `function fn(first, ...rest)` is valid
+  - `function fn(...rest, last)` is a syntax error
+  - Only one rest parameter per function
+
+  The rest parameter replaces the old `arguments` object, which was
+  array-like but not a real array (no .map, .filter, etc.). Rest
+  parameters give you a proper array.

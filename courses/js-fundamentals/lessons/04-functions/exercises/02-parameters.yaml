@@ -1,0 +1,49 @@
+id: parameters
+title: "Multiple Parameters"
+type: write
+
+prompt: |
+  Write a function called area that takes two parameters: width and height.
+  It should return the product (width * height).
+
+  Call it twice and print the results:
+  1. area(3, 5) → print the result
+  2. area(7, 10) → print the result
+
+  Expected output:
+  15
+  70
+
+starter: |
+  // Define an area function with width and height parameters
+  // It should RETURN the result, not print it
+
+  // Call it and print the results
+
+validation:
+  method: output
+  expected_output: "15\n70"
+
+hints:
+  - "The function should return the product: return width * height;"
+  - "Call and print: console.log(area(3, 5)); console.log(area(7, 10));"
+  - "function area(width, height) { return width * height; }"
+
+solution: |
+  function area(width, height) {
+    return width * height;
+  }
+  console.log(area(3, 5));
+  console.log(area(7, 10));
+
+explanation: |
+  This function takes two parameters and returns a computed value. The
+  caller then decides what to do with the result (in this case, print it).
+
+  This separation is important: the `area` function calculates but does
+  not print. This makes it reusable — you could use the result in further
+  calculations, store it in a variable, or pass it to another function.
+
+  Parameters are positional: the first argument maps to `width`, the second
+  to `height`. JavaScript does not enforce parameter count — if you called
+  area(5), height would be undefined and the result would be NaN (Not a Number).

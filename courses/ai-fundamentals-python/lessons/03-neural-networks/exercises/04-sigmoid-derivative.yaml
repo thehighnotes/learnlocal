@@ -1,0 +1,64 @@
+id: sigmoid-derivative
+title: "Sigmoid Derivative"
+type: write
+
+prompt: |
+  Implement the derivative of the sigmoid function. The formula is remarkably
+  simple:
+
+      sigmoid'(x) = sigmoid(x) * (1 - sigmoid(x))
+
+  This derivative is needed for backpropagation — it tells us how much the
+  sigmoid output changes when its input changes.
+
+  Test with three values and print each rounded to 2 decimal places:
+  - sigmoid_deriv(0) → 0.25
+  - sigmoid_deriv(1) → 0.20
+  - sigmoid_deriv(-1) → 0.20
+
+starter: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  # Implement the sigmoid derivative
+  def sigmoid_deriv(x):
+      pass
+
+  print(round(sigmoid_deriv(0), 2))
+  print(round(sigmoid_deriv(1), 2))
+  print(round(sigmoid_deriv(-1), 2))
+
+validation:
+  method: output
+  expected_output: "0.25\n0.2\n0.2"
+
+hints:
+  - "First compute sigmoid(x), then multiply it by (1 - sigmoid(x))."
+  - "The function body is: `s = sigmoid(x); return s * (1 - s)`"
+
+solution: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  def sigmoid_deriv(x):
+      s = sigmoid(x)
+      return s * (1 - s)
+
+  print(round(sigmoid_deriv(0), 2))
+  print(round(sigmoid_deriv(1), 2))
+  print(round(sigmoid_deriv(-1), 2))
+
+explanation: |
+  At x=0: sigmoid = 0.5, derivative = 0.5 * 0.5 = 0.25.
+  At x=1: sigmoid ≈ 0.73, derivative = 0.73 * 0.27 ≈ 0.197 → 0.2.
+  At x=-1: sigmoid ≈ 0.27, derivative = 0.27 * 0.73 ≈ 0.197 → 0.2.
+
+  The derivative is largest (0.25) at x=0 where the sigmoid curve is steepest.
+  It gets smaller as x moves away from 0, approaching 0 at extreme values.
+  This is why deep networks with sigmoid can suffer from vanishing gradients:
+  the derivative is always ≤ 0.25, and multiplying many small numbers together
+  gives a tiny result.

@@ -1,0 +1,90 @@
+id: string-slices
+title: "String Slices"
+type: write
+
+prompt: |
+  Write a function `first_word` that takes a string slice (`&str`) and returns
+  the first word as a string slice (`&str`).
+
+  A "word" is a sequence of characters up to the first space. If there is no
+  space, return the entire string.
+
+  In main, test it with two strings and print the results.
+
+  Expected output:
+
+  ```
+  first word of 'hello world' = hello
+  first word of 'rust' = rust
+  ```
+
+starter: |
+  // Define first_word here.
+  // It takes a &str and returns a &str.
+  // Find the first space and return the slice before it.
+  // If there is no space, return the whole string.
+
+  fn main() {
+      let sentence = String::from("hello world");
+      let single = String::from("rust");
+
+      // Call first_word on each (pass &sentence and &single — String auto-coerces to &str)
+
+      // Print:
+      //   first word of 'hello world' = hello
+      //   first word of 'rust' = rust
+  }
+
+validation:
+  method: output
+  expected_output: |
+    first word of 'hello world' = hello
+    first word of 'rust' = rust
+
+hints:
+  - "To iterate over bytes and find a space: use s.as_bytes() to get the bytes, then iterate with .iter().enumerate(). Check if a byte equals b' ' (the space byte literal)."
+  - "When you find a space at index i, return &s[..i] — a slice from the start of the string up to (but not including) the space."
+  - "If the loop finishes without finding a space, return the entire input slice: just `s`. In main, call first_word(&sentence) — Rust automatically coerces &String to &str."
+
+solution: |
+  fn first_word(s: &str) -> &str {
+      let bytes = s.as_bytes();
+      for (i, &byte) in bytes.iter().enumerate() {
+          if byte == b' ' {
+              return &s[..i];
+          }
+      }
+      s
+  }
+
+  fn main() {
+      let sentence = String::from("hello world");
+      let single = String::from("rust");
+
+      let w1 = first_word(&sentence);
+      let w2 = first_word(&single);
+
+      println!("first word of '{}' = {}", sentence, w1);
+      println!("first word of '{}' = {}", single, w2);
+  }
+
+explanation: |
+  The function `first_word` takes `&str` (a string slice) and returns `&str`.
+  This signature is more flexible than taking `&String` because it accepts both
+  String references and string literals.
+
+  The implementation converts the string to bytes with `as_bytes()`, then scans
+  for a space character using `iter().enumerate()`. The `enumerate()` method
+  gives both the index `i` and the byte value. When a space is found, `&s[..i]`
+  returns a slice of everything before the space.
+
+  If no space is found, the entire input `s` is returned — the whole string
+  is the "first word."
+
+  In main, `&sentence` (which is `&String`) automatically coerces to `&str`
+  through Rust's **deref coercion**. This is why accepting `&str` is preferred
+  over `&String` — it works with both `String` values and string literals.
+
+  The returned slices `w1` and `w2` are references into the original Strings.
+  They do not own any data and do not allocate any memory. As long as the
+  original Strings are alive, the slices are valid.

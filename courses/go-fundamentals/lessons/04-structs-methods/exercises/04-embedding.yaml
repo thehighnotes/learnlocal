@@ -1,0 +1,75 @@
+id: embedding
+title: "Struct Embedding"
+type: write
+
+prompt: |
+  Define two structs:
+  1. `Animal` with a `Name string` field
+  2. `Dog` that **embeds** `Animal` and adds a `Breed string` field
+
+  In `main`, create a `Dog` named "Rex" with breed "German Shepherd". Print a
+  single line using both the promoted `Name` field and the `Breed` field.
+
+  Expected output:
+  ```
+  Rex is a German Shepherd
+  ```
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Define Animal struct here
+
+  // Define Dog struct (embedding Animal) here
+
+  func main() {
+      // Create a Dog and print: "Name is a Breed"
+  }
+
+validation:
+  method: output
+  expected_output: "Rex is a German Shepherd"
+
+hints:
+  - "Embed Animal by listing it without a field name: type Dog struct { Animal; Breed string }"
+  - "Initialize the embedded struct by name: Dog{Animal: Animal{Name: \"Rex\"}, Breed: \"German Shepherd\"}"
+  - "Access the promoted field directly: d.Name (not d.Animal.Name, though that also works)."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type Animal struct {
+      Name string
+  }
+
+  type Dog struct {
+      Animal
+      Breed string
+  }
+
+  func main() {
+      d := Dog{
+          Animal: Animal{Name: "Rex"},
+          Breed:  "German Shepherd",
+      }
+      fmt.Printf("%s is a %s\n", d.Name, d.Breed)
+  }
+
+explanation: |
+  `type Dog struct { Animal; Breed string }` embeds the `Animal` struct inside
+  `Dog`. This is **not** inheritance — `Dog` is not a subtype of `Animal`. It is
+  composition: `Dog` has an `Animal`.
+
+  Embedding promotes the embedded type's fields and methods. So `d.Name` is
+  shorthand for `d.Animal.Name`. Both forms work, but the short form is idiomatic.
+
+  When initializing, you must use the embedded type's name as the field key:
+  `Animal: Animal{Name: "Rex"}`. You cannot write `Name: "Rex"` directly in the
+  `Dog` literal — Go needs to know which embedded type the field belongs to.
+
+  Go strongly favors composition over inheritance. Embedding gives you field and
+  method reuse without the complexity of class hierarchies.

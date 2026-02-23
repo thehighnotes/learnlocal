@@ -1,0 +1,50 @@
+id: string-basics
+title: "String Length and Output"
+type: write
+
+prompt: |
+  Create a std::string containing "C++". Print its length on the first
+  line, then print the string itself on the second line.
+
+starter: |
+  #include <iostream>
+  #include <string>
+
+  int main() {
+      // Create a std::string with the value "C++"
+
+      // Print the string's length on one line
+
+      // Print the string itself on the next line
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "3\nC++"
+
+hints:
+  - "Declare the string with: std::string lang = \"C++\";"
+  - "Use .length() or .size() to get the number of characters in the string."
+  - "Print the length first, then the string: std::cout << lang.length() << std::endl; then std::cout << lang << std::endl;"
+
+solution: |
+  #include <iostream>
+  #include <string>
+
+  int main() {
+      std::string lang = "C++";
+
+      std::cout << lang.length() << std::endl;
+      std::cout << lang << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  `std::string lang = "C++";` creates a string object from the string
+  literal. The `.length()` method returns the number of characters --
+  3 in this case (the letter C and two plus signs). You can also use
+  `.size()`, which is identical. Strings print directly with `std::cout`
+  just like other types.

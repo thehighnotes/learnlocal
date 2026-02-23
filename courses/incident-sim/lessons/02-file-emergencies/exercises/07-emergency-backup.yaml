@@ -1,0 +1,76 @@
+id: emergency-backup
+title: "Emergency Backup"
+type: command
+golf: true
+prompt: |
+  SITUATION: You're about to attempt a risky fix on the production
+  config. If it goes wrong, you need to be able to roll back.
+
+  The app/ directory has several critical .conf files mixed in with
+  other files. Before touching anything:
+
+  1. Create a backup/ directory
+  2. Copy ALL .conf files from app/ into backup/
+
+  Do NOT copy the non-conf files — only the configuration files.
+starter: |
+  # Create backup/ and copy all .conf files from app/ into it
+environment:
+  dirs:
+    - app
+  files:
+    - path: app/server.conf
+      content: |
+        server.host=0.0.0.0
+        server.port=8080
+    - path: app/database.conf
+      content: |
+        database.host=db.internal
+        database.port=5432
+    - path: app/cache.conf
+      content: |
+        cache.backend=redis
+        cache.host=redis.internal
+    - path: app/README.txt
+      content: |
+        This is not a config file. Do not back this up.
+    - path: app/app.pid
+      content: |
+        12345
+    - path: app/start.sh
+      content: |
+        #!/bin/bash
+        exec /usr/local/bin/app-server
+validation:
+  method: state
+  assertions:
+    - dir_exists: backup
+    - file_exists: backup/server.conf
+    - file_exists: backup/database.conf
+    - file_exists: backup/cache.conf
+    - file_contains:
+        path: backup/server.conf
+        content: "server.host=0.0.0.0"
+    - file_contains:
+        path: backup/database.conf
+        content: "database.host=db.internal"
+    - file_contains:
+        path: backup/cache.conf
+        content: "cache.backend=redis"
+    - file_count:
+        path: backup
+        count: 3
+hints:
+  - "`mkdir backup` creates the backup directory."
+  - "`cp app/*.conf backup/` copies only files ending in .conf."
+  - "The glob `*.conf` matches server.conf, database.conf, and cache.conf but not README.txt or app.pid."
+solution: |
+  mkdir backup
+  cp app/*.conf backup/
+explanation: |
+  Before making any risky change in production, back up what you're about
+  to modify. The glob pattern `*.conf` is precise — it copies only
+  configuration files, not PID files, scripts, or documentation. The
+  file_count assertion verifies exactly 3 files were copied, ensuring
+  you didn't accidentally grab extra files. If your fix breaks things,
+  you can `cp backup/*.conf app/` to roll back instantly.

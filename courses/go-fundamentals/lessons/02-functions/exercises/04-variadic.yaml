@@ -1,0 +1,80 @@
+id: variadic
+title: "Variadic Function"
+type: write
+
+prompt: |
+  Write a variadic function:
+
+    func sum(nums ...int) int
+
+  It should return the sum of all the numbers passed to it. If no arguments
+  are passed, it should return 0.
+
+  In main, print the results of:
+  1. sum(1, 2, 3)
+  2. sum(10, 20)
+  3. sum()
+
+  Expected output:
+  6
+  30
+  0
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write func sum(nums ...int) int
+  // Use a for loop or range to add up all the numbers
+
+  func main() {
+      fmt.Println(sum(1, 2, 3))
+      fmt.Println(sum(10, 20))
+      fmt.Println(sum())
+  }
+
+validation:
+  method: output
+  expected_output: "6\n30\n0"
+
+hints:
+  - "Inside the function, nums is a []int slice. Loop over it with for _, n := range nums."
+  - "Start with total := 0, add each number, then return total."
+  - "func sum(nums ...int) int { total := 0; for _, n := range nums { total += n }; return total }"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func sum(nums ...int) int {
+      total := 0
+      for _, n := range nums {
+          total += n
+      }
+      return total
+  }
+
+  func main() {
+      fmt.Println(sum(1, 2, 3))
+      fmt.Println(sum(10, 20))
+      fmt.Println(sum())
+  }
+
+explanation: |
+  The `...int` syntax makes `nums` a variadic parameter. Inside the function,
+  `nums` is a regular `[]int` slice — you iterate it with `range` just like
+  any other slice.
+
+  When called with no arguments, `nums` is an empty slice (length 0). The
+  `for range` loop body never executes, so `total` stays at 0. This is why
+  no special case is needed for the zero-argument call.
+
+  Key rules for variadic parameters:
+  - Only the last parameter can be variadic.
+  - You can mix regular and variadic parameters: `func f(prefix string, nums ...int)`.
+  - To pass a slice to a variadic function, use the `...` operator: `sum(mySlice...)`.
+
+  Many standard library functions are variadic — `fmt.Println`, `append`,
+  and `fmt.Sprintf` all use this pattern.

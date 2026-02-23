@@ -1,0 +1,56 @@
+id: health-check-script
+title: "Write a Health Check"
+type: command
+prompt: |
+  INCIDENT RESOLVED — now prove it.
+
+  You've just brought a service back online. Before closing the incident,
+  you need a health check script that verifies everything is actually working.
+
+  Write `health_check.sh` that checks for these three critical files:
+  - `app/config.json`
+  - `app/server.py`
+  - `data/cache.db`
+
+  If ALL files exist, print exactly `OK` (and exit 0).
+  If ANY file is missing, print exactly `FAIL` (and exit 1).
+starter: |
+  #!/bin/bash
+  # Health check script
+  # Check that app/config.json, app/server.py, and data/cache.db all exist
+  # Print "OK" if all present, "FAIL" if any missing
+environment:
+  dirs:
+    - app
+    - data
+  files:
+    - path: app/config.json
+      content: '{"app": "order-service", "port": 8080}'
+    - path: app/server.py
+      content: |
+        # Order service application
+        print("Server starting on port 8080")
+    - path: data/cache.db
+      content: ""
+validation:
+  method: output
+  expected_output: "OK\n"
+hints:
+  - "Use `test -f <path>` or `[ -f <path> ]` to check if a file exists."
+  - "Chain the checks: `if [ -f app/config.json ] && [ -f app/server.py ] && [ -f data/cache.db ]; then echo OK; else echo FAIL; fi`"
+  - "Don't forget exit codes: `exit 0` for OK, `exit 1` for FAIL."
+solution: |
+  #!/bin/bash
+  if [ -f app/config.json ] && [ -f app/server.py ] && [ -f data/cache.db ]; then
+      echo "OK"
+      exit 0
+  else
+      echo "FAIL"
+      exit 1
+  fi
+explanation: |
+  Health check scripts should be simple, fast, and deterministic. They check
+  the minimum set of conditions required for the service to function. In
+  production, health checks run on a loop (via systemd watchdog, Kubernetes
+  liveness probes, or monitoring agents). A good health check exits 0 on
+  success and non-zero on failure, with a clear human-readable message.

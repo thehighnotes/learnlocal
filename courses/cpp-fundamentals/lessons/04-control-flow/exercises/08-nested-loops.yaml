@@ -1,0 +1,68 @@
+id: nested-loops
+title: "Star Triangle"
+type: write
+
+prompt: |
+  Use nested loops to print a right triangle made of `*` characters.
+  The triangle has 5 rows. Row 1 has 1 star, row 2 has 2 stars, and so
+  on up to row 5 with 5 stars. Print each row on its own line with no
+  spaces between stars.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Outer loop: 5 rows (i = 1 to 5)
+      //   Inner loop: print i stars
+      //   Print a newline after each row
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: |
+    *
+    **
+    ***
+    ****
+    *****
+
+hints:
+  - "The outer loop controls which row you're on: `for (int i = 1; i <= 5; i++)`. The variable i also tells you how many stars to print on that row."
+  - "The inner loop prints stars for the current row: `for (int j = 0; j < i; j++)`. Use `std::cout << \"*\"` without endl inside the inner loop."
+  - "After the inner loop finishes, print `std::endl` to move to the next line. This goes inside the outer loop but outside the inner loop."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      for (int i = 1; i <= 5; i++) {
+          for (int j = 0; j < i; j++) {
+              std::cout << "*";
+          }
+          std::cout << std::endl;
+      }
+
+      return 0;
+  }
+
+explanation: |
+  This exercise uses nested loops to build a 2D pattern:
+
+  1. The **outer loop** (`i = 1` to `5`) runs once per row.
+  2. The **inner loop** (`j = 0` to `i-1`) runs `i` times, printing one
+     star each time without a newline.
+  3. After the inner loop, `std::endl` moves to the next line.
+
+  Trace through the first few iterations:
+  - i=1: inner loop runs 1 time -> prints "*", then newline
+  - i=2: inner loop runs 2 times -> prints "**", then newline
+  - i=3: inner loop runs 3 times -> prints "***", then newline
+
+  The key insight is that the inner loop's upper bound depends on the outer
+  loop's variable. This creates the growing pattern. Total stars printed:
+  1 + 2 + 3 + 4 + 5 = 15, but organized across 5 lines.
+
+  Nested loops are the foundation for working with grids, tables, and any
+  2D structure in programming.

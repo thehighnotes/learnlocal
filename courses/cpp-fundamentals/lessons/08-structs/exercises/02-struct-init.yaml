@@ -1,0 +1,60 @@
+id: struct-init
+title: "Struct with a Function"
+type: write
+
+prompt: |
+  Define a struct `Rectangle` with two members: `int width` and `int height`.
+  Write a function `int area(Rectangle r)` that returns the area (width * height).
+  In `main`, create a `Rectangle` with width `5` and height `3`, then print the
+  area returned by your function.
+
+starter: |
+  #include <iostream>
+
+  // Define your Rectangle struct here
+
+  // Write the area() function here
+
+  int main() {
+      // Create a Rectangle with width 5 and height 3
+
+      // Print the area
+      std::cout << /* your code here */ << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "15"
+
+hints:
+  - "Define the struct first: struct Rectangle { int width; int height; }; -- then write the function below it."
+  - "The function takes a Rectangle by value: int area(Rectangle r) { return r.width * r.height; }"
+  - "In main, create the rectangle and call the function: Rectangle rect{5, 3}; then print area(rect)."
+
+solution: |
+  #include <iostream>
+
+  struct Rectangle {
+      int width;
+      int height;
+  };
+
+  int area(Rectangle r) {
+      return r.width * r.height;
+  }
+
+  int main() {
+      Rectangle rect{5, 3};
+      std::cout << area(rect) << std::endl;
+      return 0;
+  }
+
+explanation: |
+  Structs work naturally with functions. `int area(Rectangle r)` receives a
+  copy of the Rectangle and accesses its members with the dot operator. Since
+  the function only reads the struct (does not modify it), passing by value
+  works fine here. For larger structs, you would pass by `const Rectangle&`
+  to avoid copying -- but the result is the same. The function returns
+  `r.width * r.height`, which is `5 * 3 = 15`.

@@ -1,0 +1,48 @@
+id: declare
+title: "Declaring Variables"
+type: write
+
+prompt: |
+  Declare three variables and print each one on its own line:
+  1. A constant `name` with the value "Alice"
+  2. A let variable `age` with the value 30
+  3. A constant `score` with the value 95.5
+
+  Print each variable using console.log().
+
+starter: |
+  // Declare your variables here
+  // Use const for values that won't change, let for values that might
+
+  // Print each variable
+
+validation:
+  method: output
+  expected_output: "Alice\n30\n95.5"
+
+hints:
+  - "Use const for name and score since they won't change: const name = \"Alice\";"
+  - "Use let for age: let age = 30; (even though we don't change it here, it represents something that could change)"
+  - "Print each with console.log(name); console.log(age); console.log(score);"
+
+solution: |
+  const name = "Alice";
+  let age = 30;
+  const score = 95.5;
+  console.log(name);
+  console.log(age);
+  console.log(score);
+
+explanation: |
+  `const` creates a variable that cannot be reassigned — trying to write
+  `name = "Bob"` later would throw a TypeError. Use const by default.
+
+  `let` creates a variable that can be reassigned. Use it when the value
+  needs to change (loop counters, running totals, etc.).
+
+  JavaScript has a third keyword, `var`, which is the old way to declare
+  variables. It has confusing scoping rules and should be avoided in
+  modern code. You will see it in older tutorials and codebases.
+
+  Note that JavaScript does not distinguish between integers and
+  floating-point numbers — both 30 and 95.5 are type "number".

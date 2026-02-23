@@ -1,0 +1,95 @@
+id: short-declarations
+title: "Fix the Scope Bug"
+type: fix
+
+prompt: |
+  This program uses short variable declarations inside `if` statements,
+  but the author made scoping mistakes. The code does not compile because
+  variables declared inside an `if` initializer are scoped to the if/else
+  block and are not accessible outside it.
+
+  Fix the code so it compiles and prints:
+
+      length=5 status=long
+      value=42 half=21
+
+  Do not change the logic — only fix the scoping issues.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      word := "hello"
+
+      if length := len(word); length > 3 {
+          status := "long"
+      } else {
+          status := "short"
+      }
+      fmt.Printf("length=%d status=%s\n", length, status)
+
+      if value := 42; value > 0 {
+          half := value / 2
+      }
+      fmt.Printf("value=%d half=%d\n", value, half)
+  }
+
+validation:
+  method: output
+  expected_output: |
+    length=5 status=long
+    value=42 half=21
+
+hints:
+  - "Variables declared with := inside an if initializer (like `length`) are scoped to the if/else block. They don't exist outside it."
+  - "Declare the variables you need outside the if block first, then assign to them inside. Use `=` instead of `:=` inside the if body when the variable already exists."
+  - "For example, declare `var status string` before the if, then use `status = \"long\"` inside the if body (not `:=`). For length, declare it before and compute it in the if initializer or separately."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      word := "hello"
+
+      var status string
+      length := len(word)
+      if length > 3 {
+          status = "long"
+      } else {
+          status = "short"
+      }
+      fmt.Printf("length=%d status=%s\n", length, status)
+
+      var half int
+      value := 42
+      if value > 0 {
+          half = value / 2
+      }
+      fmt.Printf("value=%d half=%d\n", value, half)
+  }
+
+explanation: |
+  The original code had two scoping bugs:
+
+  1. `length` was declared in the if initializer (`if length := ...`),
+     making it only accessible inside the if/else block. The fix is to
+     compute `length` before the if statement.
+
+  2. `status` was declared with `:=` inside both the if and else bodies.
+     Each `:=` creates a NEW variable scoped to that one branch. The fix
+     is to declare `var status string` before the if, then use plain `=`
+     to assign inside each branch.
+
+  3. The same pattern applies to `value` and `half` — they were trapped
+     inside the if block's scope.
+
+  This is a common Go gotcha. The short declaration `if x := ...; cond`
+  is great when you only need `x` inside the if/else. But when you need
+  the variable afterward, declare it in the outer scope first.
+
+  Go's strict scoping prevents accidental use of uninitialized variables
+  and makes it clear where each variable lives.

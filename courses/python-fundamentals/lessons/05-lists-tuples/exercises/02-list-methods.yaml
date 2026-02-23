@@ -1,0 +1,48 @@
+id: list-methods
+title: "List Methods"
+type: write
+
+prompt: |
+  Start with `fruits = ["apple", "banana"]`. Then:
+  1. Append `"cherry"` to the end
+  2. Insert `"avocado"` at index 0 (the beginning)
+  3. Remove `"banana"` from the list
+  4. Print the resulting list
+
+  The final list should be `['avocado', 'apple', 'cherry']`.
+
+starter: |
+  fruits = ["apple", "banana"]
+
+  # 1. Append "cherry"
+
+  # 2. Insert "avocado" at index 0
+
+  # 3. Remove "banana"
+
+  # 4. Print the list
+
+validation:
+  method: output
+  expected_output: "['avocado', 'apple', 'cherry']"
+
+hints:
+  - "Use `fruits.append(\"cherry\")` to add to the end, `fruits.insert(0, \"avocado\")` to insert at the beginning."
+  - "Use `fruits.remove(\"banana\")` to remove by value, then `print(fruits)` to display the result."
+
+solution: |
+  fruits = ["apple", "banana"]
+
+  fruits.append("cherry")
+  fruits.insert(0, "avocado")
+  fruits.remove("banana")
+  print(fruits)
+
+explanation: |
+  `append("cherry")` adds to the end: `["apple", "banana", "cherry"]`.
+  `insert(0, "avocado")` pushes everything right and places "avocado" at the
+  start: `["avocado", "apple", "banana", "cherry"]`. `remove("banana")` finds
+  the first occurrence of "banana" and removes it: `["avocado", "apple", "cherry"]`.
+  All three methods modify the list in place — they do not return a new list.
+  When you `print()` a list, Python shows it in bracket notation with repr-style
+  quotes around strings.

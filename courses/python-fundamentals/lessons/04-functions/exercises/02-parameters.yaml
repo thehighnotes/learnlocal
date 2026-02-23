@@ -1,0 +1,34 @@
+id: parameters
+title: "Function Parameters"
+type: write
+
+prompt: |
+  Write a function `greet(name)` that prints "Hello, {name}!" using an f-string.
+  Call it with the argument `"Alice"`.
+
+starter: |
+  # Define greet(name) here
+
+
+  # Call greet with "Alice"
+
+validation:
+  method: output
+  expected_output: "Hello, Alice!"
+
+hints:
+  - "Define the function with `def greet(name):` and use `print(f\"Hello, {name}!\")` inside."
+  - "Call it with `greet(\"Alice\")`. The string `\"Alice\"` is passed as the `name` parameter."
+
+solution: |
+  def greet(name):
+      print(f"Hello, {name}!")
+
+  greet("Alice")
+
+explanation: |
+  The parameter `name` acts as a local variable inside the function. When we
+  call `greet("Alice")`, the string `"Alice"` is assigned to `name`. The
+  f-string `f"Hello, {name}!"` substitutes the value of `name` into the
+  string, producing `Hello, Alice!`. You could call this function with any
+  string argument to get a personalized greeting.

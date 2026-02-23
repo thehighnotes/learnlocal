@@ -1,0 +1,77 @@
+id: type-switch
+title: "Type Switch"
+type: write
+
+prompt: |
+  Write a function `describe(i interface{}) string` that uses a type switch to
+  return a description of the value:
+  - `int` → `"integer: <value>"`
+  - `string` → `"text: <value>"`
+  - `bool` → `"boolean: <value>"`
+  - default → `"unknown"`
+
+  In `main`, call `describe` with `42`, `"hello"`, `true`, and `3.14`, printing
+  each result with `fmt.Println`.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write describe(i interface{}) string using a type switch
+  // case int: return fmt.Sprintf("integer: %d", v)
+  // case string: return fmt.Sprintf("text: %s", v)
+  // case bool: return fmt.Sprintf("boolean: %v", v)
+  // default: return "unknown"
+
+
+  func main() {
+  	_ = fmt.Println
+
+  	// Call describe with 42, "hello", true, 3.14
+  	// Print each result with fmt.Println
+
+  }
+
+validation:
+  method: output
+  expected_output: "integer: 42\ntext: hello\nboolean: true\nunknown\n"
+
+hints:
+  - "Type switch syntax: `switch v := i.(type) { case int: ... case string: ... }`."
+  - "Inside each case, `v` is already the correct type — use `fmt.Sprintf` to format it."
+  - "`3.14` is a `float64`, which doesn't match any specific case, so it hits `default`."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func describe(i interface{}) string {
+  	switch v := i.(type) {
+  	case int:
+  		return fmt.Sprintf("integer: %d", v)
+  	case string:
+  		return fmt.Sprintf("text: %s", v)
+  	case bool:
+  		return fmt.Sprintf("boolean: %v", v)
+  	default:
+  		return "unknown"
+  	}
+  }
+
+  func main() {
+  	fmt.Println(describe(42))
+  	fmt.Println(describe("hello"))
+  	fmt.Println(describe(true))
+  	fmt.Println(describe(3.14))
+  }
+
+explanation: |
+  A type switch uses the special syntax `switch v := i.(type)` to branch on the
+  concrete type stored in an interface. Inside each `case`, the variable `v` is
+  automatically the matched type: in `case int`, `v` is an `int`; in `case string`,
+  `v` is a `string`. The `default` case handles any type not explicitly listed.
+  Since `3.14` is a `float64` and there is no `case float64`, it falls through
+  to `default` and returns `"unknown"`. Type switches are cleaner than chaining
+  multiple comma-ok type assertions.

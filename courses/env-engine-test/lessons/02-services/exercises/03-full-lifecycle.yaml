@@ -1,0 +1,69 @@
+id: full-lifecycle
+title: "Full Lifecycle"
+type: write
+prompt: |
+  This exercise uses every environment phase:
+  1. Filesystem setup creates a `data` directory and `config.txt`
+  2. A setup command writes `initialized` to `data/status.txt`
+  3. A background service runs (delay mode)
+  4. Your code reads `data/status.txt` and creates `data/result.txt`
+  5. Teardown captures `data/result.txt` to `captured_result.txt`
+  6. State validation checks everything
+
+  Read `data/status.txt`, print its contents, and write "lifecycle complete"
+  to `data/result.txt`.
+starter: |
+  #!/bin/bash
+  # 1. Read and print data/status.txt (created by setup)
+  # 2. Write "lifecycle complete" to data/result.txt
+environment:
+  dirs:
+    - data
+  files:
+    - path: config.txt
+      content: "env=test"
+  setup:
+    - name: init-status
+      command: sh
+      args: ["-c", "echo 'initialized' > {dir}/data/status.txt"]
+      timeout_seconds: 5
+  services:
+    - name: background-worker
+      command: sleep
+      args: ["60"]
+      ready_delay_ms: 100
+  teardown:
+    - name: capture-result
+      command: cat
+      args: ["{dir}/data/result.txt"]
+      capture_to: captured_result.txt
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - dir_exists: data
+    - file_exists: config.txt
+    - file_exists: data/status.txt
+    - file_contains:
+        path: data/status.txt
+        content: "initialized"
+    - file_exists: data/result.txt
+    - file_contains:
+        path: data/result.txt
+        content: "lifecycle complete"
+    - file_exists: captured_result.txt
+    - file_contains:
+        path: captured_result.txt
+        content: "lifecycle complete"
+hints:
+  - "cat data/status.txt prints the setup-created file"
+  - "echo 'lifecycle complete' > data/result.txt creates the result"
+solution: |
+  #!/bin/bash
+  cat data/status.txt
+  echo "lifecycle complete" > data/result.txt
+explanation: |
+  This exercise validates the complete environment lifecycle:
+  filesystem (dirs + files) -> setup commands -> services -> student
+  code -> teardown (with capture_to) -> state validation. Every phase
+  must complete successfully for the assertions to pass.

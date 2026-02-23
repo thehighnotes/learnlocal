@@ -1,0 +1,26 @@
+id: env-variables
+title: "Environment Variables"
+type: command
+prompt: |
+  Print three environment-related values, each on its own line:
+  1. Your HOME directory
+  2. Your current SHELL
+  3. A custom variable: set GREETING="hello linux" and print it
+starter: |
+  # Print HOME, SHELL, and a custom variable
+validation:
+  method: regex
+  pattern: "(?s)^/.+\n/.+\nhello linux$"
+hints:
+  - 'echo $HOME prints the home directory'
+  - 'echo $SHELL prints the login shell'
+  - 'GREETING="hello linux"; echo $GREETING'
+solution: |
+  echo "$HOME"
+  echo "$SHELL"
+  GREETING="hello linux"
+  echo "$GREETING"
+explanation: |
+  $HOME and $SHELL are standard environment variables set by the system.
+  You can create your own variables with NAME=value. Use $NAME or
+  ${NAME} to expand them.

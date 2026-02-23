@@ -1,0 +1,58 @@
+id: palindrome
+title: "Palindrome Checker"
+type: write
+
+prompt: |
+  Read a word from standard input. Print "yes" if it is a palindrome (reads
+  the same forwards and backwards), or "no" if it is not.
+
+  For this exercise, the comparison is case-sensitive and exact — just
+  compare the word to its reverse.
+
+  Hint: the slice [::-1] reverses a string.
+
+input: "racecar\n"
+
+starter: |
+  word = input()
+  # Check if word is a palindrome
+  # Print "yes" or "no"
+
+validation:
+  method: output
+  expected_output: "yes"
+
+hints:
+  - "The slice word[::-1] reverses a string: \"hello\"[::-1] gives \"olleh\""
+  - "Compare the original word to its reverse: word == word[::-1]"
+  - "Use a conditional expression: print(\"yes\" if word == word[::-1] else \"no\")"
+
+solution: |
+  word = input()
+  print("yes" if word == word[::-1] else "no")
+
+explanation: |
+  A palindrome reads the same forwards and backwards. The key insight is that
+  Python's slice notation `[::-1]` reverses a string:
+
+  - `"racecar"[::-1]` produces `"racecar"` — same as the original, so it is
+    a palindrome.
+  - `"hello"[::-1]` produces `"olleh"` — different from the original, so it
+    is not a palindrome.
+
+  The slice `[::-1]` works because the three parts of a slice are
+  `[start:stop:step]`. A step of `-1` means "go through the string backwards."
+  Omitting start and stop means "from one end to the other."
+
+  The conditional expression `"yes" if condition else "no"` is Python's
+  ternary operator. It evaluates the condition and returns one of two values.
+  This is equivalent to:
+
+  ```python
+  if word == word[::-1]:
+      print("yes")
+  else:
+      print("no")
+  ```
+
+  The one-liner version is more concise for simple true/false outputs.

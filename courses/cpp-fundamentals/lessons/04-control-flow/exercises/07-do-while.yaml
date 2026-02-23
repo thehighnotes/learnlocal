@@ -1,0 +1,73 @@
+id: do-while
+title: "Double Until Done"
+type: write
+
+prompt: |
+  Use a do-while loop that starts with `int n = 1`. In the loop body,
+  print the current value of n, then double it (`n *= 2`). The loop
+  should continue while n is less than or equal to 100. Print each
+  value on its own line.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      int n = 1;
+      // Use a do-while loop:
+      //   print n
+      //   double n
+      //   continue while n <= 100
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: |
+    1
+    2
+    4
+    8
+    16
+    32
+    64
+
+hints:
+  - "A do-while loop has the form: do { ... } while (condition); -- note the semicolon at the end."
+  - "Inside the body, print n first, then double it with `n *= 2`. The order matters because you want to print the value before changing it."
+  - "The condition `while (n <= 100)` is checked after the body executes. When n becomes 128 after printing 64, the condition is false and the loop stops."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int n = 1;
+      do {
+          std::cout << n << std::endl;
+          n *= 2;
+      } while (n <= 100);
+
+      return 0;
+  }
+
+explanation: |
+  The do-while loop guarantees the body executes at least once before checking
+  the condition:
+
+  1. `int n = 1;` -- start at 1.
+  2. The body prints n, then doubles it.
+  3. The condition `n <= 100` is checked after each iteration.
+
+  Trace through the execution:
+  - Print 1, n becomes 2, 2 <= 100 -> continue
+  - Print 2, n becomes 4, 4 <= 100 -> continue
+  - Print 4, n becomes 8, 8 <= 100 -> continue
+  - Print 8, n becomes 16, 16 <= 100 -> continue
+  - Print 16, n becomes 32, 32 <= 100 -> continue
+  - Print 32, n becomes 64, 64 <= 100 -> continue
+  - Print 64, n becomes 128, 128 <= 100 -> false, stop
+
+  If this were a regular `while (n <= 100)` loop with the same body, the
+  output would be identical in this case. The difference shows when the
+  initial value might already fail the condition -- do-while still executes
+  once, while a regular while loop would skip entirely.

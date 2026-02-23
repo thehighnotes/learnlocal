@@ -1,0 +1,44 @@
+id: parameters
+title: "Function Parameters"
+type: write
+
+prompt: |
+  Write a function `add(int a, int b)` that prints the sum of its two
+  parameters. Call it from `main` with the arguments 3 and 7.
+
+starter: |
+  #include <iostream>
+
+  // Define your add() function here
+
+  int main() {
+      // Call add(3, 7) here
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "10"
+
+hints:
+  - "The function takes two `int` parameters and prints their sum with `std::cout`."
+  - "Define: void add(int a, int b) { std::cout << a + b << std::endl; } then call add(3, 7); in main."
+
+solution: |
+  #include <iostream>
+
+  void add(int a, int b) {
+      std::cout << a + b << std::endl;
+  }
+
+  int main() {
+      add(3, 7);
+      return 0;
+  }
+
+explanation: |
+  `void add(int a, int b)` declares a function that takes two integer parameters.
+  Inside the body, `a + b` computes the sum and `std::cout` prints it. When we
+  call `add(3, 7)`, the argument 3 is assigned to `a` and 7 is assigned to `b`,
+  so the function prints 10.

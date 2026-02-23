@@ -1,0 +1,52 @@
+id: basic
+title: "Basic Function"
+type: write
+
+prompt: |
+  Write a function called greet that takes a name parameter and prints:
+  Hello, {name}!
+
+  Call it twice:
+  1. greet("World")
+  2. greet("JavaScript")
+
+  Expected output:
+  Hello, World!
+  Hello, JavaScript!
+
+starter: |
+  // Define a greet function that takes a name parameter
+  // and prints: Hello, {name}!
+
+  // Call it with "World" and "JavaScript"
+
+validation:
+  method: output
+  expected_output: "Hello, World!\nHello, JavaScript!"
+
+hints:
+  - "Define with: function greet(name) { ... }"
+  - "Inside the function, use console.log() with a template literal."
+  - "function greet(name) { console.log(`Hello, ${name}!`); } then call greet(\"World\"); greet(\"JavaScript\");"
+
+solution: |
+  function greet(name) {
+    console.log(`Hello, ${name}!`);
+  }
+  greet("World");
+  greet("JavaScript");
+
+explanation: |
+  This demonstrates the basic function pattern:
+
+  1. **Define** the function with the `function` keyword, a name, and
+     parameters in parentheses.
+  2. **Call** the function by writing its name followed by arguments in
+     parentheses.
+
+  Each call creates a new scope where `name` has the value you passed in.
+  The first call sets name to "World", the second to "JavaScript".
+
+  Functions let you write code once and reuse it with different inputs.
+  Without the greet function, you would need to duplicate the console.log
+  line for every greeting.

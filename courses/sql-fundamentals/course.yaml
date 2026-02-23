@@ -1,0 +1,50 @@
+name: "SQL (SQLite) Fundamentals"
+version: "1.0.0"
+description: "Learn SQL from scratch using an embedded SQLite database. Write queries, design schemas, and master data manipulation — all offline, no database server required."
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+
+language:
+  id: sql
+  display_name: "SQL (SQLite)"
+  extension: ".sql"
+  steps: []
+  provision: embedded
+  runtime: sqlite
+  limits:
+    timeout_seconds: 10
+    max_output_bytes: 65536
+
+lessons:
+  - id: basic-queries
+    title: "Basic Queries"
+
+  - id: filtering
+    title: "Filtering Data"
+    requires: [basic-queries]
+
+  - id: joins
+    title: "Joining Tables"
+    requires: [filtering]
+
+  - id: aggregation
+    title: "Aggregation & Grouping"
+    requires: [joins]
+
+  - id: subqueries
+    title: "Subqueries"
+    requires: [aggregation]
+
+  - id: data-modification
+    title: "Inserting, Updating & Deleting"
+    requires: [basic-queries]
+
+  - id: schema-design
+    title: "Schema Design"
+    requires: [data-modification]
+
+  - id: advanced-queries
+    title: "Advanced Queries"
+    requires: [subqueries, schema-design]
+
+estimated_minutes_per_lesson: 25

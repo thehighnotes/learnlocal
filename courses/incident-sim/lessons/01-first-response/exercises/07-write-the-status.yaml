@@ -1,0 +1,65 @@
+id: write-the-status
+title: "Write the Status Update"
+type: command
+prompt: |
+  You've been investigating for 15 minutes. Management is asking for a
+  status update. The incident channel is blowing up.
+
+  Read the timeline in incident-log.txt. Then create a file called
+  status.txt with a brief incident status update. Your update MUST
+  include:
+  - What happened (mention the database)
+  - A timestamp from the logs
+  - The current state (mention timeout or config)
+
+  Keep it factual. No guessing. Only what the logs tell you.
+starter: |
+  # Read incident-log.txt for the timeline
+  # Create status.txt with: what happened, when, current state
+environment:
+  files:
+    - path: incident-log.txt
+      content: |
+        === Incident Timeline ===
+        2024-03-15 03:42:10  WARN  Memory usage elevated (78%)
+        2024-03-15 03:42:24  ERROR Payment processing failed for order #8891
+        2024-03-15 03:42:44  ERROR Redis connection refused
+        2024-03-15 03:43:00  ERROR Database connection pool exhausted
+        2024-03-15 03:43:01  CRITICAL database connection timeout — all queries failing
+        2024-03-15 03:43:02  ERROR All API endpoints returning 503
+        2024-03-15 03:43:10  INFO  Auto-recovery attempted — failed
+        2024-03-15 03:45:00  INFO  On-call engineer paged
+        2024-03-15 03:47:00  INFO  Investigation started
+        2024-03-15 03:52:00  INFO  Root cause identified: database.timeout config changed from 30 to 3
+        === Current Status: Investigating ===
+validation:
+  method: state
+  assertions:
+    - file_exists: status.txt
+    - file_contains:
+        path: status.txt
+        content: "database"
+    - file_contains:
+        path: status.txt
+        content: "timeout"
+    - file_contains:
+        path: status.txt
+        content: "03:4"
+hints:
+  - "Read the incident log first: `cat incident-log.txt`"
+  - "Your status.txt needs three things: what (database issues), when (a timestamp like 03:43), and current state (config/timeout issue found)."
+  - "Example: 'At 03:43 the database began timing out. Root cause: timeout config was reduced from 30s to 3s. Fix in progress.'"
+solution: |
+  cat > status.txt << 'EOF'
+  Incident Status Update
+  At 03:43 the database connection pool was exhausted and all queries
+  began failing with connection timeout errors. All API endpoints
+  returned 503. Root cause identified: database.timeout config was
+  changed from 30 to 3 seconds. Reverting the config change now.
+  EOF
+explanation: |
+  A good status update is factual and structured. It tells stakeholders
+  what they need to know without speculation. "The database is timing
+  out because of a config change" is useful. "I think maybe the server
+  is overloaded" is not. During an incident, write what the logs tell
+  you, include timestamps, and state what action you are taking next.

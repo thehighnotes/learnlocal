@@ -1,0 +1,57 @@
+id: manual-resolution
+title: "Creative Conflict Resolution"
+type: command
+golf: true
+prompt: |
+  Here's where it gets interesting. Neither side is fully right.
+
+  The `main` branch set `price = 10` in `config.txt`.
+  The `feature` branch set `price = 20` in `config.txt`.
+
+  After discussion, the team agreed on a compromise: `price = 15`.
+
+  The merge is in progress. Resolve the conflict by setting the price
+  to 15 — a value that exists on NEITHER branch. Then complete the merge.
+
+  This is the real power of conflict resolution: you're not limited to
+  picking sides. You can create something new.
+
+  Golf mode is ON — fewest characters wins!
+starter: |
+  # Set price = 15 in config.txt (neither branch's version!)
+  # Then add and commit.
+
+environment:
+  setup:
+    - name: create-compromise-scenario
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'price = 5' > config.txt && git add config.txt && git commit -m 'initial price' && git checkout -b feature && echo 'price = 20' > config.txt && git add config.txt && git commit -m 'raise price' && git checkout main && echo 'price = 10' > config.txt && git add config.txt && git commit -m 'adjust price' && git merge feature || true"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && echo \"markers=$(grep -c '<<<<<<' config.txt 2>/dev/null || echo 0)\" > {dir}/result.txt && cat config.txt >> {dir}/result.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: repo/config.txt
+        content: "price = 15"
+    - file_matches:
+        path: result.txt
+        pattern: "markers=0"
+hints:
+  - "You can write anything you want into the file — you don't have to pick either side"
+  - "echo 'price = 15' > config.txt"
+  - "After writing the file: git add config.txt && git commit -m 'compromise'"
+solution: |
+  echo 'price = 15' > config.txt
+  git add config.txt
+  git commit -m "compromise price"
+explanation: |
+  Conflict resolution doesn't mean you must pick one side. You can edit the
+  file to contain anything — a combination of both versions, a completely new
+  value, or a rewrite. Git only cares that the conflict markers are gone and
+  you've committed the result.

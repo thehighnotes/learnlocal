@@ -1,0 +1,29 @@
+id: functions
+title: "Functions"
+description: "Define and call functions, understand scope, and use modern syntax"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - basic
+  - parameters
+  - return-values
+  - default-params
+  - arrow-functions
+  - scope
+  - recursive
+teaches:
+  - function-declarations
+  - parameters-arguments
+  - return-values
+  - default-parameters
+  - arrow-functions
+  - scope
+  - recursion
+recap: |
+  You learned:
+  - Function declarations use the function keyword
+  - Parameters receive values, return sends values back
+  - Default parameters provide fallback values
+  - Arrow functions (=>) are a concise alternative syntax
+  - Variables declared inside a function are local to that function
+  - Recursive functions call themselves with a base case to stop

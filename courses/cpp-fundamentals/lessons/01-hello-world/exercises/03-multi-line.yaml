@@ -1,0 +1,60 @@
+id: multi-line
+title: "Multi-Line Output"
+type: write
+
+prompt: |
+  Print three lines of output, each on its own line:
+
+  Line 1: Name: Alice
+  Line 2: Age: 30
+  Line 3: Language: C++
+
+  The output must match exactly, with each piece of information on a separate line.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Print three lines:
+      // Name: Alice
+      // Age: 30
+      // Language: C++
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Name: Alice\nAge: 30\nLanguage: C++"
+
+hints:
+  - "You need one std::cout statement for each line, or one statement with \\n characters to separate lines."
+  - "Each line ends with std::endl or a \\n to move to the next line. For example: std::cout << \"Name: Alice\" << std::endl;"
+  - "Three separate statements work well: std::cout << \"Name: Alice\" << std::endl; then std::cout << \"Age: 30\" << std::endl; then std::cout << \"Language: C++\" << std::endl;"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      std::cout << "Name: Alice" << std::endl;
+      std::cout << "Age: 30" << std::endl;
+      std::cout << "Language: C++" << std::endl;
+      return 0;
+  }
+
+explanation: |
+  Each `std::cout` statement prints one line of text. The `std::endl` at the end
+  of each line moves the cursor to the next line.
+
+  You could also write this as a single statement:
+
+      std::cout << "Name: Alice" << std::endl
+                << "Age: 30" << std::endl
+                << "Language: C++" << std::endl;
+
+  Or using `\n` inside the strings instead of `std::endl`:
+
+      std::cout << "Name: Alice\nAge: 30\nLanguage: C++\n";
+
+  All three approaches produce identical output. Using separate statements is
+  the clearest when you are starting out.

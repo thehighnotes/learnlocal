@@ -1,0 +1,52 @@
+id: for
+title: "Sum 1 to 10"
+type: write
+
+prompt: |
+  Use a `for` loop to calculate the sum of all integers from 1 to 10.
+  Print only the final sum.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Calculate the sum of 1 through 10 using a for loop
+      // Print the result
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "55"
+
+hints:
+  - "You need a variable to accumulate the sum. Initialize it to 0 before the loop."
+  - "Your for loop should iterate from 1 to 10 inclusive: for (int i = 1; i <= 10; i++)"
+  - "Inside the loop, add the current value of i to your sum variable with sum += i;"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int sum = 0;
+      for (int i = 1; i <= 10; i++) {
+          sum += i;
+      }
+      std::cout << sum << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  This exercise demonstrates the accumulator pattern with a for loop:
+
+  1. `int sum = 0;` -- start with a sum of zero.
+  2. `for (int i = 1; i <= 10; i++)` -- iterate i from 1 through 10.
+  3. `sum += i;` -- add each value of i to the running total.
+
+  After the loop, sum holds 1+2+3+4+5+6+7+8+9+10 = 55.
+
+  The accumulator pattern (initialize before the loop, update inside the loop,
+  use after the loop) is one of the most common patterns in programming. You will
+  use it frequently for totals, counts, and building up results.

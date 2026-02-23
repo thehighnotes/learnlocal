@@ -1,0 +1,30 @@
+id: attention-mechanism
+title: "The Attention Mechanism"
+description: "Implement softmax, scaled dot-product attention, self-attention patterns, and multi-head attention"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - softmax
+  - attention-scores
+  - attention-weights
+  - weighted-values
+  - full-attention
+  - attention-pattern
+  - multi-head
+teaches:
+  - softmax
+  - attention-scores
+  - attention-weights
+  - scaled-dot-product-attention
+  - self-attention
+  - attention-patterns
+  - multi-head-attention
+recap: |
+  You learned:
+  - Softmax converts any list of numbers into probabilities that sum to 1
+  - Attention scores are dot products between queries and keys, scaled by sqrt(d)
+  - Softmax on the scores gives attention weights (which parts to focus on)
+  - The attention output is a weighted sum of value vectors
+  - Self-attention lets every token "look at" every other token
+  - Multi-head attention runs multiple attention computations in parallel
+  - This is the core mechanism behind GPT, BERT, and all modern language models

@@ -1,0 +1,53 @@
+name: "JavaScript (Node.js) Fundamentals"
+version: "1.1.0"
+description: "Learn JavaScript from the ground up — variables, control flow, functions, arrays, objects, and modern syntax"
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+
+language:
+  id: javascript
+  display_name: "JavaScript (Node.js)"
+  extension: ".js"
+  provision: auto
+  steps:
+    - name: run
+      command: "node"
+      args: ["{dir}/{main}"]
+      capture_output: true
+  limits:
+    timeout_seconds: 10
+    max_output_bytes: 65536
+
+lessons:
+  - id: hello-world
+    title: "Hello World & Getting Started"
+
+  - id: variables
+    title: "Variables and Types"
+    requires: [hello-world]
+
+  - id: operators
+    title: "Operators and Expressions"
+    requires: [variables]
+
+  - id: control-flow
+    title: "Control Flow"
+    requires: [variables, operators]
+
+  - id: functions
+    title: "Functions"
+    requires: [control-flow]
+
+  - id: arrays
+    title: "Arrays"
+    requires: [variables, control-flow]
+
+  - id: objects
+    title: "Objects"
+    requires: [arrays]
+
+  - id: modern-syntax
+    title: "Modern JavaScript"
+    requires: [functions, objects]
+
+estimated_minutes_per_lesson: 25

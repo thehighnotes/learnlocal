@@ -1,0 +1,47 @@
+id: env-vars-cwd
+title: "Env Vars & Working Directory"
+type: write
+prompt: |
+  This exercise sets custom environment variables and overrides
+  the working directory to `workdir/`. Your script runs inside
+  that directory, not the sandbox root.
+
+  Print $APP_MODE, then write it to output.txt.
+
+  Check the EXPECTED panel — it tests FileMatches (regex),
+  FileNotExists, and DirNotExists assertions.
+starter: |
+  #!/bin/bash
+  # $APP_MODE and $APP_VERSION are set by the environment engine
+  # Your cwd is workdir/, not the sandbox root
+environment:
+  dirs:
+    - workdir
+  env:
+    APP_MODE: "production"
+    APP_VERSION: "2.1"
+  cwd: workdir
+validation:
+  method: state
+  assertions:
+    - dir_exists: workdir
+    - file_exists: workdir/output.txt
+    - file_matches:
+        path: workdir/output.txt
+        pattern: "^prod\\w+"
+    - file_not_exists: output.txt
+    - dir_not_exists: nonexistent
+hints:
+  - 'echo "$APP_MODE" prints the env var'
+  - 'echo "$APP_MODE" > output.txt writes it (cwd is workdir/)'
+solution: |
+  #!/bin/bash
+  echo "$APP_MODE"
+  echo "$APP_MODE" > output.txt
+explanation: |
+  The environment engine set APP_MODE=production and changed the
+  working directory to workdir/. The FileMatches assertion uses
+  a regex pattern (^prod\w+$) to validate file content. FileNotExists
+  confirms output.txt was NOT created in the sandbox root (because
+  cwd was workdir/). DirNotExists passes trivially for a dir that
+  was never created.

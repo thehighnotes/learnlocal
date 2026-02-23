@@ -1,0 +1,55 @@
+id: fill-missing
+title: "Fill Missing Values"
+type: write
+
+prompt: |
+  Implement mean imputation: replace missing age values with the mean of the
+  known ages.
+
+  Given ages as strings: `["25", "", "30", "35"]`
+  - Known ages: 25, 30, 35 → mean = 30.0
+  - Filled: [25.0, 30.0, 30.0, 35.0]
+
+  Print the filled list.
+
+starter: |
+  ages = ["25", "", "30", "35"]
+
+  # Step 1: Collect known (non-empty) ages as floats
+
+
+  # Step 2: Compute the mean of known ages
+
+
+  # Step 3: Build filled list — use mean for empty values, float for known
+
+
+  print(filled)
+
+validation:
+  method: output
+  expected_output: "[25.0, 30.0, 30.0, 35.0]"
+
+hints:
+  - "Filter out empty strings, convert to float, compute the mean. Then build a new list: use the original float value if present, or the mean if empty."
+  - "Known: `[float(a) for a in ages if a != '']`. Mean: `sum(known)/len(known)`. Filled: `[float(a) if a != '' else mean for a in ages]`"
+
+solution: |
+  ages = ["25", "", "30", "35"]
+
+  known = [float(a) for a in ages if a != ""]
+
+  mean_age = sum(known) / len(known)
+
+  filled = [float(a) if a != "" else mean_age for a in ages]
+
+  print(filled)
+
+explanation: |
+  Known ages: 25.0, 30.0, 35.0. Mean: (25+30+35)/3 = 30.0.
+  The empty value is replaced with 30.0.
+
+  Mean imputation is simple and preserves the overall average. Its weakness is
+  that it reduces variance — every missing value gets the same replacement,
+  which can make the data look more uniform than it really is. For important
+  applications, more sophisticated methods (like multiple imputation) are used.

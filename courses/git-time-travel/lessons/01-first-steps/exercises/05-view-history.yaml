@@ -1,0 +1,36 @@
+id: view-history
+title: "Read the History"
+type: command
+prompt: |
+  This repo has 5 commits, each made by a different author. Your mission:
+  find the author of the **third commit** (counting from the oldest) and
+  write their name to a file called `answer.txt`.
+
+  Use `git log` to explore the history. Remember, `git log` shows newest
+  first, so the third-oldest commit is the third from the bottom.
+starter: |
+  # Find the author of the 3rd commit and write it to answer.txt
+environment:
+  setup:
+    - name: create-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email a@test.com && git config user.name Alice && echo 1 > f.txt && git add f.txt && git commit -m 'first' && git config user.name Bob && echo 2 >> f.txt && git add f.txt && git commit -m 'second' && git config user.name Charlie && echo 3 >> f.txt && git add f.txt && git commit -m 'third' && git config user.name Diana && echo 4 >> f.txt && git add f.txt && git commit -m 'fourth' && git config user.name Eve && echo 5 >> f.txt && git add f.txt && git commit -m 'fifth'"]
+  cwd: repo
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: repo/answer.txt
+        content: "Charlie"
+hints:
+  - "Try `git log --oneline` to see all commits, then `git log` for full details."
+  - "The 3rd commit from the oldest is the one with message 'third'. Look at the Author line."
+  - "Write the answer: `echo Charlie > answer.txt`"
+solution: |
+  echo Charlie > answer.txt
+explanation: |
+  `git log` shows commits newest-first. Each entry includes the hash, author
+  name and email, date, and message. With 5 commits, the third-oldest has
+  message "third" and was authored by Charlie. You can also use
+  `git log --reverse` to see oldest-first, or `git log --format='%an'` to
+  show only author names.

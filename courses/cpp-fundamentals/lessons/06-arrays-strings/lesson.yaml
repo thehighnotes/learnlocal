@@ -1,0 +1,30 @@
+id: arrays-strings
+title: "Arrays and Strings"
+description: "Store collections of data with arrays and text with strings"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - array-basics
+  - array-sum
+  - find-max
+  - string-basics
+  - string-ops
+  - fix-bounds
+  - string-compare
+teaches:
+  - c-arrays
+  - array-iteration
+  - array-algorithms
+  - std-string
+  - string-operations
+  - bounds-checking
+  - string-comparison
+recap: |
+  You learned:
+  - Arrays store fixed-size sequences of same-type elements
+  - Array indices start at 0 and go to size-1
+  - for loops are the natural way to iterate arrays
+  - std::string holds text and provides useful methods
+  - Strings can be concatenated with +
+  - Going out of bounds is undefined behavior -- always check
+  - Strings compare lexicographically with == and <

@@ -1,0 +1,17 @@
+id: branching
+title: "Branching & Merging"
+description: "Create branches, switch between them, and merge your work back together."
+estimated_minutes: 25
+content: content.md
+teaches: [git-branch, git-checkout, git-switch, git-merge, fast-forward, branch-delete]
+exercises:
+  - create-branch
+  - switch-branch
+  - merge-fast-forward
+  - merge-diverged
+  - delete-branch
+  - branch-from-commit
+  - list-branches
+recap: |
+  You can now create, switch, merge, and delete branches. Branches are
+  cheap pointers — use them freely for features, experiments, and fixes.

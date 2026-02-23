@@ -1,0 +1,44 @@
+id: assign
+title: "Fix the Undeclared Variable"
+type: fix
+
+prompt: |
+  The code below tries to store the number `42` in a variable called `answer`
+  and print it, but it has a bug — the variable is never declared.
+
+  Fix the code so it compiles and prints `42`.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      answer = 42;
+      std::cout << answer << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "42"
+
+hints:
+  - "The compiler says `answer` was not declared in this scope."
+  - "Every variable must be declared with a type before it can be used. Add the type before the variable name on the assignment line."
+  - "Change `answer = 42;` to `int answer = 42;`"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int answer = 42;
+      std::cout << answer << std::endl;
+      return 0;
+  }
+
+explanation: |
+  In C++, you cannot assign a value to a variable that has not been declared.
+  Writing `answer = 42;` without first declaring `answer` causes a compile
+  error because the compiler does not know what type `answer` should be.
+
+  The fix is to add the type `int` before the variable name, turning the
+  assignment into a declaration with initialization: `int answer = 42;`

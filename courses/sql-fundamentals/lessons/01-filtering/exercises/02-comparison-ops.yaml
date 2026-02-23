@@ -1,0 +1,70 @@
+id: comparison-ops
+title: "Comparison Operators"
+type: fix
+
+prompt: |
+  This query is supposed to find employees earning **more than 65000** but it uses
+  the wrong comparison operator. It currently returns employees earning exactly
+  65000 or more (>=), but the requirement is **strictly greater than** 65000.
+
+  Fix the operator so the query returns only employees with salary > 65000.
+  The results should show name, department, and salary, ordered by salary descending.
+
+starter: |
+  SELECT name, department, salary
+  FROM employees
+  WHERE salary >= 65000
+  ORDER BY salary DESC;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          department TEXT NOT NULL,
+          salary REAL NOT NULL,
+          hire_date TEXT NOT NULL,
+          manager_id INTEGER
+        );
+        INSERT INTO employees VALUES (1, 'Alice Johnson', 'Engineering', 85000.0, '2020-03-15', NULL);
+        INSERT INTO employees VALUES (2, 'Bob Smith', 'Engineering', 72000.0, '2021-06-01', 1);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Sales', 55000.0, '2019-11-20', 1);
+        INSERT INTO employees VALUES (4, 'David Lee', 'Marketing', 62000.0, '2022-01-10', 1);
+        INSERT INTO employees VALUES (5, 'Eva Martinez', 'Engineering', 95000.0, '2018-07-22', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Wilson', 'Sales', 48000.0, '2023-04-05', 3);
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Marketing', 67000.0, '2021-09-14', 4);
+        INSERT INTO employees VALUES (8, 'Henry Brown', 'Engineering', 78000.0, '2022-08-30', 5);
+        INSERT INTO employees VALUES (9, 'Ivy Chen', 'Sales', 51000.0, '2023-01-18', 3);
+        INSERT INTO employees VALUES (10, 'Jack Taylor', 'Marketing', 58000.0, '2024-02-01', NULL);
+
+validation:
+  method: output
+  expected_output: |
+    Eva Martinez|Engineering|95000.0
+    Alice Johnson|Engineering|85000.0
+    Henry Brown|Engineering|78000.0
+    Bob Smith|Engineering|72000.0
+    Grace Kim|Marketing|67000.0
+
+hints:
+  - "The starter uses >= (greater than or equal). The requirement says strictly greater than."
+  - "Replace >= with > to exclude any row where salary is exactly 65000."
+  - "Change `WHERE salary >= 65000` to `WHERE salary > 65000`."
+
+solution: |
+  SELECT name, department, salary
+  FROM employees
+  WHERE salary > 65000
+  ORDER BY salary DESC;
+
+explanation: |
+  The difference between `>=` and `>` matters:
+
+  - `>= 65000` includes 65000.0 and above (greater than OR equal to)
+  - `> 65000` includes only values above 65000.0 (strictly greater than)
+
+  In this dataset no employee earns exactly 65000.0, so the result sets happen to
+  be the same, but the logic is different. Getting operators right matters when
+  boundary values exist. The six comparison operators are: =, !=, <, >, <=, >=.

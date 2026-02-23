@@ -1,0 +1,56 @@
+id: demographic-parity
+title: "Demographic Parity"
+type: write
+
+prompt: |
+  Check demographic parity: compute the positive prediction rate for each
+  group and check if they are equal.
+
+  The positive prediction rate is the fraction of predictions that are 1.
+
+  Print each group's rate and whether parity holds.
+
+starter: |
+  group_a_pred = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
+  group_b_pred = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+
+  # Compute positive prediction rate for each group
+  # rate = number of positive predictions / total predictions
+
+
+  # Check if rates are equal
+
+
+  print(f"group_a: {rate_a}")
+  print(f"group_b: {rate_b}")
+  print(f"parity: {parity}")
+
+validation:
+  method: output
+  expected_output: "group_a: 0.7\ngroup_b: 0.3\nparity: False"
+
+hints:
+  - "The positive prediction rate is `sum(predictions) / len(predictions)`. Use `round()` if needed."
+  - "Compare the two rates with `==`. If they differ, parity is False."
+
+solution: |
+  group_a_pred = [1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
+  group_b_pred = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+
+  rate_a = round(sum(group_a_pred) / len(group_a_pred), 2)
+  rate_b = round(sum(group_b_pred) / len(group_b_pred), 2)
+
+  parity = rate_a == rate_b
+
+  print(f"group_a: {rate_a}")
+  print(f"group_b: {rate_b}")
+  print(f"parity: {parity}")
+
+explanation: |
+  Group A: 7 out of 10 predicted positive → rate 0.70.
+  Group B: 3 out of 10 predicted positive → rate 0.30.
+
+  The model predicts positive for group A more than twice as often as for
+  group B. This violates demographic parity. If this were a hiring system,
+  group A candidates would be "recommended" 70% of the time while group B
+  candidates only 30% — even if both groups have equally qualified members.

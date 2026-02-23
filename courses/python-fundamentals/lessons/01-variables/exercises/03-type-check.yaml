@@ -1,0 +1,48 @@
+id: type-check
+title: "Checking Types"
+type: write
+
+prompt: |
+  Create two variables:
+  - `x` with value `42`
+  - `y` with value `"hello"`
+
+  Print the type of each variable using the type() function.
+
+  The output should be exactly:
+
+  <class 'int'>
+  <class 'str'>
+
+starter: |
+  # Create x = 42 and y = "hello"
+
+  # Print the type of each variable using type()
+
+validation:
+  method: output
+  expected_output: "<class 'int'>\n<class 'str'>"
+
+hints:
+  - "The type() function returns the type of a value. You can print it directly: print(type(x))"
+  - "Create both variables first, then print the type of each on its own line."
+  - "The full solution: x = 42, y = \"hello\", then print(type(x)) and print(type(y))."
+
+solution: |
+  x = 42
+  y = "hello"
+
+  print(type(x))
+  print(type(y))
+
+explanation: |
+  The `type()` function returns the type of any value or variable. When you
+  print it, Python displays the type in the format `<class 'typename'>`.
+
+  - `type(42)` returns `<class 'int'>` because 42 is an integer
+  - `type("hello")` returns `<class 'str'>` because "hello" is a string
+
+  The `type()` function is a useful debugging tool. When something behaves
+  unexpectedly, checking the type often reveals the problem — for example,
+  you might discover that a value you thought was an integer is actually a
+  string because it came from `input()`.

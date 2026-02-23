@@ -1,0 +1,47 @@
+id: batch-split
+title: "Split Data into Batches"
+type: write
+
+prompt: |
+  Split a dataset into mini-batches of a given size. The last batch may be
+  smaller if the data doesn't divide evenly.
+
+  Given: `data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]` with `batch_size = 3`
+
+  Print each batch on its own line.
+
+starter: |
+  data = list(range(10))
+  batch_size = 3
+
+  # Split data into batches of batch_size
+  # The last batch may be smaller
+
+
+  for i, batch in enumerate(batches):
+      print(f"batch {i}: {batch}")
+
+validation:
+  method: output
+  expected_output: "batch 0: [0, 1, 2]\nbatch 1: [3, 4, 5]\nbatch 2: [6, 7, 8]\nbatch 3: [9]"
+
+hints:
+  - "Use slicing with `range(0, len(data), batch_size)` to get start indices. Each batch is `data[start:start+batch_size]`."
+  - "Try: `batches = [data[i:i+batch_size] for i in range(0, len(data), batch_size)]`"
+
+solution: |
+  data = list(range(10))
+  batch_size = 3
+
+  batches = [data[i:i+batch_size] for i in range(0, len(data), batch_size)]
+
+  for i, batch in enumerate(batches):
+      print(f"batch {i}: {batch}")
+
+explanation: |
+  10 items with batch_size 3 gives 4 batches: three of size 3 and one of size 1.
+  The last batch gets whatever remains.
+
+  In real training, common batch sizes are 16, 32, 64, or 128. Smaller batches
+  mean noisier gradient estimates but more frequent updates. The batch size is
+  a tradeoff between computation cost per step and gradient accuracy.

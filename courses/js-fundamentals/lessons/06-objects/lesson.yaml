@@ -1,0 +1,30 @@
+id: objects
+title: "Objects"
+description: "Create and work with JavaScript objects"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - obj-basics
+  - obj-access
+  - obj-update
+  - obj-keys-values
+  - obj-iterate
+  - obj-destructure
+  - word-count
+teaches:
+  - object-creation
+  - property-access
+  - property-modification
+  - object-methods
+  - object-iteration
+  - object-destructuring
+  - practical-patterns
+recap: |
+  You learned:
+  - Objects store key-value pairs in curly braces {}
+  - Dot notation (obj.key) and bracket notation (obj["key"]) access properties
+  - Properties can be added, updated, and deleted dynamically
+  - Object.keys() and Object.values() return arrays of keys and values
+  - for...in and Object.entries() iterate over object properties
+  - Destructuring extracts properties into variables
+  - Objects are versatile for real-world data modeling

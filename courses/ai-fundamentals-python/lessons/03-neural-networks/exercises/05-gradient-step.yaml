@@ -1,0 +1,51 @@
+id: gradient-step
+title: "Gradient Update Step"
+type: write
+
+prompt: |
+  Implement the weight update rule for gradient descent:
+
+      w_new = w - learning_rate * gradient
+
+  The gradient points in the direction of increasing loss. By subtracting it
+  (scaled by the learning rate), we move the weight toward lower loss.
+
+  Given: w = 1.0, gradient = 1.0, learning_rate = 0.01
+
+  Print the new weight rounded to 2 decimal places.
+
+starter: |
+  w = 1.0
+  gradient = 1.0
+  lr = 0.01
+
+  # Update the weight
+
+
+  print(round(w_new, 2))
+
+validation:
+  method: output
+  expected_output: "0.99"
+
+hints:
+  - "Apply the formula: `w_new = w - lr * gradient`."
+  - "That is: `w_new = 1.0 - 0.01 * 1.0 = 0.99`"
+
+solution: |
+  w = 1.0
+  gradient = 1.0
+  lr = 0.01
+
+  w_new = w - lr * gradient
+
+  print(round(w_new, 2))
+
+explanation: |
+  w_new = 1.0 - 0.01 * 1.0 = 0.99.
+
+  The weight moved slightly in the direction that reduces loss. The learning
+  rate (0.01) controls how big the step is. A larger learning rate means bigger
+  steps (faster but riskier), a smaller one means smaller steps (safer but
+  slower). Finding the right learning rate is one of the most important
+  decisions in training a neural network.

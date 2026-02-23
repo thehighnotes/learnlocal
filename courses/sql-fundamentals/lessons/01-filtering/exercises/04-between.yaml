@@ -1,0 +1,66 @@
+id: between
+title: "Filtering with BETWEEN"
+type: fill-blank
+
+prompt: |
+  Complete the query to find employees with a salary between 55000 and 75000
+  (inclusive). Select name and salary, ordered by salary.
+
+  Replace the `___` placeholder with the correct BETWEEN expression.
+
+starter: |
+  SELECT name, salary
+  FROM employees
+  WHERE ___
+  ORDER BY salary;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+          id INTEGER PRIMARY KEY,
+          name TEXT NOT NULL,
+          department TEXT NOT NULL,
+          salary REAL NOT NULL,
+          hire_date TEXT NOT NULL,
+          manager_id INTEGER
+        );
+        INSERT INTO employees VALUES (1, 'Alice Johnson', 'Engineering', 85000.0, '2020-03-15', NULL);
+        INSERT INTO employees VALUES (2, 'Bob Smith', 'Engineering', 72000.0, '2021-06-01', 1);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Sales', 55000.0, '2019-11-20', 1);
+        INSERT INTO employees VALUES (4, 'David Lee', 'Marketing', 62000.0, '2022-01-10', 1);
+        INSERT INTO employees VALUES (5, 'Eva Martinez', 'Engineering', 95000.0, '2018-07-22', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Wilson', 'Sales', 48000.0, '2023-04-05', 3);
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Marketing', 67000.0, '2021-09-14', 4);
+        INSERT INTO employees VALUES (8, 'Henry Brown', 'Engineering', 78000.0, '2022-08-30', 5);
+        INSERT INTO employees VALUES (9, 'Ivy Chen', 'Sales', 51000.0, '2023-01-18', 3);
+        INSERT INTO employees VALUES (10, 'Jack Taylor', 'Marketing', 58000.0, '2024-02-01', NULL);
+
+validation:
+  method: output
+  expected_output: |
+    Carol Davis|55000.0
+    Jack Taylor|58000.0
+    David Lee|62000.0
+    Grace Kim|67000.0
+    Bob Smith|72000.0
+
+hints:
+  - "BETWEEN checks if a value is within an inclusive range: column BETWEEN low AND high"
+  - "The column to filter is salary. The range is 55000 to 75000."
+  - "Replace ___ with: salary BETWEEN 55000 AND 75000"
+
+solution: |
+  SELECT name, salary
+  FROM employees
+  WHERE salary BETWEEN 55000 AND 75000
+  ORDER BY salary;
+
+explanation: |
+  `BETWEEN 55000 AND 75000` includes both endpoints. It is equivalent to writing
+  `salary >= 55000 AND salary <= 75000`. Five employees fall in this range:
+  Carol (55000), Jack (58000), David (62000), Grace (67000), and Bob (72000).
+
+  BETWEEN is inclusive on both sides. If you need to exclude an endpoint, use
+  explicit comparison operators instead (e.g., salary >= 55000 AND salary < 75000).

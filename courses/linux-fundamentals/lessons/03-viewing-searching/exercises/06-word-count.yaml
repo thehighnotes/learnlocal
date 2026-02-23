@@ -1,0 +1,38 @@
+id: word-count
+title: "Count Words and Lines"
+type: command
+prompt: |
+  A file called text.txt already exists with four lines:
+    the quick brown fox
+    jumps over
+    the lazy
+    dog
+  Use wc to print two lines:
+  1. The line count (just the number)
+  2. The word count (just the number)
+starter: |
+  # text.txt exists — count lines and words with wc
+environment:
+  files:
+    - path: text.txt
+      content: |
+        the quick brown fox
+        jumps over
+        the lazy
+        dog
+validation:
+  method: output
+  expected_output: |
+    4
+    9
+hints:
+  - "wc -l counts lines, wc -w counts words"
+  - "Use < to get just the number: wc -l < text.txt"
+  - "Or pipe from cat: cat text.txt | wc -l"
+solution: |
+  wc -l < text.txt
+  wc -w < text.txt
+explanation: |
+  wc -l counts newlines (lines), wc -w counts whitespace-separated
+  words. Using < (input redirection) instead of a filename argument
+  makes wc print just the number without the filename.

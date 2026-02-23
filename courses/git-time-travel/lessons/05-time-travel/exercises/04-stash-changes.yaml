@@ -1,0 +1,61 @@
+id: stash-changes
+title: "Stash Your Work"
+type: command
+golf: true
+prompt: |
+  You're halfway through editing `app.py` when your manager pings: "drop
+  everything, hotfix needed on main!" You can't commit this half-done work,
+  but you need a clean working tree to switch branches.
+
+  Stash your changes, verify the working tree is clean (the file should be
+  back to its committed state), then pop the stash to get your work back.
+
+  After everything, `app.py` should contain your modifications again.
+starter: |
+  #!/bin/bash
+  # 1. Stash changes
+  # 2. (working tree is now clean)
+  # 3. Pop the stash to get your changes back
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'print(\"hello\")' > app.py && git add app.py && git commit -m 'initial app' && echo 'print(\"hello world\")' > app.py && echo 'print(\"new feature\")' >> app.py"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-stash-list
+      command: sh
+      args: ["-c", "cd {dir}/repo && git stash list > {dir}/__stash_list.txt 2>&1 || true"]
+      timeout_seconds: 5
+    - name: capture-app
+      command: sh
+      args: ["-c", "cd {dir}/repo && cat app.py > {dir}/__app_content.txt"]
+      timeout_seconds: 5
+    - name: capture-status
+      command: sh
+      args: ["-c", "cd {dir}/repo && git status --porcelain > {dir}/__status.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __app_content.txt
+        content: "new feature"
+    - file_contains:
+        path: __status.txt
+        content: "app.py"
+hints:
+  - "`git stash` saves your uncommitted changes and cleans the working tree."
+  - "`git stash pop` restores the most recently stashed changes."
+  - "Two commands: `git stash` then `git stash pop`."
+solution: |
+  #!/bin/bash
+  git stash
+  git stash pop
+explanation: |
+  `git stash` takes your uncommitted changes (both staged and modified) and
+  saves them on a stack, reverting the working tree to the last commit.
+  `git stash pop` takes the most recent stash entry, applies it to the
+  working tree, and removes it from the stash stack. This is the standard
+  workflow for quickly saving and restoring work-in-progress.

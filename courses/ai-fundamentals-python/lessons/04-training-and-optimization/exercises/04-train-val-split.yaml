@@ -1,0 +1,60 @@
+id: train-val-split
+title: "Train/Validation Split"
+type: write
+
+prompt: |
+  Split a dataset into training (80%) and validation (20%) sets. Shuffle the
+  data first using `random.seed(42)` so the split is random but reproducible.
+
+  Given: `data = list(range(20))` (20 items numbered 0-19)
+
+  Print each set sorted, with its size.
+
+starter: |
+  import random
+  random.seed(42)
+
+  data = list(range(20))
+
+  # Shuffle the data
+
+
+  # Split into 80% train, 20% validation
+  split = int(len(data) * 0.8)
+
+
+  # Print sorted sets with sizes
+  print(f"train ({len(train)}): {sorted(train)}")
+  print(f"val ({len(val)}): {sorted(val)}")
+
+validation:
+  method: output
+  expected_output: "train (16): [1, 2, 4, 5, 6, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]\nval (4): [0, 3, 7, 8]"
+
+hints:
+  - "After shuffling, slice the list: `train = data[:split]` and `val = data[split:]`."
+  - "The shuffle randomizes order, then taking the first 80% gives a random training set. Use `sorted()` for printing."
+
+solution: |
+  import random
+  random.seed(42)
+
+  data = list(range(20))
+
+  random.shuffle(data)
+
+  split = int(len(data) * 0.8)
+  train = data[:split]
+  val = data[split:]
+
+  print(f"train ({len(train)}): {sorted(train)}")
+  print(f"val ({len(val)}): {sorted(val)}")
+
+explanation: |
+  After shuffling with seed 42, the first 16 items become the training set and
+  the last 4 become validation.
+
+  Shuffling before splitting is essential. Without it, if the data is sorted
+  by class or time, the split would put all recent data or all of one class
+  into validation. The validation set must be representative of the full
+  dataset to give meaningful performance estimates.

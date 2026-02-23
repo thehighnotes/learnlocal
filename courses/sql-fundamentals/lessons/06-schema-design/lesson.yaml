@@ -1,0 +1,39 @@
+id: schema-design
+title: "Schema Design"
+description: "Create tables, define columns and constraints, modify schemas, and clean up with DROP"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - create-table
+  - data-types
+  - primary-key
+  - foreign-key
+  - not-null-default
+  - alter-table
+  - drop-table
+teaches:
+  - create-table-statement
+  - sqlite-data-types
+  - type-affinity
+  - primary-key-constraint
+  - autoincrement
+  - foreign-key-constraint
+  - pragma-foreign-keys
+  - not-null-constraint
+  - default-constraint
+  - unique-constraint
+  - alter-table-add-column
+  - alter-table-rename
+  - drop-table-statement
+recap: |
+  You learned:
+  - CREATE TABLE defines a new table with columns and types
+  - SQLite has five storage classes: NULL, INTEGER, REAL, TEXT, BLOB
+  - INTEGER PRIMARY KEY creates a unique auto-assigned row identifier
+  - AUTOINCREMENT guarantees ids are never reused
+  - FOREIGN KEY links a column to another table's primary key
+  - PRAGMA foreign_keys = ON must be set to enforce foreign keys in SQLite
+  - NOT NULL requires a value; DEFAULT provides a fallback
+  - UNIQUE prevents duplicate values in a column
+  - ALTER TABLE can add columns and rename tables or columns
+  - DROP TABLE removes a table and all its data permanently

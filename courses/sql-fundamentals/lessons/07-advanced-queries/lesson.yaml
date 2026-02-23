@@ -1,0 +1,27 @@
+id: advanced-queries
+title: "Advanced Queries"
+description: "Master CASE expressions, NULL handling, string and date functions, window functions, and CTEs"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - case-expression
+  - coalesce-nulls
+  - string-functions
+  - date-functions
+  - window-functions
+  - cte-queries
+teaches:
+  - case-when-then-else
+  - coalesce-function
+  - string-functions-length-upper-lower-substr-replace-trim-instr-concat
+  - date-functions-date-time-datetime-strftime-julianday
+  - window-functions-row-number-rank-sum-avg-over-partition
+  - common-table-expressions-with-as
+recap: |
+  You learned:
+  - CASE WHEN ... THEN ... ELSE ... END for conditional logic in queries
+  - COALESCE to replace NULL values with a fallback
+  - String functions: LENGTH, UPPER, LOWER, SUBSTR, REPLACE, TRIM, INSTR, and || for concatenation
+  - Date functions: DATE, TIME, DATETIME, STRFTIME, and julianday for date arithmetic
+  - Window functions: ROW_NUMBER, RANK, and aggregate OVER (PARTITION BY ... ORDER BY ...)
+  - CTEs with WITH ... AS (...) to break complex queries into readable steps

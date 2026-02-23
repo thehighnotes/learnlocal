@@ -1,0 +1,14 @@
+id: services
+title: "Services & Full Lifecycle"
+description: "Test background services (delay and pattern mode) and the complete environment lifecycle."
+estimated_minutes: 10
+content: content.md
+teaches: [env-services, delay-mode, ready-pattern, full-lifecycle]
+exercises:
+  - service-delay-mode
+  - service-ready-pattern
+  - full-lifecycle
+recap: |
+  You tested background services in both delay and pattern readiness modes,
+  and verified the complete environment lifecycle: filesystem setup, setup
+  commands, services, student code, teardown, and state validation.

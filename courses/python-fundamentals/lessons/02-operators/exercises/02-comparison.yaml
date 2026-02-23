@@ -1,0 +1,57 @@
+id: comparison
+title: "Comparison Operators"
+type: write
+
+prompt: |
+  Given `x = 10` and `y = 20`, print the result of each comparison on its
+  own line:
+  1. x > y
+  2. x < y
+  3. x == y
+  4. x != y
+
+  Each line should print either `True` or `False`.
+
+starter: |
+  x = 10
+  y = 20
+
+  # Print the result of each comparison:
+  # 1. x > y
+  # 2. x < y
+  # 3. x == y
+  # 4. x != y
+
+validation:
+  method: output
+  expected_output: |
+    False
+    True
+    False
+    True
+
+hints:
+  - "Comparison operators return True or False. print(x > y) will print False because 10 is not greater than 20."
+  - "Remember == checks equality (two equals signs). A single = is assignment."
+  - "print(x > y), print(x < y), print(x == y), print(x != y) -- one per line."
+
+solution: |
+  x = 10
+  y = 20
+
+  print(x > y)
+  print(x < y)
+  print(x == y)
+  print(x != y)
+
+explanation: |
+  Comparison operators return boolean values (`True` or `False`):
+
+  1. `10 > 20` is `False` -- 10 is not greater than 20.
+  2. `10 < 20` is `True` -- 10 is less than 20.
+  3. `10 == 20` is `False` -- they are not equal.
+  4. `10 != 20` is `True` -- they are not equal.
+
+  Note that Python capitalizes booleans: `True` and `False` (not `true` and
+  `false` like in many other languages). When you print a boolean, Python
+  displays the capitalized form automatically.

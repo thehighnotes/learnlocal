@@ -1,0 +1,64 @@
+id: recover-overwritten
+title: "MISSION: Recover Overwritten File"
+type: command
+prompt: |
+  --- INCOMING TRANSMISSION ---
+
+  SITUATION: A critical configuration file `database.conf` was accidentally
+  overwritten with garbage data and committed. The original had the correct
+  production database settings. The bad commit has already been made.
+
+  MISSION: Recover the original version of `database.conf` from the commit
+  BEFORE it was overwritten, and commit the restored file with the message
+  "restore original database.conf".
+
+  The file should contain "host=prod-db.internal" when you're done.
+
+  --- END TRANSMISSION ---
+starter: |
+  #!/bin/bash
+  # Find the version of database.conf before it was overwritten
+  # Restore it and commit
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base' > readme.txt && git add readme.txt && git commit -m 'initial commit' && printf 'host=prod-db.internal\\nport=5432\\ndb=production\\nssl=true\\n' > database.conf && git add database.conf && git commit -m 'add production database config' && echo 'more code' > app.py && git add app.py && git commit -m 'add application code' && echo 'WRONG DATA GARBAGE OVERWRITE' > database.conf && git add database.conf && git commit -m 'update config'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-config
+      command: sh
+      args: ["-c", "cd {dir}/repo && cat database.conf > {dir}/__config.txt"]
+      timeout_seconds: 5
+    - name: capture-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline > {dir}/__log.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __config.txt
+        content: "host=prod-db.internal"
+    - file_contains:
+        path: __config.txt
+        content: "port=5432"
+    - file_contains:
+        path: __log.txt
+        content: "restore original database.conf"
+hints:
+  - "`git log -- database.conf` shows the commit history for that specific file."
+  - "`git show <hash>:database.conf` displays the file's content at a specific commit."
+  - "`git checkout <hash> -- database.conf` restores that version to your working tree. Then commit it."
+solution: |
+  #!/bin/bash
+  HASH=$(git log --format='%h %s' -- database.conf | grep 'add production database config' | awk '{print $1}')
+  git checkout "$HASH" -- database.conf
+  git commit -m "restore original database.conf"
+explanation: |
+  `git log -- <file>` shows only commits that touched that file. Once you find
+  the commit where the file had the correct content, `git checkout <hash> -- <file>`
+  pulls that exact version into your working tree and stages it automatically.
+  Then a simple `git commit` saves the restored version. The `--` separator is
+  important — it tells git that what follows is a filename, not a branch name.

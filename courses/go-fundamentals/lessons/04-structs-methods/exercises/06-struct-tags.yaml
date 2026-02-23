@@ -1,0 +1,99 @@
+id: struct-tags
+title: "Struct Literal Syntax"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```go
+  package main
+
+  import "fmt"
+
+  type Config struct {
+      Host    string
+      Port    int
+      Debug   bool
+  }
+
+  func (c Config) String() string {
+      mode := "production"
+      if c.Debug {
+          mode = "debug"
+      }
+      return fmt.Sprintf("%s:%d (%s)", c.Host, c.Port, mode)
+  }
+
+  func main() {
+      defaults := Config{Host: "localhost", Port: 8080}
+      custom := Config{
+          Host:  "0.0.0.0",
+          Port:  3000,
+          Debug: true,
+      }
+      fmt.Println(defaults)
+      fmt.Println(custom)
+      fmt.Println(defaults.Debug)
+  }
+  ```
+
+  Enter the exact output (three lines).
+
+validation:
+  method: output
+  expected_output: |
+    localhost:8080 (production)
+    0.0.0.0:3000 (debug)
+    false
+
+hints:
+  - "`defaults` omits the `Debug` field, so it gets the zero value for `bool`, which is `false`."
+  - "When a type has a `String() string` method, `fmt.Println` calls it automatically instead of printing the raw struct."
+  - "The output is: localhost:8080 (production), then 0.0.0.0:3000 (debug), then false on three lines."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type Config struct {
+      Host    string
+      Port    int
+      Debug   bool
+  }
+
+  func (c Config) String() string {
+      mode := "production"
+      if c.Debug {
+          mode = "debug"
+      }
+      return fmt.Sprintf("%s:%d (%s)", c.Host, c.Port, mode)
+  }
+
+  func main() {
+      defaults := Config{Host: "localhost", Port: 8080}
+      custom := Config{
+          Host:  "0.0.0.0",
+          Port:  3000,
+          Debug: true,
+      }
+      fmt.Println(defaults)
+      fmt.Println(custom)
+      fmt.Println(defaults.Debug)
+  }
+
+explanation: |
+  Three key concepts in this exercise:
+
+  1. **Zero values in struct literals**: `defaults` omits `Debug`, so it gets the
+     zero value for `bool`, which is `false`. This makes the `mode` variable stay
+     as `"production"` in the `String()` method.
+
+  2. **The `String()` method**: When a type implements `String() string`, the
+     `fmt` package uses it automatically for `%s`, `%v`, and `Println`. This is
+     Go's equivalent of `toString()` in other languages. The first two `Println`
+     calls use this method.
+
+  3. **Printing a bare field**: `fmt.Println(defaults.Debug)` prints the `bool`
+     field directly — it does NOT call `String()` on the Config, because you are
+     printing the field, not the struct. The result is `false`.

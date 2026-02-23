@@ -1,0 +1,49 @@
+id: pointer-arithmetic
+title: "Pointer Arithmetic with Arrays"
+type: write
+
+prompt: |
+  Create an array of 5 integers: {10, 20, 30, 40, 50}.
+  Create a pointer to the first element of the array.
+  Use pointer arithmetic to print the 3rd element (index 2).
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Create an array: int arr[5] = {10, 20, 30, 40, 50};
+
+      // Create a pointer to the first element
+
+      // Use pointer arithmetic to print the element at index 2
+      std::cout << /* your code here */ << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "30"
+
+hints:
+  - "An array name decays to a pointer to its first element: int* p = arr;"
+  - "Adding an integer n to a pointer advances it by n elements: *(p + 2) gives the 3rd element."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int arr[5] = {10, 20, 30, 40, 50};
+      int* p = arr;
+
+      std::cout << *(p + 2) << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  `int* p = arr;` makes `p` point to `arr[0]`. When you write `p + 2`,
+  the compiler advances the pointer by 2 elements (not 2 bytes -- it
+  knows each `int` is typically 4 bytes and adjusts automatically).
+  Dereferencing with `*(p + 2)` gives you the value at `arr[2]`, which
+  is `30`.

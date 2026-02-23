@@ -1,0 +1,57 @@
+id: elif-chain
+title: "Grade Calculator"
+type: write
+
+prompt: |
+  Read a score (integer 0-100) from standard input and print the
+  corresponding letter grade:
+  - 90 or above: "A"
+  - 80-89: "B"
+  - 70-79: "C"
+  - 60-69: "D"
+  - Below 60: "F"
+
+starter: |
+  # Read a score from input
+  # Print the letter grade: A, B, C, D, or F
+
+input: "85\n"
+
+validation:
+  method: output
+  expected_output: "B"
+
+hints:
+  - "Check from the highest grade down: if score >= 90 first, then elif score >= 80, and so on."
+  - "The order matters. Because of elif, a score of 85 will not match >= 90, but will match >= 80."
+  - "score = int(input()), then if score >= 90: print(\"A\"), elif score >= 80: print(\"B\"), etc."
+
+solution: |
+  score = int(input())
+
+  if score >= 90:
+      print("A")
+  elif score >= 80:
+      print("B")
+  elif score >= 70:
+      print("C")
+  elif score >= 60:
+      print("D")
+  else:
+      print("F")
+
+explanation: |
+  The elif chain checks conditions from highest to lowest:
+
+  1. `score >= 90` -- if true, it is an A and we are done.
+  2. `score >= 80` -- we only reach this if score < 90, so this catches 80-89.
+  3. `score >= 70` -- catches 70-79.
+  4. `score >= 60` -- catches 60-69.
+  5. `else` -- anything below 60 is an F.
+
+  The key insight is that each `elif` implicitly excludes the ranges already
+  caught above it. You do not need to write `80 <= score < 90` because the
+  `elif` only runs if all previous conditions were false.
+
+  If you reversed the order (checking >= 60 first), every score 60 and above
+  would get a "D" and nothing else would ever be reached.

@@ -1,0 +1,49 @@
+id: template-lit
+title: "Template Literals"
+type: write
+
+prompt: |
+  Given these variables (already declared in the starter code):
+  - city = "Tokyo"
+  - population = 14
+
+  Use a template literal to print exactly:
+  Tokyo has 14 million people
+
+  Template literals use backticks (`) and ${...} to embed expressions.
+
+starter: |
+  const city = "Tokyo";
+  const population = 14;
+  // Use a template literal to print: Tokyo has 14 million people
+
+validation:
+  method: output
+  expected_output: "Tokyo has 14 million people"
+
+hints:
+  - "Template literals use backticks instead of quotes: `text here`"
+  - "Embed variables with ${variableName}: `${city} has ${population} million people`"
+  - "The solution is: console.log(`${city} has ${population} million people`);"
+
+solution: |
+  const city = "Tokyo";
+  const population = 14;
+  console.log(`${city} has ${population} million people`);
+
+explanation: |
+  Template literals (backtick strings) are one of the most useful features
+  in modern JavaScript. They solve two problems:
+
+  1. **Embedded expressions**: `${city}` is replaced with the value of the
+     variable `city`. You can put any expression inside ${...}, including
+     math: `${2 + 2}` produces "4".
+
+  2. **Multi-line strings**: Template literals can span multiple lines
+     without needing \n escape sequences.
+
+  Compare to string concatenation:
+      city + " has " + population + " million people"
+
+  The template literal version is much easier to read and less error-prone
+  (no missing spaces or + operators to worry about).

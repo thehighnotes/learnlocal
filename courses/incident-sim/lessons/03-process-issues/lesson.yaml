@@ -1,0 +1,17 @@
+id: process-issues
+title: "Process & Resource Issues"
+description: "Runaway processes. Port conflicts. Resource exhaustion. Triage and fix system-level problems."
+estimated_minutes: 25
+content: content.md
+teaches: [process-management, port-conflicts, resource-monitoring, kill-signals]
+exercises:
+  - identify-hog
+  - find-port-conflict
+  - kill-runaway
+  - zombie-cleanup
+  - resource-report
+  - priority-fix
+  - process-tree
+recap: |
+  Processes are the heartbeat of a server. You can now identify resource hogs,
+  resolve port conflicts, and clean up rogue processes before they take the system down.

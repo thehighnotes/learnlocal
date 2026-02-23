@@ -1,0 +1,31 @@
+id: interfaces
+title: "Interfaces"
+description: "Define behavior with interfaces and use Go's implicit implementation"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - basic-interface
+  - implicit-impl
+  - empty-interface
+  - type-assertions
+  - type-switch
+  - stringer
+  - multiple-interfaces
+teaches:
+  - interface-definition
+  - implicit-implementation
+  - empty-interface
+  - type-assertions
+  - type-switches
+  - fmt-stringer
+  - multiple-interfaces
+  - polymorphism
+recap: |
+  You learned:
+  - Interfaces define a set of method signatures — any type with those methods implements the interface
+  - Go interfaces are satisfied implicitly: no "implements" keyword, no declaration needed
+  - The empty interface `interface{}` (or `any`) accepts values of every type
+  - Type assertions `v.(T)` extract the concrete value from an interface, with a comma-ok pattern for safety
+  - Type switches `switch v := i.(type)` branch on the concrete type stored in an interface
+  - `fmt.Stringer` is a one-method interface (`String() string`) that controls how a type is printed
+  - A type can implement multiple interfaces simultaneously — Go favors small, composable interfaces

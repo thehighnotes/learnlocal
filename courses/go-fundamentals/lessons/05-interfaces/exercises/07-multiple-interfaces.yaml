@@ -1,0 +1,113 @@
+id: multiple-interfaces
+title: "Multiple Interfaces"
+type: write
+
+prompt: |
+  Define two interfaces: `Reader` with a `Read() string` method, and `Writer`
+  with a `Write(s string)` method.
+
+  Create a `Document` struct with a `content string` field. Implement `Read()` to
+  return the content, and `Write(s string)` to set the content (use a pointer
+  receiver for `Write`).
+
+  In `main`:
+  1. Create a `Document` with content `"data"`.
+  2. Pass it to a function `readFrom(r Reader)` that prints `"read: "` followed
+     by the result of `r.Read()`.
+  3. Pass a pointer to it to a function `writeTo(w Writer, s string)` that calls
+     `w.Write(s)` and then prints `"wrote: "` followed by `s`.
+  4. Call `writeTo` with the string `"hello"`.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Define Reader interface with Read() string
+
+
+  // Define Writer interface with Write(s string)
+
+
+  // Define Document struct with content string
+
+
+  // Implement Read() for Document (value receiver)
+
+
+  // Implement Write(s string) for *Document (pointer receiver)
+
+
+  // Write readFrom(r Reader) — prints "read: " + r.Read()
+
+
+  // Write writeTo(w Writer, s string) — calls w.Write(s) then prints "wrote: " + s
+
+
+  func main() {
+  	_ = fmt.Println
+
+  	// Create Document with content "data"
+  	// Call readFrom with the document
+  	// Call writeTo with a pointer to the document and "hello"
+
+  }
+
+validation:
+  method: output
+  expected_output: "read: data\nwrote: hello\n"
+
+hints:
+  - "Define `Reader` and `Writer` as separate single-method interfaces."
+  - "`Write` needs a pointer receiver (`func (d *Document) Write(...)`) because it modifies the struct."
+  - "Pass `&doc` to `writeTo` since `Write` is on `*Document`, not `Document`."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type Reader interface {
+  	Read() string
+  }
+
+  type Writer interface {
+  	Write(s string)
+  }
+
+  type Document struct {
+  	content string
+  }
+
+  func (d Document) Read() string {
+  	return d.content
+  }
+
+  func (d *Document) Write(s string) {
+  	d.content = s
+  }
+
+  func readFrom(r Reader) {
+  	fmt.Println("read:", r.Read())
+  }
+
+  func writeTo(w Writer, s string) {
+  	w.Write(s)
+  	fmt.Println("wrote:", s)
+  }
+
+  func main() {
+  	doc := Document{content: "data"}
+  	readFrom(doc)
+  	writeTo(&doc, "hello")
+  }
+
+explanation: |
+  A single type can implement multiple interfaces. `Document` satisfies `Reader`
+  through its `Read()` method (value receiver), and `*Document` satisfies `Writer`
+  through its `Write()` method (pointer receiver). Note the distinction: `Write`
+  uses a pointer receiver because it modifies the struct's field. This means you
+  must pass `&doc` (a pointer) when a `Writer` is expected. Go encourages small,
+  single-method interfaces — this makes types more composable. A `Document` can
+  be used anywhere a `Reader` is needed, and a `*Document` anywhere a `Writer`
+  is needed, without either function knowing about the other interface.

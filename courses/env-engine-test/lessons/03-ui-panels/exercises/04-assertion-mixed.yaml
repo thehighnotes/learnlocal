@@ -1,0 +1,38 @@
+id: assertion-mixed
+title: "Assertion Mixed Results"
+type: fix
+prompt: |
+  This script has a bug — it writes the wrong content to result.txt.
+
+  Submit it as-is with [t] to see a mix of ✔ and ✘ in the RESULTS
+  panel. Failed assertions show a detail line (→ ...) explaining why.
+
+  Then fix the bug and re-submit to see all ✔.
+starter: |
+  #!/bin/bash
+  mkdir -p backup
+  echo "WRONG" > result.txt
+environment:
+  dirs:
+    - backup
+validation:
+  method: state
+  assertions:
+    - dir_exists: backup
+    - file_exists: result.txt
+    - file_equals:
+        path: result.txt
+        content: "success"
+    - dir_empty: backup
+hints:
+  - "Look at what string is written to result.txt"
+  - 'Change "WRONG" to "success"'
+solution: |
+  #!/bin/bash
+  mkdir -p backup
+  echo "success" > result.txt
+explanation: |
+  The starter code wrote "WRONG" instead of "success". On first
+  submit, dir_exists and file_exists passed (✔) while file_equals
+  failed (✘) with detail showing the mismatch. After fixing the
+  echo command, all assertions pass.

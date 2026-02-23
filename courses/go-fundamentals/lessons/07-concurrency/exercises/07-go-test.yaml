@@ -1,0 +1,54 @@
+id: go-test
+title: "Run Go Tests"
+type: command
+prompt: |
+  A Go project with a calculator and tests is provided. Run the tests.
+environment:
+  files:
+    - path: go.mod
+      content: |
+        module calculator
+
+        go 1.21
+    - path: calculator.go
+      content: |
+        package main
+
+        func Add(a, b int) int {
+        	return a + b
+        }
+
+        func Multiply(a, b int) int {
+        	return a * b
+        }
+    - path: calculator_test.go
+      content: |
+        package main
+
+        import "testing"
+
+        func TestAdd(t *testing.T) {
+        	if Add(2, 3) != 5 {
+        		t.Error("Add(2, 3) should be 5")
+        	}
+        }
+
+        func TestMultiply(t *testing.T) {
+        	if Multiply(4, 5) != 20 {
+        		t.Error("Multiply(4, 5) should be 20")
+        	}
+        }
+starter: |
+  # Run the Go tests
+validation:
+  method: regex
+  pattern: "PASS"
+hints:
+  - "go test runs all test files in the current directory"
+  - "go test -v shows verbose output with each test name"
+solution: |
+  go test -v
+explanation: |
+  Go has built-in testing. Files ending in _test.go are test files.
+  Functions starting with Test are test functions. go test discovers
+  and runs them automatically — no framework needed.

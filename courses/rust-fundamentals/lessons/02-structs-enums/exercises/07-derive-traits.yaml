@@ -1,0 +1,75 @@
+id: derive-traits
+title: "Derive Debug, Clone, PartialEq"
+type: write
+
+prompt: |
+  The `Point` struct is defined but is missing derive attributes. Add the
+  correct `#[derive(...)]` line so that the code in main compiles and runs.
+
+  The code needs:
+  - `{:?}` formatting (requires `Debug`)
+  - `.clone()` method (requires `Clone`)
+  - `==` comparison (requires `PartialEq`)
+
+  Add the single derive attribute that enables all three.
+
+starter: |
+  // Add the derive attribute on the line above the struct
+  struct Point {
+      x: f64,
+      y: f64,
+  }
+
+  fn main() {
+      let p1 = Point { x: 3.0, y: 4.0 };
+      let p2 = p1.clone();
+      let p3 = Point { x: 1.0, y: 2.0 };
+
+      println!("{:?}", p1);
+      println!("p1 == p2: {}", p1 == p2);
+      println!("p1 == p3: {}", p1 == p3);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Point { x: 3.0, y: 4.0 }
+    p1 == p2: true
+    p1 == p3: false
+
+hints:
+  - "Derive attributes go on the line directly above the struct: #[derive(Trait1, Trait2, Trait3)]"
+  - "You need three traits: Debug (for {:?}), Clone (for .clone()), and PartialEq (for ==)."
+  - "The full line is: #[derive(Debug, Clone, PartialEq)]"
+
+solution: |
+  #[derive(Debug, Clone, PartialEq)]
+  struct Point {
+      x: f64,
+      y: f64,
+  }
+
+  fn main() {
+      let p1 = Point { x: 3.0, y: 4.0 };
+      let p2 = p1.clone();
+      let p3 = Point { x: 1.0, y: 2.0 };
+
+      println!("{:?}", p1);
+      println!("p1 == p2: {}", p1 == p2);
+      println!("p1 == p3: {}", p1 == p3);
+  }
+
+explanation: |
+  `#[derive(Debug, Clone, PartialEq)]` tells the Rust compiler to automatically
+  generate implementations of three traits:
+
+  - **Debug** enables the `{:?}` format specifier in `println!`, which prints the
+    struct in a developer-friendly format: `Point { x: 3.0, y: 4.0 }`
+  - **Clone** adds the `.clone()` method, which creates a deep copy of the value.
+    Without it, `p1.clone()` would be a compile error.
+  - **PartialEq** adds the `==` and `!=` operators, comparing all fields. Two
+    Points are equal only if both `x` and `y` match.
+
+  You can derive multiple traits in a single `#[derive(...)]` attribute by
+  separating them with commas. This saves you from writing the boilerplate
+  implementations by hand.

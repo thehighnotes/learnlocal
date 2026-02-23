@@ -1,0 +1,54 @@
+id: switch-branch
+title: "Switch to a Branch"
+type: command
+prompt: |
+  The `feature` branch has been created but you're still on `main`.
+  Time to start working on the feature.
+
+  Switch to the `feature` branch, create a file called `auth.txt`
+  with the text "login system", then commit it with the message
+  "Add auth module".
+
+  When you're done, `feature` should have one more commit than `main`.
+starter: |
+  #!/bin/bash
+  # 1. Switch to the feature branch
+  # 2. Create auth.txt with the text "login system"
+  # 3. Stage and commit with message "Add auth module"
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'hello' > readme.txt && git add readme.txt && git commit -m 'Initial commit' && git branch feature"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline feature > {dir}/repo/feature_log.txt && git log --oneline main > {dir}/repo/main_log.txt && git show feature:auth.txt > {dir}/repo/auth_content.txt 2>/dev/null || true"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/feature_log.txt
+    - file_contains:
+        path: repo/auth_content.txt
+        content: "login system"
+    - file_contains:
+        path: repo/feature_log.txt
+        content: "Add auth module"
+hints:
+  - "Switch with: git switch feature (or git checkout feature)"
+  - "Create the file with: echo 'login system' > auth.txt"
+  - "Stage and commit: git add auth.txt && git commit -m 'Add auth module'"
+solution: |
+  #!/bin/bash
+  git switch feature
+  echo "login system" > auth.txt
+  git add auth.txt
+  git commit -m "Add auth module"
+explanation: |
+  `git switch feature` moves HEAD to point at the feature branch. Now
+  any commits you make advance feature, not main. After committing,
+  feature is one commit ahead of main. The main branch is unchanged
+  because you weren't on it when you committed.

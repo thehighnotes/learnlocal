@@ -1,0 +1,58 @@
+id: insert-single
+title: "Insert a Single Row"
+type: write
+
+prompt: |
+  The `contacts` table has five existing rows (ids 1–5). Insert a new contact
+  with these values:
+
+  - id: 6
+  - name: Frank
+  - email: frank@example.com
+  - phone: 555-0106
+  - city: Denver
+
+  After inserting, write a SELECT to show the new row. Select all columns
+  where id = 6.
+
+starter: |
+  -- Insert a new contact with id 6, then SELECT it to verify
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT, phone TEXT, city TEXT);
+        INSERT INTO contacts VALUES (1, 'Alice', 'alice@example.com', '555-0101', 'Portland');
+        INSERT INTO contacts VALUES (2, 'Bob', 'bob@example.com', '555-0102', 'Seattle');
+        INSERT INTO contacts VALUES (3, 'Charlie', 'charlie@example.com', '555-0103', 'Portland');
+        INSERT INTO contacts VALUES (4, 'Diana', 'diana@example.com', '555-0104', 'Austin');
+        INSERT INTO contacts VALUES (5, 'Eve', 'eve@example.com', '555-0105', 'Seattle');
+
+validation:
+  method: output
+  expected_output: |
+    6|Frank|frank@example.com|555-0106|Denver
+
+hints:
+  - "Use INSERT INTO contacts (id, name, email, phone, city) VALUES (...) to add the row"
+  - "After the INSERT, write: SELECT * FROM contacts WHERE id = 6;"
+  - "The full solution is: INSERT INTO contacts (id, name, email, phone, city) VALUES (6, 'Frank', 'frank@example.com', '555-0106', 'Denver'); SELECT * FROM contacts WHERE id = 6;"
+
+solution: |
+  INSERT INTO contacts (id, name, email, phone, city)
+  VALUES (6, 'Frank', 'frank@example.com', '555-0106', 'Denver');
+
+  SELECT * FROM contacts WHERE id = 6;
+
+explanation: |
+  The INSERT statement adds a new row with the specified values. Note that the
+  INSERT itself produces no output — if you only wrote the INSERT, you would see
+  nothing.
+
+  The SELECT at the end verifies the insert worked. It filters by `id = 6` so
+  you only see the new row, confirming all five columns were stored correctly.
+
+  Always list the column names in your INSERT: `INSERT INTO contacts (id, name,
+  email, phone, city)`. This makes the statement self-documenting and protects
+  you if the table schema ever changes (columns added, reordered, etc.).

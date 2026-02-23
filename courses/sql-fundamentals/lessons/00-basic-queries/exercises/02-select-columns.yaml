@@ -1,0 +1,48 @@
+id: select-columns
+title: "Select Specific Columns"
+type: write
+
+prompt: |
+  Write a query that selects only the `name` and `email` columns from the
+  `users` table. Do not include the `id` column.
+
+  The columns should appear in this order: name first, then email.
+
+starter: |
+  -- Select only name and email from the users table
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE users (id INTEGER, name TEXT, email TEXT);
+        INSERT INTO users VALUES (1, 'Alice', 'alice@example.com');
+        INSERT INTO users VALUES (2, 'Bob', 'bob@example.com');
+        INSERT INTO users VALUES (3, 'Charlie', 'charlie@example.com');
+
+validation:
+  method: output
+  expected_output: |
+    Alice|alice@example.com
+    Bob|bob@example.com
+    Charlie|charlie@example.com
+
+hints:
+  - "Instead of *, list the column names you want separated by commas"
+  - "The syntax is: SELECT column1, column2 FROM table_name;"
+  - "The full query is: SELECT name, email FROM users;"
+
+solution: |
+  SELECT name, email FROM users;
+
+explanation: |
+  `SELECT name, email FROM users;` retrieves only the two columns you asked
+  for, in the order you listed them.
+
+  Notice that `id` does not appear in the output — you only get back the
+  columns you explicitly name. This is more efficient than `SELECT *` because
+  the database reads less data, and it is clearer to anyone reading your query
+  exactly which columns you need.
+
+  The order matters: `SELECT email, name` would return email first, then name.
+  The table definition order is irrelevant — your SELECT controls the output.

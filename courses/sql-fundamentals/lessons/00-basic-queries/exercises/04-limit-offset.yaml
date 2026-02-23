@@ -1,0 +1,51 @@
+id: limit-offset
+title: "Limit and Offset"
+type: fill-blank
+
+prompt: |
+  The `users` table has five rows. Fill in the blanks to write a query that
+  skips the first two users and returns the next two.
+
+  The result should show id, name, and email for users with id 3 and 4.
+
+  Hint: Use LIMIT to cap the count and OFFSET to skip rows.
+
+starter: |
+  SELECT * FROM users LIMIT ___ OFFSET ___;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE users (id INTEGER, name TEXT, email TEXT);
+        INSERT INTO users VALUES (1, 'Alice', 'alice@example.com');
+        INSERT INTO users VALUES (2, 'Bob', 'bob@example.com');
+        INSERT INTO users VALUES (3, 'Charlie', 'charlie@example.com');
+        INSERT INTO users VALUES (4, 'Diana', 'diana@example.com');
+        INSERT INTO users VALUES (5, 'Eve', 'eve@example.com');
+
+validation:
+  method: output
+  expected_output: |
+    3|Charlie|charlie@example.com
+    4|Diana|diana@example.com
+
+hints:
+  - "LIMIT controls how many rows to return. You want 2 rows."
+  - "OFFSET controls how many rows to skip. You want to skip the first 2."
+  - "Replace the blanks: SELECT * FROM users LIMIT 2 OFFSET 2;"
+
+solution: |
+  SELECT * FROM users LIMIT 2 OFFSET 2;
+
+explanation: |
+  `LIMIT 2` tells SQLite to return at most two rows. `OFFSET 2` tells it to
+  skip the first two rows before starting to count.
+
+  So the database processes all five rows, skips rows 1 and 2 (Alice and Bob),
+  then returns the next two (Charlie and Diana). Eve is excluded because the
+  limit of 2 has been reached.
+
+  This is the foundation of pagination. To show "page 2" with 2 items per page,
+  you use OFFSET 2 (skip page 1) and LIMIT 2 (take one page's worth). Page 3
+  would be LIMIT 2 OFFSET 4, and so on.

@@ -1,0 +1,13 @@
+id: test-exercise
+title: "Test Exercise"
+type: write
+prompt: "Write something that outputs hello."
+starter: "hello"
+validation:
+  method: output
+  expected_output: "hello"
+hints:
+  - "Just type hello"
+  - "The answer is hello"
+solution: "hello"
+explanation: "The output should be hello."

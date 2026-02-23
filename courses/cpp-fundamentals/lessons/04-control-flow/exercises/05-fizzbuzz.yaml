@@ -1,0 +1,86 @@
+id: fizzbuzz
+title: "FizzBuzz"
+type: write
+
+prompt: |
+  Print the numbers 1 to 20, one per line. But for multiples of 3, print
+  "Fizz" instead of the number. For multiples of 5, print "Buzz" instead.
+  For numbers that are multiples of both 3 and 5, print "FizzBuzz".
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Loop from 1 to 20
+      // For each number:
+      //   - divisible by both 3 and 5? Print "FizzBuzz"
+      //   - divisible by 3? Print "Fizz"
+      //   - divisible by 5? Print "Buzz"
+      //   - otherwise? Print the number
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: |
+    1
+    2
+    Fizz
+    4
+    Buzz
+    Fizz
+    7
+    8
+    Fizz
+    Buzz
+    11
+    Fizz
+    13
+    14
+    FizzBuzz
+    16
+    17
+    Fizz
+    19
+    Buzz
+
+hints:
+  - "Use the modulo operator (%) to check divisibility. `i % 3 == 0` means i is divisible by 3."
+  - "Check the 'both' case first: if (i % 3 == 0 && i % 5 == 0). If you check for 3 or 5 first, you'll never reach the FizzBuzz case."
+  - "The order of your if/else if chain matters: check divisible-by-both first, then divisible-by-3, then divisible-by-5, then the default case."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      for (int i = 1; i <= 20; i++) {
+          if (i % 3 == 0 && i % 5 == 0) {
+              std::cout << "FizzBuzz" << std::endl;
+          } else if (i % 3 == 0) {
+              std::cout << "Fizz" << std::endl;
+          } else if (i % 5 == 0) {
+              std::cout << "Buzz" << std::endl;
+          } else {
+              std::cout << i << std::endl;
+          }
+      }
+
+      return 0;
+  }
+
+explanation: |
+  FizzBuzz combines a for loop with an if/else if/else chain:
+
+  1. `for (int i = 1; i <= 20; i++)` -- iterate through 1 to 20.
+  2. Check the most specific condition first: `i % 3 == 0 && i % 5 == 0`.
+     This catches multiples of 15 (like 15 itself).
+  3. Then check `i % 3 == 0` for Fizz and `i % 5 == 0` for Buzz.
+  4. The `else` handles all remaining numbers.
+
+  The critical lesson here is **condition ordering**. If you checked `i % 3 == 0`
+  before the combined check, the number 15 would print "Fizz" instead of
+  "FizzBuzz" because the first matching branch executes and the rest are skipped.
+
+  An alternative approach uses `i % 15 == 0` for the combined check, since
+  15 is the least common multiple of 3 and 5.

@@ -1,0 +1,27 @@
+id: structs
+title: "Structs"
+description: "Create custom types that group related data together"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - define-struct
+  - struct-init
+  - struct-function
+  - fix-access
+  - array-of-structs
+  - nested-struct
+teaches:
+  - struct-definition
+  - member-access
+  - struct-initialization
+  - structs-with-functions
+  - arrays-of-structs
+  - nested-structs
+recap: |
+  You learned:
+  - Structs group related data into a single custom type
+  - Members are accessed with the dot operator (.)
+  - Structs can be initialized with braces {}
+  - Functions can take and return structs
+  - Arrays of structs store collections of structured data
+  - Structs can contain other structs for complex data modeling

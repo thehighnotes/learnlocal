@@ -1,0 +1,23 @@
+id: run-a-script
+title: "Run a Script"
+type: command
+prompt: |
+  A greeting.js file is provided. Run it with Node.
+environment:
+  files:
+    - path: greeting.js
+      content: |
+        const name = "World";
+        console.log(`Hello, ${name}!`);
+starter: |
+  # Run the JavaScript file
+validation:
+  method: output
+  expected_output: "Hello, World!"
+hints:
+  - "Run: node greeting.js"
+solution: |
+  node greeting.js
+explanation: |
+  node runs JavaScript files directly. Unlike browser JS, Node scripts
+  have access to the filesystem, network, and system resources.

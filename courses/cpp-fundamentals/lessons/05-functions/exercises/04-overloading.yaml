@@ -1,0 +1,53 @@
+id: overloading
+title: "Function Overloading"
+type: write
+
+prompt: |
+  Write two overloaded functions both named `print`:
+  - One takes an `int` parameter and prints "Integer: " followed by the value.
+  - One takes a `double` parameter and prints "Double: " followed by the value.
+
+  Call `print(42)` and then `print(3.14)` from `main`.
+
+starter: |
+  #include <iostream>
+
+  // Define your two overloaded print() functions here
+
+  int main() {
+      // Call print(42) and print(3.14) here
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Integer: 42\nDouble: 3.14"
+
+hints:
+  - "Overloaded functions share the same name but have different parameter types."
+  - "Define void print(int value) and void print(double value) as separate functions. Use std::cout in each to print the required prefix and value."
+
+solution: |
+  #include <iostream>
+
+  void print(int value) {
+      std::cout << "Integer: " << value << std::endl;
+  }
+
+  void print(double value) {
+      std::cout << "Double: " << value << std::endl;
+  }
+
+  int main() {
+      print(42);
+      print(3.14);
+      return 0;
+  }
+
+explanation: |
+  C++ allows multiple functions with the same name as long as their parameter
+  lists differ. Here, `print(int)` and `print(double)` are two distinct functions.
+  When we call `print(42)`, the compiler matches the `int` argument to the first
+  overload. When we call `print(3.14)`, the `double` argument matches the second
+  overload. This is called function overloading and is resolved at compile time.

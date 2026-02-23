@@ -1,0 +1,33 @@
+id: fix-log
+title: "Fix the Console Log"
+type: fix
+
+prompt: |
+  The starter code tries to print a message, but it has a syntax error. Fix
+  the code so it prints: Hello, JavaScript!
+
+  Look carefully at how console.log is being called — something is missing.
+
+starter: |
+  console.log "Hello, JavaScript!"
+
+validation:
+  method: output
+  expected_output: "Hello, JavaScript!"
+
+hints:
+  - "console.log is a function. Functions must be called with parentheses around their arguments."
+  - "The syntax should be console.log(...) with the string inside the parentheses."
+  - "Fix it to: console.log(\"Hello, JavaScript!\")"
+
+solution: |
+  console.log("Hello, JavaScript!");
+
+explanation: |
+  In JavaScript, function calls always require parentheses. Writing
+  `console.log "Hello"` is a syntax error — the parser does not know what
+  to do with the string after `console.log` without parentheses.
+
+  The correct syntax is always `console.log(...)` with arguments inside
+  the parentheses. This applies to every function in JavaScript, not just
+  console.log.

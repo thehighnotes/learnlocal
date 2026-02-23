@@ -1,0 +1,45 @@
+id: dict-methods
+title: "Dictionary Keys and Values"
+type: write
+
+prompt: |
+  Given a dictionary `person = {"name": "Alice", "age": 30}`, print the
+  result of calling `.keys()` on the first line, and `.values()` on the
+  second line.
+
+  Use `print(person.keys())` and `print(person.values())` — Python will
+  display them in their dict_keys and dict_values wrapper format.
+
+starter: |
+  person = {"name": "Alice", "age": 30}
+  # Print the keys view
+  # Print the values view
+
+validation:
+  method: output
+  expected_output: |
+    dict_keys(['name', 'age'])
+    dict_values(['Alice', 30])
+
+hints:
+  - "The .keys() method returns a view of all keys: person.keys()"
+  - "The .values() method returns a view of all values: person.values()"
+  - "Just print them directly: print(person.keys()) and print(person.values())"
+
+solution: |
+  person = {"name": "Alice", "age": 30}
+  print(person.keys())
+  print(person.values())
+
+explanation: |
+  The `.keys()` method returns a `dict_keys` view object containing all the
+  keys in the dictionary. Similarly, `.values()` returns a `dict_values` view
+  containing all the values.
+
+  When you print these view objects, Python displays them in their wrapper
+  format: `dict_keys(['name', 'age'])` and `dict_values(['Alice', 30])`.
+
+  These are **view objects**, not plain lists. They reflect the current state
+  of the dictionary — if you add or remove keys, the views update
+  automatically. You can convert them to regular lists with `list()` if needed,
+  but often you use them directly in for loops or membership tests.

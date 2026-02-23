@@ -1,0 +1,49 @@
+id: magnitude
+title: "Vector Magnitude"
+type: write
+
+prompt: |
+  Compute the magnitude (length) of a vector. The magnitude is the square root
+  of the sum of squared elements.
+
+  For `v = [3, 4]`:
+  - Square each element: 9, 16
+  - Sum them: 25
+  - Square root: 5.0
+
+  Print the magnitude. Use `math.sqrt()`.
+
+starter: |
+  import math
+
+  v = [3, 4]
+
+  # Compute the magnitude of v
+
+
+  print(mag)
+
+validation:
+  method: output
+  expected_output: "5.0"
+
+hints:
+  - "Square each element with `x**2`, sum them with `sum()`, then take the square root with `math.sqrt()`."
+  - "Try: `mag = math.sqrt(sum(x**2 for x in v))`"
+
+solution: |
+  import math
+
+  v = [3, 4]
+
+  mag = math.sqrt(sum(x**2 for x in v))
+
+  print(mag)
+
+explanation: |
+  `sum(x**2 for x in v)` computes 3^2 + 4^2 = 9 + 16 = 25. Then
+  `math.sqrt(25)` gives 5.0.
+
+  This is the Pythagorean theorem generalized to any number of dimensions.
+  A 2D vector [3, 4] has the same magnitude as the hypotenuse of a 3-4-5
+  right triangle. For higher dimensions, you just add more squared terms.

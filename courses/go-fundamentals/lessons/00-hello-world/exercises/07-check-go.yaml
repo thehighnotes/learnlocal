@@ -1,0 +1,18 @@
+id: check-go
+title: "Check Your Go Installation"
+type: command
+prompt: |
+  Print your Go version.
+starter: |
+  # Print your Go version
+validation:
+  method: regex
+  pattern: "go\\d+\\.\\d+"
+hints:
+  - "Run: go version"
+solution: |
+  go version
+explanation: |
+  The go command is your all-in-one tool for building, running, testing,
+  and formatting Go code. go version confirms it's installed and shows
+  which version you have.

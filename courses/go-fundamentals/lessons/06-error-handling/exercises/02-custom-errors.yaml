@@ -1,0 +1,74 @@
+id: custom-errors
+title: "Custom Error Types"
+type: write
+
+prompt: |
+  Define a `ValidationError` struct with two fields: `Field` (string) and
+  `Message` (string).
+
+  Implement the `Error()` method on `*ValidationError` so it returns a string
+  in this exact format:
+    validation error: field 'FIELD' - MESSAGE
+
+  In `main`, create a `ValidationError` with Field `"email"` and Message
+  `"invalid format"`, and print it using `fmt.Println`.
+
+  Expected output:
+  validation error: field 'email' - invalid format
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // TODO: define ValidationError struct with Field and Message
+
+  // TODO: implement Error() method on *ValidationError
+
+  func main() {
+      // TODO: create a ValidationError and print it
+  }
+
+validation:
+  method: output
+  expected_output: "validation error: field 'email' - invalid format"
+
+hints:
+  - "Define the struct: `type ValidationError struct { Field string; Message string }`"
+  - "The Error method: `func (e *ValidationError) Error() string { return fmt.Sprintf(\"validation error: field '%s' - %s\", e.Field, e.Message) }`"
+  - "In main, `fmt.Println` on an error value calls its `Error()` method automatically: `fmt.Println(&ValidationError{Field: \"email\", Message: \"invalid format\"})`"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type ValidationError struct {
+      Field   string
+      Message string
+  }
+
+  func (e *ValidationError) Error() string {
+      return fmt.Sprintf("validation error: field '%s' - %s", e.Field, e.Message)
+  }
+
+  func main() {
+      err := &ValidationError{Field: "email", Message: "invalid format"}
+      fmt.Println(err)
+  }
+
+explanation: |
+  Any type that implements `Error() string` satisfies the `error` interface.
+  Here, `*ValidationError` has an `Error()` method, so it can be used anywhere
+  an `error` is expected.
+
+  When you pass a value that implements `error` to `fmt.Println`, Go
+  automatically calls its `Error()` method to get the string representation.
+
+  Using a pointer receiver (`*ValidationError`) is conventional for error types.
+  It means the method operates on a pointer, so you create errors with `&` to
+  get a pointer: `&ValidationError{...}`.
+
+  Custom error types let callers inspect error details programmatically. Instead
+  of parsing an error message string, they can type-assert to `*ValidationError`
+  and read the `Field` and `Message` fields directly.

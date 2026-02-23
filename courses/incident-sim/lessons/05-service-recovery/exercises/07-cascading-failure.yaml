@@ -1,0 +1,112 @@
+id: cascading-failure
+title: "Cascading Failure"
+type: command
+prompt: |
+  CRITICAL: Three services are down. Total system outage. All hands on deck.
+
+  The dependency chain is: **app** depends on **cache**, **cache** depends
+  on **db**. All three have broken configs. The dependency order is
+  documented in `deps.txt`.
+
+  You must fix them in the right order — bottom up. Fix the root dependency
+  first, then work your way up. A service won't start if its dependency
+  is still broken.
+
+  The problems:
+  - `db/config.ini` — the `data_dir` points to a nonexistent path. It
+    should be `/var/lib/db/data` (not `/var/lib/db/dat`).
+  - `cache/config.ini` — the `backend_port` is wrong. The database runs
+    on port `5432`, not `5433`.
+  - `app/config.ini` — the `cache_host` is wrong. The cache is on
+    `127.0.0.1`, not `10.0.0.5`.
+
+  Fix all three configs. Order matters in production — fix db first,
+  cache second, app last.
+starter: |
+  # Fix all three configs in dependency order: db -> cache -> app
+  # Read deps.txt for the dependency chain
+  # Read error.log for what's wrong with each service
+environment:
+  dirs:
+    - db
+    - cache
+    - app
+  files:
+    - path: deps.txt
+      content: |
+        # Service Dependency Graph
+        # Fix from bottom to top!
+        #
+        # app (web frontend)
+        #   └── cache (redis-compatible cache layer)
+        #         └── db (PostgreSQL database)
+        #
+        # Order: db -> cache -> app
+    - path: db/config.ini
+      content: |
+        [database]
+        engine=postgresql
+        port=5432
+        data_dir=/var/lib/db/dat
+        max_connections=100
+        log_file=/var/log/db/postgresql.log
+    - path: cache/config.ini
+      content: |
+        [cache]
+        engine=redis-compat
+        port=6379
+        backend_host=127.0.0.1
+        backend_port=5433
+        max_memory=256mb
+        eviction_policy=lru
+    - path: app/config.ini
+      content: |
+        [application]
+        name=order-service
+        port=8080
+        cache_host=10.0.0.5
+        cache_port=6379
+        workers=4
+        log_level=info
+    - path: error.log
+      content: |
+        2024-03-15 06:00:00 [db] Starting PostgreSQL...
+        2024-03-15 06:00:01 [db] ERROR: data directory "/var/lib/db/dat" does not exist
+        2024-03-15 06:00:01 [db] FATAL: database system failed to start
+        2024-03-15 06:00:05 [cache] Starting cache layer...
+        2024-03-15 06:00:05 [cache] Connecting to backend at 127.0.0.1:5433
+        2024-03-15 06:00:08 [cache] ERROR: Connection refused: 127.0.0.1:5433
+        2024-03-15 06:00:08 [cache] FATAL: cannot connect to database backend
+        2024-03-15 06:00:10 [app] Starting order-service...
+        2024-03-15 06:00:10 [app] Connecting to cache at 10.0.0.5:6379
+        2024-03-15 06:00:13 [app] ERROR: Connection timeout: 10.0.0.5:6379
+        2024-03-15 06:00:13 [app] FATAL: cache layer unreachable, cannot start
+        2024-03-15 06:00:15 [monitor] ALL SERVICES DOWN — cascade failure detected
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: db/config.ini
+        content: "data_dir=/var/lib/db/data"
+    - file_contains:
+        path: cache/config.ini
+        content: "backend_port=5432"
+    - file_contains:
+        path: app/config.ini
+        content: "cache_host=127.0.0.1"
+hints:
+  - "Start with `deps.txt` and `error.log`. The dependency chain is db -> cache -> app. Fix from the bottom up."
+  - "db: `data_dir=/var/lib/db/dat` should be `data_dir=/var/lib/db/data`. cache: `backend_port=5433` should be `backend_port=5432`. app: `cache_host=10.0.0.5` should be `cache_host=127.0.0.1`."
+  - "Fix all three: `sed -i 's|/var/lib/db/dat$|/var/lib/db/data|' db/config.ini && sed -i 's/backend_port=5433/backend_port=5432/' cache/config.ini && sed -i 's/cache_host=10.0.0.5/cache_host=127.0.0.1/' app/config.ini`"
+solution: |
+  sed -i 's|/var/lib/db/dat$|/var/lib/db/data|' db/config.ini
+  sed -i 's/backend_port=5433/backend_port=5432/' cache/config.ini
+  sed -i 's/cache_host=10.0.0.5/cache_host=127.0.0.1/' app/config.ini
+explanation: |
+  Cascading failures happen when services form a dependency chain and a
+  failure at the bottom propagates upward. The key insight: you must fix
+  the _root_ cause first (the database config), then work upward through
+  the chain. In production, you'd restart each service after fixing its
+  config, verifying each one is healthy before moving to the next level.
+  Fixing all three simultaneously is faster for the exercise, but the
+  mental model of "bottom-up repair" is what matters.

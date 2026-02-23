@@ -1,0 +1,111 @@
+id: match-enum
+title: "Match on an Enum"
+type: fix
+
+prompt: |
+  This program defines a `Shape` enum and tries to compute the area of each
+  shape using `match`. But it has two bugs:
+
+  1. One match arm has the wrong formula.
+  2. The match is missing a variant entirely, so it won't compile.
+
+  Fix both issues so the program compiles and prints the correct output.
+
+  Formulas:
+  - Circle area = 3.14159 * r * r
+  - Rectangle area = w * h
+  - Triangle area = 0.5 * b * h
+
+  Expected output (three lines):
+  Circle area: 78.53975
+  Rectangle area: 24
+  Triangle area: 15
+
+starter: |
+  enum Shape {
+      Circle(f64),
+      Rectangle(f64, f64),
+      Triangle(f64, f64),
+  }
+
+  fn main() {
+      let shapes = vec![
+          Shape::Circle(5.0),
+          Shape::Rectangle(4.0, 6.0),
+          Shape::Triangle(6.0, 5.0),
+      ];
+
+      for shape in &shapes {
+          match shape {
+              Shape::Circle(r) => {
+                  let area = 3.14159 * r * r;
+                  println!("Circle area: {}", area);
+              }
+              Shape::Rectangle(w, h) => {
+                  let area = w + h;
+                  println!("Rectangle area: {}", area);
+              }
+          }
+      }
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Circle area: 78.53975
+    Rectangle area: 24
+    Triangle area: 15
+
+hints:
+  - "The compiler error tells you which enum variant is not covered by the match."
+  - "Look at the Rectangle arm carefully -- the area of a rectangle is width times height, not width plus height."
+  - "Add a `Shape::Triangle(b, h)` arm that computes `0.5 * b * h`, and change `w + h` to `w * h` in the Rectangle arm."
+
+solution: |
+  enum Shape {
+      Circle(f64),
+      Rectangle(f64, f64),
+      Triangle(f64, f64),
+  }
+
+  fn main() {
+      let shapes = vec![
+          Shape::Circle(5.0),
+          Shape::Rectangle(4.0, 6.0),
+          Shape::Triangle(6.0, 5.0),
+      ];
+
+      for shape in &shapes {
+          match shape {
+              Shape::Circle(r) => {
+                  let area = 3.14159 * r * r;
+                  println!("Circle area: {}", area);
+              }
+              Shape::Rectangle(w, h) => {
+                  let area = w * h;
+                  println!("Rectangle area: {}", area);
+              }
+              Shape::Triangle(b, h) => {
+                  let area = 0.5 * b * h;
+                  println!("Triangle area: {}", area);
+              }
+          }
+      }
+  }
+
+explanation: |
+  Two fixes were needed:
+
+  1. **Missing variant:** The match did not cover `Shape::Triangle`. Rust's
+     exhaustive matching caught this -- the compiler refuses to build until
+     every variant of the enum is handled. Adding a `Shape::Triangle(b, h)`
+     arm fixes the compilation error.
+
+  2. **Wrong formula:** The Rectangle arm used `w + h` (addition) instead of
+     `w * h` (multiplication). This is a logic bug, not a compiler error --
+     the program would compile with the wrong formula but produce incorrect
+     output.
+
+  When iterating over `&shapes` (a reference), the match patterns automatically
+  borrow the inner data. The variables `r`, `w`, `h`, `b` are references to
+  `f64`, but Rust auto-dereferences them in arithmetic expressions.

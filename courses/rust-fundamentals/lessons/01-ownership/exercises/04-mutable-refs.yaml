@@ -1,0 +1,64 @@
+id: mutable-refs
+title: "Mutable References"
+type: fix
+
+prompt: |
+  This program tries to use a function to append text to a String, but it has
+  several problems related to mutability.
+
+  Fix all the issues so the program compiles and prints:
+
+  ```
+  hello, world!
+  ```
+
+starter: |
+  fn add_world(s: &String) {
+      s.push_str(", world!");
+  }
+
+  fn main() {
+      let greeting = String::from("hello");
+      add_world(&greeting);
+      println!("{}", greeting);
+  }
+
+validation:
+  method: output
+  expected_output: "hello, world!"
+
+hints:
+  - "There are three things that must align for a mutable borrow: the variable declaration, the reference type in the function signature, and the reference at the call site."
+  - "The function needs to accept `&mut String` instead of `&String`. And the call site needs to pass `&mut greeting` instead of `&greeting`."
+  - "The variable `greeting` must be declared as `let mut greeting` — you cannot create a mutable reference to an immutable variable."
+
+solution: |
+  fn add_world(s: &mut String) {
+      s.push_str(", world!");
+  }
+
+  fn main() {
+      let mut greeting = String::from("hello");
+      add_world(&mut greeting);
+      println!("{}", greeting);
+  }
+
+explanation: |
+  Three changes were needed to make this work:
+
+  1. `let greeting` became `let mut greeting` — the variable must be declared
+     mutable because we intend to modify its data through a mutable reference.
+
+  2. `s: &String` became `s: &mut String` — the function parameter must accept
+     a mutable reference so that `push_str` (which modifies the String) is allowed.
+
+  3. `&greeting` became `&mut greeting` — the call site must explicitly create
+     a mutable reference.
+
+  Rust requires all three to align. This is intentional: every mutation is
+  visible and explicit. You can look at a function signature and immediately
+  know whether it will modify its arguments. You can look at a call site and
+  see `&mut` — a clear signal that the data might change.
+
+  This explicitness is one of Rust's core design principles. It makes code
+  easier to reason about, especially in large codebases.

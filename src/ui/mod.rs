@@ -1,0 +1,17 @@
+pub mod terminal;
+pub mod app;
+pub mod course_app;
+pub mod screens;
+pub mod theme;
+pub mod markdown;
+pub mod editor;
+pub mod inline_editor;
+pub mod views;
+pub mod diff;
+pub mod diagnostics;
+pub mod editor_detect;
+pub mod celebration;
+pub mod tour;
+pub mod howto;
+pub mod watch;
+pub mod shell;

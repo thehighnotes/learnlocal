@@ -1,0 +1,63 @@
+id: recover-branch
+title: "Recover a Deleted Branch"
+type: command
+prompt: |
+  A teammate deleted the `feature` branch, claiming it was merged. But it
+  wasn't — two important commits were on it. The branch is gone from
+  `git branch`, but the reflog still remembers.
+
+  Recover the `feature` branch so it exists again with all its commits.
+  After recovery, you should remain on `main`.
+starter: |
+  #!/bin/bash
+  # The "feature" branch was deleted. Bring it back using the reflog.
+  # Stay on main after recovery.
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base' > base.txt && git add base.txt && git commit -m 'initial commit' && git checkout -b feature && echo 'feat work 1' > feat1.txt && git add feat1.txt && git commit -m 'feature commit 1' && echo 'feat work 2' > feat2.txt && git add feat2.txt && git commit -m 'feature commit 2' && git checkout main && git branch -D feature"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-branches
+      command: sh
+      args: ["-c", "cd {dir}/repo && git branch > {dir}/__branches.txt"]
+      timeout_seconds: 5
+    - name: capture-feature-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline feature 2>/dev/null > {dir}/__feature_log.txt || echo 'NO_BRANCH' > {dir}/__feature_log.txt"]
+      timeout_seconds: 5
+    - name: capture-current
+      command: sh
+      args: ["-c", "cd {dir}/repo && git branch --show-current > {dir}/__current.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __branches.txt
+        content: "feature"
+    - file_contains:
+        path: __feature_log.txt
+        content: "feature commit 2"
+    - file_contains:
+        path: __feature_log.txt
+        content: "feature commit 1"
+    - file_contains:
+        path: __current.txt
+        content: "main"
+hints:
+  - "`git reflog` shows where HEAD was. Look for the last time you were on the feature branch."
+  - "Find the hash of 'feature commit 2' in the reflog — that was the tip of the branch."
+  - "`git branch feature <hash>` recreates the branch at that commit."
+solution: |
+  #!/bin/bash
+  HASH=$(git reflog --format='%h %s' | grep 'feature commit 2' | head -1 | awk '{print $1}')
+  git branch feature "$HASH"
+explanation: |
+  When you delete a branch, git only removes the branch pointer — the commits
+  themselves remain in the object database. The reflog remembers where the
+  branch tip was. By finding that commit hash and running `git branch feature <hash>`,
+  you recreate the pointer, and the entire branch history is accessible again.
+  This is why git almost never truly loses data.

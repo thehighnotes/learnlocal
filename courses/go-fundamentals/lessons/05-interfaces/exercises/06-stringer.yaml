@@ -1,0 +1,67 @@
+id: stringer
+title: "Stringer Interface"
+type: write
+
+prompt: |
+  Define a `Color` struct with three `uint8` fields: `R`, `G`, and `B`. Implement
+  the `fmt.Stringer` interface by adding a `String() string` method that returns
+  the format `"rgb(R, G, B)"`.
+
+  In `main`, create a `Color{255, 128, 0}` and print it with `fmt.Println`.
+  Because `Color` implements `Stringer`, `fmt.Println` will automatically use
+  your `String()` method.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Define Color struct with R, G, B uint8
+
+
+  // Implement String() string for Color
+  // Return fmt.Sprintf("rgb(%d, %d, %d)", c.R, c.G, c.B)
+
+
+  func main() {
+  	_ = fmt.Println
+
+  	// Create Color{255, 128, 0} and print it
+
+  }
+
+validation:
+  method: output
+  expected_output: "rgb(255, 128, 0)\n"
+
+hints:
+  - "The `fmt.Stringer` interface requires one method: `String() string`."
+  - "Use `fmt.Sprintf(\"rgb(%d, %d, %d)\", c.R, c.G, c.B)` to format the output."
+  - "`fmt.Println(c)` automatically calls `c.String()` if it exists."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type Color struct {
+  	R, G, B uint8
+  }
+
+  func (c Color) String() string {
+  	return fmt.Sprintf("rgb(%d, %d, %d)", c.R, c.G, c.B)
+  }
+
+  func main() {
+  	c := Color{255, 128, 0}
+  	fmt.Println(c)
+  }
+
+explanation: |
+  The `fmt.Stringer` interface is defined in the `fmt` package as
+  `type Stringer interface { String() string }`. When you pass a value to
+  `fmt.Println` (or use `%v` in `Printf`), Go checks whether the value
+  implements `Stringer`. If it does, Go calls `String()` to get the text
+  representation. By implementing `String()` on `Color`, you control exactly
+  how colors are displayed. This is one of the most commonly implemented
+  interfaces in Go.

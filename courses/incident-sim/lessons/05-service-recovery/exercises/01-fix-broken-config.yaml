@@ -1,0 +1,66 @@
+id: fix-broken-config
+title: "Fix the Broken Config"
+type: command
+prompt: |
+  ALERT: Application failed to start. Severity: HIGH.
+
+  The deploy went out 10 minutes ago and the app immediately crashed. The
+  error log says it can't parse the JSON config file. There's a syntax error
+  somewhere in `app/config.json`.
+
+  Find the JSON syntax error and fix it. The app needs this config to start.
+starter: |
+  # The app won't start because config.json has a syntax error
+  # Read the error log, find the problem, fix config.json
+environment:
+  dirs:
+    - app
+  files:
+    - path: app/config.json
+      content: |
+        {
+          "app_name": "order-service",
+          "version": "3.4.1",
+          "database": {
+            "host": "db-primary.internal",
+            "port": 5432,
+            "name": "orders",
+            "pool_size": 10
+          },
+          "cache": {
+            "backend": "redis",
+            "host": "redis.internal"
+            "port": 6379,
+            "ttl_seconds": 300
+          },
+          "logging": {
+            "level": "info",
+            "output": "/var/log/app/order-service.log"
+          }
+        }
+    - path: app/error.log
+      content: |
+        2024-03-15 03:44:01 [STARTUP] Loading configuration from app/config.json
+        2024-03-15 03:44:01 [ERROR] Failed to parse app/config.json: Expected ',' or '}' after property value in JSON at position 212
+        2024-03-15 03:44:01 [ERROR] Configuration load failed — aborting startup
+        2024-03-15 03:44:01 [FATAL] order-service cannot start without valid configuration
+validation:
+  method: state
+  assertions:
+    - file_exists: app/config.json
+    - file_contains:
+        path: app/config.json
+        content: '"host": "redis.internal",'
+hints:
+  - "The error says 'Expected comma or closing brace after property value'. Look for a missing comma between two properties."
+  - "Look at the `cache` section — the line with `\"host\": \"redis.internal\"` is missing a trailing comma."
+  - "Add a comma after `\"redis.internal\"` on the line before `\"port\": 6379`."
+solution: |
+  sed -i 's/"host": "redis.internal"/"host": "redis.internal",/' app/config.json
+explanation: |
+  JSON requires commas between key-value pairs in an object. The line
+  `"host": "redis.internal"` was missing its trailing comma before the
+  `"port"` property. This is the most common JSON syntax error — and the
+  error message usually tells you exactly where to look. In production,
+  always validate config files before deploying: `python3 -c "import json;
+  json.load(open('config.json'))"` catches this instantly.

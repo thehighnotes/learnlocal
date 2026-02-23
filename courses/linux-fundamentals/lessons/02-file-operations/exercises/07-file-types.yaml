@@ -1,0 +1,43 @@
+id: file-types
+title: "Identify File Types"
+type: command
+prompt: |
+  Your workspace contains three items:
+  - data.txt (a regular file)
+  - stuff/ (a directory)
+  - link.txt (a symlink pointing to data.txt)
+
+  Use test flags (-f, -d, -L) to identify each type and print:
+  - "data.txt: file"
+  - "stuff: directory"
+  - "link.txt: symlink"
+starter: |
+  # Three items exist — identify their types with test
+environment:
+  files:
+    - path: data.txt
+      content: ""
+  dirs:
+    - stuff
+  setup:
+    - name: create-symlink
+      command: ln
+      args: ["-s", "{dir}/data.txt", "{dir}/link.txt"]
+validation:
+  method: output
+  expected_output: |
+    data.txt: file
+    stuff: directory
+    link.txt: symlink
+hints:
+  - "test -f checks regular file, -d checks directory, -L checks symlink"
+  - "Check -L before -f because symlinks also pass -f"
+  - "Use the && / || pattern for concise checks"
+solution: |
+  test -f data.txt && echo "data.txt: file"
+  test -d stuff && echo "stuff: directory"
+  test -L link.txt && echo "link.txt: symlink"
+explanation: |
+  test -f checks for a regular file, -d for a directory, and -L for
+  a symbolic link. Note that symlinks also pass -f, so check -L first
+  if you need to distinguish them.

@@ -1,0 +1,20 @@
+id: ui-panels
+title: "Workspace & Assertions"
+description: "Visual verification of workspace panel, assertion checklist, and engine features."
+estimated_minutes: 10
+content: content.md
+teaches: [workspace-view, assertion-checklist, env-vars, cwd-override, service-capture, multi-step, multi-service]
+exercises:
+  - file-workspace
+  - full-workspace
+  - assertion-checklist
+  - assertion-mixed
+  - env-vars-cwd
+  - service-stderr-capture
+  - multi-step-lifecycle
+  - multi-service
+recap: |
+  You verified the workspace panel, assertion checklist, environment
+  variables, cwd override, service stderr readiness, stdout/stderr
+  capture, symlink assertions, multi-step setup/teardown, and
+  concurrent multi-service lifecycle.

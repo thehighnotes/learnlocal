@@ -1,0 +1,60 @@
+id: buffered-channels
+title: "Buffered Channels"
+type: write
+
+prompt: |
+  Create a buffered channel of type string with capacity 2.
+  Send the values "first" and "second" into the channel (these sends will not
+  block because the buffer has room). Then receive both values and print each
+  one on its own line using fmt.Println.
+
+  No goroutines needed -- the buffer lets you send and receive from the same
+  goroutine (main).
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      // Create a buffered channel of string with capacity 2
+
+      // Send "first" and "second" into the channel
+
+      // Receive and print both values
+      _ = fmt.Println
+  }
+
+validation:
+  method: output
+  expected_output: "first\nsecond\n"
+
+hints:
+  - "Create a buffered channel with: ch := make(chan string, 2)"
+  - "Send without blocking: ch <- \"first\" then ch <- \"second\""
+  - "Receive in order: fmt.Println(<-ch) twice"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      ch := make(chan string, 2)
+      ch <- "first"
+      ch <- "second"
+      fmt.Println(<-ch)
+      fmt.Println(<-ch)
+  }
+
+explanation: |
+  A buffered channel with capacity 2 can hold up to 2 values before a send
+  blocks. This means we can send both values from main without needing a
+  separate goroutine.
+
+  With an unbuffered channel, `ch <- "first"` would block forever because
+  there is no other goroutine ready to receive. The buffer solves this by
+  storing the values internally.
+
+  Receives still come out in FIFO order: "first" was sent first, so it is
+  received first.

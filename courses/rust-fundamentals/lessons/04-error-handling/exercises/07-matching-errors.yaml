@@ -1,0 +1,123 @@
+id: matching-errors
+title: "Matching on Error Variants"
+type: write
+
+prompt: |
+  Define a custom error enum `InputError` with three variants:
+  - `Empty` — the input string was empty
+  - `NotANumber(String)` — contains the invalid input string
+  - `Negative(i32)` — contains the negative value
+
+  Implement `Debug` (derive), `Display`, and `std::error::Error` for it.
+  Display messages:
+  - Empty => "input was empty"
+  - NotANumber(s) => "not a number: {s}"
+  - Negative(n) => "negative value: {n}"
+
+  Write `parse_positive(s: &str) -> Result<i32, InputError>` that:
+  1. Returns `Err(InputError::Empty)` if `s.is_empty()`
+  2. Parses as i32, returns `Err(InputError::NotANumber(s.to_string()))` on failure
+  3. Returns `Err(InputError::Negative(n))` if n < 0
+  4. Returns `Ok(n)` otherwise
+
+  In `main`, test with "", "hello", "-5", and "42". For each, `match` on the
+  Result and print a specific message for each error variant:
+  - Ok(n) => "ok: {n}"
+  - Empty => "empty input"
+  - NotANumber(s) => "bad input: {s}"
+  - Negative(n) => "got negative: {n}"
+
+starter: |
+  use std::fmt;
+
+  // Define InputError with Empty, NotANumber(String), Negative(i32)
+  // Derive Debug, implement Display and Error
+
+  fn parse_positive(s: &str) -> Result<i32, InputError> {
+      // Check empty, parse, check negative
+      todo!()
+  }
+
+  fn main() {
+      let tests = ["", "hello", "-5", "42"];
+      for input in &tests {
+          // Match on parse_positive result
+          // Print specific message for each variant
+      }
+  }
+
+validation:
+  method: output
+  expected_output: "empty input\nbad input: hello\ngot negative: -5\nok: 42"
+
+hints:
+  - "Start with `#[derive(Debug)] enum InputError { Empty, NotANumber(String), Negative(i32) }`. Then implement Display with a match on self."
+  - "In main, use nested matching: `match parse_positive(input) { Ok(n) => ..., Err(InputError::Empty) => ..., Err(InputError::NotANumber(s)) => ..., Err(InputError::Negative(n)) => ... }`"
+  - "In parse_positive: check `s.is_empty()` first, then `s.parse::<i32>()` with `match` or `map_err`, then check `if n < 0`."
+
+solution: |
+  use std::fmt;
+
+  #[derive(Debug)]
+  enum InputError {
+      Empty,
+      NotANumber(String),
+      Negative(i32),
+  }
+
+  impl fmt::Display for InputError {
+      fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+          match self {
+              InputError::Empty => write!(f, "input was empty"),
+              InputError::NotANumber(s) => write!(f, "not a number: {}", s),
+              InputError::Negative(n) => write!(f, "negative value: {}", n),
+          }
+      }
+  }
+
+  impl std::error::Error for InputError {}
+
+  fn parse_positive(s: &str) -> Result<i32, InputError> {
+      if s.is_empty() {
+          return Err(InputError::Empty);
+      }
+      let n = s.parse::<i32>().map_err(|_| InputError::NotANumber(s.to_string()))?;
+      if n < 0 {
+          return Err(InputError::Negative(n));
+      }
+      Ok(n)
+  }
+
+  fn main() {
+      let tests = ["", "hello", "-5", "42"];
+      for input in &tests {
+          match parse_positive(input) {
+              Ok(n) => println!("ok: {}", n),
+              Err(InputError::Empty) => println!("empty input"),
+              Err(InputError::NotANumber(s)) => println!("bad input: {}", s),
+              Err(InputError::Negative(n)) => println!("got negative: {}", n),
+          }
+      }
+  }
+
+explanation: |
+  This exercise brings together everything from the lesson. The key pattern is
+  matching on specific error variants in the caller:
+
+  ```rust
+  match result {
+      Ok(n) => /* success */,
+      Err(InputError::Empty) => /* handle empty */,
+      Err(InputError::NotANumber(s)) => /* handle bad parse */,
+      Err(InputError::Negative(n)) => /* handle negative */,
+  }
+  ```
+
+  Because `InputError` is an enum, the compiler ensures you handle every variant
+  (or include a wildcard `_` arm). This is fundamentally different from
+  exceptions: you cannot accidentally forget to handle an error case.
+
+  The `parse_positive` function shows the validation pipeline pattern: check
+  preconditions first (empty check), then parse, then validate the parsed value.
+  Each step has its own error variant, giving the caller full information about
+  what went wrong and where.

@@ -1,0 +1,59 @@
+id: recursive
+title: "Recursive Factorial"
+type: write
+
+prompt: |
+  Write a recursive function called factorial that calculates n!
+  (n factorial).
+
+  Factorial is defined as:
+  - factorial(0) = 1 (base case)
+  - factorial(n) = n * factorial(n - 1) (recursive case)
+
+  Print factorial(5). Expected output: 120
+
+  (5! = 5 × 4 × 3 × 2 × 1 = 120)
+
+starter: |
+  // Write a recursive factorial function
+  // Base case: factorial(0) = 1
+  // Recursive case: n * factorial(n - 1)
+
+  // Print factorial(5)
+
+validation:
+  method: output
+  expected_output: "120"
+
+hints:
+  - "Start with the base case: if (n === 0) return 1;"
+  - "The recursive case multiplies n by factorial of (n - 1)."
+  - "function factorial(n) { if (n === 0) return 1; return n * factorial(n - 1); }"
+
+solution: |
+  function factorial(n) {
+    if (n === 0) {
+      return 1;
+    }
+    return n * factorial(n - 1);
+  }
+  console.log(factorial(5));
+
+explanation: |
+  Recursion means a function calls itself. Every recursive function needs:
+
+  1. **Base case**: `if (n === 0) return 1` — this stops the recursion.
+     Without it, the function would call itself forever (stack overflow).
+
+  2. **Recursive case**: `return n * factorial(n - 1)` — this breaks the
+     problem into a smaller subproblem.
+
+  The call chain for factorial(5):
+  - factorial(5) = 5 * factorial(4)
+  - factorial(4) = 4 * factorial(3)
+  - factorial(3) = 3 * factorial(2)
+  - factorial(2) = 2 * factorial(1)
+  - factorial(1) = 1 * factorial(0)
+  - factorial(0) = 1 (base case!)
+
+  Then the results multiply back up: 1 * 1 * 2 * 3 * 4 * 5 = 120.

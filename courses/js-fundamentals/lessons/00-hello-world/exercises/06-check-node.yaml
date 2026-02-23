@@ -1,0 +1,18 @@
+id: check-node
+title: "Check Your Node.js"
+type: command
+prompt: |
+  Print your Node.js version.
+starter: |
+  # Print your Node.js version
+validation:
+  method: regex
+  pattern: "v\\d+\\.\\d+"
+hints:
+  - "Run: node --version"
+solution: |
+  node --version
+explanation: |
+  Node.js lets you run JavaScript outside the browser. The --version flag
+  confirms it's installed. Node uses V8, the same JavaScript engine as
+  Chrome.

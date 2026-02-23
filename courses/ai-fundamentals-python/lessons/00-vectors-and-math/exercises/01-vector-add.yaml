@@ -1,0 +1,43 @@
+id: vector-add
+title: "Vector Addition"
+type: write
+
+prompt: |
+  Add two vectors element-by-element. Given vectors `a = [1, 2, 3]` and
+  `b = [4, 5, 6]`, compute their sum and print the result as a list.
+
+  Vector addition adds corresponding elements: the first element of a plus the
+  first element of b, the second plus the second, and so on.
+
+starter: |
+  a = [1, 2, 3]
+  b = [4, 5, 6]
+
+  # Add the two vectors element-by-element
+  # Store the result in a variable called 'result'
+
+
+  print(result)
+
+validation:
+  method: output
+  expected_output: "[5, 7, 9]"
+
+hints:
+  - "You need to create a new list where each element is the sum of the corresponding elements from a and b. Use a loop or list comprehension with `range(len(a))`."
+  - "Try: `result = [a[i] + b[i] for i in range(len(a))]`"
+
+solution: |
+  a = [1, 2, 3]
+  b = [4, 5, 6]
+
+  result = [a[i] + b[i] for i in range(len(a))]
+
+  print(result)
+
+explanation: |
+  `[a[i] + b[i] for i in range(len(a))]` iterates over each index (0, 1, 2)
+  and adds the corresponding elements: 1+4=5, 2+5=7, 3+6=9.
+
+  This is the same as vector addition in linear algebra. Both vectors must have
+  the same length. You will use this pattern repeatedly throughout the course.

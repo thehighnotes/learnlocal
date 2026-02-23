@@ -1,0 +1,18 @@
+id: service-recovery
+title: "Service Recovery"
+description: "Services crash. Configs break. Dependencies fail. Bring systems back online."
+estimated_minutes: 30
+content: content.md
+teaches: [service-config, dependency-check, restart-procedures, health-checks, rollback]
+exercises:
+  - fix-broken-config
+  - missing-dependency
+  - wrong-port
+  - env-vars-missing
+  - rollback-deploy
+  - health-check-script
+  - cascading-failure
+recap: |
+  Service recovery is about methodical debugging: check the config, verify
+  dependencies, validate environment, and test before declaring victory.
+  You now have a systematic approach to bringing services back online.

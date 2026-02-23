@@ -1,0 +1,50 @@
+id: dict-update
+title: "Add and Update Entries"
+type: write
+
+prompt: |
+  Start with `scores = {"Alice": 85, "Bob": 92}`.
+
+  1. Add a new entry: "Charlie" with a score of 78
+  2. Update Alice's score to 90
+  3. Print the dictionary
+
+  The output should be: {'Alice': 90, 'Bob': 92, 'Charlie': 78}
+
+starter: |
+  scores = {"Alice": 85, "Bob": 92}
+  # Add "Charlie": 78
+  # Update "Alice" to 90
+  # Print the dictionary
+
+validation:
+  method: output
+  expected_output: "{'Alice': 90, 'Bob': 92, 'Charlie': 78}"
+
+hints:
+  - "Add a new entry with assignment: scores[\"Charlie\"] = 78"
+  - "Update an existing entry the same way: scores[\"Alice\"] = 90"
+  - "Print the whole dictionary with print(scores)"
+
+solution: |
+  scores = {"Alice": 85, "Bob": 92}
+  scores["Charlie"] = 78
+  scores["Alice"] = 90
+  print(scores)
+
+explanation: |
+  Adding and updating dictionary entries use the same syntax:
+  `dict[key] = value`.
+
+  - `scores["Charlie"] = 78` adds a new key-value pair because "Charlie"
+    did not exist in the dictionary yet.
+  - `scores["Alice"] = 90` updates Alice's value because "Alice" already
+    exists — the old value (85) is replaced with 90.
+
+  Python does not distinguish between adding and updating. If the key exists,
+  its value is overwritten. If it does not exist, a new entry is created. This
+  simple behavior makes dictionaries very easy to work with.
+
+  When you print the dictionary, the entries appear in insertion order (Python
+  3.7+). "Alice" and "Bob" keep their original positions, and "Charlie"
+  appears at the end where it was added.

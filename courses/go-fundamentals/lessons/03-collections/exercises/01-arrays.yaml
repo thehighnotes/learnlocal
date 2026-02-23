@@ -1,0 +1,68 @@
+id: arrays
+title: "Square Numbers Array"
+type: write
+
+prompt: |
+  Declare an array of 5 integers. Fill it with the squares of 1 through 5
+  (1, 4, 9, 16, 25). Then print each element on its own line.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      // Declare a [5]int array
+      // Fill it with squares: 1*1, 2*2, 3*3, 4*4, 5*5
+      // Print each element on its own line
+  }
+
+validation:
+  method: output
+  expected_output: |
+    1
+    4
+    9
+    16
+    25
+
+hints:
+  - "Declare with: var squares [5]int"
+  - "Use a loop: for i := 0; i < 5; i++ { squares[i] = (i+1) * (i+1) }"
+  - |
+    var squares [5]int
+    for i := 0; i < 5; i++ {
+        squares[i] = (i + 1) * (i + 1)
+    }
+    for _, v := range squares {
+        fmt.Println(v)
+    }
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      var squares [5]int
+      for i := 0; i < 5; i++ {
+          squares[i] = (i + 1) * (i + 1)
+      }
+      for _, v := range squares {
+          fmt.Println(v)
+      }
+  }
+
+explanation: |
+  This exercise introduces Go arrays:
+
+  1. `var squares [5]int` declares an array of 5 integers, all initialized
+     to zero.
+  2. Arrays are indexed from 0. `squares[0]` through `squares[4]` are valid.
+  3. We fill each slot with `(i+1) * (i+1)` because i starts at 0 but we
+     want squares of 1 through 5.
+  4. `range squares` iterates over all elements, giving index and value.
+     The blank identifier `_` discards the index since we only need the value.
+
+  The array size `[5]` is part of the type. You cannot resize an array
+  after creation -- for that you need slices, which come next.

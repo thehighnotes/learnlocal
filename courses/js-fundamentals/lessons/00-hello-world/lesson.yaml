@@ -1,0 +1,33 @@
+id: hello-world
+title: "Hello World & Getting Started"
+description: "Write your first JavaScript program and learn the basics"
+estimated_minutes: 20
+content: content.md
+exercises:
+  - check-node
+  - hello
+  - run-a-script
+  - evaluate-expression
+  - fix-log
+  - multi-line
+  - escape-chars
+  - input-output
+teaches:
+  - node-version
+  - console-log
+  - strings
+  - running-scripts
+  - node-eval
+  - escape-sequences
+  - stdin-reading
+  - program-execution
+recap: |
+  You learned:
+  - node --version confirms Node.js is installed
+  - console.log() displays output to the terminal
+  - Strings use single or double quotes (or backticks)
+  - node runs .js files directly from the command line
+  - node -e evaluates inline JavaScript expressions
+  - Escape sequences like \n and \t insert special characters
+  - Reading stdin uses require("fs").readFileSync("/dev/stdin", "utf8")
+  - Node.js runs code top to bottom, no main() function needed

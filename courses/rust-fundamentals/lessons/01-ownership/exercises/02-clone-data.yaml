@@ -1,0 +1,70 @@
+id: clone-data
+title: "Clone and Modify"
+type: write
+
+prompt: |
+  Write a program that:
+  1. Creates a String `original` with the value "Rust"
+  2. Clones it into a variable `modified`
+  3. Appends " is great!" to `modified` (use push_str)
+  4. Prints both strings to show the original is unchanged
+
+  Expected output:
+
+  ```
+  original = Rust
+  modified = Rust is great!
+  ```
+
+starter: |
+  fn main() {
+      // 1. Create a String called `original` with value "Rust"
+
+      // 2. Clone `original` into a variable called `modified`
+
+      // 3. Append " is great!" to `modified` using push_str
+
+      // 4. Print both:
+      //    println!("original = {}", original);
+      //    println!("modified = {}", modified);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    original = Rust
+    modified = Rust is great!
+
+hints:
+  - "Create the original with: let original = String::from(\"Rust\");"
+  - "Clone it with: let mut modified = original.clone(); — note the `mut` because you will modify it next."
+  - "Append with: modified.push_str(\" is great!\"); — then print both variables with println!."
+
+solution: |
+  fn main() {
+      let original = String::from("Rust");
+      let mut modified = original.clone();
+      modified.push_str(" is great!");
+
+      println!("original = {}", original);
+      println!("modified = {}", modified);
+  }
+
+explanation: |
+  `clone()` creates a completely independent copy of the String. After cloning,
+  `original` and `modified` are two separate Strings with their own heap
+  allocations.
+
+  Because they are independent, modifying `modified` with `push_str` does not
+  affect `original` at all. This is the key difference between cloning and
+  moving: a move transfers ownership (one owner), while a clone creates a new
+  owner with a copy of the data (two owners, two separate allocations).
+
+  The `modified` variable needs `let mut` because `push_str` modifies the
+  String in place. Without `mut`, Rust treats the variable as immutable and
+  the compiler rejects the modification.
+
+  In real Rust code, you should only clone when you genuinely need two
+  independent copies. Cloning heap data has a cost (allocating memory and
+  copying bytes), so idiomatic Rust prefers borrowing with references when
+  possible.

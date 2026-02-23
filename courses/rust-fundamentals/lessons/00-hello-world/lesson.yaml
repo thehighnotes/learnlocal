@@ -1,0 +1,37 @@
+id: hello-world
+title: "Hello World & Basics"
+description: "Write your first Rust program and learn variables, types, and printing"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - check-toolchain
+  - hello-world
+  - cargo-new-run
+  - rustc-direct
+  - println-format
+  - variables
+  - basic-types
+  - shadowing
+  - type-inference
+teaches:
+  - rustc
+  - cargo
+  - fn-main
+  - println-macro
+  - variables
+  - mutability
+  - basic-types
+  - shadowing
+  - type-inference
+recap: |
+  You learned:
+  - rustc is the Rust compiler and cargo is the build system and package manager
+  - cargo new creates a project; cargo run compiles and runs it
+  - rustc can compile single files directly without cargo
+  - Every Rust program starts with fn main() as the entry point
+  - println! is a macro that prints text with a trailing newline
+  - {} placeholders in println! insert values into the output
+  - let declares immutable variables; let mut declares mutable ones
+  - Rust has types like i32, f64, bool, char, &str, and String
+  - Shadowing lets you re-declare a variable with let, even changing its type
+  - Rust infers types when it has enough context

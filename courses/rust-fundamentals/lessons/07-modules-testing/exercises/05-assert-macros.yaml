@@ -1,0 +1,99 @@
+id: assert-macros
+title: "Write Assertions"
+type: write
+
+prompt: |
+  The `converter` module has three functions for temperature conversion and
+  string manipulation. Write assertions in `main()` to verify each one works
+  correctly, then print a success message.
+
+  Test these cases:
+  1. `celsius_to_fahrenheit(100.0)` should equal `212.0` — use `assert_eq!`
+  2. `celsius_to_fahrenheit(0.0)` should equal `32.0` — use `assert_eq!`
+  3. `reverse("hello")` should equal `"olleh"` — use `assert_eq!`
+  4. `reverse("hello")` should NOT equal `"hello"` — use `assert_ne!`
+  5. `celsius_to_fahrenheit(100.0)` should be greater than `200.0` — use `assert!`
+
+  After all assertions, print: `All 5 assertions passed!`
+
+  Expected output:
+  ```
+  All 5 assertions passed!
+  ```
+
+starter: |
+  mod converter {
+      pub fn celsius_to_fahrenheit(c: f64) -> f64 {
+          c * 9.0 / 5.0 + 32.0
+      }
+
+      pub fn reverse(s: &str) -> String {
+          s.chars().rev().collect()
+      }
+  }
+
+  use converter::{celsius_to_fahrenheit, reverse};
+
+  fn main() {
+      // 1. assert_eq! that celsius_to_fahrenheit(100.0) equals 212.0
+
+      // 2. assert_eq! that celsius_to_fahrenheit(0.0) equals 32.0
+
+      // 3. assert_eq! that reverse("hello") equals "olleh"
+
+      // 4. assert_ne! that reverse("hello") does NOT equal "hello"
+
+      // 5. assert! that celsius_to_fahrenheit(100.0) > 200.0
+
+      println!("All 5 assertions passed!");
+  }
+
+validation:
+  method: output
+  expected_output: "All 5 assertions passed!"
+
+hints:
+  - "For the first two: assert_eq!(celsius_to_fahrenheit(100.0), 212.0); and assert_eq!(celsius_to_fahrenheit(0.0), 32.0);"
+  - "For the string tests: assert_eq!(reverse(\"hello\"), \"olleh\"); and assert_ne!(reverse(\"hello\"), \"hello\"); — note that assert_eq! compares String with &str, which works because String implements PartialEq<&str>."
+  - "For the boolean test: assert!(celsius_to_fahrenheit(100.0) > 200.0); — assert! takes any expression that evaluates to bool."
+
+solution: |
+  mod converter {
+      pub fn celsius_to_fahrenheit(c: f64) -> f64 {
+          c * 9.0 / 5.0 + 32.0
+      }
+
+      pub fn reverse(s: &str) -> String {
+          s.chars().rev().collect()
+      }
+  }
+
+  use converter::{celsius_to_fahrenheit, reverse};
+
+  fn main() {
+      assert_eq!(celsius_to_fahrenheit(100.0), 212.0);
+      assert_eq!(celsius_to_fahrenheit(0.0), 32.0);
+      assert_eq!(reverse("hello"), "olleh");
+      assert_ne!(reverse("hello"), "hello");
+      assert!(celsius_to_fahrenheit(100.0) > 200.0);
+
+      println!("All 5 assertions passed!");
+  }
+
+explanation: |
+  Each assertion macro serves a different purpose:
+
+  - `assert_eq!(a, b)` — verifies two values are equal. On failure, it prints
+    both values so you can see the mismatch. Used here for exact comparisons.
+
+  - `assert_ne!(a, b)` — verifies two values are NOT equal. Useful for ensuring
+    a function actually changes its input. `reverse("hello")` should produce
+    something different from "hello".
+
+  - `assert!(condition)` — verifies a boolean condition is true. Used here for
+    a greater-than check, which cannot be expressed with assert_eq!.
+
+  In a real project, these assertions would live in #[test] functions inside a
+  #[cfg(test)] module, and you would run them with `cargo test`. The macros
+  themselves work identically whether in main() or in test functions — they
+  panic on failure and do nothing on success.

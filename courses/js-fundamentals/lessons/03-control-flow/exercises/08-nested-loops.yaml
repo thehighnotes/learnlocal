@@ -1,0 +1,52 @@
+id: nested-loops
+title: "Multiplication Table"
+type: write
+
+prompt: |
+  Print a 3x3 multiplication table using nested for loops. Each line
+  should have the format: a x b = c
+
+  Expected output:
+  1 x 1 = 1
+  1 x 2 = 2
+  1 x 3 = 3
+  2 x 1 = 2
+  2 x 2 = 4
+  2 x 3 = 6
+  3 x 1 = 3
+  3 x 2 = 6
+  3 x 3 = 9
+
+starter: |
+  // Use nested for loops to print a 3x3 multiplication table
+  // Format: "a x b = c"
+
+validation:
+  method: output
+  expected_output: "1 x 1 = 1\n1 x 2 = 2\n1 x 3 = 3\n2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n3 x 1 = 3\n3 x 2 = 6\n3 x 3 = 9"
+
+hints:
+  - "The outer loop controls the first number (rows), the inner loop controls the second number (columns)."
+  - "for (let a = 1; a <= 3; a++) { for (let b = 1; b <= 3; b++) { ... } }"
+  - "Inside the inner loop: console.log(`${a} x ${b} = ${a * b}`);"
+
+solution: |
+  for (let a = 1; a <= 3; a++) {
+    for (let b = 1; b <= 3; b++) {
+      console.log(`${a} x ${b} = ${a * b}`);
+    }
+  }
+
+explanation: |
+  Nested loops create combinations. The outer loop runs 3 times (a = 1, 2, 3).
+  For each value of a, the inner loop runs 3 times (b = 1, 2, 3). Total:
+  3 × 3 = 9 iterations.
+
+  The template literal `${a} x ${b} = ${a * b}` computes the product inline.
+  The ${a * b} is evaluated as an expression — you can put any valid JavaScript
+  expression inside ${...}.
+
+  Execution order:
+  - a=1: b goes 1, 2, 3 → prints "1 x 1 = 1", "1 x 2 = 2", "1 x 3 = 3"
+  - a=2: b goes 1, 2, 3 → prints "2 x 1 = 2", "2 x 2 = 4", "2 x 3 = 6"
+  - a=3: b goes 1, 2, 3 → prints "3 x 1 = 3", "3 x 2 = 6", "3 x 3 = 9"

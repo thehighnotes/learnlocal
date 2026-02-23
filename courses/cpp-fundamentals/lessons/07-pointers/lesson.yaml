@@ -1,0 +1,30 @@
+id: pointers
+title: "Pointers and References"
+description: "Understand memory addresses, pointers, and references"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - address-of
+  - dereference
+  - pointer-arithmetic
+  - references
+  - swap-pointers
+  - nullptr-check
+  - array-pointer
+teaches:
+  - pointers
+  - address-of-operator
+  - dereference-operator
+  - pointer-arithmetic
+  - references
+  - nullptr
+  - array-pointer-relationship
+recap: |
+  You learned:
+  - Pointers store memory addresses of other variables
+  - & gets the address, * dereferences the pointer
+  - Pointer arithmetic moves by element size, not bytes
+  - References are aliases — once bound, they always refer to the same variable
+  - nullptr represents a pointer that points to nothing
+  - Arrays decay to pointers when passed to functions
+  - Always check pointers before dereferencing if they might be null

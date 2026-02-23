@@ -1,0 +1,67 @@
+id: primary-key
+title: "Primary Keys"
+type: write
+
+prompt: |
+  Create a `students` table where the `id` column is an INTEGER PRIMARY KEY.
+  Do NOT specify id values when inserting — let SQLite auto-assign them.
+
+  Insert three students (name only):
+  - 'Alice'
+  - 'Bob'
+  - 'Charlie'
+
+  Then select all rows to verify that SQLite assigned ids 1, 2, and 3
+  automatically.
+
+  Table schema: students (id INTEGER PRIMARY KEY, name TEXT)
+
+starter: |
+  -- Create the students table with a primary key
+  -- Insert three rows WITHOUT specifying the id
+  -- Select all rows to verify
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        -- No setup needed
+
+validation:
+  method: output
+  expected_output: |
+    1|Alice
+    2|Bob
+    3|Charlie
+
+hints:
+  - "Declare the primary key: CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT);"
+  - "Omit the id in inserts: INSERT INTO students (name) VALUES ('Alice');"
+  - |
+    Full solution:
+    CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT);
+    INSERT INTO students (name) VALUES ('Alice');
+    INSERT INTO students (name) VALUES ('Bob');
+    INSERT INTO students (name) VALUES ('Charlie');
+    SELECT * FROM students;
+
+solution: |
+  CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT);
+  INSERT INTO students (name) VALUES ('Alice');
+  INSERT INTO students (name) VALUES ('Bob');
+  INSERT INTO students (name) VALUES ('Charlie');
+  SELECT * FROM students;
+
+explanation: |
+  When a column is declared `INTEGER PRIMARY KEY`, SQLite makes it an alias for
+  the internal rowid. If you omit the id during an INSERT, SQLite automatically
+  assigns the next available integer — starting at 1 and incrementing.
+
+  The INSERT statements list only `(name)` in the column list, so SQLite fills
+  in the id automatically: 1 for Alice, 2 for Bob, 3 for Charlie.
+
+  A primary key guarantees two things:
+  1. Every value is unique — no two rows can have the same id.
+  2. The value cannot be NULL.
+
+  This makes it the perfect identifier for referencing specific rows.

@@ -1,0 +1,18 @@
+id: tr-translate
+title: "Translate Characters"
+type: command
+prompt: |
+  Use tr to convert "hello world" to uppercase. Print the result.
+starter: |
+  # Convert to uppercase with tr
+validation:
+  method: output
+  expected_output: "HELLO WORLD"
+hints:
+  - "tr 'a-z' 'A-Z' converts lowercase to uppercase"
+  - "echo | tr or printf | tr"
+solution: |
+  echo "hello world" | tr 'a-z' 'A-Z'
+explanation: |
+  tr translates characters one-to-one. 'a-z' to 'A-Z' maps every
+  lowercase letter to its uppercase equivalent.

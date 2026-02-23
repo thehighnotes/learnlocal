@@ -1,0 +1,39 @@
+id: hello-world
+title: "Hello, World!"
+type: write
+
+prompt: |
+  Write a Rust program that prints exactly: Hello, World!
+
+  Your program needs two things:
+  1. A main function declared with fn
+  2. A println! macro call that prints the message
+
+starter: |
+  fn main() {
+      // Print Hello, World! here
+  }
+
+validation:
+  method: output
+  expected_output: "Hello, World!"
+
+hints:
+  - "Use the println! macro to print text. Don't forget the exclamation mark — it's part of the name."
+  - "println! takes a string in double quotes: println!(\"text here\");"
+  - "The complete line is: println!(\"Hello, World!\");"
+
+solution: |
+  fn main() {
+      println!("Hello, World!");
+  }
+
+explanation: |
+  `println!` is a macro that prints text followed by a newline. The `!` indicates
+  it is a macro, not a regular function. Macros in Rust can do things that regular
+  functions cannot, like accepting a variable number of arguments with format
+  placeholders.
+
+  Unlike C or C++, Rust's `main` function does not need a return type or a return
+  statement. It returns `()` (the unit type) by default, and there is no `#include`
+  or `import` needed — `println!` is available everywhere.

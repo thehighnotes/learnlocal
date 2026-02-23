@@ -1,0 +1,43 @@
+id: navigate-dirs
+title: "Navigate Directories"
+type: command
+prompt: |
+  A directory structure /tmp/tour/a/b has been created for you.
+  Navigate through them and print pwd at each level:
+  1. Print pwd from /tmp/tour
+  2. Print pwd from /tmp/tour/a
+  3. Print pwd from /tmp/tour/a/b
+  4. Print pwd from /tmp/tour/a (going back up)
+  5. Print pwd from /tmp/tour (back to start)
+starter: |
+  # Navigate with cd and print pwd at each level
+environment:
+  setup:
+    - name: create-dirs
+      command: mkdir
+      args: ["-p", "/tmp/tour/a/b"]
+  teardown:
+    - name: cleanup
+      command: rm
+      args: ["-rf", "/tmp/tour"]
+validation:
+  method: output
+  expected_output: |
+    /tmp/tour
+    /tmp/tour/a
+    /tmp/tour/a/b
+    /tmp/tour/a
+    /tmp/tour
+hints:
+  - "cd /tmp/tour && pwd for the first level"
+  - "cd .. moves one level up"
+  - "Each command runs independently — use absolute paths or chain with &&"
+solution: |
+  cd /tmp/tour && pwd
+  cd /tmp/tour/a && pwd
+  cd /tmp/tour/a/b && pwd
+  cd /tmp/tour/a && pwd
+  cd /tmp/tour && pwd
+explanation: |
+  cd changes directory and pwd prints where you are. Since each command
+  runs independently in shell mode, using absolute paths is clearest.

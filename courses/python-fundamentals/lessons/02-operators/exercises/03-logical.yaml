@@ -1,0 +1,50 @@
+id: logical
+title: "Logical Operators"
+type: write
+
+prompt: |
+  Given `a = True` and `b = False`, print the result of each logical
+  operation on its own line:
+  1. a and b
+  2. a or b
+  3. not a
+
+starter: |
+  a = True
+  b = False
+
+  # Print the result of each logical operation:
+  # 1. a and b
+  # 2. a or b
+  # 3. not a
+
+validation:
+  method: output
+  expected_output: |
+    False
+    True
+    False
+
+hints:
+  - "`and` returns True only when both operands are True. Since b is False, `a and b` is False."
+  - "`or` returns True when at least one operand is True. Since a is True, `a or b` is True."
+  - "`not` flips the boolean value. `not True` gives False."
+
+solution: |
+  a = True
+  b = False
+
+  print(a and b)
+  print(a or b)
+  print(not a)
+
+explanation: |
+  Python's logical operators use English words, not symbols:
+
+  1. `True and False` = `False` -- `and` requires both to be True.
+  2. `True or False` = `True` -- `or` requires at least one to be True.
+  3. `not True` = `False` -- `not` inverts the boolean.
+
+  These operators are fundamental for combining conditions. For example,
+  `age >= 18 and age <= 65` checks if someone is working age. You will use
+  them heavily in if statements and while loops.

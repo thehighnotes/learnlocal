@@ -1,0 +1,26 @@
+id: run-a-script
+title: "Run a Script"
+type: command
+prompt: |
+  A vector_add.py file is provided that adds two vectors. Run it.
+environment:
+  files:
+    - path: vector_add.py
+      content: |
+        a = [1, 2, 3]
+        b = [4, 5, 6]
+        result = [a[i] + b[i] for i in range(len(a))]
+        print(result)
+starter: |
+  # Run the vector addition script
+validation:
+  method: output
+  expected_output: "[5, 7, 9]"
+hints:
+  - "Run: python3 vector_add.py"
+solution: |
+  python3 vector_add.py
+explanation: |
+  AI begins with vectors — lists of numbers. This script adds two vectors
+  element-wise using a list comprehension. You'll implement this yourself
+  in the next exercise.

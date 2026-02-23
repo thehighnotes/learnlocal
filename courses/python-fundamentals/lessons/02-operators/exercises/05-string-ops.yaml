@@ -1,0 +1,43 @@
+id: string-ops
+title: "String Concatenation and Repetition"
+type: write
+
+prompt: |
+  Use string operators to:
+  1. Create a greeting by concatenating "Hello", a space, and "World", then
+     print it.
+  2. Create a separator by repeating "-" twenty times, then print it.
+
+  Print each on its own line.
+
+starter: |
+  # 1. Concatenate "Hello" + " " + "World" and print it
+  # 2. Create a separator of 20 dashes using * and print it
+
+validation:
+  method: output
+  expected_output: |
+    Hello World
+    --------------------
+
+hints:
+  - "Use + to join strings: \"Hello\" + \" \" + \"World\" produces \"Hello World\"."
+  - "Use * to repeat a string: \"-\" * 20 produces a string of 20 dashes."
+  - "You can create the strings inline: print(\"Hello\" + \" \" + \"World\") and print(\"-\" * 20)."
+
+solution: |
+  print("Hello" + " " + "World")
+  print("-" * 20)
+
+explanation: |
+  String operators reuse arithmetic symbols for different purposes:
+
+  1. `+` concatenates (joins) strings. `"Hello" + " " + "World"` glues three
+     strings together into `"Hello World"`. The space must be added explicitly.
+  2. `*` repeats a string. `"-" * 20` creates a string of 20 dashes. The
+     number can be on either side: `20 * "-"` also works.
+
+  String repetition is handy for creating visual separators, padding, and
+  simple text patterns. Concatenation works for combining pieces, but for
+  mixing strings with other types, f-strings (from the previous lesson)
+  are usually a better choice.

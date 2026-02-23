@@ -1,0 +1,59 @@
+id: delete-conditional
+title: "Delete with a Condition"
+type: fix
+
+prompt: |
+  The code below is supposed to delete all contacts from Portland, then show
+  the remaining contacts. But there is a bug — the WHERE clause is missing
+  from the DELETE, so it will delete EVERY row instead of just the Portland
+  ones.
+
+  Fix the DELETE statement so it only removes contacts where city is 'Portland'.
+
+starter: |
+  DELETE FROM contacts;
+
+  SELECT id, name, city FROM contacts ORDER BY id;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT, phone TEXT, city TEXT);
+        INSERT INTO contacts VALUES (1, 'Alice', 'alice@example.com', '555-0101', 'Portland');
+        INSERT INTO contacts VALUES (2, 'Bob', 'bob@example.com', '555-0102', 'Seattle');
+        INSERT INTO contacts VALUES (3, 'Charlie', 'charlie@example.com', '555-0103', 'Portland');
+        INSERT INTO contacts VALUES (4, 'Diana', 'diana@example.com', '555-0104', 'Austin');
+        INSERT INTO contacts VALUES (5, 'Eve', 'eve@example.com', '555-0105', 'Seattle');
+
+validation:
+  method: output
+  expected_output: |
+    2|Bob|Seattle
+    4|Diana|Austin
+    5|Eve|Seattle
+
+hints:
+  - "The DELETE statement is missing a WHERE clause, so it deletes all rows"
+  - "Add WHERE city = 'Portland' to the DELETE to target only Portland contacts"
+  - "The fix is: DELETE FROM contacts WHERE city = 'Portland';"
+
+solution: |
+  DELETE FROM contacts WHERE city = 'Portland';
+
+  SELECT id, name, city FROM contacts ORDER BY id;
+
+explanation: |
+  The original code has `DELETE FROM contacts;` with no WHERE clause. This is
+  the SQL equivalent of "delete everything" — the table would be emptied
+  completely, and the SELECT would return no rows.
+
+  The fix adds `WHERE city = 'Portland'` to target only the two Portland
+  contacts (Alice and Charlie). The remaining three contacts (Bob, Diana, Eve)
+  are unaffected.
+
+  This exercise demonstrates the most dangerous DML mistake: forgetting WHERE.
+  In production databases, an unfiltered DELETE or UPDATE can cause data loss
+  that is difficult or impossible to recover from. Many database administrators
+  configure their environments to require transactions for DML, so accidental
+  changes can be rolled back.

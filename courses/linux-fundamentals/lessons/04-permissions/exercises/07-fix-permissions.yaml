@@ -1,0 +1,34 @@
+id: fix-permissions
+title: "Fix the Permissions"
+type: fix
+prompt: |
+  This script creates a script file and tries to run it, but it fails
+  because the file isn't executable. Add the missing chmod command.
+starter: |
+  #!/bin/bash
+  TMPD=$(mktemp -d)
+  cat > "$TMPD/greet.sh" << 'SCRIPT'
+  #!/bin/bash
+  echo "permissions fixed!"
+  SCRIPT
+  "$TMPD/greet.sh"
+  rm -rf "$TMPD"
+validation:
+  method: output
+  expected_output: "permissions fixed!"
+hints:
+  - "The script needs execute permission before it can be run directly"
+  - "Add chmod +x before the line that runs the script"
+solution: |
+  #!/bin/bash
+  TMPD=$(mktemp -d)
+  cat > "$TMPD/greet.sh" << 'SCRIPT'
+  #!/bin/bash
+  echo "permissions fixed!"
+  SCRIPT
+  chmod +x "$TMPD/greet.sh"
+  "$TMPD/greet.sh"
+  rm -rf "$TMPD"
+explanation: |
+  Files created by redirection (> or <<) aren't executable by default.
+  chmod +x adds the execute permission so the script can run directly.

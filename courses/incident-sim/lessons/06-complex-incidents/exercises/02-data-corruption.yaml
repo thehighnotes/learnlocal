@@ -1,0 +1,72 @@
+id: data-corruption
+title: "Data Corruption"
+type: command
+prompt: |
+  ALERT: Data integrity failure. Severity: CRITICAL.
+
+  The user export pipeline is failing because `data/users.csv` is corrupted.
+  It looks like a bad script mangled the format — fields are in the wrong
+  order and some rows have garbage data.
+
+  Fortunately, there's a backup: `backup/users.csv.20240315`. Restore the
+  data file from the backup so the pipeline can run again.
+
+  Replace `data/users.csv` with the contents of the backup file.
+starter: |
+  # data/users.csv is corrupted
+  # Restore it from backup/users.csv.20240315
+environment:
+  dirs:
+    - data
+    - backup
+  files:
+    - path: data/users.csv
+      content: |
+        id,name,email,created
+        1,Alice,alice@example.com,2024-01-15
+        2,,CORRUPTED_ROW,,,
+        ,,bob@example.com,Bob,2024-02-20,EXTRA_FIELD
+        4,Charlie,charlie@example.com,2024-03-01
+        GARBAGE LINE NO STRUCTURE AT ALL
+        5,,,
+        6,Eve,eve@example.com,2024-03-10
+    - path: backup/users.csv.20240315
+      content: |
+        id,name,email,created
+        1,Alice,alice@example.com,2024-01-15
+        2,Bob,bob@example.com,2024-02-20
+        3,Charlie,charlie@example.com,2024-03-01
+        4,Diana,diana@example.com,2024-03-05
+        5,Eve,eve@example.com,2024-03-10
+    - path: error.log
+      content: |
+        2024-03-15 06:00:00 [pipeline] Starting daily user export
+        2024-03-15 06:00:01 [pipeline] Reading data/users.csv
+        2024-03-15 06:00:01 [pipeline] ERROR: CSV parse error at row 2: unexpected number of fields (expected 4, got 5)
+        2024-03-15 06:00:01 [pipeline] ERROR: CSV parse error at row 3: field order mismatch
+        2024-03-15 06:00:01 [pipeline] ERROR: CSV parse error at row 5: no valid fields found
+        2024-03-15 06:00:01 [pipeline] FATAL: data/users.csv is corrupted — 3 parse errors
+        2024-03-15 06:00:02 [pipeline] Aborting export. Data integrity check failed.
+        2024-03-15 06:00:02 [pipeline] NOTE: Last known good backup: backup/users.csv.20240315
+validation:
+  method: state
+  assertions:
+    - file_exists: data/users.csv
+    - file_contains:
+        path: data/users.csv
+        content: "2,Bob,bob@example.com,2024-02-20"
+    - file_contains:
+        path: data/users.csv
+        content: "4,Diana,diana@example.com,2024-03-05"
+hints:
+  - "The error log even tells you where the backup is: `backup/users.csv.20240315`."
+  - "`cp backup/users.csv.20240315 data/users.csv` — replace the corrupted file with the backup."
+solution: |
+  cp backup/users.csv.20240315 data/users.csv
+explanation: |
+  When data is corrupted, don't try to repair it manually — restore from
+  backup. The corrupted file had mangled rows, wrong field counts, and
+  garbage data. The backup had clean, validated data. In production, always
+  know where your backups are and how recent they are. The error log
+  helpfully pointed to the backup — in real life, you'd check your backup
+  rotation schedule and pick the most recent clean copy.

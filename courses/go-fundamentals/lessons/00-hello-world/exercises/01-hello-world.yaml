@@ -1,0 +1,51 @@
+id: hello-world
+title: "Hello, World!"
+type: write
+
+prompt: |
+  Write a Go program that prints exactly: Hello, World!
+
+  Every Go program needs three things:
+  1. A `package main` declaration
+  2. An `import "fmt"` statement
+  3. A `func main()` that calls `fmt.Println`
+
+starter: |
+  package main
+
+  // TODO: import the fmt package
+
+  func main() {
+      // TODO: print "Hello, World!"
+  }
+
+validation:
+  method: output
+  expected_output: "Hello, World!"
+
+hints:
+  - "You need to import the fmt package: import \"fmt\""
+  - "The function to print a line is fmt.Println() — note the capital P."
+  - "The complete solution is: fmt.Println(\"Hello, World!\")"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      fmt.Println("Hello, World!")
+  }
+
+explanation: |
+  Line by line:
+
+  - `package main` — every executable Go program must be in the `main` package.
+  - `import "fmt"` — imports the standard library's format package, which provides
+    printing functions.
+  - `func main()` — the entry point. Go starts executing here.
+  - `fmt.Println("Hello, World!")` — prints the string followed by a newline.
+
+  Note the capital `P` in `Println`. In Go, exported functions (ones accessible
+  from outside the package) start with a capital letter. This is enforced by the
+  language, not just a convention.

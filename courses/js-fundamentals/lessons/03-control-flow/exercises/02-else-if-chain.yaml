@@ -1,0 +1,56 @@
+id: else-if-chain
+title: "Grade Calculator"
+type: write
+
+prompt: |
+  Read a numeric score from stdin and print the letter grade:
+  - 90 and above: A
+  - 80-89: B
+  - 70-79: C
+  - 60-69: D
+  - Below 60: F
+
+  For example, if the input is "85", print: B
+
+input: "85\n"
+
+starter: |
+  const input = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  const score = Number(input);
+  // Use an if/else if chain to determine the grade
+
+validation:
+  method: output
+  expected_output: "B"
+
+hints:
+  - "Start with the highest grade: if (score >= 90) and work down."
+  - "Order matters — check from highest to lowest so each else if is only reached if the score is below the previous threshold."
+  - "if (score >= 90) { console.log(\"A\"); } else if (score >= 80) { console.log(\"B\"); } ... else { console.log(\"F\"); }"
+
+solution: |
+  const input = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  const score = Number(input);
+  if (score >= 90) {
+    console.log("A");
+  } else if (score >= 80) {
+    console.log("B");
+  } else if (score >= 70) {
+    console.log("C");
+  } else if (score >= 60) {
+    console.log("D");
+  } else {
+    console.log("F");
+  }
+
+explanation: |
+  The else if chain checks conditions top to bottom. Because we check
+  >= 90 first, we know that when we reach >= 80, the score must be
+  between 80 and 89 (otherwise the first branch would have matched).
+
+  This is a common pattern: when classifying a value into ranges, order
+  the conditions from highest to lowest (or vice versa) so each branch
+  implicitly excludes the values already handled above it.
+
+  The final `else` catches everything below 60 — no condition needed
+  because all other ranges have been exhausted.

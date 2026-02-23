@@ -1,0 +1,56 @@
+id: string-compare
+title: "Compare Two Strings"
+type: write
+
+prompt: |
+  Read two strings from standard input (one per line). Print "same" if
+  they are equal, or "different" if they are not.
+
+starter: |
+  #include <iostream>
+  #include <string>
+
+  int main() {
+      // Read two strings from stdin using std::cin
+
+      // Compare them and print "same" or "different"
+
+      return 0;
+  }
+
+input: "hello\nhello\n"
+
+validation:
+  method: output
+  expected_output: "same"
+
+hints:
+  - "Use std::cin >> variable to read a string. Call it twice for two strings."
+  - "Compare strings with == just like integers: if (a == b)"
+  - "Declare two std::string variables, read into each with std::cin >>, then use if/else with == to print the result."
+
+solution: |
+  #include <iostream>
+  #include <string>
+
+  int main() {
+      std::string a, b;
+      std::cin >> a;
+      std::cin >> b;
+
+      if (a == b) {
+          std::cout << "same" << std::endl;
+      } else {
+          std::cout << "different" << std::endl;
+      }
+
+      return 0;
+  }
+
+explanation: |
+  `std::cin >> a` reads one whitespace-delimited token from standard input
+  into the string `a`. We read twice to get both strings. The `==` operator
+  on `std::string` does a proper character-by-character comparison --
+  unlike C-style strings, where `==` would compare pointer addresses
+  instead of contents. Since both inputs are "hello", the program prints
+  "same".

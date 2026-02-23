@@ -1,0 +1,28 @@
+id: executable-script
+title: "Make a Script Executable"
+type: command
+prompt: |
+  A script called hello.sh already exists in your workspace but it is
+  NOT executable yet. Use chmod to make it executable, then run it
+  directly with ./hello.sh.
+starter: |
+  # hello.sh exists but isn't executable — fix it and run it
+environment:
+  files:
+    - path: hello.sh
+      content: |
+        #!/bin/bash
+        echo "Hello from script!"
+      permissions: "644"
+validation:
+  method: output
+  expected_output: "Hello from script!"
+hints:
+  - "chmod +x hello.sh makes it executable"
+  - "./hello.sh runs it directly"
+solution: |
+  chmod +x hello.sh && ./hello.sh
+explanation: |
+  The shebang (#!/bin/bash) tells the system which interpreter to use.
+  chmod +x adds execute permission. Then the script can run directly
+  without typing "bash" first.

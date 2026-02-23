@@ -1,0 +1,47 @@
+id: create-branch
+title: "Create a Branch"
+type: command
+prompt: |
+  Your team lead just assigned you a new feature: user authentication.
+  Before writing any code, you need to create a branch so your work
+  doesn't disrupt the main codebase.
+
+  The repo already has two commits on `main`. Create a new branch
+  called `feature` (but stay on `main` -- don't switch to it yet).
+starter: |
+  #!/bin/bash
+  # Create a branch called "feature" without switching to it
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'v1' > file.txt && git add file.txt && git commit -m 'Initial commit' && echo 'v2' >> file.txt && git add file.txt && git commit -m 'Second commit'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-branches
+      command: sh
+      args: ["-c", "cd {dir}/repo && git branch > {dir}/repo/branches.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/branches.txt
+    - file_contains:
+        path: repo/branches.txt
+        content: "feature"
+    - file_contains:
+        path: repo/branches.txt
+        content: "* main"
+hints:
+  - "The command to create a branch is: git branch <name>"
+  - "git branch feature -- this creates the branch without switching to it"
+  - "Make sure you spell it exactly: feature (lowercase, no quotes)"
+solution: |
+  #!/bin/bash
+  git branch feature
+explanation: |
+  `git branch feature` creates a new pointer called "feature" that
+  points to the same commit as your current branch. HEAD still
+  points to main, so your next commit would land on main, not feature.
+  Use `git switch` or `git checkout` to move to the new branch.

@@ -1,0 +1,50 @@
+id: for-of-string
+title: "Iterate Over a String"
+type: write
+
+prompt: |
+  Read a word from stdin and print each character on its own line using
+  a for...of loop.
+
+  For example, if the input is "Node", the output should be:
+  N
+  o
+  d
+  e
+
+input: "Node\n"
+
+starter: |
+  const word = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  // Use a for...of loop to print each character on its own line
+
+validation:
+  method: output
+  expected_output: "N\no\nd\ne"
+
+hints:
+  - "for...of iterates over each character in a string: for (const ch of word)"
+  - "Inside the loop, just console.log(ch) to print each character."
+  - "for (const ch of word) { console.log(ch); }"
+
+solution: |
+  const word = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  for (const ch of word) {
+    console.log(ch);
+  }
+
+explanation: |
+  The `for...of` loop iterates over iterable values. Strings are iterable,
+  so `for (const ch of word)` gives you each character one at a time.
+
+  This is cleaner than the index-based alternative:
+      for (let i = 0; i < word.length; i++) {
+        console.log(word[i]);
+      }
+
+  Use `for...of` when you need the values. Use a traditional `for` loop
+  when you need the index (position number) as well. You can also use
+  `for...of` with arrays, Maps, Sets, and other iterables.
+
+  Note: we use `const ch` because we never reassign ch within the loop
+  body. Each iteration creates a new binding.

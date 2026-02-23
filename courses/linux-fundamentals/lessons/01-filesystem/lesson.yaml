@@ -1,0 +1,18 @@
+id: filesystem
+title: "Filesystem & Navigation"
+description: "Learn the Linux directory hierarchy, absolute and relative paths, and essential navigation commands."
+estimated_minutes: 30
+content: content.md
+teaches: [pwd, cd, ls, paths, hidden-files, fhs]
+exercises:
+  - print-working-dir
+  - list-files
+  - hidden-files
+  - absolute-relative
+  - navigate-dirs
+  - fix-path
+  - predict-ls
+recap: |
+  You explored the Linux filesystem hierarchy — /, /home, /etc, /usr, /tmp —
+  and learned to navigate with cd, list with ls, and distinguish absolute
+  from relative paths.

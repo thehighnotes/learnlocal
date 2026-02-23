@@ -1,0 +1,24 @@
+id: run-a-script
+title: "Run a Script"
+type: command
+prompt: |
+  A greeting.py file is provided. Run it with Python.
+environment:
+  files:
+    - path: greeting.py
+      content: |
+        name = "World"
+        print(f"Hello, {name}!")
+starter: |
+  # Run the Python script
+validation:
+  method: output
+  expected_output: "Hello, World!"
+hints:
+  - "Run: python3 greeting.py"
+solution: |
+  python3 greeting.py
+explanation: |
+  Unlike compiled languages, Python runs scripts directly — no compilation
+  step needed. python3 reads your .py file, compiles it to bytecode
+  internally, and executes it.

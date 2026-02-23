@@ -1,0 +1,64 @@
+id: enumerate-zip
+title: "Enumerate and Zip"
+type: write
+
+prompt: |
+  You have two vectors: one with student names and one with their scores.
+  Use `.zip()` to pair them together, then use `.enumerate()` to number each
+  pair starting from 1.
+
+  Print each entry in the format: `N. name: score`
+
+  Expected output:
+  ```
+  1. Alice: 95
+  2. Bob: 82
+  3. Carol: 91
+  ```
+
+starter: |
+  fn main() {
+      let names = vec!["Alice", "Bob", "Carol"];
+      let scores = vec![95, 82, 91];
+
+      // Use names.iter().zip(scores.iter()) to pair them
+      // Then .enumerate() to get the index
+      // Print each as "N. name: score" (N starts at 1, not 0)
+
+  }
+
+validation:
+  method: output
+  expected_output: "1. Alice: 95\n2. Bob: 82\n3. Carol: 91"
+
+hints:
+  - "Chain the iterators: names.iter().zip(scores.iter()).enumerate() gives you (index, (name, score)) tuples."
+  - "enumerate() starts counting at 0, but the output needs 1-based numbering. Add 1 to the index: i + 1."
+  - |
+    The full loop:
+    for (i, (name, score)) in names.iter().zip(scores.iter()).enumerate() {
+        println!("{}. {}: {}", i + 1, name, score);
+    }
+
+solution: |
+  fn main() {
+      let names = vec!["Alice", "Bob", "Carol"];
+      let scores = vec![95, 82, 91];
+
+      for (i, (name, score)) in names.iter().zip(scores.iter()).enumerate() {
+          println!("{}. {}: {}", i + 1, name, score);
+      }
+  }
+
+explanation: |
+  `.zip()` takes two iterators and produces an iterator of tuples, pairing
+  the first element of each, then the second, and so on. It stops when
+  either iterator runs out, so mismatched lengths are safe.
+
+  `.enumerate()` wraps each item in a `(index, item)` tuple where the
+  index starts at 0. Since we want 1-based numbering, we print `i + 1`.
+
+  The destructuring pattern `(i, (name, score))` unpacks the nested tuple
+  structure: enumerate produces `(usize, (&str, &i32))`, so `i` gets the
+  index, `name` gets the `&&str`, and `score` gets the `&&i32`. Rust's
+  pattern matching makes this clean and readable.

@@ -1,0 +1,42 @@
+id: grep-flags
+title: "grep Flags"
+type: command
+prompt: |
+  A file called log.txt already exists with these lines:
+    Error: disk full
+    warning: low memory
+    ERROR: network down
+    info: all good
+    Warning: high CPU
+  Use grep with flags to print three things:
+  1. Count of lines matching "error" (case-insensitive) — just the number
+  2. Count of lines matching "warning" (case-insensitive) — just the number
+  3. The line number and text of the "info" line (format: "4:info: all good")
+starter: |
+  # log.txt exists — use grep -i, -c, -n flags
+environment:
+  files:
+    - path: log.txt
+      content: |
+        Error: disk full
+        warning: low memory
+        ERROR: network down
+        info: all good
+        Warning: high CPU
+validation:
+  method: output
+  expected_output: |
+    2
+    2
+    4:info: all good
+hints:
+  - "grep -ic 'error' counts case-insensitive matches"
+  - "grep -n 'info' shows line numbers"
+  - "-i is case-insensitive, -c is count, -n is line numbers"
+solution: |
+  grep -ic "error" log.txt
+  grep -ic "warning" log.txt
+  grep -n "info" log.txt
+explanation: |
+  grep -i ignores case, -c returns just the count instead of matching
+  lines, and -n prefixes each match with its line number.

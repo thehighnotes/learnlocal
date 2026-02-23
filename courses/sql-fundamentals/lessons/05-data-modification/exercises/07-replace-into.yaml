@@ -1,0 +1,67 @@
+id: replace-into
+title: "Replace Into"
+type: write
+
+prompt: |
+  Alice (id 1) has completely updated her contact information. Use REPLACE INTO
+  to update her row with these new values:
+
+  - id: 1
+  - name: Alice Wonderland
+  - email: alice.w@example.com
+  - phone: 555-9999
+  - city: Denver
+
+  REPLACE INTO works like INSERT, but if a row with the same primary key exists,
+  it deletes the old row and inserts the new one.
+
+  After the REPLACE, write a SELECT that shows all columns for id = 1.
+
+starter: |
+  -- Use REPLACE INTO to update Alice's entire row, then SELECT to verify
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE contacts (id INTEGER PRIMARY KEY, name TEXT, email TEXT, phone TEXT, city TEXT);
+        INSERT INTO contacts VALUES (1, 'Alice', 'alice@example.com', '555-0101', 'Portland');
+        INSERT INTO contacts VALUES (2, 'Bob', 'bob@example.com', '555-0102', 'Seattle');
+        INSERT INTO contacts VALUES (3, 'Charlie', 'charlie@example.com', '555-0103', 'Portland');
+        INSERT INTO contacts VALUES (4, 'Diana', 'diana@example.com', '555-0104', 'Austin');
+        INSERT INTO contacts VALUES (5, 'Eve', 'eve@example.com', '555-0105', 'Seattle');
+
+validation:
+  method: output
+  expected_output: |
+    1|Alice Wonderland|alice.w@example.com|555-9999|Denver
+
+hints:
+  - "REPLACE INTO uses the same syntax as INSERT INTO: REPLACE INTO table (columns) VALUES (values)"
+  - "Since id 1 already exists, REPLACE will delete Alice's old row and insert this new one"
+  - "The full solution is: REPLACE INTO contacts (id, name, email, phone, city) VALUES (1, 'Alice Wonderland', 'alice.w@example.com', '555-9999', 'Denver'); SELECT * FROM contacts WHERE id = 1;"
+
+solution: |
+  REPLACE INTO contacts (id, name, email, phone, city)
+  VALUES (1, 'Alice Wonderland', 'alice.w@example.com', '555-9999', 'Denver');
+
+  SELECT * FROM contacts WHERE id = 1;
+
+explanation: |
+  REPLACE INTO is a SQLite-specific statement that combines "delete if exists"
+  with "insert." The syntax is identical to INSERT INTO — just swap the keyword:
+
+      REPLACE INTO contacts (id, name, email, phone, city)
+      VALUES (1, 'Alice Wonderland', 'alice.w@example.com', '555-9999', 'Denver');
+
+  Since id 1 already exists, SQLite deletes Alice's old row and inserts the new
+  one. The result looks like an update, but internally it is a delete + insert.
+
+  This means you must provide ALL column values, not just the ones that changed.
+  If you omit a column, it gets its default value (usually NULL), not the old
+  row's value. Compare this to UPDATE, which only changes the columns you
+  mention in the SET clause.
+
+  REPLACE INTO is useful for idempotent operations — "ensure this exact row
+  exists regardless of what was there before." For more nuanced conflict handling,
+  SQLite also supports INSERT ... ON CONFLICT, covered in a later lesson.

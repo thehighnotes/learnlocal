@@ -1,0 +1,53 @@
+id: recursive
+title: "Recursion"
+type: write
+
+prompt: |
+  Write a recursive function `int factorial(int n)` that returns n factorial
+  (n!). Use `n <= 1` as the base case (return 1). For the recursive case,
+  return `n * factorial(n - 1)`.
+
+  In `main`, print the result of `factorial(6)`.
+
+starter: |
+  #include <iostream>
+
+  // Define your factorial() function here
+  // Remember: every recursive function needs a base case
+
+  int main() {
+      // Print factorial(6) here
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "720"
+
+hints:
+  - "The base case stops the recursion: `if (n <= 1) return 1;`"
+  - "The recursive case breaks the problem down: `return n * factorial(n - 1);` --- each call gets closer to the base case."
+  - "In main: `std::cout << factorial(6) << std::endl;` --- this computes 6 * 5 * 4 * 3 * 2 * 1 = 720."
+
+solution: |
+  #include <iostream>
+
+  int factorial(int n) {
+      if (n <= 1) return 1;
+      return n * factorial(n - 1);
+  }
+
+  int main() {
+      std::cout << factorial(6) << std::endl;
+      return 0;
+  }
+
+explanation: |
+  `factorial(6)` calls `factorial(5)`, which calls `factorial(4)`, and so on
+  until `factorial(1)` hits the base case and returns 1. Then the results
+  unwind: 2*1=2, 3*2=6, 4*6=24, 5*24=120, 6*120=720. The base case
+  `if (n <= 1) return 1` is essential --- without it, the function would call
+  itself forever and crash with a stack overflow. Every recursive function must
+  have a base case that stops the recursion, and each recursive call must move
+  closer to that base case.

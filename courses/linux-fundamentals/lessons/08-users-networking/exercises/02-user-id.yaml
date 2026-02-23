@@ -1,0 +1,20 @@
+id: user-id
+title: "User and Group IDs"
+type: command
+prompt: |
+  Use id to print your numeric user ID (UID) and group ID (GID),
+  each on its own line.
+starter: |
+  # Print UID and GID
+validation:
+  method: regex
+  pattern: "(?s)^\\d+\n\\d+$"
+hints:
+  - "id -u prints the numeric UID"
+  - "id -g prints the numeric GID"
+solution: |
+  id -u
+  id -g
+explanation: |
+  id -u prints the effective user ID, id -g prints the effective
+  group ID. Regular users typically have UIDs >= 1000.

@@ -1,0 +1,33 @@
+id: pattern-matching
+title: "Pattern Matching"
+description: "Control program flow with Rust's powerful pattern matching system"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - match-basic
+  - match-enum
+  - if-let
+  - while-let
+  - destructuring
+  - match-guards
+  - at-bindings
+teaches:
+  - match-expressions
+  - exhaustive-matching
+  - enum-patterns
+  - if-let
+  - while-let
+  - struct-destructuring
+  - tuple-destructuring
+  - match-guards
+  - at-bindings
+recap: |
+  You learned:
+  - match expressions select a branch based on a value's pattern
+  - The compiler enforces exhaustive matching — every possible value must be handled
+  - Enum variants carry data that match arms can extract
+  - if let is a shorthand when you only care about one pattern
+  - while let loops as long as a pattern keeps matching
+  - Destructuring pulls apart structs and tuples into individual variables
+  - Match guards add extra conditions to a pattern with `if`
+  - @ bindings let you name a value while also testing it against a pattern

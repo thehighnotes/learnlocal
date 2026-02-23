@@ -1,0 +1,78 @@
+id: impl-methods
+title: "Add Methods with impl"
+type: write
+
+prompt: |
+  The `Rectangle` struct is already defined. Add an `impl` block with two
+  methods:
+
+  1. `area(&self) -> f64` -- returns width * height
+  2. `scale(&mut self, factor: f64)` -- multiplies both width and height by factor
+
+  The main function calls both methods. Your job is to write the impl block
+  where indicated.
+
+starter: |
+  struct Rectangle {
+      width: f64,
+      height: f64,
+  }
+
+  // Add your impl block here
+
+  fn main() {
+      let mut r = Rectangle { width: 10.0, height: 5.0 };
+      println!("area = {}", r.area());
+      r.scale(2.0);
+      println!("after scale: {} x {}", r.width, r.height);
+      println!("new area = {}", r.area());
+  }
+
+validation:
+  method: output
+  expected_output: |
+    area = 50
+    after scale: 20 x 10
+    new area = 200
+
+hints:
+  - "Start with `impl Rectangle { }` and put both methods inside."
+  - "area takes `&self` (read-only borrow) and returns `self.width * self.height`."
+  - "scale takes `&mut self` (mutable borrow) so it can modify `self.width` and `self.height`."
+
+solution: |
+  struct Rectangle {
+      width: f64,
+      height: f64,
+  }
+
+  impl Rectangle {
+      fn area(&self) -> f64 {
+          self.width * self.height
+      }
+
+      fn scale(&mut self, factor: f64) {
+          self.width *= factor;
+          self.height *= factor;
+      }
+  }
+
+  fn main() {
+      let mut r = Rectangle { width: 10.0, height: 5.0 };
+      println!("area = {}", r.area());
+      r.scale(2.0);
+      println!("after scale: {} x {}", r.width, r.height);
+      println!("new area = {}", r.area());
+  }
+
+explanation: |
+  An `impl` block attaches behavior to a type. Inside it, `&self` is shorthand
+  for `self: &Rectangle` -- a shared (immutable) reference to the instance.
+
+  `area` only reads fields, so `&self` is sufficient. `scale` needs to modify
+  the struct's data, so it takes `&mut self`. The caller must also have a
+  `let mut` binding for the mutable borrow to be allowed.
+
+  Methods are called with dot syntax: `r.area()`, `r.scale(2.0)`. Rust
+  automatically borrows `r` as `&r` or `&mut r` depending on the method
+  signature -- this is called "auto-referencing."

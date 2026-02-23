@@ -1,0 +1,70 @@
+id: wrong-owner
+title: "Wrong Permissions on App Files"
+type: command
+prompt: |
+  ALERT: Application crashed after a maintenance window.
+
+  During maintenance, a script ran with elevated privileges and changed
+  the permissions on the app's data files. Now the files have mode 600
+  (owner-only access) but the application process runs as a different
+  user and cannot read them.
+
+  Fix the permissions on ALL files in app/data/ to 644 so the
+  application can read them again.
+
+  Note: In a real system you'd use `chown` to fix ownership, but in
+  this sandbox we fix it by opening up the permissions with `chmod`.
+starter: |
+  # Fix permissions on all files in app/data/ to 644
+environment:
+  dirs:
+    - app/data
+  files:
+    - path: app/data/users.db
+      content: |
+        id,name,email
+        1,alice,alice@example.com
+        2,bob,bob@example.com
+      permissions: "600"
+    - path: app/data/sessions.db
+      content: |
+        sid,uid,expires
+        abc123,1,2024-03-16
+        def456,2,2024-03-16
+      permissions: "600"
+    - path: app/data/config.json
+      content: |
+        {"cache_ttl": 300, "max_connections": 100}
+      permissions: "600"
+    - path: app/error.log
+      content: |
+        2024-03-15 05:00:00 ERROR Cannot read app/data/users.db: Permission denied
+        2024-03-15 05:00:00 ERROR Cannot read app/data/sessions.db: Permission denied
+        2024-03-15 05:00:00 ERROR Cannot read app/data/config.json: Permission denied
+        2024-03-15 05:00:01 FATAL Data layer initialization failed
+validation:
+  method: state
+  assertions:
+    - permissions:
+        path: app/data/users.db
+        mode: "644"
+    - permissions:
+        path: app/data/sessions.db
+        mode: "644"
+    - permissions:
+        path: app/data/config.json
+        mode: "644"
+hints:
+  - "`ls -l app/data/` shows all files have -rw------- (600) permissions."
+  - "`chmod 644 app/data/*` fixes all files in the directory at once."
+  - "The glob `app/data/*` expands to all files in that directory."
+solution: |
+  chmod 644 app/data/*
+explanation: |
+  When a maintenance script runs as root or with sudo, it can
+  inadvertently change file ownership or permissions. Mode 600 means
+  only the file owner can read/write — if the app runs as a different
+  user, it gets "Permission denied." Using `chmod 644` on all files
+  restores read access for everyone. In production, the proper fix
+  is usually `chown appuser:appgroup` to restore correct ownership,
+  but chmod is the quick fix when you need the app back up NOW.

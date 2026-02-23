@@ -1,0 +1,65 @@
+id: constants
+title: "Constants and Expressions"
+type: write
+
+prompt: |
+  Declare a constant `pi` with the value 3.14159 and a second constant
+  `doubled` that equals pi multiplied by 2.
+
+  Print them using fmt.Printf so the output is exactly:
+
+  pi=3.14159 doubled=6.28318
+
+  Use the %g format verb for both values — it prints floats without trailing
+  zeros, which gives you the cleanest output here.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      // TODO: Declare constant pi = 3.14159
+      // TODO: Declare constant doubled = pi * 2
+      // TODO: Print: pi=3.14159 doubled=6.28318
+
+  }
+
+validation:
+  method: output
+  expected_output: "pi=3.14159 doubled=6.28318"
+
+hints:
+  - "Declare constants with: const pi = 3.14159"
+  - "Constants can use other constants in their expressions: const doubled = pi * 2"
+  - "The %g format verb prints a float without trailing zeros: fmt.Printf(\"%g\", 3.14) prints 3.14"
+  - "Full solution: fmt.Printf(\"pi=%g doubled=%g\\n\", pi, doubled)"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      const pi = 3.14159
+      const doubled = pi * 2
+      fmt.Printf("pi=%g doubled=%g\n", pi, doubled)
+  }
+
+explanation: |
+  Constants in Go are declared with `const` and must be set at compile time.
+  You cannot assign the result of a function call to a constant (except for
+  a few built-in functions).
+
+  - `const pi = 3.14159` — an untyped floating-point constant.
+  - `const doubled = pi * 2` — constants can reference other constants in
+    expressions. The multiplication happens at compile time.
+
+  The `%g` format verb is useful here because it removes trailing zeros.
+  Compare:
+
+  - `%f` would print `3.141590` and `6.283180`
+  - `%g` prints `3.14159` and `6.28318`
+
+  Untyped constants in Go are flexible — they can participate in expressions
+  with different numeric types without requiring explicit type conversion.

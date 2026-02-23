@@ -1,0 +1,46 @@
+id: for-loop
+title: "Sum with for Loop"
+type: write
+
+prompt: |
+  Use a for loop to calculate the sum of integers from 1 to 10 (inclusive).
+  Print just the final sum.
+
+  Expected output: 55
+
+starter: |
+  // Use a for loop to sum 1 + 2 + 3 + ... + 10
+  // Print the total
+
+validation:
+  method: output
+  expected_output: "55"
+
+hints:
+  - "Start with let sum = 0; before the loop."
+  - "for (let i = 1; i <= 10; i++) — this counts from 1 to 10."
+  - "Inside the loop, add i to the sum: sum += i; After the loop, console.log(sum);"
+
+solution: |
+  let sum = 0;
+  for (let i = 1; i <= 10; i++) {
+    sum += i;
+  }
+  console.log(sum);
+
+explanation: |
+  The for loop has three parts separated by semicolons:
+
+  `for (let i = 1; i <= 10; i++)`
+       ^^^^^^^^^  ^^^^^^^^  ^^^
+       init       condition  update
+
+  1. `let i = 1` — runs once before the loop starts. Creates the counter.
+  2. `i <= 10` — checked before each iteration. Loop continues while true.
+  3. `i++` — runs after each iteration. Increments the counter.
+
+  The loop adds each number to `sum`: 0 + 1 + 2 + 3 + ... + 10 = 55.
+
+  The mathematical formula for this is n*(n+1)/2 = 10*11/2 = 55, but
+  the loop approach teaches the pattern of accumulating a value, which
+  generalizes to many other problems.

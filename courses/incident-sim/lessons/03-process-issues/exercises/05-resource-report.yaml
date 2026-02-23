@@ -1,0 +1,54 @@
+id: resource-report
+title: "Emergency Resource Report"
+type: command
+prompt: |
+  CRITICAL: Multiple alerts firing. The on-call engineer needs a quick
+  assessment. You have three system snapshots in the sandbox:
+
+  - `top_output.txt` — CPU and process summary
+  - `df_output.txt` — disk usage
+  - `free_output.txt` — memory usage
+
+  Examine all three. Create `resource_report.txt` identifying which resources
+  are **critical** (near exhaustion). For each critical resource, write a line:
+
+  ```
+  CRITICAL: <resource_type> - <brief reason>
+  ```
+
+  Where resource_type is one of: CPU, DISK, MEMORY
+starter: |
+  # Check top_output.txt, df_output.txt, and free_output.txt
+  # Write your resource report to resource_report.txt
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > top_output.txt << 'TOPEOF'\ntop - 14:32:01 up 6 days, 3:15,  2 users,  load average: 0.45, 0.52, 0.48\nTasks: 187 total,   1 running, 183 sleeping,   0 stopped,   3 zombie\n%Cpu(s): 12.3 us,  3.1 sy,  0.0 ni, 83.8 id,  0.5 wa,  0.0 hi,  0.3 si\nMiB Mem :  16384.0 total,    210.4 free,  15012.8 used,   1160.8 buff/cache\nMiB Swap:   4096.0 total,    512.0 free,   3584.0 used.    892.4 avail Mem\n\n  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND\n 1023 appuser   20   0  890000  86016  12000 S   8.3   5.1   1:30.45 java\n  512 postgres  20   0  620000  71680   8192 S   3.2   4.3   0:45.12 postgres\n 1720 appuser   20   0  450000  43008   6144 S   2.1   2.6   0:15.33 node\nTOPEOF\ncat > df_output.txt << 'DFEOF'\nFilesystem      Size  Used Avail Use% Mounted on\n/dev/sda1       100G   97G  3.0G  97% /\n/dev/sda2       500G  125G  375G  25% /data\ntmpfs           8.0G  1.2G  6.8G  15% /tmp\n/dev/sdb1        50G   48G  2.0G  96% /var/log\nDFEOF\ncat > free_output.txt << 'FREEEOF'\n              total        used        free      shared  buff/cache   available\nMem:          16384       15012         210          50        1160         892\nSwap:          4096        3584         512\nFREEEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: resource_report.txt
+    - file_contains:
+        path: resource_report.txt
+        content: "DISK"
+    - file_contains:
+        path: resource_report.txt
+        content: "MEMORY"
+hints:
+  - "Check each file: CPU is at 12% (fine), disk root is 97% used (critical!), memory has only 892MB available out of 16GB (critical!)."
+  - "/var/log is also at 96% — that's critical too. Memory is heavily swapping (3584MB swap used)."
+  - "Your report needs CRITICAL lines for DISK and MEMORY at minimum."
+solution: |
+  cat > resource_report.txt << 'EOF'
+  CRITICAL: DISK - root filesystem at 97% usage, only 3GB remaining
+  CRITICAL: DISK - /var/log at 96% usage, logs may stop writing
+  CRITICAL: MEMORY - only 892MB available of 16GB, heavy swap usage (3584MB)
+  EOF
+explanation: |
+  Reading system snapshots quickly is a core incident skill. Here, CPU was fine
+  (83% idle) but disk and memory were critical. The root partition at 97% could
+  cause writes to fail — apps crash, databases corrupt. Memory at 94% used with
+  heavy swapping means the OOM killer could strike any moment. In a real
+  incident, you'd address disk first (clear logs, remove temp files) since
+  disk-full failures are often catastrophic and immediate.

@@ -1,0 +1,39 @@
+id: pipeline-combine
+title: "Combine Text Tools"
+type: command
+prompt: |
+  A file called data.txt already exists with these lines:
+    banana:3
+    apple:5
+    cherry:1
+    apple:2
+    banana:4
+  Use cut, sort, and uniq to extract the fruit names (before the colon),
+  sort them, and print only the unique names.
+starter: |
+  # data.txt exists — extract names, sort, deduplicate
+environment:
+  files:
+    - path: data.txt
+      content: |
+        banana:3
+        apple:5
+        cherry:1
+        apple:2
+        banana:4
+validation:
+  method: output
+  expected_output: |
+    apple
+    banana
+    cherry
+hints:
+  - "cut -d':' -f1 extracts the part before the colon"
+  - "Pipe through sort | uniq to deduplicate"
+  - "Or sort -u combines sort and uniq"
+solution: |
+  cut -d':' -f1 data.txt | sort -u
+explanation: |
+  cut extracts the name field, sort orders alphabetically, and -u
+  removes duplicates. This pipeline combines three tools into one
+  concise data transformation.

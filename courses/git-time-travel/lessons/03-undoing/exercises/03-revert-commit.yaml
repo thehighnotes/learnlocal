@@ -1,0 +1,61 @@
+id: revert-commit
+title: "Revert a Bad Commit"
+type: command
+prompt: |
+  Your team's build server has three commits. The second commit introduced
+  a bad file called `bug.txt` containing "BROKEN". The third commit added
+  a separate `feature.txt` file (no overlap with the buggy file).
+
+  You can't rewrite history because the branch is shared. Use `git revert`
+  to create a new commit that undoes ONLY the bad second commit.
+
+  The bad commit's message is "introduce bug". Use `git log --oneline` to
+  find its hash, then revert it with `--no-edit` to accept the default
+  revert message.
+starter: |
+  #!/bin/bash
+  # Find the hash of the "introduce bug" commit, then revert it
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'hello world' > app.txt && git add app.txt && git commit -m 'initial app' && echo 'BROKEN' > bug.txt && git add bug.txt && git commit -m 'introduce bug' && echo 'new feature' > feature.txt && git add feature.txt && git commit -m 'add feature'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: check-bug-gone
+      command: sh
+      args: ["-c", "test -f {dir}/repo/bug.txt && echo 'EXISTS' > {dir}/bug_check.txt || echo 'GONE' > {dir}/bug_check.txt"]
+      timeout_seconds: 5
+      capture_to: bug.log
+    - name: capture-commit-count
+      command: sh
+      args: ["-c", "cd {dir}/repo && git rev-list --count HEAD > {dir}/commit_count.txt"]
+      timeout_seconds: 5
+      capture_to: count.log
+validation:
+  method: state
+  assertions:
+    - file_not_exists: repo/bug.txt
+    - file_exists: repo/feature.txt
+    - file_exists: repo/app.txt
+    - file_contains:
+        path: bug_check.txt
+        content: "GONE"
+    - file_contains:
+        path: commit_count.txt
+        content: "4"
+hints:
+  - "Use git log --oneline to see commit hashes and messages"
+  - "git revert <hash> --no-edit creates a revert commit with the default message"
+  - "git revert $(git log --oneline | grep 'introduce bug' | awk '{print $1}') --no-edit"
+solution: |
+  #!/bin/bash
+  BAD=$(git log --oneline | grep 'introduce bug' | awk '{print $1}')
+  git revert "$BAD" --no-edit
+explanation: |
+  git revert creates a NEW commit that applies the inverse of the target commit.
+  The original bad commit stays in history (safe for shared branches), but its
+  changes are undone. The commit count goes from 3 to 4 — revert adds, never removes.
+  Since the bug was in a separate file, reverting cleanly deletes bug.txt without
+  affecting feature.txt or app.txt.

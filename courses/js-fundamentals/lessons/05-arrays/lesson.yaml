@@ -1,0 +1,30 @@
+id: arrays
+title: "Arrays"
+description: "Create, manipulate, and iterate over arrays"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - array-basics
+  - array-methods
+  - array-slice
+  - array-map-filter
+  - find-max
+  - spread-merge
+  - destructuring
+teaches:
+  - array-creation
+  - array-indexing
+  - mutating-methods
+  - slice-splice
+  - map-filter
+  - spread-operator
+  - array-destructuring
+recap: |
+  You learned:
+  - Arrays are ordered lists created with square brackets []
+  - .length, [0], and [arr.length - 1] for size and access
+  - .push(), .pop(), .shift(), .unshift() modify the array
+  - .slice() extracts without modifying, .splice() modifies in place
+  - .map() transforms and .filter() selects elements
+  - The spread operator (...) copies and merges arrays
+  - Destructuring assigns array elements to variables

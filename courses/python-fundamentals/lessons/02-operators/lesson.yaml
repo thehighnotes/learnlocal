@@ -1,0 +1,31 @@
+id: operators
+title: "Operators and Expressions"
+description: "Perform calculations and comparisons in Python"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - arithmetic
+  - comparison
+  - logical
+  - floor-div-mod
+  - string-ops
+  - augmented-assign
+  - type-casting
+teaches:
+  - arithmetic-operators
+  - comparison-operators
+  - logical-operators
+  - floor-division
+  - modulo
+  - string-operators
+  - augmented-assignment
+  - type-casting
+recap: |
+  You learned:
+  - Python supports +, -, *, /, ** (power), // (floor division), % (modulo)
+  - Comparison operators (==, !=, <, >, <=, >=) return True or False
+  - Logical operators: and, or, not (words, not symbols)
+  - // truncates to the nearest integer, % gives the remainder
+  - Strings support + (concatenation) and * (repetition)
+  - Augmented assignment (+=, -=, *=) updates a variable in place
+  - int(), float(), str() convert between types

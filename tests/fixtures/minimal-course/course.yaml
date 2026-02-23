@@ -1,0 +1,18 @@
+name: "Test Course"
+version: "1.0.0"
+description: "A minimal test course"
+author: "Test"
+
+language:
+  id: test
+  display_name: "Test"
+  extension: ".txt"
+  steps:
+    - name: run
+      command: "echo"
+      args: ["hello"]
+      capture_output: true
+
+lessons:
+  - id: test-lesson
+    title: "Test Lesson"

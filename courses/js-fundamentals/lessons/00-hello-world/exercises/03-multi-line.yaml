@@ -1,0 +1,38 @@
+id: multi-line
+title: "Multiple Lines"
+type: write
+
+prompt: |
+  Print three lines of output, each on its own line:
+  - First
+  - Second
+  - Third
+
+  Use three separate console.log() calls, one for each line. Each call
+  automatically adds a newline at the end.
+
+starter: |
+  // Print three lines: First, Second, Third
+  // Use one console.log() call per line
+
+validation:
+  method: output
+  expected_output: "First\nSecond\nThird"
+
+hints:
+  - "Each console.log() call prints its argument followed by a newline."
+  - "You need three separate calls: console.log(\"First\"); console.log(\"Second\"); console.log(\"Third\")"
+  - "The complete solution uses three lines, each with console.log() and the appropriate string."
+
+solution: |
+  console.log("First");
+  console.log("Second");
+  console.log("Third");
+
+explanation: |
+  Each `console.log()` call prints its argument and then moves to the next
+  line. Three calls produce three lines of output.
+
+  If you wanted all three on one line, you could use `process.stdout.write()`
+  instead, which does not add a newline. But for most purposes, console.log()
+  is what you want — one call per line of output.

@@ -1,0 +1,27 @@
+id: run-with-args
+title: "Run with Arguments"
+type: command
+prompt: |
+  A greet.py script takes a name as a command-line argument. Run it with
+  the argument "Alice".
+environment:
+  files:
+    - path: greet.py
+      content: |
+        import sys
+        name = sys.argv[1]
+        print(f"Hello, {name}!")
+starter: |
+  # Run greet.py with a command-line argument
+validation:
+  method: output
+  expected_output: "Hello, Alice!"
+hints:
+  - "Arguments go after the filename: python3 greet.py Alice"
+  - "The script uses sys.argv[1] to read the first argument"
+solution: |
+  python3 greet.py Alice
+explanation: |
+  Command-line arguments are accessed through sys.argv. sys.argv[0] is
+  the script name, sys.argv[1] is the first argument, and so on. This
+  is how you make scripts configurable without changing the code.

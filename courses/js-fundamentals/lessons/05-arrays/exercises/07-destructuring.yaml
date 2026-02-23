@@ -1,0 +1,51 @@
+id: destructuring
+title: "Array Destructuring"
+type: write
+
+prompt: |
+  Given the array [255, 128, 0], use destructuring to assign the three
+  values to variables r, g, and b. Then print each on its own line with
+  the format shown below.
+
+  Expected output:
+  r: 255
+  g: 128
+  b: 0
+
+starter: |
+  const rgb = [255, 128, 0];
+  // Destructure into r, g, b variables and print each
+
+validation:
+  method: output
+  expected_output: "r: 255\ng: 128\nb: 0"
+
+hints:
+  - "Destructuring syntax: const [r, g, b] = rgb;"
+  - "This assigns rgb[0] to r, rgb[1] to g, rgb[2] to b."
+  - "Then print each: console.log(`r: ${r}`); console.log(`g: ${g}`); console.log(`b: ${b}`);"
+
+solution: |
+  const rgb = [255, 128, 0];
+  const [r, g, b] = rgb;
+  console.log(`r: ${r}`);
+  console.log(`g: ${g}`);
+  console.log(`b: ${b}`);
+
+explanation: |
+  Array destructuring assigns elements to variables by position:
+
+  `const [r, g, b] = [255, 128, 0];`
+  - r = 255 (first element)
+  - g = 128 (second element)
+  - b = 0 (third element)
+
+  You can skip elements with empty slots: `const [first, , third] = arr;`
+
+  The rest pattern collects remaining elements:
+  `const [first, ...rest] = [1, 2, 3, 4];`
+  - first = 1
+  - rest = [2, 3, 4]
+
+  Destructuring is especially useful when a function returns an array —
+  you can unpack the result directly into named variables.

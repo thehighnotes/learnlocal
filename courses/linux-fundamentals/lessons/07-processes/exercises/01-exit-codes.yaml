@@ -1,0 +1,29 @@
+id: exit-codes
+title: "Exit Codes"
+type: command
+prompt: |
+  Run a command that succeeds and print its exit code, then run a
+  command that fails and print its exit code.
+  Output should be exactly:
+    0
+    1
+starter: |
+  # Print exit code of success, then failure
+validation:
+  method: output
+  expected_output: |
+    0
+    1
+hints:
+  - "true always returns 0 (success)"
+  - "false always returns 1 (failure)"
+  - "$? gives the exit code of the last command"
+solution: |
+  true
+  echo $?
+  false
+  echo $?
+explanation: |
+  true is a command that does nothing and returns 0 (success).
+  false does nothing and returns 1 (failure). $? captures the exit
+  code of the most recently executed command.

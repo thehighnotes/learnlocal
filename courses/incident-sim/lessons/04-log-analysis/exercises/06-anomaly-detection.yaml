@@ -1,0 +1,43 @@
+id: anomaly-detection
+title: "Spot the Anomaly"
+type: command
+prompt: |
+  PERFORMANCE ALERT: Users are complaining about slowness but the error rate
+  hasn't changed. Something is degraded, not broken. The access log has
+  response times appended to each line.
+
+  Most requests finish in 5-50ms. But a burst of requests are taking over
+  1000ms. Count how many requests took **more than 1000ms** (the number
+  after "time=" at the end of each line).
+
+  Write just the count to `answer.txt`.
+starter: |
+  # Count requests where response time > 1000ms
+  # Response times are in the "time=Nms" field at the end of each line
+  # Write the count to answer.txt
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > access.log << 'ACCESSEOF'\n2024-03-15 14:30:01 GET /api/users 200 time=23ms\n2024-03-15 14:30:02 GET /api/products 200 time=15ms\n2024-03-15 14:30:03 POST /api/orders 200 time=45ms\n2024-03-15 14:30:04 GET /api/health 200 time=5ms\n2024-03-15 14:30:05 GET /api/users/42 200 time=18ms\n2024-03-15 14:30:06 GET /api/products 200 time=5200ms\n2024-03-15 14:30:07 POST /api/login 200 time=12ms\n2024-03-15 14:30:08 GET /api/orders 200 time=34ms\n2024-03-15 14:30:09 GET /api/users 200 time=5800ms\n2024-03-15 14:30:10 GET /api/products/search 200 time=42ms\n2024-03-15 14:30:11 POST /api/orders 200 time=6100ms\n2024-03-15 14:30:12 GET /api/health 200 time=8ms\n2024-03-15 14:30:13 GET /api/users 200 time=21ms\n2024-03-15 14:30:14 GET /api/products 200 time=5500ms\n2024-03-15 14:30:15 POST /api/payment 200 time=38ms\n2024-03-15 14:30:16 GET /api/orders/latest 200 time=27ms\n2024-03-15 14:30:17 GET /api/users/10 200 time=7200ms\n2024-03-15 14:30:18 GET /api/products 200 time=11ms\n2024-03-15 14:30:19 POST /api/orders 200 time=50ms\n2024-03-15 14:30:20 GET /api/users 200 time=4900ms\n2024-03-15 14:30:21 GET /api/health 200 time=6ms\n2024-03-15 14:30:22 POST /api/login 200 time=19ms\n2024-03-15 14:30:23 GET /api/products/search 200 time=33ms\n2024-03-15 14:30:24 GET /api/orders 200 time=5100ms\n2024-03-15 14:30:25 POST /api/payment 200 time=41ms\nACCESSEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_contains:
+        path: answer.txt
+        content: "7"
+hints:
+  - "Extract the number from time=Nms and check if it's greater than 1000."
+  - "Use grep or awk. With grep: grep -E 'time=[0-9]{4,}ms' gets 4+ digit times, but that includes 1000. Try awk instead."
+  - "grep -oP 'time=\\K[0-9]+' access.log | awk '$1 > 1000' | wc -l | tr -d ' ' > answer.txt"
+solution: |
+  grep -oP 'time=\K[0-9]+' access.log | awk '$1 > 1000' | wc -l | tr -d ' ' > answer.txt
+explanation: |
+  7 requests exceeded 1000ms: 5200, 5800, 6100, 5500, 7200, 4900, and 5100ms.
+  All returned 200 — they succeeded but slowly. This pattern (some requests
+  extremely slow while others are fine) often indicates: a database query that
+  sometimes locks, garbage collection pauses, or a subset of backend instances
+  being unhealthy. The fact that slow requests are interspersed with fast ones
+  (not a solid block) suggests the problem comes and goes — classic GC pause
+  or connection pool contention.

@@ -1,0 +1,45 @@
+id: hello
+title: "Hello, World!"
+type: write
+
+prompt: |
+  Write a complete C++ program that prints exactly: Hello, World!
+
+  Your program needs three things:
+  1. An #include for the iostream header
+  2. A main() function
+  3. A std::cout statement that prints the message
+
+starter: |
+  // Your first C++ program!
+  // Write a complete program that prints: Hello, World!
+
+validation:
+  method: output
+  expected_output: "Hello, World!"
+
+hints:
+  - "Every C++ program that prints output needs to start with #include <iostream> at the top."
+  - "The main function looks like: int main() { ... return 0; } — put your print statement inside the braces."
+  - "The print statement is: std::cout << \"Hello, World!\" << std::endl;"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      std::cout << "Hello, World!" << std::endl;
+      return 0;
+  }
+
+explanation: |
+  Line by line:
+
+  - `#include <iostream>` — imports the input/output library so we can use std::cout.
+  - `int main()` — declares the main function, the entry point of every C++ program.
+    The `int` means it returns an integer to the operating system.
+  - `std::cout << "Hello, World!" << std::endl;` — sends the string "Hello, World!"
+    to standard output, followed by a newline. The `<<` operator is called the
+    insertion operator.
+  - `return 0;` — tells the operating system the program finished successfully.
+
+  Every C++ program you write will follow this same basic structure.

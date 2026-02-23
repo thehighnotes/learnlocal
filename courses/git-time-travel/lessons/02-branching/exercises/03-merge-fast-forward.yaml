@@ -1,0 +1,46 @@
+id: merge-fast-forward
+title: "Merge: Fast-Forward"
+type: command
+prompt: |
+  Your teammate finished the `feature` branch. It has 2 commits that
+  main doesn't have yet, and nobody has added anything to main in
+  the meantime. This is the simplest kind of merge: a fast-forward.
+
+  You're currently on `main`. Merge `feature` into `main`.
+
+  After the merge, both branches should point to the same commit.
+starter: |
+  #!/bin/bash
+  # You're on main. Merge the feature branch into main.
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base' > readme.txt && git add readme.txt && git commit -m 'Initial commit' && git checkout -b feature && echo 'feature work' > feature.txt && git add feature.txt && git commit -m 'Add feature file' && echo 'more work' >> feature.txt && git add feature.txt && git commit -m 'Extend feature' && git checkout main"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && MAIN=$(git rev-parse main) && FEAT=$(git rev-parse feature) && if [ \"$MAIN\" = \"$FEAT\" ]; then echo 'SAME_COMMIT' > {dir}/repo/merge_status.txt; else echo 'DIFFERENT' > {dir}/repo/merge_status.txt; fi"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/feature.txt
+    - file_contains:
+        path: repo/merge_status.txt
+        content: "SAME_COMMIT"
+hints:
+  - "You're already on main. Just merge the other branch in."
+  - "git merge feature"
+  - "A fast-forward merge just moves the main pointer forward -- no merge commit needed."
+solution: |
+  #!/bin/bash
+  git merge feature
+explanation: |
+  Since main had no new commits since feature branched off, git can
+  simply move the main pointer forward to where feature is. This is
+  called a "fast-forward" merge. No merge commit is created and the
+  history stays perfectly linear. Both main and feature now point
+  to the exact same commit.

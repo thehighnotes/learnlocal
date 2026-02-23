@@ -1,0 +1,85 @@
+id: switch
+title: "Fix the Switch"
+type: fix
+
+prompt: |
+  The program below is supposed to print the name of the day for `day = 3`,
+  which should be "Wednesday". But it has a bug: it prints multiple day names
+  instead of just one. Find and fix the problem.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      int day = 3;
+
+      switch (day) {
+          case 1:
+              std::cout << "Monday" << std::endl;
+          case 2:
+              std::cout << "Tuesday" << std::endl;
+          case 3:
+              std::cout << "Wednesday" << std::endl;
+          case 4:
+              std::cout << "Thursday" << std::endl;
+          case 5:
+              std::cout << "Friday" << std::endl;
+          default:
+              std::cout << "Weekend" << std::endl;
+      }
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Wednesday"
+
+hints:
+  - "Run the code in your head: what happens after case 3 matches? Does execution stop there?"
+  - "In C++, switch cases fall through to the next case unless you explicitly stop them with a keyword."
+  - "Add a `break;` statement after the std::cout line in each case to prevent fall-through."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int day = 3;
+
+      switch (day) {
+          case 1:
+              std::cout << "Monday" << std::endl;
+              break;
+          case 2:
+              std::cout << "Tuesday" << std::endl;
+              break;
+          case 3:
+              std::cout << "Wednesday" << std::endl;
+              break;
+          case 4:
+              std::cout << "Thursday" << std::endl;
+              break;
+          case 5:
+              std::cout << "Friday" << std::endl;
+              break;
+          default:
+              std::cout << "Weekend" << std::endl;
+              break;
+      }
+
+      return 0;
+  }
+
+explanation: |
+  The bug was missing `break` statements. In C++, once a matching case is found,
+  execution continues through all subsequent cases until it hits a `break` or the
+  end of the switch block. This is called "fall-through."
+
+  Without breaks, `day = 3` matches `case 3` and then falls through to print
+  "Wednesday", "Thursday", "Friday", and "Weekend" -- four lines instead of one.
+
+  Adding `break;` after each case's output statement makes execution exit the
+  switch immediately after printing the correct day.
+
+  Fall-through is occasionally used intentionally (e.g., grouping multiple cases
+  together), but forgetting `break` is one of the most common C++ bugs.

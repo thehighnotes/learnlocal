@@ -1,0 +1,32 @@
+id: hello-world
+title: "Hello World & Program Structure"
+description: "Understand the anatomy of a C++ program"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - check-compiler
+  - hello
+  - compile-and-run
+  - run-with-input
+  - fix-include
+  - multi-line
+  - comments
+  - escape-chars
+teaches:
+  - compiler-version
+  - program-structure
+  - compilation
+  - running-executables
+  - piping-input
+  - includes
+  - cout
+  - comments
+recap: |
+  You learned:
+  - g++ --version checks your compiler installation
+  - g++ -o name file.cpp compiles C++ source to an executable
+  - You can pipe input to programs with echo ... | ./program
+  - Every C++ program needs a main() function as its entry point
+  - #include brings in library headers like <iostream>
+  - std::cout prints output to the terminal
+  - Comments document code without affecting behavior

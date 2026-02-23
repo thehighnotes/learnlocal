@@ -1,0 +1,99 @@
+id: word-vectors
+title: "Word Vectors"
+type: write
+
+prompt: |
+  Given a dictionary mapping words to vectors, find the word most similar to
+  "cat" (excluding "cat" itself). Use cosine similarity.
+
+  ```python
+  words = {
+      "cat":    [0.9, 0.1, 0.0],
+      "dog":    [0.8, 0.2, 0.1],
+      "kitten": [0.85, 0.15, 0.0],
+      "car":    [0.0, 0.1, 0.9],
+  }
+  ```
+
+  Print just the word name.
+
+starter: |
+  import math
+
+  words = {
+      "cat":    [0.9, 0.1, 0.0],
+      "dog":    [0.8, 0.2, 0.1],
+      "kitten": [0.85, 0.15, 0.0],
+      "car":    [0.0, 0.1, 0.9],
+  }
+
+  query_word = "cat"
+  query_vec = words[query_word]
+
+  def dot(a, b):
+      return sum(a[i] * b[i] for i in range(len(a)))
+
+  def mag(v):
+      return math.sqrt(sum(x**2 for x in v))
+
+  def cosine_sim(a, b):
+      return dot(a, b) / (mag(a) * mag(b))
+
+  # Find the word most similar to "cat" (skip "cat" itself)
+
+
+  print(best_word)
+
+validation:
+  method: output
+  expected_output: "kitten"
+
+hints:
+  - "Loop through each word in the dictionary. Skip the query word. Compute cosine similarity and keep track of the best match."
+  - "Use the same pattern as the previous exercise, but iterate over `words.items()` and skip when `word == query_word`."
+
+solution: |
+  import math
+
+  words = {
+      "cat":    [0.9, 0.1, 0.0],
+      "dog":    [0.8, 0.2, 0.1],
+      "kitten": [0.85, 0.15, 0.0],
+      "car":    [0.0, 0.1, 0.9],
+  }
+
+  query_word = "cat"
+  query_vec = words[query_word]
+
+  def dot(a, b):
+      return sum(a[i] * b[i] for i in range(len(a)))
+
+  def mag(v):
+      return math.sqrt(sum(x**2 for x in v))
+
+  def cosine_sim(a, b):
+      return dot(a, b) / (mag(a) * mag(b))
+
+  best_word = ""
+  best_sim = -2
+  for word, vec in words.items():
+      if word == query_word:
+          continue
+      sim = cosine_sim(query_vec, vec)
+      if sim > best_sim:
+          best_sim = sim
+          best_word = word
+
+  print(best_word)
+
+explanation: |
+  Cosine similarities with "cat" [0.9, 0.1, 0.0]:
+  - "dog" [0.8, 0.2, 0.1]: ~0.99
+  - "kitten" [0.85, 0.15, 0.0]: ~0.9997
+  - "car" [0.0, 0.1, 0.9]: ~0.011
+
+  "kitten" is most similar because its vector is almost identical to "cat" —
+  both are animals with very similar features. "car" is nearly orthogonal
+  because it represents a completely different concept. In real word embedding
+  systems like Word2Vec, these relationships are learned automatically from
+  billions of words of text.

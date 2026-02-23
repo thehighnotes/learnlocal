@@ -1,0 +1,30 @@
+id: copy-files
+title: "Copy Files"
+type: command
+prompt: |
+  A file called original.txt containing "Hello Linux" already exists.
+  Use `cp` to copy it to duplicate.txt. Print the contents of both
+  files, each on its own line.
+starter: |
+  # original.txt exists — copy it and print both
+environment:
+  files:
+    - path: original.txt
+      content: |
+        Hello Linux
+validation:
+  method: output
+  expected_output: |
+    Hello Linux
+    Hello Linux
+hints:
+  - "cp original.txt duplicate.txt"
+  - "cat original.txt prints one file"
+  - "Run cat on each file separately"
+solution: |
+  cp original.txt duplicate.txt
+  cat original.txt
+  cat duplicate.txt
+explanation: |
+  cp creates an independent copy. Changes to one won't affect the other.
+  cat prints file contents to stdout.

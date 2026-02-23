@@ -1,0 +1,76 @@
+id: while-let
+title: "Drain a Stack with while let"
+type: write
+
+prompt: |
+  Create a `Vec<i32>` containing [10, 20, 30, 40, 50]. Use a `while let`
+  loop with `stack.pop()` to remove and print each element, one per line.
+
+  Since `pop()` removes from the end, the output should be in reverse order.
+
+  Expected output (five lines):
+  50
+  40
+  30
+  20
+  10
+
+starter: |
+  fn main() {
+      let mut stack = vec![10, 20, 30, 40, 50];
+
+      // Use while let with stack.pop() to print each element
+  }
+
+validation:
+  method: output
+  expected_output: |
+    50
+    40
+    30
+    20
+    10
+
+hints:
+  - "`Vec::pop()` returns `Option<T>` -- `Some(value)` while elements remain, `None` when empty."
+  - "The pattern is: `while let Some(top) = stack.pop() { println!(\"{}\", top); }`"
+  - |
+    The complete loop:
+    while let Some(top) = stack.pop() {
+        println!("{}", top);
+    }
+
+solution: |
+  fn main() {
+      let mut stack = vec![10, 20, 30, 40, 50];
+
+      while let Some(top) = stack.pop() {
+          println!("{}", top);
+      }
+  }
+
+explanation: |
+  `Vec::pop()` removes the last element and returns it wrapped in `Some`. When
+  the vector is empty, it returns `None`.
+
+  `while let Some(top) = stack.pop()` works like this each iteration:
+
+  1. Call `stack.pop()`.
+  2. If the result matches `Some(top)`, bind the inner value and run the body.
+  3. If the result is `None`, exit the loop.
+
+  The output is reversed (50, 40, 30, 20, 10) because `pop()` always removes
+  from the end.
+
+  This is cleaner than the alternative:
+  ```rust
+  loop {
+      match stack.pop() {
+          Some(top) => println!("{}", top),
+          None => break,
+      }
+  }
+  ```
+
+  `while let` is the idiomatic way to drain or consume values that return
+  `Option` or `Result` in a loop.

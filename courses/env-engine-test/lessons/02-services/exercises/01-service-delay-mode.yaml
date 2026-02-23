@@ -1,0 +1,36 @@
+id: service-delay-mode
+title: "Service Delay Mode"
+type: write
+prompt: |
+  A background service (`sleep 60`) is running in delay mode, and a setup
+  command has created `marker.txt`. Read and print the marker file to
+  prove both setup and service phases completed before your code ran.
+starter: |
+  #!/bin/bash
+  # A setup command created marker.txt and a background service is running.
+  # Print the contents of marker.txt.
+environment:
+  setup:
+    - name: create-marker
+      command: sh
+      args: ["-c", "echo 'service is alive' > {dir}/marker.txt"]
+      timeout_seconds: 5
+  services:
+    - name: background-sleeper
+      command: sleep
+      args: ["60"]
+      ready_delay_ms: 100
+validation:
+  method: output
+  expected_output: "service is alive"
+hints:
+  - "Use cat to read the marker file"
+  - "cat marker.txt"
+solution: |
+  #!/bin/bash
+  cat marker.txt
+explanation: |
+  The service `sleep 60` starts in delay mode — it waits 100ms then
+  checks the process is still alive. The setup command creates marker.txt
+  before the service starts. After both complete, your code runs and
+  reads the marker file.

@@ -1,0 +1,50 @@
+id: default-params
+title: "Default Parameters"
+type: write
+
+prompt: |
+  Write a function called greet that takes a name parameter with a default
+  value of "World".
+
+  It should print: Hello, {name}!
+
+  Call it twice:
+  1. greet() — should use the default, printing "Hello, World!"
+  2. greet("Alice") — should print "Hello, Alice!"
+
+starter: |
+  // Define greet with a default parameter: function greet(name = "World")
+
+  // Call greet() with no argument, then greet("Alice")
+
+validation:
+  method: output
+  expected_output: "Hello, World!\nHello, Alice!"
+
+hints:
+  - "Default parameters use = in the parameter list: function greet(name = \"World\")"
+  - "When called with no argument, name defaults to \"World\". When called with \"Alice\", the default is overridden."
+  - "function greet(name = \"World\") { console.log(`Hello, ${name}!`); }"
+
+solution: |
+  function greet(name = "World") {
+    console.log(`Hello, ${name}!`);
+  }
+  greet();
+  greet("Alice");
+
+explanation: |
+  Default parameters provide a fallback value when an argument is not passed
+  (or is explicitly undefined).
+
+  - `greet()` — no argument passed, so name = "World" (the default).
+  - `greet("Alice")` — argument provided, so name = "Alice" (default ignored).
+
+  Default parameters are evaluated left to right, so later defaults can
+  reference earlier parameters:
+
+      function range(start, end, step = 1) { ... }
+
+  Before default parameters existed (pre-ES2015), developers used patterns
+  like `name = name || "World"` inside the function body. Default parameters
+  are cleaner and handle edge cases (like passing 0 or "") correctly.

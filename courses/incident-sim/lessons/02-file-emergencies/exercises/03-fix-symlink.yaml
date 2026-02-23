@@ -1,0 +1,51 @@
+id: fix-symlink
+title: "Fix the Broken Symlink"
+type: command
+prompt: |
+  ALERT: Application returning 404 for all static assets.
+
+  The web server serves files from a symlink called "current" that
+  should point to the latest release directory. But it's broken —
+  it points to v1.0 which was deleted after the v2.0 deploy.
+
+  The v2.0 directory exists and has the correct files. Fix the
+  symlink so "current" points to v2.0.
+starter: |
+  # Fix the symlink: current should point to v2.0
+environment:
+  dirs:
+    - v2.0
+  files:
+    - path: v2.0/index.html
+      content: |
+        <html><body><h1>App v2.0</h1></body></html>
+    - path: v2.0/style.css
+      content: |
+        body { font-family: sans-serif; }
+  symlinks:
+    - link: current
+      target: v1.0
+  setup:
+    - name: verify-broken
+      command: sh
+      args: ["-c", "cd {dir} && ls -la current || true"]
+validation:
+  method: state
+  assertions:
+    - symlink:
+        path: current
+        target: v2.0
+    - file_exists: v2.0/index.html
+hints:
+  - "`ls -la current` shows where the symlink currently points (v1.0, which doesn't exist)."
+  - "`ln -sf v2.0 current` forces the symlink to point to v2.0 instead."
+  - "The `-f` flag is needed because the symlink already exists — without it, ln will fail."
+solution: |
+  ln -sf v2.0 current
+explanation: |
+  Symlink-based deployments work by having a "current" link that always
+  points to the active release. To deploy v2.0, you create the v2.0
+  directory, then repoint the symlink. To roll back, you point it back
+  to the previous version. When the old version gets cleaned up but the
+  symlink still points to it, you get a broken link — the file appears
+  to exist (ls shows it) but accessing it fails because the target is gone.

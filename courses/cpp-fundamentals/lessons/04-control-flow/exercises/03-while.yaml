@@ -1,0 +1,55 @@
+id: while
+title: "Count to Five"
+type: write
+
+prompt: |
+  Use a `while` loop to print the numbers 1 through 5, each on its own line.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Use a while loop to print 1 through 5
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: |
+    1
+    2
+    3
+    4
+    5
+
+hints:
+  - "You need a counter variable initialized to 1 before the loop starts."
+  - "The while condition should check that the counter is less than or equal to 5."
+  - "Inside the loop body, print the counter with std::cout and then increment it with ++."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int i = 1;
+      while (i <= 5) {
+          std::cout << i << std::endl;
+          i++;
+      }
+
+      return 0;
+  }
+
+explanation: |
+  The solution follows the standard while-loop pattern:
+
+  1. **Initialize** a counter: `int i = 1;`
+  2. **Check** the condition: `while (i <= 5)` -- the loop runs as long as i is 5 or less.
+  3. **Body:** print the current value and increment the counter.
+
+  The loop executes 5 times: i takes the values 1, 2, 3, 4, 5. When i becomes 6,
+  the condition `i <= 5` is false and the loop ends.
+
+  Forgetting `i++` would make this an infinite loop because i would stay at 1
+  forever.

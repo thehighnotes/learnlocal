@@ -1,0 +1,97 @@
+id: full-attention
+title: "Full Scaled Dot-Product Attention"
+type: write
+
+prompt: |
+  Implement complete scaled dot-product attention in one function:
+
+      Attention(Q, K, V) = softmax(Q · K^T / sqrt(d)) · V
+
+  Given multiple queries, each query independently attends to all keys and
+  produces one output vector.
+
+  Test with:
+  - queries = [[1, 1], [0, 1]]
+  - keys = [[0, 1], [1, 1], [0.5, 0]]
+  - values = [[1, 0], [0, 1], [1, 1]]
+
+  Print the list of output vectors, each element rounded to 2 decimals.
+
+starter: |
+  import math
+
+  def softmax(xs):
+      exps = [math.exp(x) for x in xs]
+      total = sum(exps)
+      return [e / total for e in exps]
+
+  def attention(queries, keys, values):
+      d = len(queries[0])
+      scale = math.sqrt(d)
+      results = []
+      # For each query:
+      # 1. Compute scores (dot product with each key, scaled)
+      # 2. Apply softmax to get weights
+      # 3. Compute weighted sum of values
+      # 4. Append to results
+      return results
+
+  queries = [[1, 1], [0, 1]]
+  keys = [[0, 1], [1, 1], [0.5, 0]]
+  values = [[1, 0], [0, 1], [1, 1]]
+
+  result = attention(queries, keys, values)
+  print(result)
+
+validation:
+  method: output
+  expected_output: "[[0.46, 0.73], [0.6, 0.6]]"
+
+hints:
+  - "For each query: compute scores with each key (dot product / scale), apply softmax, then compute weighted sum of values. This combines exercises 02-04."
+  - |
+    Inside the loop:
+    scores = [sum(q[i]*k[i] for i in range(d))/scale for k in keys]
+    weights = softmax(scores)
+    out = [0]*len(values[0])
+    for i in range(len(values)):
+        for j in range(len(values[0])):
+            out[j] += weights[i]*values[i][j]
+    results.append([round(x, 2) for x in out])
+
+solution: |
+  import math
+
+  def softmax(xs):
+      exps = [math.exp(x) for x in xs]
+      total = sum(exps)
+      return [e / total for e in exps]
+
+  def attention(queries, keys, values):
+      d = len(queries[0])
+      scale = math.sqrt(d)
+      results = []
+      for q in queries:
+          scores = [sum(q[i] * k[i] for i in range(d)) / scale for k in keys]
+          weights = softmax(scores)
+          out = [0] * len(values[0])
+          for i in range(len(values)):
+              for j in range(len(values[0])):
+                  out[j] += weights[i] * values[i][j]
+          results.append([round(x, 2) for x in out])
+      return results
+
+  queries = [[1, 1], [0, 1]]
+  keys = [[0, 1], [1, 1], [0.5, 0]]
+  values = [[1, 0], [0, 1], [1, 1]]
+
+  result = attention(queries, keys, values)
+  print(result)
+
+explanation: |
+  Query [1,1] attends most to key [1,1] (highest dot product) → output [0.46, 0.73].
+  Query [0,1] attends most to key [0,1] and [1,1] (both have y=1) → output [0.6, 0.6].
+
+  Each query independently selects what to focus on. This is the complete
+  attention formula used in transformers: softmax(QK^T/√d)V. You just
+  implemented the core mechanism behind GPT and every modern language model.

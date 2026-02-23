@@ -1,0 +1,40 @@
+id: sort-list
+title: "Sorting Lists"
+type: write
+
+prompt: |
+  Given `words = ["banana", "apple", "cherry", "date"]`:
+  1. Print the list sorted alphabetically
+  2. Print the list sorted by word length (shortest first)
+
+  Use `sorted()` for both. For sorting by length, use the `key=len` parameter.
+
+starter: |
+  words = ["banana", "apple", "cherry", "date"]
+
+  # Print sorted alphabetically
+
+  # Print sorted by length
+
+validation:
+  method: output
+  expected_output: "['apple', 'banana', 'cherry', 'date']\n['date', 'apple', 'banana', 'cherry']"
+
+hints:
+  - "`sorted(words)` returns a new list in alphabetical order. `sorted(words, key=len)` sorts by the length of each string."
+  - "Print both: `print(sorted(words))` then `print(sorted(words, key=len))`. The `key` parameter specifies a function applied to each element for comparison."
+
+solution: |
+  words = ["banana", "apple", "cherry", "date"]
+
+  print(sorted(words))
+  print(sorted(words, key=len))
+
+explanation: |
+  `sorted(words)` sorts strings alphabetically (by Unicode code point), giving
+  `['apple', 'banana', 'cherry', 'date']`. `sorted(words, key=len)` calls
+  `len()` on each string and sorts by the result: "date" (4), "apple" (5),
+  "banana" (6), "cherry" (6). When two elements have equal keys (banana and
+  cherry both have length 6), `sorted()` preserves their original order — this
+  is called a **stable sort**. `sorted()` always returns a new list, leaving
+  the original `words` unchanged.

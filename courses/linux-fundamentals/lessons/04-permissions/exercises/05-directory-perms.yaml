@@ -1,0 +1,34 @@
+id: directory-perms
+title: "Directory Permissions"
+type: command
+prompt: |
+  A directory called testdir already exists in your workspace.
+  Test its permissions using test -r, -w, and -x, printing:
+    readable: yes
+    writable: yes
+    executable: yes
+
+  Chain all three test commands on one line with semicolons so the
+  output appears together:
+    test -r testdir && echo "readable: yes"; test -w ...
+starter: |
+  # testdir already exists — test its permissions
+environment:
+  dirs:
+    - testdir
+validation:
+  method: output
+  expected_output: |
+    readable: yes
+    writable: yes
+    executable: yes
+hints:
+  - "test -r testdir && echo 'readable: yes'"
+  - "Chain with semicolons: test -r ... && echo ...; test -w ... && echo ...; test -x ... && echo ..."
+  - "New directories have rwx by default, so all three tests pass"
+solution: |
+  test -r testdir && echo "readable: yes"; test -w testdir && echo "writable: yes"; test -x testdir && echo "executable: yes"
+explanation: |
+  For directories: read lets you list contents, write lets you
+  create/delete files inside, execute lets you cd into it and access
+  files within.

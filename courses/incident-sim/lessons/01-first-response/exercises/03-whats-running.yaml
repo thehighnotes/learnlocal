@@ -1,0 +1,47 @@
+id: whats-running
+title: "What's Running?"
+type: command
+prompt: |
+  INCIDENT: The application team says "nginx isn't responding."
+
+  A snapshot of `ps aux` output has been saved to processes.txt. Check
+  if nginx is actually running. If it is, write its PID to answer.txt.
+
+  Is it up or is it down? Find out.
+starter: |
+  # Search processes.txt for nginx and write its PID to answer.txt
+environment:
+  files:
+    - path: processes.txt
+      content: |
+        USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+        root         1  0.0  0.1 169356 13280 ?        Ss   Mar14   0:03 /sbin/init
+        root       412  0.0  0.0  27408  5120 ?        Ss   Mar14   0:00 /usr/sbin/cron
+        mysql      523  1.2  8.4 1842056 684032 ?      Sl   Mar14   5:42 /usr/sbin/mysqld
+        root       587  0.0  0.0  72300  5632 ?        Ss   Mar14   0:00 /usr/sbin/sshd
+        www-data   891  0.3  0.2 141648 18432 ?        S    Mar14   1:12 nginx: worker process
+        www-data   892  0.2  0.2 141648 17920 ?        S    Mar14   1:08 nginx: worker process
+        root       890  0.0  0.1 140620 12288 ?        Ss   Mar14   0:00 nginx: master process /usr/sbin/nginx
+        app       1024  2.1  3.5 892456 286720 ?       Sl   Mar14   8:33 /usr/local/bin/app-server --port 8080
+        redis      634  0.4  1.2 256712 98304 ?        Ssl  Mar14   2:15 /usr/bin/redis-server 127.0.0.1:6379
+        root      1182  0.0  0.0  14768  3328 pts/0    Ss   03:45   0:00 -bash
+        root      1201  0.0  0.0  17648  2560 pts/0    R+   03:47   0:00 ps aux
+validation:
+  method: state
+  assertions:
+    - file_exists: answer.txt
+    - file_contains:
+        path: answer.txt
+        content: "890"
+hints:
+  - "`grep nginx processes.txt` will show all nginx-related processes."
+  - "The master process is the main one — its PID is in the second column."
+  - "Look for 'nginx: master process' — that line has the PID you want."
+solution: |
+  grep "nginx: master" processes.txt | awk '{print $2}' > answer.txt
+explanation: |
+  `ps aux` lists every running process. When checking if a service is up,
+  look for the master process — worker processes are children that will die
+  if the master goes down. The PID (Process ID) is in the second column.
+  In this case, nginx IS running (PID 890), so the problem is elsewhere —
+  maybe a config issue, a firewall, or a full connection queue.

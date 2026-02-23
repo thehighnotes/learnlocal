@@ -1,0 +1,40 @@
+id: find-max
+title: "Find Maximum"
+type: write
+
+prompt: |
+  Given the array [23, 56, 78, 12, 45], find and print the maximum value
+  using Math.max() with the spread operator.
+
+  Expected output: 78
+
+starter: |
+  const numbers = [23, 56, 78, 12, 45];
+  // Use Math.max() with spread to find the maximum
+
+validation:
+  method: output
+  expected_output: "78"
+
+hints:
+  - "Math.max() takes individual arguments, not an array: Math.max(1, 2, 3) → 3"
+  - "The spread operator (...) expands an array into individual arguments."
+  - "console.log(Math.max(...numbers));"
+
+solution: |
+  const numbers = [23, 56, 78, 12, 45];
+  console.log(Math.max(...numbers));
+
+explanation: |
+  `Math.max()` finds the largest of its arguments, but it does not accept
+  arrays directly. `Math.max([23, 56, 78, 12, 45])` would return NaN.
+
+  The spread operator `...` solves this by expanding the array into
+  individual arguments:
+
+  `Math.max(...numbers)` becomes `Math.max(23, 56, 78, 12, 45)` → 78
+
+  Similarly, `Math.min(...numbers)` would give 12.
+
+  Before the spread operator existed (pre-ES2015), this was done with:
+  `Math.max.apply(null, numbers)` — much less readable.

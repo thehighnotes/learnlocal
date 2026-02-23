@@ -1,0 +1,17 @@
+id: log-analysis
+title: "Log Analysis"
+description: "Megabytes of logs. One needle. Learn to grep, filter, and extract the signal from the noise."
+estimated_minutes: 25
+content: content.md
+teaches: [grep, awk, sort, uniq, log-patterns, timeline-analysis]
+exercises:
+  - grep-for-errors
+  - count-by-status
+  - find-time-window
+  - extract-ips
+  - correlate-logs
+  - anomaly-detection
+  - incident-timeline
+recap: |
+  Logs tell the story of every incident. grep, awk, sort, and uniq are your
+  weapons. You can now filter gigabytes of logs down to the few lines that matter.

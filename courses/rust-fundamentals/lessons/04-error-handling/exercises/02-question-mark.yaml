@@ -1,0 +1,83 @@
+id: question-mark
+title: "The ? Operator"
+type: fill-blank
+
+prompt: |
+  The function `add_strings` takes two string slices, parses them as integers,
+  and returns their sum. The code uses `map_err` to convert parse errors to
+  String, but is missing the `?` operators that propagate errors.
+
+  Fill in the two blanks (`___`) with the correct operator to make the error
+  propagation work.
+
+  The `main` function tests three cases:
+  - Both valid: "10" + "20" = Ok(30)
+  - First invalid: "abc" + "5" = Err
+  - Second invalid: "5" + "xyz" = Err
+
+starter: |
+  fn add_strings(a: &str, b: &str) -> Result<i32, String> {
+      let x = a.parse::<i32>().map_err(|e| e.to_string())___;
+      let y = b.parse::<i32>().map_err(|e| e.to_string())___;
+      Ok(x + y)
+  }
+
+  fn main() {
+      match add_strings("10", "20") {
+          Ok(v) => println!("sum = {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+      match add_strings("abc", "5") {
+          Ok(v) => println!("sum = {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+      match add_strings("5", "xyz") {
+          Ok(v) => println!("sum = {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+  }
+
+validation:
+  method: output
+  expected_output: "sum = 30\nerror: invalid digit found in string\nerror: invalid digit found in string"
+
+hints:
+  - "The `?` operator goes after an expression that returns Result. It extracts Ok or returns Err early."
+  - "Each blank should be replaced with a single character: `?`"
+  - "After filling in: `let x = a.parse::<i32>().map_err(|e| e.to_string())?;` — the ? extracts the i32 on success or returns the String error."
+
+solution: |
+  fn add_strings(a: &str, b: &str) -> Result<i32, String> {
+      let x = a.parse::<i32>().map_err(|e| e.to_string())?;
+      let y = b.parse::<i32>().map_err(|e| e.to_string())?;
+      Ok(x + y)
+  }
+
+  fn main() {
+      match add_strings("10", "20") {
+          Ok(v) => println!("sum = {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+      match add_strings("abc", "5") {
+          Ok(v) => println!("sum = {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+      match add_strings("5", "xyz") {
+          Ok(v) => println!("sum = {}", v),
+          Err(e) => println!("error: {}", e),
+      }
+  }
+
+explanation: |
+  The `?` operator is Rust's main tool for error propagation. Placed after a
+  `Result`, it does one of two things:
+
+  - If the Result is `Ok(v)`, it unwraps it and the expression evaluates to `v`.
+  - If the Result is `Err(e)`, it immediately returns `Err(e)` from the function.
+
+  Here, `a.parse::<i32>()` returns `Result<i32, ParseIntError>`. The
+  `.map_err(|e| e.to_string())` converts the error to `String` to match the
+  function's return type. Then `?` either extracts the `i32` or returns early.
+
+  Without `?`, you would need nested `match` statements for each fallible call.
+  The `?` operator keeps the code linear and readable.

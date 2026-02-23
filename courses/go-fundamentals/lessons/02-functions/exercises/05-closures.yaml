@@ -1,0 +1,82 @@
+id: closures
+title: "Closure Counter"
+type: write
+
+prompt: |
+  Write a function:
+
+    func makeCounter() func() int
+
+  It should return a closure that increments an internal counter each time
+  it is called and returns the new count.
+
+  In main, create a counter and call it 3 times, printing each result.
+
+  Expected output:
+  1
+  2
+  3
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write func makeCounter() func() int
+  // It should return a function that increments and returns a count
+
+  func main() {
+      counter := makeCounter()
+      fmt.Println(counter())
+      fmt.Println(counter())
+      fmt.Println(counter())
+  }
+
+validation:
+  method: output
+  expected_output: "1\n2\n3"
+
+hints:
+  - "Declare a variable count := 0 inside makeCounter. Return a function that increments count and returns it."
+  - "The returned function captures count by reference — each call modifies the same variable."
+  - "func makeCounter() func() int { count := 0; return func() int { count++; return count } }"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func makeCounter() func() int {
+      count := 0
+      return func() int {
+          count++
+          return count
+      }
+  }
+
+  func main() {
+      counter := makeCounter()
+      fmt.Println(counter())
+      fmt.Println(counter())
+      fmt.Println(counter())
+  }
+
+explanation: |
+  A closure is a function that "closes over" variables from its enclosing
+  scope. Here, the anonymous function returned by `makeCounter` captures
+  the `count` variable.
+
+  Each time you call `makeCounter()`, it creates a fresh `count` variable
+  set to 0. The returned function holds a reference to that specific `count`,
+  so the variable persists between calls even though `makeCounter` has
+  already returned.
+
+  This is how closures provide encapsulation in Go:
+  - `count` is not accessible from outside — there is no way to read or
+    modify it except through the returned function.
+  - Each call to `makeCounter()` creates an independent counter with its
+    own `count`.
+
+  Closures are used throughout Go for HTTP middleware, test fixtures,
+  goroutine state isolation, and anywhere you need a function that
+  "remembers" something.

@@ -1,0 +1,51 @@
+id: softmax
+title: "Softmax"
+type: write
+
+prompt: |
+  Implement the softmax function. It converts a list of numbers into
+  probabilities that sum to 1:
+
+      softmax(x_i) = e^(x_i) / sum(e^(x_j) for all j)
+
+  Use `math.exp()` for the exponential. Test with `[1, 2, 3]` and print the
+  result rounded to 2 decimal places.
+
+starter: |
+  import math
+
+  def softmax(xs):
+      # Compute e^x for each element
+      # Divide each by the sum of all e^x values
+      pass
+
+  result = softmax([1, 2, 3])
+  print([round(x, 2) for x in result])
+
+validation:
+  method: output
+  expected_output: "[0.09, 0.24, 0.67]"
+
+hints:
+  - "First compute `exps = [math.exp(x) for x in xs]`. Then compute `total = sum(exps)`. Finally return `[e / total for e in exps]`."
+  - "The function body is: `exps = [math.exp(x) for x in xs]; total = sum(exps); return [e / total for e in exps]`"
+
+solution: |
+  import math
+
+  def softmax(xs):
+      exps = [math.exp(x) for x in xs]
+      total = sum(exps)
+      return [e / total for e in exps]
+
+  result = softmax([1, 2, 3])
+  print([round(x, 2) for x in result])
+
+explanation: |
+  e^1 ≈ 2.72, e^2 ≈ 7.39, e^3 ≈ 20.09. Sum ≈ 30.19.
+  Probabilities: 2.72/30.19 ≈ 0.09, 7.39/30.19 ≈ 0.24, 20.09/30.19 ≈ 0.67.
+
+  Notice that 3 (the largest input) gets 67% of the probability. Softmax
+  amplifies differences exponentially. This property is essential for
+  attention: it lets the model sharply focus on the most relevant items while
+  still giving some weight to others.

@@ -1,0 +1,46 @@
+id: step-function
+title: "Step Function"
+type: write
+
+prompt: |
+  Implement the step activation function. It returns 1 if the input is greater
+  than or equal to 0, and 0 otherwise.
+
+  Test it with three inputs and print the results, one per line:
+  - step(5) → 1
+  - step(-3) → 0
+  - step(0) → 1
+
+starter: |
+  # Implement the step activation function
+  def step(x):
+      pass
+
+  print(step(5))
+  print(step(-3))
+  print(step(0))
+
+validation:
+  method: output
+  expected_output: "1\n0\n1"
+
+hints:
+  - "Use an if/else or a conditional expression. Return 1 when x >= 0, return 0 otherwise."
+  - "The function body is just: `return 1 if x >= 0 else 0`"
+
+solution: |
+  def step(x):
+      return 1 if x >= 0 else 0
+
+  print(step(5))
+  print(step(-3))
+  print(step(0))
+
+explanation: |
+  The step function is a binary decision: any non-negative input produces 1
+  (activate), and any negative input produces 0 (don't activate).
+
+  This was the activation function in the original perceptron (Rosenblatt,
+  1958). It is simple but has a major drawback: it is not differentiable at
+  x=0, which makes it hard to train with gradient-based methods. That is why
+  modern networks use sigmoid or ReLU instead.

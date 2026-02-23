@@ -1,0 +1,49 @@
+id: arithmetic
+title: "Integer Arithmetic"
+type: write
+
+prompt: |
+  Calculate and print the result of `(17 % 5) + (10 / 3)`.
+
+  Remember:
+  - `%` gives the remainder after division
+  - `/` between two integers performs integer division (truncates the decimal)
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Calculate (17 % 5) + (10 / 3) and print the result
+      // Your code here
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "5"
+
+hints:
+  - "17 % 5 gives the remainder when 17 is divided by 5. What is 17 divided by 5? The remainder is what's left over."
+  - "10 / 3 with integers gives 3, not 3.333. Integer division truncates the decimal part."
+  - "You can compute it in one expression: std::cout << (17 % 5) + (10 / 3) << std::endl;"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int result = (17 % 5) + (10 / 3);
+      std::cout << result << std::endl;
+      return 0;
+  }
+
+explanation: |
+  Step by step:
+  1. `17 % 5` = 2 (17 = 5*3 + 2, so the remainder is 2)
+  2. `10 / 3` = 3 (integer division truncates 3.333 to 3)
+  3. `2 + 3` = 5
+
+  Integer division is a common source of bugs. When you divide two `int`
+  values, the result is always an `int` with the fractional part discarded.
+  If you need the decimal result, at least one operand must be a floating-point
+  type (e.g., `10.0 / 3` gives `3.333`).

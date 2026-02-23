@@ -1,0 +1,83 @@
+id: function-types
+title: "Functions as Arguments"
+type: write
+
+prompt: |
+  Write three functions:
+
+  1. func apply(f func(int, int) int, a, b int) int — calls f with a and b
+     and returns the result.
+  2. func add(a, b int) int — returns a + b.
+  3. func multiply(a, b int) int — returns a * b.
+
+  In main, use apply to call each function and print the results with labels:
+
+  Expected output:
+  add: 7
+  multiply: 12
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write func apply(f func(int, int) int, a, b int) int
+
+  // Write func add(a, b int) int
+
+  // Write func multiply(a, b int) int
+
+  func main() {
+      fmt.Println("add:", apply(add, 3, 4))
+      fmt.Println("multiply:", apply(multiply, 3, 4))
+  }
+
+validation:
+  method: output
+  expected_output: "add: 7\nmultiply: 12"
+
+hints:
+  - "apply just calls f(a, b) and returns the result. It does not need to know what f does."
+  - "add returns a + b. multiply returns a * b. Pass them by name (without parentheses) to apply."
+  - "func apply(f func(int, int) int, a, b int) int { return f(a, b) }"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func apply(f func(int, int) int, a, b int) int {
+      return f(a, b)
+  }
+
+  func add(a, b int) int {
+      return a + b
+  }
+
+  func multiply(a, b int) int {
+      return a * b
+  }
+
+  func main() {
+      fmt.Println("add:", apply(add, 3, 4))
+      fmt.Println("multiply:", apply(multiply, 3, 4))
+  }
+
+explanation: |
+  Functions in Go are first-class values. This means you can:
+  - Assign them to variables: `f := add`
+  - Pass them as arguments: `apply(add, 3, 4)`
+  - Return them from functions: `func makeAdder() func(int,int) int`
+
+  The type `func(int, int) int` describes any function that takes two ints
+  and returns an int. Both `add` and `multiply` match this type, so either
+  can be passed to `apply`.
+
+  When passing a function as an argument, use the name without parentheses:
+  - `apply(add, 3, 4)` passes the function itself.
+  - `apply(add(3, 4), ...)` would pass the *result* of calling add (an int),
+    which would not match the expected `func(int, int) int` parameter.
+
+  This pattern is the foundation of higher-order programming in Go. The
+  standard library uses it for sorting (`sort.Slice`), HTTP routing
+  (`http.HandleFunc`), and many other APIs.

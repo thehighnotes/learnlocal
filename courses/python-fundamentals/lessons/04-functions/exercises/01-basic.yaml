@@ -1,0 +1,34 @@
+id: basic
+title: "Write a Simple Function"
+type: write
+
+prompt: |
+  Write a function called `greet()` that prints "Hello, World!" to the console.
+  Then call it.
+
+starter: |
+  # Define greet() here
+
+
+  # Call greet() here
+
+validation:
+  method: output
+  expected_output: "Hello, World!"
+
+hints:
+  - "Use `def greet():` to define the function, then indent the body with `print(\"Hello, World!\")`."
+  - "After defining the function, call it by writing `greet()` on its own line (no indentation)."
+
+solution: |
+  def greet():
+      print("Hello, World!")
+
+  greet()
+
+explanation: |
+  `def greet():` defines a function named `greet` that takes no parameters.
+  The indented `print("Hello, World!")` is the function body — the code that
+  runs when the function is called. Writing `greet()` below the definition
+  calls the function, which executes the print statement. In Python, a function
+  must be defined before the line that calls it.

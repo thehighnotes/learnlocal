@@ -1,0 +1,51 @@
+id: priority-fix
+title: "Triage the Alert Queue"
+type: command
+golf: true
+prompt: |
+  SITUATION: You just woke up to 5 simultaneous alerts. They're all in
+  `alert_queue.txt`. You can't fix everything at once — you need to triage.
+
+  Create `triage.txt` listing the alerts **in order from most critical to
+  least critical**. Copy each alert line exactly as it appears, one per line.
+
+  Triage rules:
+  - Data loss / corruption → highest priority
+  - Customer-facing outage → second
+  - Performance degradation → third
+  - Internal tooling → fourth
+  - Cosmetic / monitoring noise → lowest
+starter: |
+  # Read alert_queue.txt
+  # Create triage.txt with alerts ordered by severity
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > alert_queue.txt << 'ALERTEOF'\n[WARN] Grafana dashboard not loading for ops team\n[CRIT] Database replication lag: 45 seconds, risk of data loss\n[CRIT] Payment API returning 503 to customers\n[WARN] Background job queue depth at 10,000 (normally 500)\n[INFO] SSL certificate expires in 28 days\nALERTEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: triage.txt
+    - file_matches:
+        path: triage.txt
+        pattern: "(?s)Database replication.*Payment API.*job queue"
+hints:
+  - "Data loss risk (database replication) is highest priority, then customer-facing (payment API)."
+  - "Order: DB replication → Payment API → Job queue → Grafana → SSL certificate."
+solution: |
+  cat > triage.txt << 'EOF'
+  [CRIT] Database replication lag: 45 seconds, risk of data loss
+  [CRIT] Payment API returning 503 to customers
+  [WARN] Background job queue depth at 10,000 (normally 500)
+  [WARN] Grafana dashboard not loading for ops team
+  [INFO] SSL certificate expires in 28 days
+  EOF
+explanation: |
+  Triage order: (1) Database replication lag risks data loss — if the replica
+  falls too far behind, you lose data during failover. (2) Payment API 503s
+  directly impact customers and revenue. (3) Job queue backup causes degraded
+  performance but isn't immediate data loss. (4) Grafana is internal tooling —
+  annoying but not customer-facing. (5) SSL cert has 28 days — not urgent.
+  Severity labels (CRIT/WARN/INFO) help but aren't the whole story — a WARN
+  about data loss would still rank above a CRIT about slow dashboards.

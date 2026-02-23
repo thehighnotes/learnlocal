@@ -1,0 +1,49 @@
+id: euclidean-distance
+title: "Euclidean Distance"
+type: write
+
+prompt: |
+  Implement Euclidean distance between two points. The formula is:
+
+      distance = sqrt( sum( (a[i] - b[i])^2 for each i ) )
+
+  Given `a = [0, 0]` and `b = [3, 4]`, the distance is 5.0 (a 3-4-5 triangle).
+
+  Print the distance.
+
+starter: |
+  import math
+
+  a = [0, 0]
+  b = [3, 4]
+
+  # Compute Euclidean distance between a and b
+
+
+  print(dist)
+
+validation:
+  method: output
+  expected_output: "5.0"
+
+hints:
+  - "Subtract corresponding elements, square each difference, sum them, then take the square root."
+  - "Try: `dist = math.sqrt(sum((a[i] - b[i])**2 for i in range(len(a))))`"
+
+solution: |
+  import math
+
+  a = [0, 0]
+  b = [3, 4]
+
+  dist = math.sqrt(sum((a[i] - b[i])**2 for i in range(len(a))))
+
+  print(dist)
+
+explanation: |
+  Differences: 0-3=-3, 0-4=-4. Squared: 9, 16. Sum: 25. Square root: 5.0.
+
+  This is the Pythagorean theorem applied to find the straight-line distance
+  between two points. It works in any number of dimensions — just add more
+  terms. Euclidean distance is used in clustering algorithms (k-means) and
+  nearest-neighbor search.

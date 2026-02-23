@@ -1,0 +1,81 @@
+id: switch
+title: "Day of the Week"
+type: write
+
+prompt: |
+  Write a function `dayName` that takes an int (1-7) and returns the
+  day name: 1 is "Monday", 2 is "Tuesday", ..., 7 is "Sunday".
+  For any other number, return "Unknown".
+
+  Use a switch statement (not an if/else chain). Call it for days 1, 4,
+  and 7, printing each result on its own line.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write a dayName function using a switch statement
+
+  func main() {
+      fmt.Println(dayName(1))
+      fmt.Println(dayName(4))
+      fmt.Println(dayName(7))
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Monday
+    Thursday
+    Sunday
+
+hints:
+  - "Define: func dayName(day int) string { switch day { ... } }"
+  - "Each case returns a string: case 1: return \"Monday\". No break needed — Go switches don't fall through by default."
+  - "Use `default: return \"Unknown\"` for the catch-all case."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func dayName(day int) string {
+      switch day {
+      case 1:
+          return "Monday"
+      case 2:
+          return "Tuesday"
+      case 3:
+          return "Wednesday"
+      case 4:
+          return "Thursday"
+      case 5:
+          return "Friday"
+      case 6:
+          return "Saturday"
+      case 7:
+          return "Sunday"
+      default:
+          return "Unknown"
+      }
+  }
+
+  func main() {
+      fmt.Println(dayName(1))
+      fmt.Println(dayName(4))
+      fmt.Println(dayName(7))
+  }
+
+explanation: |
+  Go's switch does not fall through by default, so each case stands alone
+  without a `break` statement. This is the opposite of C, C++, and Java
+  where forgetting `break` causes bugs.
+
+  The `default` case handles any value not matched by a specific case —
+  here it catches numbers outside the 1-7 range.
+
+  Because each case returns a value, the function exits as soon as a
+  match is found. If you used `fmt.Println` inside each case instead
+  of returning, you would not need the return, but the function-based
+  approach is cleaner and more reusable.

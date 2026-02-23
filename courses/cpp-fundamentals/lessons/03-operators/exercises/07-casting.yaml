@@ -1,0 +1,61 @@
+id: casting
+title: "Fix the Division"
+type: fix
+
+prompt: |
+  This code divides two integers but should show the decimal result (3.5).
+  Currently it prints 3 because integer division truncates the fractional part.
+
+  Fix it using `static_cast` so the division produces a `double` result.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      int a = 7;
+      int b = 2;
+      double result = a / b;
+      std::cout << result << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "3.5"
+
+hints:
+  - "Even though `result` is a `double`, the expression `a / b` is evaluated first as integer division (both operands are `int`). The truncated integer 3 is then stored into `result` as 3.0."
+  - "To get floating-point division, at least one operand must be a floating-point type. Use `static_cast<double>(a)` to convert `a` to a double before dividing."
+  - "The fixed line is: `double result = static_cast<double>(a) / b;` — casting `a` to double causes `b` to be promoted automatically."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int a = 7;
+      int b = 2;
+      double result = static_cast<double>(a) / b;
+      std::cout << result << std::endl;
+      return 0;
+  }
+
+explanation: |
+  The bug is a classic integer division trap. In the original code:
+
+    double result = a / b;
+
+  Both `a` and `b` are `int`, so `a / b` performs integer division: 7 / 2 = 3.
+  That integer 3 is then implicitly converted to 3.0 when stored in the
+  `double` variable. The damage is already done — the decimal part was lost
+  during the division, not during the assignment.
+
+  The fix:
+
+    double result = static_cast<double>(a) / b;
+
+  `static_cast<double>(a)` converts `a` to 7.0. Now the compiler sees a
+  `double` divided by an `int`, so it automatically promotes `b` to a `double`
+  as well. The division becomes 7.0 / 2.0 = 3.5.
+
+  You only need to cast one operand. Once one side is `double`, the other is
+  promoted to match. Casting both works too but is unnecessary.

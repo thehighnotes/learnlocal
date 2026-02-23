@@ -1,0 +1,81 @@
+id: attention-pattern
+title: "Self-Attention Pattern"
+type: write
+
+prompt: |
+  Compute self-attention for a 3-word sentence. In self-attention, the tokens
+  serve as queries, keys, AND values simultaneously. Each token "looks at"
+  every token (including itself).
+
+  Given token vectors:
+  - "the" = [1, 0, 1, 0]
+  - "cat" = [0, 1, 0, 1]
+  - "sat" = [0.5, 0.5, 0.5, 0.5]
+
+  Compute the attention weight matrix (which tokens attend to which) and print
+  it as a formatted table with token names, weights rounded to 2 decimals.
+
+starter: |
+  import math
+
+  def softmax(xs):
+      exps = [math.exp(x) for x in xs]
+      total = sum(exps)
+      return [e / total for e in exps]
+
+  names = ["the", "cat", "sat"]
+  tokens = [[1, 0, 1, 0], [0, 1, 0, 1], [0.5, 0.5, 0.5, 0.5]]
+  d = len(tokens[0])
+  scale = math.sqrt(d)
+
+  # Compute and print the attention weight matrix
+  # Row i shows how much token i attends to each other token
+
+  print("     " + "  ".join(names))
+  # For each token as query, compute attention weights over all tokens as keys
+
+validation:
+  method: output
+  expected_output: "     the  cat  sat\nthe  0.51 0.19 0.31\ncat  0.19 0.51 0.31\nsat  0.33 0.33 0.33"
+
+hints:
+  - "For each token (as query), compute the dot product with every token (as key), scale by sqrt(d), apply softmax, and print the row."
+  - |
+    For each i:
+    scores = [sum(tokens[i][k]*tokens[j][k] for k in range(d))/scale for j in range(3)]
+    weights = softmax(scores)
+    row = " ".join(f"{w:.2f}" for w in weights)
+    print(f"{names[i]}  {row}")
+
+solution: |
+  import math
+
+  def softmax(xs):
+      exps = [math.exp(x) for x in xs]
+      total = sum(exps)
+      return [e / total for e in exps]
+
+  names = ["the", "cat", "sat"]
+  tokens = [[1, 0, 1, 0], [0, 1, 0, 1], [0.5, 0.5, 0.5, 0.5]]
+  d = len(tokens[0])
+  scale = math.sqrt(d)
+
+  print("     " + "  ".join(names))
+  for i in range(len(tokens)):
+      scores = [sum(tokens[i][k] * tokens[j][k] for k in range(d)) / scale for j in range(len(tokens))]
+      weights = softmax(scores)
+      row = " ".join(f"{w:.2f}" for w in weights)
+      print(f"{names[i]}  {row}")
+
+explanation: |
+  The attention matrix reveals relationships:
+
+  - "the" attends most to itself (0.51) because it has the highest dot product
+    with itself. It attends least to "cat" (0.19) because their vectors are
+    orthogonal (zero overlap).
+  - "cat" shows the same pattern in reverse: most attention on itself.
+  - "sat" attends equally to all three (0.33 each) because its vector
+    [0.5, 0.5, 0.5, 0.5] has equal dot product with everything.
+
+  In a trained transformer, these attention patterns would capture linguistic
+  relationships: determiners attending to nouns, verbs attending to subjects.

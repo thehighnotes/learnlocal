@@ -1,0 +1,19 @@
+id: print-working-dir
+title: "Print Working Directory"
+type: command
+prompt: |
+  Print the current working directory using `pwd`.
+starter: |
+  # Print the current working directory
+validation:
+  method: regex
+  pattern: "^/"
+hints:
+  - "The command is simply: pwd"
+  - "pwd prints an absolute path starting with /"
+solution: |
+  # Print the current working directory
+  pwd
+explanation: |
+  pwd (print working directory) outputs the full absolute path of your
+  current location in the filesystem. It always starts with /.

@@ -1,0 +1,70 @@
+id: swap-pointers
+title: "Swap Values Using Pointers"
+type: write
+
+prompt: |
+  Write a function `void swap(int* a, int* b)` that swaps the values
+  of two integers using pointers (not references).
+
+  In `main`, create two variables `x = 10` and `y = 20`, call your
+  `swap` function with their addresses, then print them separated by
+  a space on one line.
+
+starter: |
+  #include <iostream>
+
+  // Write a void swap(int* a, int* b) function here
+  // Hint: you'll need a temporary variable
+
+  int main() {
+      int x = 10;
+      int y = 20;
+
+      // Call swap with the addresses of x and y
+
+      std::cout << x << " " << y << std::endl;
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "20 10"
+
+hints:
+  - "Use * to dereference the pointers inside swap: *a gives you the value that a points to."
+  - "You need a temporary variable to hold one value during the swap: int temp = *a;"
+  - "Call swap with addresses: swap(&x, &y);"
+
+solution: |
+  #include <iostream>
+
+  void swap(int* a, int* b) {
+      int temp = *a;
+      *a = *b;
+      *b = temp;
+  }
+
+  int main() {
+      int x = 10;
+      int y = 20;
+
+      swap(&x, &y);
+
+      std::cout << x << " " << y << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  The `swap` function receives two pointers -- the addresses of `x` and
+  `y`. Inside the function, `*a` accesses the value at that address. By
+  storing `*a` in a temporary variable, copying `*b` into `*a`, then
+  copying `temp` into `*b`, the two values are exchanged.
+
+  This is the classic pointer-based swap. With references, the signature
+  would be `void swap(int& a, int& b)` and you'd skip the `*` and `&`
+  at the call site. Both work -- pointers make the indirection explicit,
+  references make it invisible. The pointer version is what you'd see
+  in C code; modern C++ generally prefers the reference version (or
+  `std::swap` from the standard library).

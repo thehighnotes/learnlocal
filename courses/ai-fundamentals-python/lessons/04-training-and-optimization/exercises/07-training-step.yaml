@@ -1,0 +1,107 @@
+id: training-step
+title: "Design a Training Step"
+type: write
+
+prompt: |
+  Implement one complete training step for a single neuron, printing each
+  stage: forward pass, loss computation, gradient computation, and weight
+  update.
+
+  Neuron: `output = sigmoid(w * x + b)`
+  Loss: `(output - target)²`
+
+  Given: x=1.0, target=1.0, w=0.5, b=0.0, lr=0.1
+
+  The gradient uses the chain rule:
+  `d(loss)/d(w) = 2*(output-target) * sigmoid'(z) * x`
+
+  Print each stage with values rounded to 4 decimal places.
+
+starter: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  x = 1.0
+  target = 1.0
+  w = 0.5
+  b = 0.0
+  lr = 0.1
+
+  # Stage 1: Forward pass
+  z = w * x + b
+  pred = sigmoid(z)
+  print(f"forward: {round(pred, 4)}")
+
+  # Stage 2: Compute loss
+  loss = (pred - target) ** 2
+  print(f"loss: {round(loss, 4)}")
+
+  # Stage 3: Compute gradients via chain rule
+  # d(loss)/d(pred) = 2*(pred - target)
+  # d(pred)/d(z) = pred * (1 - pred)  [sigmoid derivative]
+  # d(z)/d(w) = x,  d(z)/d(b) = 1
+
+
+  print(f"gradients: w={round(grad_w, 4)} b={round(grad_b, 4)}")
+
+  # Stage 4: Update parameters
+
+
+  print(f"updated: w={round(w, 4)} b={round(b, 4)}")
+
+validation:
+  method: output
+  expected_output: "forward: 0.6225\nloss: 0.1425\ngradients: w=-0.1774 b=-0.1774\nupdated: w=0.5177 b=0.0177"
+
+hints:
+  - "Chain rule: `grad_w = 2*(pred-target) * pred*(1-pred) * x`. Same for grad_b but with 1 instead of x."
+  - "After computing gradients, update: `w = w - lr * grad_w` and `b = b - lr * grad_b`."
+
+solution: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  x = 1.0
+  target = 1.0
+  w = 0.5
+  b = 0.0
+  lr = 0.1
+
+  z = w * x + b
+  pred = sigmoid(z)
+  print(f"forward: {round(pred, 4)}")
+
+  loss = (pred - target) ** 2
+  print(f"loss: {round(loss, 4)}")
+
+  dloss_dpred = 2 * (pred - target)
+  dpred_dz = pred * (1 - pred)
+  grad_w = round(dloss_dpred * dpred_dz * x, 4)
+  grad_b = round(dloss_dpred * dpred_dz * 1, 4)
+  print(f"gradients: w={grad_w} b={grad_b}")
+
+  w = round(w - lr * grad_w, 4)
+  b = round(b - lr * grad_b, 4)
+  print(f"updated: w={w} b={b}")
+
+explanation: |
+  Forward: sigmoid(0.5*1.0 + 0) = sigmoid(0.5) ≈ 0.6225. We want 1.0.
+
+  Loss: (0.6225 - 1.0)² = (-0.3775)² ≈ 0.1425.
+
+  Gradients: The chain rule decomposes the total derivative into three parts:
+  - d(loss)/d(pred) = 2*(-0.3775) = -0.755
+  - d(pred)/d(z) = 0.6225*(1-0.6225) = 0.235  (sigmoid derivative)
+  - d(z)/d(w) = x = 1.0
+  Product: -0.755 * 0.235 * 1.0 ≈ -0.1774.
+
+  Update: w moves from 0.5 to 0.5177 (increasing, because the gradient is
+  negative and we subtract it). The model nudges toward producing a larger
+  output, closer to the target of 1.0.
+
+  This four-stage pattern — forward, loss, backward, update — is the
+  heartbeat of all neural network training.

@@ -1,0 +1,54 @@
+id: weighted-values
+title: "Weighted Values"
+type: write
+
+prompt: |
+  Compute the attention output: a weighted sum of value vectors using the
+  attention weights.
+
+  Given:
+  - weights = [0.27, 0.54, 0.19]
+  - values = [[1, 0], [0, 1], [1, 1]]
+
+  Each value vector is multiplied by its weight and the results are summed
+  element-by-element.
+
+  Print the result rounded to 2 decimal places.
+
+starter: |
+  weights = [0.27, 0.54, 0.19]
+  values = [[1, 0], [0, 1], [1, 1]]
+
+  # Compute weighted sum of value vectors
+  # output[j] = sum(weights[i] * values[i][j] for all i)
+
+
+  print([round(x, 2) for x in output])
+
+validation:
+  method: output
+  expected_output: "[0.46, 0.73]"
+
+hints:
+  - "Initialize output as a list of zeros with the same length as a value vector. Then for each value vector, add weight[i] * value[i][j] to output[j]."
+  - "Use nested loops: outer over values (i), inner over dimensions (j). `output[j] += weights[i] * values[i][j]`"
+
+solution: |
+  weights = [0.27, 0.54, 0.19]
+  values = [[1, 0], [0, 1], [1, 1]]
+
+  output = [0] * len(values[0])
+  for i in range(len(values)):
+      for j in range(len(values[0])):
+          output[j] += weights[i] * values[i][j]
+
+  print([round(x, 2) for x in output])
+
+explanation: |
+  output[0] = 0.27*1 + 0.54*0 + 0.19*1 = 0.27 + 0 + 0.19 = 0.46.
+  output[1] = 0.27*0 + 0.54*1 + 0.19*1 = 0 + 0.54 + 0.19 = 0.73.
+
+  The output is a blend of all three value vectors, weighted by attention.
+  Since key 1 got 54% of the attention, its value [0, 1] dominates the second
+  dimension of the output (0.73). This is how attention selectively combines
+  information from different positions.

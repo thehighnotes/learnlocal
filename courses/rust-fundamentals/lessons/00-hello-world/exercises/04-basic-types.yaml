@@ -1,0 +1,64 @@
+id: basic-types
+title: "Basic Types"
+type: write
+
+prompt: |
+  Declare variables of different types and print them. Your program should
+  output exactly:
+
+  integer: 42
+  float: 3.14
+  boolean: true
+  character: R
+  text: hello
+
+  Use explicit type annotations for each variable (e.g., let x: i32 = 42;).
+  Use i32 for the integer, f64 for the float, bool for the boolean, char for
+  the character, and &str for the text.
+
+starter: |
+  fn main() {
+      // Declare five variables with explicit type annotations:
+      // an i32, an f64, a bool, a char, and a &str
+      // Then print each one
+  }
+
+validation:
+  method: output
+  expected_output: "integer: 42\nfloat: 3.14\nboolean: true\ncharacter: R\ntext: hello"
+
+hints:
+  - "Type annotations go after the variable name with a colon: let x: i32 = 42; — the char type uses single quotes: let c: char = 'R';"
+  - "For the float, use: let f: f64 = 3.14; — make sure to include the decimal point. For bool, the values are true and false (lowercase, no quotes)."
+  - "The five declarations: let n: i32 = 42; let f: f64 = 3.14; let b: bool = true; let c: char = 'R'; let s: &str = \"hello\"; — then print each with println!."
+
+solution: |
+  fn main() {
+      let n: i32 = 42;
+      let f: f64 = 3.14;
+      let b: bool = true;
+      let c: char = 'R';
+      let s: &str = "hello";
+      println!("integer: {}", n);
+      println!("float: {}", f);
+      println!("boolean: {}", b);
+      println!("character: {}", c);
+      println!("text: {}", s);
+  }
+
+explanation: |
+  Rust's basic types:
+
+  - `i32` — a 32-bit signed integer. This is the default integer type.
+  - `f64` — a 64-bit floating-point number. This is the default float type.
+  - `bool` — either `true` or `false`.
+  - `char` — a single Unicode character, written with single quotes: `'R'`.
+  - `&str` — a string slice, a reference to string data. String literals like
+    `"hello"` are `&str`.
+
+  Type annotations use the syntax `let name: Type = value;`. They are optional
+  when Rust can infer the type, but writing them explicitly is good practice
+  when you want to be clear about what type you intend.
+
+  The `{}` placeholder in `println!` works with all of these types because they
+  all implement the `Display` trait, which tells Rust how to format them as text.

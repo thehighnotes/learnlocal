@@ -1,0 +1,71 @@
+id: alter-table
+title: "Alter an Existing Table"
+type: fill-blank
+
+prompt: |
+  The `employees` table already exists with columns `id`, `name`, and `role`.
+  Fill in the blanks to:
+
+  1. Add a new column called `email` of type TEXT to the employees table.
+  2. Rename the `role` column to `title`.
+
+  After the alterations, insert a new employee and select all rows to verify
+  the new schema. The INSERT and SELECT are already written for you.
+
+  Note: After ADD COLUMN, the column order becomes id, name, role, email.
+  After RENAME COLUMN, it becomes id, name, title, email.
+
+starter: |
+  ALTER TABLE employees ___ ___ email TEXT;
+  ALTER TABLE employees ___ ___ role ___ title;
+  INSERT INTO employees (id, name, title, email) VALUES (4, 'Diana', 'Designer', 'diana@example.com');
+  SELECT * FROM employees ORDER BY id;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (id INTEGER PRIMARY KEY, name TEXT, role TEXT);
+        INSERT INTO employees VALUES (1, 'Alice', 'Engineer');
+        INSERT INTO employees VALUES (2, 'Bob', 'Manager');
+        INSERT INTO employees VALUES (3, 'Charlie', 'Analyst');
+
+validation:
+  method: output
+  expected_output: |
+    1|Alice|Engineer|
+    2|Bob|Manager|
+    3|Charlie|Analyst|
+    4|Diana|Designer|diana@example.com
+
+hints:
+  - "To add a column: ALTER TABLE t ADD COLUMN col_name TYPE;"
+  - "To rename a column: ALTER TABLE t RENAME COLUMN old_name TO new_name;"
+  - |
+    The blanks are:
+    ALTER TABLE employees ADD COLUMN email TEXT;
+    ALTER TABLE employees RENAME COLUMN role TO title;
+
+solution: |
+  ALTER TABLE employees ADD COLUMN email TEXT;
+  ALTER TABLE employees RENAME COLUMN role TO title;
+  INSERT INTO employees (id, name, title, email) VALUES (4, 'Diana', 'Designer', 'diana@example.com');
+  SELECT * FROM employees ORDER BY id;
+
+explanation: |
+  `ALTER TABLE employees ADD COLUMN email TEXT;` appends a new column to the
+  end of the table. Existing rows get NULL for this column since no default was
+  specified. That is why Alice, Bob, and Charlie show empty values for email
+  (the trailing pipe with nothing after it).
+
+  `ALTER TABLE employees RENAME COLUMN role TO title;` changes the column name
+  from `role` to `title`. The data in that column is preserved — only the name
+  changes. The column order becomes: id, name, title, email.
+
+  Diana's INSERT uses explicit column names `(id, name, title, email)` to make
+  the mapping clear. Using named columns is especially important after schema
+  changes, since the physical column order may not match what you expect.
+
+  Note that SQLite's ALTER TABLE is more limited than in other databases. You
+  cannot drop columns (in older SQLite versions), change column types, or add
+  or remove constraints on existing columns.

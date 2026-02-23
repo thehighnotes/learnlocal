@@ -1,0 +1,83 @@
+id: option-type
+title: "Using Option<T>"
+type: fix
+
+prompt: |
+  This code tries to find the first even number in a slice and print it.
+  It compiles but has logic errors in how it handles the Option type.
+
+  Fix the `find_first_even` function so it correctly returns `Some(n)` when
+  it finds an even number and `None` when it does not. Also fix the main
+  function to use `unwrap_or` instead of `unwrap` for the empty-list case
+  so the program does not panic.
+
+starter: |
+  fn find_first_even(numbers: &[i32]) -> Option<i32> {
+      for &n in numbers {
+          if n % 2 == 0 {
+              return None;
+          }
+      }
+      Some(0)
+  }
+
+  fn main() {
+      let nums = vec![1, 3, 4, 7, 8];
+      let empty: Vec<i32> = vec![];
+
+      match find_first_even(&nums) {
+          Some(n) => println!("first even: {}", n),
+          None => println!("no even numbers"),
+      }
+
+      let result = find_first_even(&empty);
+      println!("from empty: {}", result.unwrap());
+  }
+
+validation:
+  method: output
+  expected_output: |
+    first even: 4
+    from empty: -1
+
+hints:
+  - "When an even number is found, the function should return Some(n), not None."
+  - "When no even number exists, the function should return None, not Some(0)."
+  - "Replace `result.unwrap()` with `result.unwrap_or(-1)` so it returns -1 instead of panicking on None."
+
+solution: |
+  fn find_first_even(numbers: &[i32]) -> Option<i32> {
+      for &n in numbers {
+          if n % 2 == 0 {
+              return Some(n);
+          }
+      }
+      None
+  }
+
+  fn main() {
+      let nums = vec![1, 3, 4, 7, 8];
+      let empty: Vec<i32> = vec![];
+
+      match find_first_even(&nums) {
+          Some(n) => println!("first even: {}", n),
+          None => println!("no even numbers"),
+      }
+
+      let result = find_first_even(&empty);
+      println!("from empty: {}", result.unwrap_or(-1));
+  }
+
+explanation: |
+  Option<T> has two variants: `Some(value)` when a value is present, and `None`
+  when it is absent. The original code had them swapped -- it returned `None`
+  on success and `Some(0)` on failure.
+
+  `unwrap()` extracts the value from `Some` but panics if the Option is `None`.
+  This is dangerous for cases where `None` is a valid outcome. `unwrap_or(-1)`
+  is safer -- it returns the contained value if `Some`, or the provided default
+  (-1) if `None`.
+
+  The `match` expression in main demonstrates the pattern-matching approach,
+  which is the safest way to handle Option values because the compiler ensures
+  you handle both cases.

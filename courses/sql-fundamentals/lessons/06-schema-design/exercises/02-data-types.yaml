@@ -1,0 +1,71 @@
+id: data-types
+title: "Data Types in Action"
+type: fill-blank
+
+prompt: |
+  Fill in the blanks to create a `sensors` table that uses four of SQLite's
+  storage classes. The columns should be:
+
+  - `id` — INTEGER
+  - `label` — TEXT
+  - `reading` — REAL (for decimal values)
+  - `raw_data` — BLOB (for binary data)
+
+  Then insert one row and select it to verify.
+
+  The INSERT is already written for you. Focus on the CREATE TABLE blanks.
+
+starter: |
+  CREATE TABLE sensors (
+      id ___,
+      label ___,
+      reading ___,
+      raw_data ___
+  );
+  INSERT INTO sensors VALUES (1, 'Thermometer', 23.5, X'48454C4C4F');
+  SELECT id, label, reading, typeof(raw_data) FROM sensors;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        -- No setup needed
+
+validation:
+  method: output
+  expected_output: |
+    1|Thermometer|23.5|blob
+
+hints:
+  - "SQLite's storage classes are: NULL, INTEGER, REAL, TEXT, BLOB"
+  - "Each blank needs just the type name — for example, the first blank is INTEGER"
+  - |
+    All four blanks:
+    id INTEGER, label TEXT, reading REAL, raw_data BLOB
+
+solution: |
+  CREATE TABLE sensors (
+      id INTEGER,
+      label TEXT,
+      reading REAL,
+      raw_data BLOB
+  );
+  INSERT INTO sensors VALUES (1, 'Thermometer', 23.5, X'48454C4C4F');
+  SELECT id, label, reading, typeof(raw_data) FROM sensors;
+
+explanation: |
+  Each column is assigned one of SQLite's core storage classes:
+
+  - `INTEGER` for whole numbers (the sensor id).
+  - `TEXT` for strings (the label).
+  - `REAL` for floating-point numbers (the reading 23.5).
+  - `BLOB` for raw binary data (the hex literal X'48454C4C4F' which is "HELLO"
+    in ASCII).
+
+  The `typeof()` function returns the storage class of a value. We use it here
+  to confirm that raw_data is stored as a blob. SQLite's type affinity system
+  means it will try to store values in the declared type, but unlike strict
+  databases it will not reject mismatched types.
+
+  The fifth storage class, NULL, represents a missing value and is not used as
+  a column type — any column can contain NULL unless constrained with NOT NULL.

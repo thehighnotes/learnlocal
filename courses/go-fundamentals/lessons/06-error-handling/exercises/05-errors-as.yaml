@@ -1,0 +1,83 @@
+id: errors-as
+title: "errors.As — Extracting Error Types"
+type: write
+
+prompt: |
+  Define an `APIError` struct with `Code` (int) and `Message` (string) fields.
+  Implement the `Error()` method.
+
+  In `main`, create an `APIError` with Code 404 and Message `"not found"`, wrap
+  it with `fmt.Errorf("request failed: %w", ...)`.
+
+  Use `errors.As` to extract the `*APIError` from the wrapped error. If
+  successful, print the code and message.
+
+  Expected output:
+  caught: code=404, message=not found
+
+starter: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  // TODO: define APIError struct with Code and Message
+  // TODO: implement Error() method
+
+  func main() {
+      // TODO: create an APIError, wrap it
+      // TODO: use errors.As to extract it, print fields
+  }
+
+validation:
+  method: output
+  expected_output: "caught: code=404, message=not found"
+
+hints:
+  - "The Error method: `func (e *APIError) Error() string { return fmt.Sprintf(\"api error: %d %s\", e.Code, e.Message) }`"
+  - "Wrap it: `err := fmt.Errorf(\"request failed: %w\", &APIError{Code: 404, Message: \"not found\"})`"
+  - "Extract with: `var apiErr *APIError` then `if errors.As(err, &apiErr)` — note the double pointer: `&apiErr` passes a pointer to the pointer variable."
+
+solution: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  type APIError struct {
+      Code    int
+      Message string
+  }
+
+  func (e *APIError) Error() string {
+      return fmt.Sprintf("api error: %d %s", e.Code, e.Message)
+  }
+
+  func main() {
+      err := fmt.Errorf("request failed: %w", &APIError{Code: 404, Message: "not found"})
+
+      var apiErr *APIError
+      if errors.As(err, &apiErr) {
+          fmt.Printf("caught: code=%d, message=%s\n", apiErr.Code, apiErr.Message)
+      }
+  }
+
+explanation: |
+  `errors.As` walks the error chain looking for an error that can be assigned
+  to the target type. The target must be a pointer to the type you are looking
+  for — in this case `*APIError`, so you pass `&apiErr` (pointer to a pointer).
+
+  When `errors.As` finds a match, it sets `apiErr` to point to the actual
+  `APIError` value inside the chain, and returns `true`. You can then access
+  the struct fields directly.
+
+  The key difference from `errors.Is`:
+  - `errors.Is` checks for a specific error **value** (like a sentinel variable).
+  - `errors.As` checks for a specific error **type** (like a struct type).
+
+  Use `errors.As` when you need to access structured data inside an error,
+  like HTTP status codes, field names, or other metadata.

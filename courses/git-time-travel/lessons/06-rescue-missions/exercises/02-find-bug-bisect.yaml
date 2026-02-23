@@ -1,0 +1,58 @@
+id: find-bug-bisect
+title: "MISSION: Find the Bug"
+type: command
+prompt: |
+  --- INCOMING TRANSMISSION ---
+
+  SITUATION: The app was working perfectly at commit 1 (the "initial clean
+  app" commit). Now, 10 commits later, there's a bug — someone introduced
+  the word "BUG" into `app.txt`. Nobody knows which commit did it.
+
+  You could check each commit one by one. Or you could be smart about it.
+
+  MISSION: Find the commit that introduced the bug. Use `git log`, `git show`,
+  `git bisect`, or any technique you prefer. Write the 7-character short hash
+  of the guilty commit to `answer.txt`.
+
+  The bug is the line containing "BUG" in `app.txt`. Find which commit added it.
+
+  --- END TRANSMISSION ---
+starter: |
+  #!/bin/bash
+  # Find which commit introduced "BUG" into app.txt
+  # Write its 7-character hash to answer.txt
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'clean line 1' > app.txt && git add app.txt && git commit -m 'initial clean app' && echo 'clean line 2' >> app.txt && git add app.txt && git commit -m 'add feature alpha' && echo 'clean line 3' >> app.txt && git add app.txt && git commit -m 'add feature beta' && echo 'clean line 4' >> app.txt && git add app.txt && git commit -m 'refactor internals' && echo 'clean line 5' >> app.txt && git add app.txt && git commit -m 'optimize queries' && echo 'BUG: this breaks everything' >> app.txt && git add app.txt && git commit -m 'update error handling' && echo 'clean line 7' >> app.txt && git add app.txt && git commit -m 'add logging' && echo 'clean line 8' >> app.txt && git add app.txt && git commit -m 'improve docs' && echo 'clean line 9' >> app.txt && git add app.txt && git commit -m 'add tests' && echo 'clean line 10' >> app.txt && git add app.txt && git commit -m 'final polish' && git log --format='%h %s' | grep 'update error handling' | awk '{print $1}' > {dir}/__expected_hash.txt"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-answer
+      command: sh
+      args: ["-c", "cd {dir}/repo && cat answer.txt 2>/dev/null | tr -d '[:space:]' > {dir}/__answer.txt && git bisect reset 2>/dev/null || true"]
+      capture_to: teardown.log
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/answer.txt
+    - file_matches:
+        path: __answer.txt
+        pattern: "^[0-9a-f]{7}$"
+hints:
+  - "`git log -p` shows the diff for each commit — look for when 'BUG' was added."
+  - "Or use `git bisect start`, mark current as `git bisect bad`, mark the first commit as `git bisect good <hash>`, then test each midpoint."
+  - "A quick approach: `git log --all -S 'BUG' --oneline` finds commits that added or removed 'BUG'."
+solution: |
+  #!/bin/bash
+  HASH=$(git log --all -S 'BUG' --format='%h' | tail -1)
+  echo "$HASH" > answer.txt
+explanation: |
+  `git log -S 'BUG'` (the "pickaxe" option) finds commits where the string
+  'BUG' was added or removed — it goes straight to the guilty commit.
+  `git bisect` is the systematic approach: binary search through history,
+  testing each midpoint. For 10 commits, bisect needs about 3-4 tests.
+  For 1000 commits, it only needs about 10. Both work; `-S` is faster
+  when you know the exact string to search for.

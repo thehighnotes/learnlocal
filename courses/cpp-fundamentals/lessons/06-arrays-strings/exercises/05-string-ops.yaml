@@ -1,0 +1,55 @@
+id: string-ops
+title: "String Concatenation"
+type: write
+
+prompt: |
+  Create two strings: first = "Hello" and second = "World". Concatenate
+  them with a space in between and print the result. Then print the length
+  of the combined string on the next line.
+
+starter: |
+  #include <iostream>
+  #include <string>
+
+  int main() {
+      // Create two strings: first = "Hello", second = "World"
+
+      // Concatenate them with a space between into a new string
+
+      // Print the combined string
+
+      // Print the length of the combined string
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "Hello World\n11"
+
+hints:
+  - "Use the + operator to concatenate strings: first + \" \" + second"
+  - "Store the result in a new variable: std::string combined = first + \" \" + second;"
+  - "Print combined, then print combined.length(). \"Hello World\" has 11 characters (including the space)."
+
+solution: |
+  #include <iostream>
+  #include <string>
+
+  int main() {
+      std::string first = "Hello";
+      std::string second = "World";
+      std::string combined = first + " " + second;
+
+      std::cout << combined << std::endl;
+      std::cout << combined.length() << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  The `+` operator concatenates strings in C++. `first + " " + second`
+  builds a new string by joining "Hello", a space, and "World" into
+  "Hello World". The length is 11: 5 characters for "Hello", 1 space,
+  and 5 for "World". This only works with `std::string` -- C-style char
+  arrays cannot use `+` for concatenation.

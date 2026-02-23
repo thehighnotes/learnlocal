@@ -1,0 +1,46 @@
+id: convert-types
+title: "Converting Input"
+type: write
+
+prompt: |
+  Read a number from standard input and print its double (multiplied by 2).
+
+  For example, if the input is "21", the output should be: 42
+
+  Remember: input from stdin is always a string. You need to convert it
+  to a number before doing math, otherwise + will concatenate!
+
+  Read input with: require("fs").readFileSync("/dev/stdin", "utf8").trim()
+
+input: "21\n"
+
+starter: |
+  // Read a number from stdin, convert it, and print the double
+  // Hint: use Number() or parseInt() to convert strings to numbers
+
+validation:
+  method: output
+  expected_output: "42"
+
+hints:
+  - "Read input first: const input = require(\"fs\").readFileSync(\"/dev/stdin\", \"utf8\").trim();"
+  - "Convert to number: const num = Number(input); or const num = parseInt(input);"
+  - "Full solution: const input = require(\"fs\").readFileSync(\"/dev/stdin\", \"utf8\").trim(); console.log(Number(input) * 2);"
+
+solution: |
+  const input = require("fs").readFileSync("/dev/stdin", "utf8").trim();
+  console.log(Number(input) * 2);
+
+explanation: |
+  Input from stdin is always a string. If you wrote `input * 2` without
+  converting, JavaScript would actually give you 42 here (because * forces
+  numeric conversion), but `input + input` would give you "2121" (string
+  concatenation). This inconsistency is why explicit conversion is important.
+
+  Conversion options:
+  - `Number("21")` → 21 (returns NaN for invalid input)
+  - `parseInt("21")` → 21 (parses integers, ignores trailing non-digits)
+  - `parseFloat("21.5")` → 21.5 (parses decimals)
+  - `+"21"` → 21 (unary plus, a shorthand for Number())
+
+  `Number()` is the clearest and most recommended approach.

@@ -1,0 +1,68 @@
+id: neuron-forward
+title: "Neuron Forward Pass"
+type: write
+
+prompt: |
+  Implement a single neuron's forward pass. A neuron:
+  1. Computes the dot product of inputs and weights
+  2. Adds the bias
+  3. Applies sigmoid activation
+
+  Given:
+  - inputs = [1.0, 0.5]
+  - weights = [0.5, 0.6]
+  - bias = 0.2
+
+  The weighted sum is: 1.0*0.5 + 0.5*0.6 + 0.2 = 1.0
+  Then sigmoid(1.0) ≈ 0.73
+
+  Print the result rounded to 2 decimal places.
+
+starter: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  inputs = [1.0, 0.5]
+  weights = [0.5, 0.6]
+  bias = 0.2
+
+  # Compute the neuron output:
+  # 1. Dot product of inputs and weights
+  # 2. Add bias
+  # 3. Apply sigmoid
+
+
+  print(round(output, 2))
+
+validation:
+  method: output
+  expected_output: "0.73"
+
+hints:
+  - "Compute the weighted sum: `z = sum(inputs[i] * weights[i] for i in range(len(inputs))) + bias`. Then apply sigmoid."
+  - "Use: `z = sum(inputs[i] * weights[i] for i in range(len(inputs))) + bias` then `output = sigmoid(z)`"
+
+solution: |
+  import math
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  inputs = [1.0, 0.5]
+  weights = [0.5, 0.6]
+  bias = 0.2
+
+  z = sum(inputs[i] * weights[i] for i in range(len(inputs))) + bias
+  output = sigmoid(z)
+
+  print(round(output, 2))
+
+explanation: |
+  Weighted sum: 1.0*0.5 + 0.5*0.6 = 0.5 + 0.3 = 0.8. Add bias: 0.8 + 0.2 = 1.0.
+  Sigmoid(1.0) = 1/(1+e^-1) ≈ 0.731 → rounded to 0.73.
+
+  This is exactly what every neuron in a neural network does: weighted sum of
+  inputs + bias, then activation. The weights and bias are the learnable
+  parameters — training adjusts them to make the network produce correct outputs.

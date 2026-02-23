@@ -1,0 +1,18 @@
+id: file-operations
+title: "File Operations"
+description: "Create, copy, move, remove files and directories. Understand hard and soft links."
+estimated_minutes: 30
+content: content.md
+teaches: [touch, mkdir, cp, mv, rm, ln, stat, file-types]
+exercises:
+  - create-structure
+  - copy-files
+  - move-rename
+  - soft-link
+  - hard-link
+  - fix-copy
+  - file-types
+recap: |
+  You learned to create files with touch, directories with mkdir, copy
+  with cp, move/rename with mv, remove with rm, and link with ln.
+  Hard links share inodes; symlinks are pointers that can break.

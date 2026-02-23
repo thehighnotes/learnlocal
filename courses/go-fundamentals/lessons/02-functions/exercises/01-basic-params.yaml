@@ -1,0 +1,76 @@
+id: basic-params
+title: "Parameters & Return Values"
+type: write
+
+prompt: |
+  Write two functions:
+
+  1. func add(a, b int) int — returns the sum of a and b.
+  2. func greet(name string) string — returns "Hello, " followed by the name
+     and an exclamation mark.
+
+  In main, print the results of:
+  - add(3, 4)
+  - greet("Go")
+
+  Expected output:
+  7
+  Hello, Go!
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write func add(a, b int) int
+
+  // Write func greet(name string) string
+
+  func main() {
+      fmt.Println(add(3, 4))
+      fmt.Println(greet("Go"))
+  }
+
+validation:
+  method: output
+  expected_output: "7\nHello, Go!"
+
+hints:
+  - "Both functions need a return statement. add returns a + b, greet returns a concatenated string."
+  - "For greet, use string concatenation: \"Hello, \" + name + \"!\""
+  - "func add(a, b int) int { return a + b } and func greet(name string) string { return \"Hello, \" + name + \"!\" }"
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func add(a, b int) int {
+      return a + b
+  }
+
+  func greet(name string) string {
+      return "Hello, " + name + "!"
+  }
+
+  func main() {
+      fmt.Println(add(3, 4))
+      fmt.Println(greet("Go"))
+  }
+
+explanation: |
+  This exercise covers the basics of Go functions:
+
+  1. **Parameter shorthand**: `func add(a, b int)` declares both `a` and `b`
+     as `int`. When consecutive parameters share a type, you write the type
+     only once.
+
+  2. **Return type**: The type after the parameter list (`int`, `string`) tells
+     Go what the function sends back. The `return` keyword provides the value.
+
+  3. **String concatenation**: The `+` operator joins strings. `"Hello, " + name + "!"`
+     builds the greeting from parts.
+
+  Every function in Go must declare its return type if it returns a value. If
+  you forget `return`, the compiler will catch it — Go does not allow a
+  function with a declared return type to end without returning.

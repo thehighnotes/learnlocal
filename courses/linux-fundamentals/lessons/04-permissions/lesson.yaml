@@ -1,0 +1,18 @@
+id: permissions
+title: "Permissions & Ownership"
+description: "Understand the rwx permission model, chmod with octal and symbolic notation, and umask."
+estimated_minutes: 30
+content: content.md
+teaches: [chmod, stat, permissions, umask, rwx]
+exercises:
+  - read-permissions
+  - chmod-octal
+  - chmod-symbolic
+  - executable-script
+  - directory-perms
+  - umask-effect
+  - fix-permissions
+recap: |
+  You learned the Linux permission model: read/write/execute for
+  user/group/other. chmod sets permissions in octal (755) or symbolic
+  (u+x) form. umask controls default permissions for new files.

@@ -1,0 +1,29 @@
+id: dictionaries
+title: "Dictionaries"
+description: "Store and retrieve data with key-value pairs"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - dict-basics
+  - dict-methods
+  - dict-update
+  - dict-iteration
+  - fix-keyerror
+  - word-count
+teaches:
+  - dictionary-creation
+  - key-value-access
+  - dictionary-methods
+  - adding-updating
+  - dictionary-iteration
+  - error-handling
+  - word-frequency
+recap: |
+  You learned:
+  - Dictionaries store key-value pairs in {} with key: value syntax
+  - Access values with dict[key] or dict.get(key, default)
+  - keys(), values(), items() provide different views of the data
+  - Add or update entries with dict[key] = value
+  - Iterate with for key in dict or for key, value in dict.items()
+  - dict.get() avoids KeyError by returning a default value
+  - Dictionaries are perfect for counting and grouping data

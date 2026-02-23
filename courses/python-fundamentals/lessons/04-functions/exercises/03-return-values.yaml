@@ -1,0 +1,34 @@
+id: return-values
+title: "Return Values"
+type: write
+
+prompt: |
+  Write a function `add(a, b)` that **returns** the sum of `a` and `b`.
+  Then print the result of calling `add(3, 7)`.
+
+starter: |
+  # Define add(a, b) that returns the sum
+
+
+  # Print the result of add(3, 7)
+
+validation:
+  method: output
+  expected_output: "10"
+
+hints:
+  - "Use `return a + b` inside the function body instead of printing directly."
+  - "Call it with `print(add(3, 7))`. The function returns the value 10, and `print` displays it."
+
+solution: |
+  def add(a, b):
+      return a + b
+
+  print(add(3, 7))
+
+explanation: |
+  The `return` statement sends a value back to the caller. `add(3, 7)` evaluates
+  to 10, and `print()` displays it. This is different from printing inside the
+  function: `return` gives the value back so you can store it in a variable, use
+  it in an expression, or pass it to another function. Functions that return
+  values are more flexible than functions that only print.

@@ -1,0 +1,58 @@
+id: count-by-status
+title: "Count HTTP Status Codes"
+type: command
+prompt: |
+  ALERT: The load balancer dashboard shows elevated error rates but you
+  need exact numbers. The access log is in `access.log`.
+
+  Count how many requests returned each HTTP status code. Write the results
+  to `counts.txt` with this exact format, one line per status code, sorted
+  by code:
+
+  ```
+  200: <count>
+  301: <count>
+  404: <count>
+  500: <count>
+  503: <count>
+  ```
+starter: |
+  # Count occurrences of each HTTP status code in access.log
+  # Write results to counts.txt in the format "CODE: COUNT"
+environment:
+  setup:
+    - name: setup
+      command: sh
+      args: ["-c", "cd {dir} && cat > access.log << 'ACCESSEOF'\n192.168.1.50 - - [15/Mar/2024:14:30:01 +0000] \"GET /api/users HTTP/1.1\" 200 1234\n10.0.0.22 - - [15/Mar/2024:14:30:02 +0000] \"GET /api/products HTTP/1.1\" 200 5678\n172.16.0.5 - - [15/Mar/2024:14:30:03 +0000] \"GET /old-page HTTP/1.1\" 301 0\n192.168.1.50 - - [15/Mar/2024:14:30:04 +0000] \"POST /api/orders HTTP/1.1\" 200 890\n10.0.0.15 - - [15/Mar/2024:14:30:05 +0000] \"GET /api/users/99 HTTP/1.1\" 404 45\n192.168.1.100 - - [15/Mar/2024:14:30:06 +0000] \"GET /api/health HTTP/1.1\" 200 12\n10.0.0.22 - - [15/Mar/2024:14:30:07 +0000] \"POST /api/login HTTP/1.1\" 500 89\n172.16.0.8 - - [15/Mar/2024:14:30:08 +0000] \"GET /api/products HTTP/1.1\" 200 5678\n10.0.0.15 - - [15/Mar/2024:14:30:09 +0000] \"GET /nonexistent HTTP/1.1\" 404 45\n192.168.1.50 - - [15/Mar/2024:14:30:10 +0000] \"GET /api/orders HTTP/1.1\" 200 3456\n172.16.0.5 - - [15/Mar/2024:14:30:11 +0000] \"GET /moved-page HTTP/1.1\" 301 0\n10.0.0.22 - - [15/Mar/2024:14:30:12 +0000] \"POST /api/payment HTTP/1.1\" 503 67\n192.168.1.100 - - [15/Mar/2024:14:30:13 +0000] \"GET /api/users HTTP/1.1\" 200 1234\n172.16.0.8 - - [15/Mar/2024:14:30:14 +0000] \"GET /api/users/42 HTTP/1.1\" 200 567\n10.0.0.15 - - [15/Mar/2024:14:30:15 +0000] \"POST /api/orders HTTP/1.1\" 500 89\n192.168.1.50 - - [15/Mar/2024:14:30:16 +0000] \"GET /api/products HTTP/1.1\" 200 5678\n10.0.0.22 - - [15/Mar/2024:14:30:17 +0000] \"GET /missing HTTP/1.1\" 404 45\n172.16.0.5 - - [15/Mar/2024:14:30:18 +0000] \"POST /api/payment HTTP/1.1\" 503 67\n192.168.1.100 - - [15/Mar/2024:14:30:19 +0000] \"GET /api/health HTTP/1.1\" 200 12\n10.0.0.15 - - [15/Mar/2024:14:30:20 +0000] \"POST /api/orders HTTP/1.1\" 500 89\nACCESSEOF"]
+validation:
+  method: state
+  assertions:
+    - file_exists: counts.txt
+    - file_contains:
+        path: counts.txt
+        content: "200: 10"
+    - file_contains:
+        path: counts.txt
+        content: "301: 2"
+    - file_contains:
+        path: counts.txt
+        content: "404: 3"
+    - file_contains:
+        path: counts.txt
+        content: "500: 3"
+    - file_contains:
+        path: counts.txt
+        content: "503: 2"
+hints:
+  - "The status code is the 9th field in the access log format. Use awk '{print $9}' to extract it."
+  - "Pipeline: awk '{print $9}' access.log | sort | uniq -c gives you counts."
+  - "Reformat the output: awk '{print $9}' access.log | sort | uniq -c | awk '{print $2\": \"$1}' > counts.txt"
+solution: |
+  awk '{print $9}' access.log | sort | uniq -c | sort -k2 -n | awk '{print $2": "$1}' > counts.txt
+explanation: |
+  The classic pipeline: awk extracts field 9 (status code), sort groups identical
+  codes together (required for uniq), uniq -c counts consecutive duplicates, and
+  a second awk reformats into the requested format. Results: 200 (10 requests),
+  301 (2 redirects), 404 (3 not found), 500 (3 server errors), 503 (2 service
+  unavailable). The 500s and 503s together suggest a backend problem — 25% of
+  requests are failing.

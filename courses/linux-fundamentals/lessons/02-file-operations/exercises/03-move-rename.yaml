@@ -1,0 +1,34 @@
+id: move-rename
+title: "Move and Rename"
+type: command
+prompt: |
+  A file called old.txt with the content "moved" already exists.
+  Use `mv` to rename it to new.txt. Then verify by printing:
+  - "old: no" (because old.txt no longer exists)
+  - "new: yes" (because new.txt now exists)
+  - The contents of new.txt
+starter: |
+  # old.txt exists — rename it and verify
+environment:
+  files:
+    - path: old.txt
+      content: |
+        moved
+validation:
+  method: output
+  expected_output: |
+    old: no
+    new: yes
+    moved
+hints:
+  - "mv old.txt new.txt renames the file"
+  - "test -f file && echo yes || echo no"
+  - "Use the && / || pattern for concise checks"
+solution: |
+  mv old.txt new.txt
+  test -f old.txt && echo "old: yes" || echo "old: no"
+  test -f new.txt && echo "new: yes" || echo "new: no"
+  cat new.txt
+explanation: |
+  mv renames a file — the old name ceases to exist and the new name
+  takes its place. The file data doesn't move on disk.

@@ -1,0 +1,29 @@
+id: similarity-and-search
+title: "Similarity and Search"
+description: "Measure how alike things are using cosine similarity, Euclidean distance, and build a search engine"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - cosine-similarity
+  - opposite-vectors
+  - euclidean-distance
+  - most-similar
+  - word-vectors
+  - word-analogy
+  - simple-search
+teaches:
+  - cosine-similarity
+  - euclidean-distance
+  - vector-similarity
+  - word-vectors
+  - word-analogies
+  - search-ranking
+recap: |
+  You learned:
+  - Cosine similarity measures the angle between vectors, from -1 to 1
+  - Identical directions give 1.0, opposite give -1.0, perpendicular give 0.0
+  - Euclidean distance measures straight-line distance between points
+  - You can find the most similar item by comparing cosine similarities
+  - Words can be represented as vectors where similar words are nearby
+  - Word analogies work through vector arithmetic (king - man + woman = queen)
+  - A search engine ranks documents by similarity to a query vector

@@ -1,0 +1,63 @@
+id: equalized-odds
+title: "Equalized Odds"
+type: write
+
+prompt: |
+  Compute the True Positive Rate (TPR) and False Positive Rate (FPR) for each
+  group. Check if equalized odds hold (both metrics must be equal across
+  groups).
+
+      TPR = TP / (TP + FN)    — of truly positive cases, how many caught?
+      FPR = FP / (FP + TN)    — of truly negative cases, how many falsely flagged?
+
+starter: |
+  # Group A confusion matrix
+  tp_a, fp_a, tn_a, fn_a = 9, 1, 9, 1
+
+  # Group B confusion matrix
+  tp_b, fp_b, tn_b, fn_b = 6, 4, 6, 4
+
+  # Compute TPR and FPR for each group
+
+
+  # Check if equalized odds hold
+
+
+  print(f"group_a TPR: {tpr_a} FPR: {fpr_a}")
+  print(f"group_b TPR: {tpr_b} FPR: {fpr_b}")
+  print(f"equalized: {equalized}")
+
+validation:
+  method: output
+  expected_output: "group_a TPR: 0.9 FPR: 0.1\ngroup_b TPR: 0.6 FPR: 0.4\nequalized: False"
+
+hints:
+  - "TPR = TP / (TP + FN). FPR = FP / (FP + TN). Use `round()` to clean up the numbers."
+  - "Equalized odds require BOTH TPR and FPR to be equal: `equalized = (tpr_a == tpr_b) and (fpr_a == fpr_b)`"
+
+solution: |
+  tp_a, fp_a, tn_a, fn_a = 9, 1, 9, 1
+  tp_b, fp_b, tn_b, fn_b = 6, 4, 6, 4
+
+  tpr_a = round(tp_a / (tp_a + fn_a), 2)
+  fpr_a = round(fp_a / (fp_a + tn_a), 2)
+  tpr_b = round(tp_b / (tp_b + fn_b), 2)
+  fpr_b = round(fp_b / (fp_b + tn_b), 2)
+
+  equalized = (tpr_a == tpr_b) and (fpr_a == fpr_b)
+
+  print(f"group_a TPR: {tpr_a} FPR: {fpr_a}")
+  print(f"group_b TPR: {tpr_b} FPR: {fpr_b}")
+  print(f"equalized: {equalized}")
+
+explanation: |
+  Group A: TPR 0.90 (catches 90% of positive cases), FPR 0.10 (flags only
+  10% of negative cases). Good performance.
+
+  Group B: TPR 0.60 (misses 40% of positive cases), FPR 0.40 (flags 40% of
+  negative cases). The model both misses more cases and makes more false
+  accusations for group B.
+
+  Equalized odds do not hold — both TPR and FPR differ between groups. This
+  means group B is both underserved (lower TPR) and over-policed (higher FPR)
+  compared to group A.

@@ -1,0 +1,69 @@
+id: enum-basic
+title: "Define an Enum with Data"
+type: write
+
+prompt: |
+  Define an enum called `Shape` with two variants:
+  - `Circle(f64)` -- holds the radius
+  - `Rectangle(f64, f64)` -- holds the width and height
+
+  Then write a function `describe(shape: &Shape) -> String` that uses `match`
+  to return a description string for each variant.
+
+  The main function is already written. Define the enum and the function where
+  indicated.
+
+starter: |
+  // Define the Shape enum here
+
+  // Define the describe function here
+
+  fn main() {
+      let c = Shape::Circle(5.0);
+      let r = Shape::Rectangle(4.0, 6.0);
+      println!("{}", describe(&c));
+      println!("{}", describe(&r));
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Circle with radius 5
+    Rectangle 4 x 6
+
+hints:
+  - "Define the enum: enum Shape { Circle(f64), Rectangle(f64, f64) }"
+  - "The describe function takes &Shape and returns String. Use match self { Shape::Circle(r) => ..., Shape::Rectangle(w, h) => ... }"
+  - "Use format!() to build the return strings: format!(\"Circle with radius {}\", r) and format!(\"Rectangle {} x {}\", w, h)"
+
+solution: |
+  enum Shape {
+      Circle(f64),
+      Rectangle(f64, f64),
+  }
+
+  fn describe(shape: &Shape) -> String {
+      match shape {
+          Shape::Circle(r) => format!("Circle with radius {}", r),
+          Shape::Rectangle(w, h) => format!("Rectangle {} x {}", w, h),
+      }
+  }
+
+  fn main() {
+      let c = Shape::Circle(5.0);
+      let r = Shape::Rectangle(4.0, 6.0);
+      println!("{}", describe(&c));
+      println!("{}", describe(&r));
+  }
+
+explanation: |
+  Rust enums can hold data in each variant. `Shape::Circle(f64)` means the
+  Circle variant carries one f64 value, while `Rectangle(f64, f64)` carries two.
+
+  The `match` expression destructures the enum, binding the inner values to
+  variables (`r` for radius, `w` and `h` for width and height). The compiler
+  enforces that every variant is handled -- if you forget one, it will not
+  compile.
+
+  `format!()` works like `println!()` but returns a `String` instead of
+  printing it. This is the standard way to build formatted strings in Rust.

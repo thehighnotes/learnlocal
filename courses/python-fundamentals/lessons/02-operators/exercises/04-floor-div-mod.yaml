@@ -1,0 +1,45 @@
+id: floor-div-mod
+title: "Floor Division and Modulo"
+type: write
+
+prompt: |
+  Given 17 divided by 5, print three results on separate lines:
+  1. The quotient using floor division (//)
+  2. The remainder using modulo (%)
+  3. The result of regular division (/)
+
+starter: |
+  # Divide 17 by 5 three different ways and print each result:
+  # 1. Floor division (//)
+  # 2. Modulo / remainder (%)
+  # 3. Regular division (/)
+
+validation:
+  method: output
+  expected_output: |
+    3
+    2
+    3.4
+
+hints:
+  - "Floor division `//` gives the integer quotient: 17 // 5 drops the decimal part."
+  - "Modulo `%` gives the remainder: 17 = 5 * 3 + 2, so the remainder is 2."
+  - "Regular division `/` returns a float: 17 / 5 = 3.4"
+
+solution: |
+  print(17 // 5)
+  print(17 % 5)
+  print(17 / 5)
+
+explanation: |
+  Three ways to divide 17 by 5:
+
+  1. `17 // 5` = 3 -- floor division drops the fractional part. It gives you
+     "how many whole times does 5 go into 17?"
+  2. `17 % 5` = 2 -- modulo gives the remainder. 5 goes into 17 three times
+     (15), leaving 2 remaining.
+  3. `17 / 5` = 3.4 -- regular division gives the exact result as a float.
+
+  The identity `a == (a // b) * b + (a % b)` always holds:
+  17 == 3 * 5 + 2 == 15 + 2 == 17. This relationship is useful for
+  understanding how floor division and modulo work together.

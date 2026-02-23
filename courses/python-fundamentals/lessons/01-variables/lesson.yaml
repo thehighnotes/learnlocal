@@ -1,0 +1,30 @@
+id: variables
+title: "Variables and Types"
+description: "Learn how Python stores data in variables"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - declare
+  - types
+  - type-check
+  - dynamic-typing
+  - string-concat
+  - f-strings
+  - multiple-assign
+teaches:
+  - variable-assignment
+  - primitive-types
+  - type-function
+  - dynamic-typing
+  - string-concatenation
+  - f-strings
+  - multiple-assignment
+recap: |
+  You learned:
+  - Variables are created by assignment (no declaration keyword needed)
+  - Python has int, float, str, and bool types
+  - type() reveals what type a value is
+  - Variables can be reassigned to different types (dynamic typing)
+  - Strings concatenate with + but cannot mix with numbers without conversion
+  - f-strings embed expressions directly in strings with {expression}
+  - Multiple variables can be assigned in one line

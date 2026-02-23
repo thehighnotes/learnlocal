@@ -1,0 +1,57 @@
+id: attention-weights
+title: "Attention Weights"
+type: write
+
+prompt: |
+  Apply softmax to attention scores to get attention weights — probabilities
+  that sum to 1, indicating how much to focus on each key.
+
+  Given scores from the previous exercise: `[0.71, 1.41, 0.35]`
+
+  Print the weights rounded to 2 decimal places.
+
+starter: |
+  import math
+
+  def softmax(xs):
+      exps = [math.exp(x) for x in xs]
+      total = sum(exps)
+      return [e / total for e in exps]
+
+  scores = [0.71, 1.41, 0.35]
+
+  # Apply softmax to get attention weights
+
+
+  print([round(w, 2) for w in weights])
+
+validation:
+  method: output
+  expected_output: "[0.27, 0.54, 0.19]"
+
+hints:
+  - "Just call `softmax(scores)` — the function is already provided."
+  - "Use: `weights = softmax(scores)`"
+
+solution: |
+  import math
+
+  def softmax(xs):
+      exps = [math.exp(x) for x in xs]
+      total = sum(exps)
+      return [e / total for e in exps]
+
+  scores = [0.71, 1.41, 0.35]
+
+  weights = softmax(scores)
+
+  print([round(w, 2) for w in weights])
+
+explanation: |
+  Softmax converts the scores [0.71, 1.41, 0.35] into probabilities
+  [0.27, 0.54, 0.19]. They sum to 1.0.
+
+  Key 1 (score 1.41) gets 54% of the attention — the model focuses most on
+  it. Key 0 gets 27% and key 2 gets 19%. These weights will be used to
+  compute a weighted sum of the value vectors: the attention output is mostly
+  influenced by the value associated with key 1.

@@ -1,0 +1,41 @@
+id: missing-directory
+title: "Missing Directory"
+type: command
+prompt: |
+  ALERT: Application crashes immediately on startup.
+
+  The startup log shows:
+
+      "ERROR: /data/cache directory not found — cannot initialize cache layer"
+
+  The application expects a data/cache directory to exist. It won't
+  create it on its own. Create the directory so the app can start.
+starter: |
+  # Create the missing directory structure
+environment:
+  files:
+    - path: startup.log
+      content: |
+        2024-03-15 05:10:00 INFO Starting application v3.4.1
+        2024-03-15 05:10:01 INFO Loading configuration... OK
+        2024-03-15 05:10:02 INFO Connecting to database... OK
+        2024-03-15 05:10:03 INFO Initializing cache layer...
+        2024-03-15 05:10:03 ERROR /data/cache directory not found — cannot initialize cache layer
+        2024-03-15 05:10:03 FATAL Startup failed: required directory missing
+validation:
+  method: state
+  assertions:
+    - dir_exists: data/cache
+hints:
+  - "`mkdir data/cache` would fail because `data/` doesn't exist yet either."
+  - "`mkdir -p data/cache` creates both `data/` and `data/cache` in one command."
+  - "The `-p` flag means 'create parent directories as needed.'"
+solution: |
+  mkdir -p data/cache
+explanation: |
+  Many applications assume their directory structure already exists and
+  crash if it doesn't. This happens after fresh deployments, container
+  rebuilds, or when someone accidentally deletes a directory. `mkdir -p`
+  is the fix — it creates the entire path including parents, and it
+  doesn't error if the directories already exist. In production, the
+  deployment process should ensure required directories exist.

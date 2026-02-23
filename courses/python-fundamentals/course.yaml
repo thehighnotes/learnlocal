@@ -1,0 +1,53 @@
+name: "Python Fundamentals"
+version: "1.1.0"
+description: "Learn Python from the ground up — variables, control flow, functions, data structures, and string processing"
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+
+language:
+  id: python
+  display_name: "Python"
+  extension: ".py"
+  provision: auto
+  steps:
+    - name: run
+      command: "python3"
+      args: ["{dir}/{main}"]
+      capture_output: true
+  limits:
+    timeout_seconds: 10
+    max_output_bytes: 65536
+
+lessons:
+  - id: hello-world
+    title: "Hello World & Getting Started"
+
+  - id: variables
+    title: "Variables and Types"
+    requires: [hello-world]
+
+  - id: operators
+    title: "Operators and Expressions"
+    requires: [variables]
+
+  - id: control-flow
+    title: "Control Flow"
+    requires: [variables, operators]
+
+  - id: functions
+    title: "Functions"
+    requires: [control-flow]
+
+  - id: lists-tuples
+    title: "Lists and Tuples"
+    requires: [variables, control-flow]
+
+  - id: dictionaries
+    title: "Dictionaries"
+    requires: [lists-tuples]
+
+  - id: string-methods
+    title: "String Methods and Formatting"
+    requires: [variables, control-flow]
+
+estimated_minutes_per_lesson: 25

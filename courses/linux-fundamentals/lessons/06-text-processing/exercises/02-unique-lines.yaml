@@ -1,0 +1,34 @@
+id: unique-lines
+title: "Remove Duplicates"
+type: command
+prompt: |
+  A file called data.txt already exists with these lines: apple,
+  banana, apple, cherry, banana, apple (one per line, with repeats).
+  Use sort and uniq to print only the unique lines.
+starter: |
+  # data.txt has duplicates — sort and deduplicate
+environment:
+  files:
+    - path: data.txt
+      content: |
+        apple
+        banana
+        apple
+        cherry
+        banana
+        apple
+validation:
+  method: output
+  expected_output: |
+    apple
+    banana
+    cherry
+hints:
+  - "sort | uniq removes duplicate adjacent lines"
+  - "sort -u does the same in one command"
+  - "sort data.txt | uniq"
+solution: |
+  sort data.txt | uniq
+explanation: |
+  uniq only removes consecutive duplicates, so sort must come first.
+  Alternatively, sort -u combines both operations.

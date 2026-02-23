@@ -1,0 +1,40 @@
+id: multi-file-commit
+title: "Commit Multiple Files"
+type: command
+prompt: |
+  The repo already has one commit. Three new files have appeared:
+  `hello.txt`, `world.txt`, and `notes.txt`.
+
+  Stage all three and commit them in a single commit. Use any message you like.
+  When you're done, the repo should have exactly 2 commits.
+starter: |
+  # Stage all three files and commit them together
+environment:
+  setup:
+    - name: create-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'initial' > init.txt && git add init.txt && git commit -m 'initial commit' && echo 'hello' > hello.txt && echo 'world' > world.txt && echo 'notes' > notes.txt"]
+  teardown:
+    - name: capture-count
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline | wc -l | tr -d ' '"]
+      capture_to: __count.txt
+  cwd: repo
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __count.txt
+        content: "2"
+hints:
+  - "You can add multiple files at once: `git add hello.txt world.txt notes.txt`"
+  - "Or add everything with `git add .`"
+  - "Then commit all staged files in one shot: `git commit -m \"message\"`"
+solution: |
+  git add hello.txt world.txt notes.txt
+  git commit -m "add three files"
+explanation: |
+  `git add` accepts multiple filenames, or you can use `git add .` to stage
+  everything in the current directory. All staged changes become part of the
+  next commit. This is how you create clean, focused commits — you choose
+  exactly what goes in.

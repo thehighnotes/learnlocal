@@ -1,0 +1,75 @@
+id: untangle-commits
+title: "MISSION: Untangle the Commits"
+type: command
+prompt: |
+  --- INCOMING TRANSMISSION ---
+
+  SITUATION: A developer's last commit is a mess. They mixed changes to two
+  completely unrelated files into a single commit: `frontend.js` got a UI
+  fix and `backend.py` got a database change. Code review demands clean,
+  single-purpose commits.
+
+  MISSION: Split the last commit into two separate commits:
+  1. First commit: changes to `backend.py` only, message "update database queries"
+  2. Second commit: changes to `frontend.js` only, message "fix UI rendering"
+
+  The two original files (`app.txt`) and the initial commit must remain intact.
+
+  --- END TRANSMISSION ---
+starter: |
+  #!/bin/bash
+  # Split the last commit into two: one per file
+  # Use git reset --soft to undo the commit but keep changes staged
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base app' > app.txt && echo 'original backend' > backend.py && echo 'original frontend' > frontend.js && git add . && git commit -m 'initial codebase' && echo 'updated backend with new queries' > backend.py && echo 'updated frontend with UI fix' > frontend.js && git add . && git commit -m 'mixed changes - needs splitting'"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-log
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline > {dir}/__log.txt"]
+      timeout_seconds: 5
+    - name: capture-count
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline | wc -l | tr -d ' ' > {dir}/__count.txt"]
+      timeout_seconds: 5
+    - name: capture-commit1-files
+      command: sh
+      args: ["-c", "cd {dir}/repo && git diff-tree --no-commit-id --name-only -r HEAD~1 > {dir}/__commit1_files.txt"]
+      timeout_seconds: 5
+    - name: capture-commit2-files
+      command: sh
+      args: ["-c", "cd {dir}/repo && git diff-tree --no-commit-id --name-only -r HEAD > {dir}/__commit2_files.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: __count.txt
+        content: "3"
+    - file_contains:
+        path: __log.txt
+        content: "update database queries"
+    - file_contains:
+        path: __log.txt
+        content: "fix UI rendering"
+hints:
+  - "`git reset --soft HEAD~1` undoes the commit but keeps all changes staged."
+  - "Then `git reset HEAD frontend.js` unstages just that file, leaving `backend.py` staged."
+  - "Commit backend.py, then `git add frontend.js` and commit that separately."
+solution: |
+  #!/bin/bash
+  git reset --soft HEAD~1
+  git reset HEAD frontend.js
+  git commit -m "update database queries"
+  git add frontend.js
+  git commit -m "fix UI rendering"
+explanation: |
+  `git reset --soft HEAD~1` undoes the commit while keeping all changes in
+  the staging area. `git reset HEAD frontend.js` removes just that file from
+  staging (back to the working directory). Now only `backend.py` is staged —
+  commit it. Then stage `frontend.js` and commit it separately. Result: two
+  clean commits, each touching exactly one file.

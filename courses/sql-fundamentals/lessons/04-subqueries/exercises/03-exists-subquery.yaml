@@ -1,0 +1,88 @@
+id: exists-subquery
+title: "EXISTS Subquery"
+type: write
+
+prompt: |
+  Find the names of all students who have at least one enrollment record.
+
+  Use an EXISTS subquery. The subquery should check the `enrollments` table
+  for rows where `student_id` matches the current student's `id`.
+
+  Order the results by name ascending. Frank has no enrollments, so he
+  should not appear in the output.
+
+starter: |
+  -- Find students with at least one enrollment
+  -- Use: WHERE EXISTS (SELECT ... FROM ... WHERE ...)
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE students (id INTEGER, name TEXT, grade_level INTEGER);
+        INSERT INTO students VALUES (1, 'Alice', 10);
+        INSERT INTO students VALUES (2, 'Bob', 11);
+        INSERT INTO students VALUES (3, 'Charlie', 10);
+        INSERT INTO students VALUES (4, 'Diana', 12);
+        INSERT INTO students VALUES (5, 'Eve', 11);
+        INSERT INTO students VALUES (6, 'Frank', 12);
+
+        CREATE TABLE courses (id INTEGER, title TEXT, department TEXT);
+        INSERT INTO courses VALUES (1, 'Algebra', 'Math');
+        INSERT INTO courses VALUES (2, 'Biology', 'Science');
+        INSERT INTO courses VALUES (3, 'History', 'Humanities');
+        INSERT INTO courses VALUES (4, 'Chemistry', 'Science');
+        INSERT INTO courses VALUES (5, 'Literature', 'Humanities');
+
+        CREATE TABLE enrollments (student_id INTEGER, course_id INTEGER, score INTEGER);
+        INSERT INTO enrollments VALUES (1, 1, 88);
+        INSERT INTO enrollments VALUES (1, 2, 92);
+        INSERT INTO enrollments VALUES (1, 3, 75);
+        INSERT INTO enrollments VALUES (2, 1, 95);
+        INSERT INTO enrollments VALUES (2, 4, 78);
+        INSERT INTO enrollments VALUES (3, 2, 65);
+        INSERT INTO enrollments VALUES (3, 3, 82);
+        INSERT INTO enrollments VALUES (3, 5, 90);
+        INSERT INTO enrollments VALUES (4, 1, 91);
+        INSERT INTO enrollments VALUES (4, 4, 88);
+        INSERT INTO enrollments VALUES (4, 5, 95);
+        INSERT INTO enrollments VALUES (5, 3, 70);
+
+validation:
+  method: output
+  expected_output: |
+    Alice
+    Bob
+    Charlie
+    Diana
+    Eve
+
+hints:
+  - "EXISTS returns true if its subquery produces at least one row. The subquery needs to reference the outer query's student id."
+  - "Inside the EXISTS, correlate the subquery: SELECT 1 FROM enrollments WHERE student_id = s.id"
+  - "SELECT name FROM students s WHERE EXISTS (SELECT 1 FROM enrollments WHERE student_id = s.id) ORDER BY name;"
+
+solution: |
+  SELECT name FROM students s
+  WHERE EXISTS (
+    SELECT 1 FROM enrollments WHERE student_id = s.id
+  )
+  ORDER BY name;
+
+explanation: |
+  For each student in the outer query, the EXISTS subquery checks whether
+  the enrollments table has any rows with a matching student_id.
+
+  - Alice (id 1): 3 enrollments exist -> included
+  - Bob (id 2): 2 enrollments exist -> included
+  - Charlie (id 3): 3 enrollments exist -> included
+  - Diana (id 4): 3 enrollments exist -> included
+  - Eve (id 5): 1 enrollment exists -> included
+  - Frank (id 6): 0 enrollments -> excluded
+
+  The `SELECT 1` inside EXISTS is a convention. EXISTS does not care what
+  is selected — it only checks whether the subquery returns any rows at
+  all. Writing `SELECT *` or `SELECT 42` would produce the same result.
+
+  This is a correlated subquery because it references `s.id` from the
+  outer query. EXISTS subqueries are almost always correlated.

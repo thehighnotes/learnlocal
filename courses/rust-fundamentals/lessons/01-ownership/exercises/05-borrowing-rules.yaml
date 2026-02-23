@@ -1,0 +1,79 @@
+id: borrowing-rules
+title: "The Borrowing Rules"
+type: fix
+
+prompt: |
+  This program violates Rust's borrowing rules. It tries to create a mutable
+  reference while immutable references are still in use.
+
+  Rearrange the code so that the immutable references are used and finished
+  before the mutable reference is created. Do not remove any print statements.
+
+  Expected output:
+
+  ```
+  r1 = hello
+  r2 = hello
+  r3 = hello, world!
+  ```
+
+starter: |
+  fn main() {
+      let mut s = String::from("hello");
+
+      let r1 = &s;
+      let r2 = &s;
+      let r3 = &mut s;
+
+      s.push_str(", world!");
+
+      println!("r1 = {}", r1);
+      println!("r2 = {}", r2);
+      println!("r3 = {}", r3);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    r1 = hello
+    r2 = hello
+    r3 = hello, world!
+
+hints:
+  - "Rust's borrowing rule: you can have either one &mut OR any number of & references active at the same time — never both. A reference is 'active' from where it is created until its last use."
+  - "The immutable references r1 and r2 must be completely finished (their last use must be done) before you create the mutable reference r3."
+  - "Move the println! for r1 and r2 right after their creation and before the mutable borrow. Then create r3 as a mutable reference, do the push_str through r3, and print r3."
+
+solution: |
+  fn main() {
+      let mut s = String::from("hello");
+
+      let r1 = &s;
+      let r2 = &s;
+      println!("r1 = {}", r1);
+      println!("r2 = {}", r2);
+
+      let r3 = &mut s;
+      r3.push_str(", world!");
+      println!("r3 = {}", r3);
+  }
+
+explanation: |
+  Rust's borrowing rules state: you can have either one mutable reference or
+  any number of immutable references to a value, but not both at the same time.
+
+  In the original code, `r1` and `r2` (immutable references) were still "alive"
+  when `r3` (a mutable reference) was created. A reference's lifetime extends
+  from where it is created to its last use — this is called Non-Lexical Lifetimes
+  (NLL).
+
+  The fix uses the immutable references (by printing them) before creating the
+  mutable reference. Once `r1` and `r2` have been used for the last time, the
+  compiler considers them dead, and creating `r3` as `&mut s` is allowed.
+
+  Also note that `push_str` is called through `r3` rather than directly on `s`.
+  This is because while `r3` (a mutable borrow) is active, you cannot access
+  `s` directly — the mutable borrow has exclusive access.
+
+  These rules prevent data races at compile time: there is no scenario where
+  one part of the code is reading data while another part is writing it.

@@ -1,0 +1,63 @@
+id: array-pointer
+title: "Traversing an Array with a Pointer"
+type: write
+
+prompt: |
+  Create an integer array with the values {100, 200, 300, 400, 500}.
+  Create a pointer to the first element of the array.
+
+  Use the pointer (not array indexing with []) to print all five
+  elements, one per line. Increment the pointer in a for loop to
+  advance through the array.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Create the array: int arr[5] = {100, 200, 300, 400, 500};
+
+      // Create a pointer to the first element
+
+      // Use a for loop: dereference the pointer to print, then increment it
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "100\n200\n300\n400\n500"
+
+hints:
+  - "Point to the first element with: int* p = arr; (or int* p = &arr[0];)"
+  - "Dereference with *p to get the current value."
+  - "Use p++ at the end of each loop iteration to advance to the next element."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int arr[5] = {100, 200, 300, 400, 500};
+      int* p = arr;
+
+      for (int i = 0; i < 5; i++) {
+          std::cout << *p << std::endl;
+          p++;
+      }
+
+      return 0;
+  }
+
+explanation: |
+  `int* p = arr;` makes `p` point to the first element. The array name
+  `arr` decays to a pointer to `arr[0]` in this context.
+
+  Inside the loop, `*p` dereferences the pointer to get the current
+  element's value. After printing, `p++` advances the pointer by one
+  element -- the compiler knows `p` points to `int`, so it moves
+  forward by `sizeof(int)` bytes (typically 4), landing exactly on the
+  next array element.
+
+  This is the fundamental relationship between arrays and pointers in
+  C++: bracket notation `arr[i]` is actually defined as `*(arr + i)`.
+  Walking a pointer through an array is exactly what the bracket
+  operator does under the hood.

@@ -1,0 +1,49 @@
+id: precedence
+title: "Predict the Output"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```cpp
+  #include <iostream>
+
+  int main() {
+      int result = 2 + 3 * 4;
+      std::cout << result << std::endl;
+      return 0;
+  }
+  ```
+
+  Enter just the number.
+
+validation:
+  method: output
+  expected_output: "14"
+
+hints:
+  - "Remember that multiplication has higher precedence than addition, just like in normal math."
+  - "The expression is evaluated as `2 + (3 * 4)`, not `(2 + 3) * 4`."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int result = 2 + 3 * 4;
+      std::cout << result << std::endl;
+      return 0;
+  }
+
+explanation: |
+  The answer is `14` because of operator precedence.
+
+  `*` (multiplication) has higher precedence than `+` (addition), so the
+  expression is evaluated as:
+    2 + (3 * 4) = 2 + 12 = 14
+
+  If the intent were to add first, parentheses would be needed:
+    (2 + 3) * 4 = 5 * 4 = 20
+
+  This follows the same "PEMDAS" / "BODMAS" rules you may know from math class.
+  In C++, when operators share the same precedence level (like `*` and `/`),
+  they are evaluated left to right.

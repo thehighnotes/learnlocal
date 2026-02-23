@@ -1,0 +1,66 @@
+id: rollback-deploy
+title: "Rollback a Broken Deploy"
+type: command
+prompt: |
+  CRITICAL: Version 2.0 is broken in production. Customer-facing errors.
+
+  The deploy system uses a symlink pattern: `current` points to whichever
+  release directory is active. Right now `current` points to `releases/v2.0`,
+  which has a crashing bug.
+
+  The previous version `releases/v1.9` was running fine for weeks. Roll back
+  by updating the `current` symlink to point to `releases/v1.9`.
+
+  Speed matters. Customers are seeing errors right now.
+starter: |
+  # current -> releases/v2.0 (broken)
+  # Roll back: make current -> releases/v1.9 (working)
+environment:
+  dirs:
+    - releases/v1.9
+    - releases/v2.0
+  files:
+    - path: releases/v1.9/app.py
+      content: |
+        # Order Service v1.9 — stable release
+        def handle_order(order_id):
+            return {"status": "ok", "order_id": order_id}
+    - path: releases/v1.9/VERSION
+      content: "1.9.0"
+    - path: releases/v2.0/app.py
+      content: |
+        # Order Service v2.0 — broken release
+        def handle_order(order_id):
+            raise RuntimeError("BUG: undefined variable 'config'")
+    - path: releases/v2.0/VERSION
+      content: "2.0.0"
+    - path: error.log
+      content: |
+        2024-03-15 05:30:00 [deploy] Deployed v2.0 successfully
+        2024-03-15 05:30:15 [app] RuntimeError: BUG: undefined variable 'config'
+        2024-03-15 05:30:15 [app] Request failed: POST /api/orders — 500
+        2024-03-15 05:30:16 [app] RuntimeError: BUG: undefined variable 'config'
+        2024-03-15 05:30:16 [app] Request failed: POST /api/orders — 500
+        2024-03-15 05:30:20 [monitor] Error rate: 100% on /api/orders
+        2024-03-15 05:30:25 [pager] ALERT: order-service error rate > 50%
+  symlinks:
+    - link: current
+      target: releases/v2.0
+validation:
+  method: state
+  assertions:
+    - symlink:
+        path: current
+        target: releases/v1.9
+hints:
+  - "The `current` symlink currently points to `releases/v2.0`. You need to change it to `releases/v1.9`."
+  - "`ln -sfn releases/v1.9 current` — the `-f` flag forces overwrite, `-n` treats the target as a normal file (not following the existing symlink)."
+solution: |
+  ln -sfn releases/v1.9 current
+explanation: |
+  The symlink-based deploy pattern makes rollbacks near-instant. `ln -sfn`
+  atomically swaps the symlink: `-s` creates a symbolic link, `-f` forces
+  overwrite of the existing link, `-n` prevents ln from following the
+  existing symlink. In production, you'd then notify the team, verify the
+  rollback with a health check, and investigate why v2.0 was broken before
+  attempting another deploy.

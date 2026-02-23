@@ -1,0 +1,54 @@
+id: merge-diverged
+title: "Merge: Diverged Branches"
+type: command
+prompt: |
+  While you were working on `feature`, someone else pushed a commit
+  to `main`. Now the branches have diverged -- each has work the
+  other doesn't.
+
+  Luckily, the changes don't conflict (they touched different files).
+  You're on `main`. Merge `feature` into `main`.
+
+  Git will create a merge commit automatically. After the merge,
+  both `main.txt` (from main) and `feature.txt` (from feature)
+  should exist.
+starter: |
+  #!/bin/bash
+  # You're on main. Merge the diverged feature branch.
+  # Git will create a merge commit since both branches have new work.
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base' > readme.txt && git add readme.txt && git commit -m 'Initial commit' && git checkout -b feature && echo 'feature work' > feature.txt && git add feature.txt && git commit -m 'Add feature work' && git checkout main && echo 'main work' > main.txt && git add main.txt && git commit -m 'Add main work'"]
+      timeout_seconds: 10
+  env:
+    GIT_MERGE_AUTOEDIT: "no"
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && git log --oneline main > {dir}/repo/log.txt && ls {dir}/repo/ > {dir}/repo/filelist.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/feature.txt
+    - file_exists: repo/main.txt
+    - file_contains:
+        path: repo/log.txt
+        content: "Merge"
+hints:
+  - "Same command as before: git merge feature"
+  - "Git detects that both branches have diverged and creates a merge commit automatically."
+  - "If an editor opens for the merge message, save and close it (or set GIT_MERGE_AUTOEDIT=no)."
+solution: |
+  #!/bin/bash
+  git merge feature -m "Merge branch 'feature'"
+explanation: |
+  When both branches have new commits, git can't just move a pointer.
+  Instead, it performs a "three-way merge" using the common ancestor,
+  the tip of main, and the tip of feature. Since the changes don't
+  overlap, git combines them automatically and creates a merge commit
+  with two parents. The -m flag supplies the commit message inline,
+  avoiding an editor prompt.

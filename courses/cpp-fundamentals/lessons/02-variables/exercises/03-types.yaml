@@ -1,0 +1,61 @@
+id: types
+title: "Different Types"
+type: write
+
+prompt: |
+  Declare four variables and print them on a single line separated by spaces:
+
+  1. An `int` named `count` with value `10`
+  2. A `double` named `pi` with value `3.14`
+  3. A `char` named `letter` with value `'A'`
+  4. A `bool` named `flag` with value `true`
+
+  The output must be exactly: `10 3.14 A true`
+
+  Hint: booleans print as `1`/`0` by default. Use `std::boolalpha` to print
+  `true`/`false` instead.
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Declare your variables here
+
+      std::cout << count << " " << pi << " " << letter << " "
+                << std::boolalpha << flag << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "10 3.14 A true"
+
+hints:
+  - "Declare each variable on its own line with the appropriate type."
+  - "Remember: char values use single quotes, like 'A'."
+  - "bool values are lowercase keywords: true and false (no quotes)."
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      int count = 10;
+      double pi = 3.14;
+      char letter = 'A';
+      bool flag = true;
+
+      std::cout << count << " " << pi << " " << letter << " "
+                << std::boolalpha << flag << std::endl;
+      return 0;
+  }
+
+explanation: |
+  Each variable uses a different primitive type:
+
+  - `int count = 10;` — a whole number
+  - `double pi = 3.14;` — a floating-point number with decimal precision
+  - `char letter = 'A';` — a single character in single quotes
+  - `bool flag = true;` — a boolean (true/false)
+
+  The `std::boolalpha` manipulator tells `std::cout` to print booleans as
+  the words "true" or "false" instead of the numbers 1 or 0.

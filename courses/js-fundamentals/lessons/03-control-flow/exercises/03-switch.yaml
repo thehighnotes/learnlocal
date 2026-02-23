@@ -1,0 +1,67 @@
+id: switch
+title: "Fix the Switch"
+type: fix
+
+prompt: |
+  The switch statement is missing break statements, causing fall-through
+  behavior. Fix it so that when day is "Monday", it prints only:
+  Start of work week
+
+  Currently it prints all the cases after Monday too.
+
+starter: |
+  const day = "Monday";
+  switch (day) {
+    case "Monday":
+      console.log("Start of work week");
+    case "Friday":
+      console.log("Almost weekend!");
+    case "Saturday":
+    case "Sunday":
+      console.log("Weekend!");
+    default:
+      console.log("Midweek");
+  }
+
+validation:
+  method: output
+  expected_output: "Start of work week"
+
+hints:
+  - "Without break, JavaScript 'falls through' to the next case, executing all code below the matching case."
+  - "Add break; after each console.log() to prevent fall-through."
+  - "Add break; after the Monday case's console.log, and after every other case too."
+
+solution: |
+  const day = "Monday";
+  switch (day) {
+    case "Monday":
+      console.log("Start of work week");
+      break;
+    case "Friday":
+      console.log("Almost weekend!");
+      break;
+    case "Saturday":
+    case "Sunday":
+      console.log("Weekend!");
+      break;
+    default:
+      console.log("Midweek");
+  }
+
+explanation: |
+  The switch statement in JavaScript has "fall-through" behavior: once a
+  case matches, execution continues through ALL subsequent cases unless
+  stopped by a `break` statement.
+
+  Without break after the Monday case, the output would be:
+    Start of work week
+    Almost weekend!
+    Weekend!
+    Midweek
+
+  The `break` statement exits the switch block immediately. Each case
+  should end with break unless you intentionally want fall-through
+  (like Saturday and Sunday sharing the same code here).
+
+  This is one of the most common bugs with switch statements.

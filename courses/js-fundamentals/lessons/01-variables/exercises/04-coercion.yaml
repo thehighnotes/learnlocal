@@ -1,0 +1,40 @@
+id: coercion
+title: "Type Coercion Surprise"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```javascript
+  console.log("5" + 3);
+  console.log("5" - 3);
+  ```
+
+  These two lines use the same values but different operators. JavaScript
+  handles them very differently. Run the code to see the result.
+
+validation:
+  method: output
+  expected_output: "53\n2"
+
+hints:
+  - "The + operator has two meanings: addition for numbers and concatenation for strings."
+  - "When + sees a string, it converts the other value to a string and concatenates. When - sees a string, it converts to a number and subtracts."
+
+solution: |
+  console.log("5" + 3);
+  console.log("5" - 3);
+
+explanation: |
+  This demonstrates JavaScript's type coercion rules:
+
+  - `"5" + 3` → `"53"` (string): The + operator prefers string concatenation.
+    When either operand is a string, the other is converted to a string.
+    So 3 becomes "3", and "5" + "3" = "53".
+
+  - `"5" - 3` → `2` (number): The - operator only does math — there is no
+    "string subtraction". So "5" is converted to the number 5, and 5 - 3 = 2.
+
+  This asymmetry is one of JavaScript's most famous gotchas. The + operator
+  does double duty (math and string concatenation), while -, *, and / always
+  do math.

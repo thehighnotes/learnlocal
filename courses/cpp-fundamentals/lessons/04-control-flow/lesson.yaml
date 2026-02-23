@@ -1,0 +1,33 @@
+id: control-flow
+title: "Control Flow"
+description: "Control program execution with conditions and loops"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - if-else
+  - switch
+  - while
+  - for
+  - fizzbuzz
+  - break-continue
+  - do-while
+  - nested-loops
+teaches:
+  - if-else
+  - switch-statement
+  - while-loops
+  - for-loops
+  - fizzbuzz-pattern
+  - break-continue
+  - do-while
+  - nested-loops
+recap: |
+  You learned:
+  - if/else if/else for conditional branching
+  - switch for multi-way branching on a single value
+  - while loops repeat while a condition is true
+  - for loops are ideal when you know the iteration count
+  - do-while guarantees at least one execution
+  - break exits a loop early, continue skips to the next iteration
+  - Nested loops for working with 2D patterns
+  - FizzBuzz: combining loops with conditionals

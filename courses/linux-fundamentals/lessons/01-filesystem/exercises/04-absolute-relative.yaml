@@ -1,0 +1,35 @@
+id: absolute-relative
+title: "Absolute vs Relative Paths"
+type: command
+prompt: |
+  A directory structure /tmp/navtest/sub/deep has been created for you.
+  Print two lines:
+  1. The absolute path of the "deep" directory (cd into it and run pwd)
+  2. The relative path from /tmp/navtest to deep (just "sub/deep")
+starter: |
+  # Show absolute path with pwd, then the relative equivalent
+environment:
+  setup:
+    - name: create-dirs
+      command: mkdir
+      args: ["-p", "/tmp/navtest/sub/deep"]
+  teardown:
+    - name: cleanup
+      command: rm
+      args: ["-rf", "/tmp/navtest"]
+validation:
+  method: output
+  expected_output: |
+    /tmp/navtest/sub/deep
+    sub/deep
+hints:
+  - "cd into /tmp/navtest/sub/deep and run pwd for the absolute path"
+  - 'echo "sub/deep" for the relative path from /tmp/navtest'
+  - "Absolute paths start with /, relative paths don't"
+solution: |
+  cd /tmp/navtest/sub/deep && pwd
+  echo "sub/deep"
+explanation: |
+  pwd prints the absolute path — the full path from root.
+  A relative path is just the portion from your current location — no
+  leading /.

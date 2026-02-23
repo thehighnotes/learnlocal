@@ -1,0 +1,93 @@
+id: associated-functions
+title: "Associated Functions (Constructors)"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```rust
+  struct Color {
+      r: u8,
+      g: u8,
+      b: u8,
+  }
+
+  impl Color {
+      fn new(r: u8, g: u8, b: u8) -> Self {
+          Color { r, g, b }
+      }
+
+      fn white() -> Self {
+          Color::new(255, 255, 255)
+      }
+
+      fn is_bright(&self) -> bool {
+          self.r > 200 || self.g > 200 || self.b > 200
+      }
+  }
+
+  fn main() {
+      let w = Color::white();
+      let dark = Color::new(10, 20, 30);
+      println!("{}", w.is_bright());
+      println!("{}", dark.is_bright());
+      println!("{} {} {}", dark.r, dark.g, dark.b);
+  }
+  ```
+
+  Enter the exact output (three lines).
+
+validation:
+  method: output
+  expected_output: |
+    true
+    false
+    10 20 30
+
+hints:
+  - "Color::white() calls Color::new(255, 255, 255). Associated functions use :: syntax."
+  - "is_bright checks if ANY channel is > 200. White has all channels at 255, so it returns true. Dark has all channels below 200."
+  - "The output is: true, false, and 10 20 30 on separate lines."
+
+solution: |
+  struct Color {
+      r: u8,
+      g: u8,
+      b: u8,
+  }
+
+  impl Color {
+      fn new(r: u8, g: u8, b: u8) -> Self {
+          Color { r, g, b }
+      }
+
+      fn white() -> Self {
+          Color::new(255, 255, 255)
+      }
+
+      fn is_bright(&self) -> bool {
+          self.r > 200 || self.g > 200 || self.b > 200
+      }
+  }
+
+  fn main() {
+      let w = Color::white();
+      let dark = Color::new(10, 20, 30);
+      println!("{}", w.is_bright());
+      println!("{}", dark.is_bright());
+      println!("{} {} {}", dark.r, dark.g, dark.b);
+  }
+
+explanation: |
+  `Color::new()` and `Color::white()` are **associated functions** -- they do not
+  take `self` as a parameter. They are called with `::` syntax, not dot syntax.
+  This is Rust's idiomatic constructor pattern.
+
+  `is_bright()` is a **method** because it takes `&self`. It checks if any RGB
+  channel exceeds 200 using the `||` (logical OR) operator.
+
+  - `w` is white (255, 255, 255) so `w.is_bright()` returns `true`
+  - `dark` is (10, 20, 30) so `dark.is_bright()` returns `false`
+
+  `Self` (capital S) inside an impl block is an alias for the type being
+  implemented -- here, `Color`. Writing `-> Self` is equivalent to `-> Color`.

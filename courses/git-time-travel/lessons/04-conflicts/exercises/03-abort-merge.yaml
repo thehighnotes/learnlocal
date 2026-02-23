@@ -1,0 +1,49 @@
+id: abort-merge
+title: "Abandon a Merge Gone Wrong"
+type: command
+prompt: |
+  Sometimes the merge looks worse than you expected. The conflict markers
+  are everywhere, you're not sure what to keep, and you just want to
+  go back to how things were.
+
+  A merge is in progress and has created conflicts. You've decided
+  you're not ready to deal with this right now.
+
+  Abort the merge entirely. Return to a clean state on `main`.
+starter: |
+  # Abort the in-progress merge. Get back to a clean main branch.
+
+environment:
+  setup:
+    - name: create-conflict-to-abort
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'version = 1' > config.txt && git add config.txt && git commit -m 'initial' && git checkout -b feature && echo 'version = 3' > config.txt && git add config.txt && git commit -m 'bump to v3' && git checkout main && echo 'version = 2' > config.txt && git add config.txt && git commit -m 'bump to v2' && git merge feature || true"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && echo \"merging=$(git status --porcelain 2>/dev/null | grep -c '^UU' || echo 0)\" > {dir}/result.txt && echo \"merge_head=$(test -f .git/MERGE_HEAD && echo yes || echo no)\" >> {dir}/result.txt && echo \"branch=$(git branch --show-current)\" >> {dir}/result.txt && echo \"content=$(cat config.txt)\" >> {dir}/result.txt && echo \"clean=$(git status --porcelain | wc -l | tr -d ' ')\" >> {dir}/result.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_matches:
+        path: result.txt
+        pattern: "merge_head=no"
+    - file_matches:
+        path: result.txt
+        pattern: "branch=main"
+    - file_contains:
+        path: repo/config.txt
+        content: "version = 2"
+hints:
+  - "There's a git command specifically for aborting a merge in progress"
+  - "git merge --abort"
+solution: |
+  git merge --abort
+explanation: |
+  git merge --abort cancels the in-progress merge and restores the working
+  directory to the state before you ran git merge. The MERGE_HEAD file is
+  removed, conflict markers disappear, and you're back on your branch
+  exactly where you started. It's always safe to use.

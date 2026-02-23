@@ -1,0 +1,88 @@
+id: constructors
+title: "Constructor Functions"
+type: write
+
+prompt: |
+  Define a `Circle` struct with a `Radius float64` field.
+
+  Write a constructor function `NewCircle(radius float64) *Circle` that returns
+  a pointer to a new `Circle`.
+
+  Add an `Area() float64` method that returns π × radius².
+
+  In `main`, use `NewCircle` to create a circle with radius 5. Print the area
+  rounded to 2 decimal places.
+
+  Expected output:
+  ```
+  area=78.54
+  ```
+
+starter: |
+  package main
+
+  import (
+      "fmt"
+      "math"
+  )
+
+  // Define Circle struct here
+
+  // Write NewCircle constructor here
+
+  // Add Area() method here
+
+  func main() {
+      c := NewCircle(5)
+      fmt.Printf("area=%.2f\n", c.Area())
+  }
+
+validation:
+  method: output
+  expected_output: "area=78.54"
+
+hints:
+  - "The struct: type Circle struct { Radius float64 }"
+  - "The constructor returns a pointer: func NewCircle(radius float64) *Circle { return &Circle{Radius: radius} }"
+  - "Area uses math.Pi: func (c Circle) Area() float64 { return math.Pi * c.Radius * c.Radius }"
+
+solution: |
+  package main
+
+  import (
+      "fmt"
+      "math"
+  )
+
+  type Circle struct {
+      Radius float64
+  }
+
+  func NewCircle(radius float64) *Circle {
+      return &Circle{Radius: radius}
+  }
+
+  func (c Circle) Area() float64 {
+      return math.Pi * c.Radius * c.Radius
+  }
+
+  func main() {
+      c := NewCircle(5)
+      fmt.Printf("area=%.2f\n", c.Area())
+  }
+
+explanation: |
+  Go has no built-in constructors, so the convention is a `NewTypeName` function
+  that returns `*TypeName`. This pattern is used throughout the standard library
+  (e.g., `os.NewFile`, `bufio.NewReader`).
+
+  `&Circle{Radius: radius}` creates a `Circle` on the heap and returns a pointer
+  to it. In Go, it is safe to return pointers to local variables — the compiler
+  automatically promotes them to the heap (this is called "escape analysis").
+
+  `math.Pi * c.Radius * c.Radius` computes the area. The `%.2f` format verb
+  rounds to 2 decimal places: π × 25 = 78.53981... which rounds to `78.54`.
+
+  Even though `c` is a `*Circle` (pointer), you call `c.Area()` without
+  dereferencing. Go automatically dereferences pointers for method calls and
+  field access.

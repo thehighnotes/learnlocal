@@ -1,0 +1,53 @@
+name: "Linux Fundamentals"
+version: "1.0.0"
+description: "Learn Linux from the ground up — filesystem, permissions, pipes, text processing, and system tools"
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+platform: linux
+
+language:
+  id: bash
+  display_name: "Bash"
+  extension: ".sh"
+  steps:
+    - name: run
+      command: "bash"
+      args: ["{dir}/{main}"]
+      capture_output: true
+  limits:
+    timeout_seconds: 10
+    max_output_bytes: 65536
+
+lessons:
+  - id: filesystem
+    title: "Filesystem & Navigation"
+
+  - id: file-operations
+    title: "File Operations"
+    requires: [filesystem]
+
+  - id: viewing-searching
+    title: "Viewing & Searching"
+    requires: [file-operations]
+
+  - id: permissions
+    title: "Permissions & Ownership"
+    requires: [filesystem]
+
+  - id: pipes-redirection
+    title: "Pipes & Redirection"
+    requires: [viewing-searching]
+
+  - id: text-processing
+    title: "Text Processing"
+    requires: [pipes-redirection]
+
+  - id: processes
+    title: "Processes & Jobs"
+    requires: [permissions]
+
+  - id: users-networking
+    title: "Users, Networking & Services"
+    requires: [processes]
+
+estimated_minutes_per_lesson: 30

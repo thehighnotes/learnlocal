@@ -1,0 +1,62 @@
+id: cosine-similarity
+title: "Cosine Similarity"
+type: write
+
+prompt: |
+  Implement cosine similarity between two vectors. The formula is:
+
+      cosine_similarity = dot(a, b) / (magnitude(a) * magnitude(b))
+
+  Given `a = [1, 2, 3]` and `b = [2, 4, 6]`, these point in the same direction
+  (b is just a scaled version of a), so the similarity should be 1.0.
+
+  Print the result rounded to 1 decimal place.
+
+starter: |
+  import math
+
+  a = [1, 2, 3]
+  b = [2, 4, 6]
+
+  # Compute the dot product of a and b
+
+
+  # Compute the magnitudes of a and b
+
+
+  # Compute cosine similarity: dot / (mag_a * mag_b)
+
+
+  print(round(cos_sim, 1))
+
+validation:
+  method: output
+  expected_output: "1.0"
+
+hints:
+  - "First compute the dot product: `sum(a[i] * b[i] for i in range(len(a)))`. Then compute each magnitude: `math.sqrt(sum(x**2 for x in v))`."
+  - "Divide the dot product by the product of the two magnitudes: `cos_sim = d / (mag_a * mag_b)`"
+
+solution: |
+  import math
+
+  a = [1, 2, 3]
+  b = [2, 4, 6]
+
+  d = sum(a[i] * b[i] for i in range(len(a)))
+
+  mag_a = math.sqrt(sum(x**2 for x in a))
+  mag_b = math.sqrt(sum(x**2 for x in b))
+
+  cos_sim = d / (mag_a * mag_b)
+
+  print(round(cos_sim, 1))
+
+explanation: |
+  Dot product: 1*2 + 2*4 + 3*6 = 2 + 8 + 18 = 28.
+  Magnitude of a: sqrt(1+4+9) = sqrt(14). Magnitude of b: sqrt(4+16+36) = sqrt(56).
+  Cosine similarity: 28 / (sqrt(14) * sqrt(56)) = 28 / 28 = 1.0.
+
+  The result is 1.0 because b = 2*a — they point in exactly the same direction.
+  Cosine similarity ignores magnitude (length) and only measures direction,
+  which is why it returns 1.0 even though b is twice as long as a.

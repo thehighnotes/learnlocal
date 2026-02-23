@@ -1,0 +1,33 @@
+id: subshell-exit
+title: "Subshell Exit Codes"
+type: command
+prompt: |
+  Demonstrate that subshells are isolated:
+  1. Set X=hello in the current shell
+  2. Run a subshell that sets X=goodbye
+  3. Print X (should still be "hello" -- subshell didn't affect parent)
+  4. Run a subshell: (exit 7), then print its exit code
+  Output:
+    hello
+    7
+starter: |
+  # Show subshell isolation
+validation:
+  method: output
+  expected_output: |
+    hello
+    7
+hints:
+  - "X=hello sets the variable"
+  - "(X=goodbye) runs in a subshell — doesn't affect parent"
+  - "(exit 7); echo $? captures the subshell exit code"
+solution: |
+  X=hello
+  (X=goodbye)
+  echo $X
+  (exit 7)
+  echo $?
+explanation: |
+  Subshells get a copy of the parent's environment. Changes inside
+  (like X=goodbye) don't affect the parent. The parent captures the
+  subshell's exit code via $?.

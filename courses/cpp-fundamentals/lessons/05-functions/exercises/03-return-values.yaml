@@ -1,0 +1,48 @@
+id: return-values
+title: "Fix the Return Value"
+type: fix
+
+prompt: |
+  The function `square` is supposed to return the square of its argument,
+  but it is declared `void` so it cannot return anything. Fix the function
+  so it correctly returns the squared value.
+
+starter: |
+  #include <iostream>
+
+  void square(int x) {
+      x * x;
+  }
+
+  int main() {
+      int result = square(5);
+      std::cout << result << std::endl;
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "25"
+
+hints:
+  - "A function that returns an `int` must be declared with `int` as its return type, not `void`."
+  - "Change `void` to `int` and add `return x * x;` inside the function body."
+
+solution: |
+  #include <iostream>
+
+  int square(int x) {
+      return x * x;
+  }
+
+  int main() {
+      int result = square(5);
+      std::cout << result << std::endl;
+      return 0;
+  }
+
+explanation: |
+  The original code had two bugs: the return type was `void` instead of `int`,
+  and the expression `x * x` was computed but never returned. Changing the return
+  type to `int` and adding `return` before the expression fixes both issues.
+  Now `square(5)` evaluates to 25, which is stored in `result` and printed.

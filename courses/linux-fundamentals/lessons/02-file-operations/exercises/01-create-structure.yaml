@@ -1,0 +1,35 @@
+id: create-structure
+title: "Create a Directory Tree"
+type: command
+prompt: |
+  A directory tree already exists in your workspace:
+    project/
+      src/
+      docs/
+      tests/
+  Use `find` to list all directories (excluding the workspace root),
+  sorted, one per line. Print relative paths starting with ./
+starter: |
+  # Use find to list the directory tree
+environment:
+  dirs:
+    - project
+    - project/src
+    - project/docs
+    - project/tests
+validation:
+  method: output
+  expected_output: |
+    ./project
+    ./project/docs
+    ./project/src
+    ./project/tests
+hints:
+  - "find . -type d finds all directories"
+  - "find . -type d -not -name '.' | sort"
+  - "The -not -name '.' excludes the current directory"
+solution: |
+  find . -type d -not -name '.' | sort
+explanation: |
+  find -type d lists directories only. We exclude . (current dir) and
+  sort for consistent output.

@@ -1,0 +1,76 @@
+id: if-let
+title: "if let with Option"
+type: fill-blank
+
+prompt: |
+  This program uses `if let` to check whether an `Option<&str>` contains a
+  value. Fill in the blank so the program compiles and prints the expected
+  output.
+
+  The blank is the pattern that extracts the inner value from `Some`.
+
+  Expected output (two lines):
+  Welcome, Alice!
+  No user logged in.
+
+starter: |
+  fn greet(user: Option<&str>) {
+      if let ___(name) = user {
+          println!("Welcome, {}!", name);
+      } else {
+          println!("No user logged in.");
+      }
+  }
+
+  fn main() {
+      greet(Some("Alice"));
+      greet(None);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    Welcome, Alice!
+    No user logged in.
+
+hints:
+  - "`Option<T>` has two variants: `Some(value)` and `None`. You want the one that holds a value."
+  - "The `if let` pattern needs to match the `Some` variant to extract the inner string."
+  - "Replace `___` with `Some` so the line reads: `if let Some(name) = user {`"
+
+solution: |
+  fn greet(user: Option<&str>) {
+      if let Some(name) = user {
+          println!("Welcome, {}!", name);
+      } else {
+          println!("No user logged in.");
+      }
+  }
+
+  fn main() {
+      greet(Some("Alice"));
+      greet(None);
+  }
+
+explanation: |
+  `if let Some(name) = user` does two things:
+
+  1. **Tests** whether `user` is the `Some` variant.
+  2. **Binds** the inner value to `name` if it matches.
+
+  When `greet(Some("Alice"))` is called, the pattern matches and `name` becomes
+  `"Alice"`, printing "Welcome, Alice!".
+
+  When `greet(None)` is called, the pattern does not match, so the `else` block
+  runs and prints "No user logged in."
+
+  This is equivalent to writing:
+  ```rust
+  match user {
+      Some(name) => println!("Welcome, {}!", name),
+      None => println!("No user logged in."),
+  }
+  ```
+
+  `if let` is preferred when you only care about one variant and the full match
+  would be unnecessarily verbose.

@@ -1,0 +1,30 @@
+id: structs-enums
+title: "Structs & Enums"
+description: "Define custom types with structs and enums, add methods with impl blocks, and use derive macros"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - define-struct
+  - impl-methods
+  - enum-basic
+  - option-type
+  - methods-on-enum
+  - associated-functions
+  - derive-traits
+teaches:
+  - struct-definition
+  - impl-blocks
+  - methods
+  - enum-definition
+  - option-type
+  - associated-functions
+  - derive-macros
+recap: |
+  You learned:
+  - Structs group related data into a single type with named fields
+  - impl blocks attach methods and associated functions to a type
+  - Methods take &self or &mut self as their first parameter
+  - Enums define a type that can be one of several variants
+  - Option<T> is Rust's replacement for null: Some(value) or None
+  - Associated functions (no self) are called with :: syntax, like constructors
+  - derive macros like Debug, Clone, and PartialEq auto-generate trait implementations

@@ -1,0 +1,43 @@
+id: escape-chars
+title: "Escape Characters"
+type: write
+
+prompt: |
+  Print a tab-separated table using escape characters in a single
+  console.log() call. The output should be exactly:
+
+  Name\tAge
+  Alice\t30
+
+  (where \t represents an actual tab character and there are two lines)
+
+  Use \t for tabs and \n for the newline between the two rows.
+
+starter: |
+  // Print a tab-separated table: Name, Age, Alice, 30
+  // Use \t for tabs and \n for the newline
+
+validation:
+  method: output
+  expected_output: "Name\tAge\nAlice\t30"
+
+hints:
+  - "You can put \\n inside a string to create a newline, and \\t for a tab."
+  - "A single console.log() with the right escape sequences can print multiple lines."
+  - "The solution is: console.log(\"Name\\tAge\\nAlice\\t30\")"
+
+solution: |
+  console.log("Name\tAge\nAlice\t30");
+
+explanation: |
+  Escape sequences let you embed special characters in strings:
+
+  - `\t` inserts a horizontal tab (aligns text in columns)
+  - `\n` inserts a newline (starts a new line)
+
+  The string `"Name\tAge\nAlice\t30"` contains both: a tab between Name
+  and Age, a newline to start the second row, and another tab between
+  Alice and 30.
+
+  Other common escape sequences include `\\` for a literal backslash
+  and `\"` for a literal double quote inside a double-quoted string.

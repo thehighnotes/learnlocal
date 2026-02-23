@@ -1,0 +1,66 @@
+id: find-large-files
+title: "Find Large Files"
+type: command
+prompt: |
+  INCIDENT CONTINUES: /var is 98% full. We need to free space NOW.
+
+  A file-sizes.txt shows the output of a disk usage scan of /var/log.
+  One file is absurdly large and eating all the space. Identify it and
+  delete it from the var-log/ directory.
+
+  Free the disk before more services crash.
+starter: |
+  # Read file-sizes.txt to find the huge file
+  # Delete it from var-log/
+environment:
+  dirs:
+    - var-log
+  files:
+    - path: file-sizes.txt
+      content: |
+        4.0K    var-log/auth.log
+        12K     var-log/syslog
+        8.0K    var-log/kern.log
+        45G     var-log/app-debug.log
+        2.0K    var-log/cron.log
+        16K     var-log/mail.log
+    - path: var-log/auth.log
+      content: |
+        Mar 15 03:00:00 server sshd[587]: Accepted publickey for admin
+    - path: var-log/syslog
+      content: |
+        Mar 15 03:00:00 server kernel: [142857.42] CPU0: Temperature above threshold
+    - path: var-log/kern.log
+      content: |
+        Mar 15 03:00:00 server kernel: Linux version 5.15.0-91-generic
+    - path: var-log/app-debug.log
+      content: |
+        DEBUG endless stream of debug output that should never have been enabled in production
+        DEBUG this is what happens when someone sets LOG_LEVEL=DEBUG and forgets
+        DEBUG 45 gigabytes of this garbage filled the disk
+        DEBUG never enable debug logging in production without a rotation policy
+    - path: var-log/cron.log
+      content: |
+        Mar 15 03:00:00 server CRON[1234]: (root) CMD (logrotate /etc/logrotate.conf)
+    - path: var-log/mail.log
+      content: |
+        Mar 15 03:00:00 server postfix/smtpd[5678]: connect from localhost
+validation:
+  method: state
+  assertions:
+    - file_not_exists: var-log/app-debug.log
+    - file_exists: var-log/auth.log
+    - file_exists: var-log/syslog
+hints:
+  - "Read file-sizes.txt — one file is 45G while the others are kilobytes."
+  - "`rm var-log/app-debug.log` removes the offending file."
+  - "Make sure you only delete the large file, not the other logs."
+solution: |
+  rm var-log/app-debug.log
+explanation: |
+  A 45GB debug log in /var/log is a classic incident. Someone enabled
+  debug logging for troubleshooting and forgot to turn it off. The
+  fix is immediate: delete the file to free space, then investigate
+  why debug logging was enabled and add log rotation to prevent it
+  from happening again. Always check that you're deleting the right
+  file — you don't want to lose important logs during an incident.

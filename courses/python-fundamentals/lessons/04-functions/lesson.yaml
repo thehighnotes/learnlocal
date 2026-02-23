@@ -1,0 +1,31 @@
+id: functions
+title: "Functions"
+description: "Write reusable code with functions"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - basic
+  - parameters
+  - return-values
+  - default-params
+  - multiple-return
+  - scope
+  - recursive
+  - run-with-args
+teaches:
+  - function-definition
+  - parameters-arguments
+  - return-values
+  - default-parameters
+  - multiple-return-values
+  - variable-scope
+  - recursion
+recap: |
+  You learned:
+  - def name(params): defines a function
+  - Parameters receive input, return sends output back
+  - Default parameters provide fallback values: def f(x=10)
+  - Functions can return multiple values as tuples
+  - Variables inside a function are local to that function
+  - Recursion: functions calling themselves with a base case
+  - Functions must be defined before they are called

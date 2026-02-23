@@ -1,0 +1,20 @@
+id: custom-exit
+title: "Custom Exit Code"
+type: command
+prompt: |
+  Run a subshell that exits with code 42. Then check $? and print
+  the exit code. Output should be: "42"
+starter: |
+  # Run subshell with custom exit code, print it
+validation:
+  method: output
+  expected_output: "42"
+hints:
+  - "(exit 42) runs exit 42 in a subshell"
+  - "echo $? prints the exit code of the subshell"
+solution: |
+  (exit 42)
+  echo $?
+explanation: |
+  Parentheses create a subshell. exit 42 sets the subshell's exit code
+  to 42. The parent shell captures this in $?.

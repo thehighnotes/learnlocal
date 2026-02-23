@@ -1,0 +1,138 @@
+id: default-methods
+title: "Default Method Implementation"
+type: fill-blank
+
+prompt: |
+  The `Summary` trait has a required method `author` and a default method
+  `summarize` that uses the author name. The blanks (___) need to be filled
+  in so that:
+
+  - `Book` uses the default `summarize` (do not override it)
+  - `Tweet` overrides `summarize` with custom behavior
+
+  Fill in the three blanks to make the program compile and produce the
+  expected output.
+
+starter: |
+  trait Summary {
+      fn author(&self) -> String;
+
+      fn summarize(&self) -> String {
+          format!("(Read more from {}...)", self.___)
+      }
+  }
+
+  struct Book {
+      author_name: String,
+      title: String,
+  }
+
+  impl Summary for Book {
+      fn author(&self) -> String {
+          self.author_name.clone()
+      }
+      // Uses default summarize
+  }
+
+  struct Tweet {
+      username: String,
+      body: String,
+  }
+
+  impl Summary for Tweet {
+      fn author(&self) -> String {
+          format!("@{}", self.username)
+      }
+
+      fn ___(&self) -> String {
+          format!("{}: {}", self.username, self.body)
+      }
+  }
+
+  fn main() {
+      let book = Book {
+          author_name: String::from("Tolkien"),
+          title: String::from("The Hobbit"),
+      };
+      let tweet = Tweet {
+          username: String::from("rustlang"),
+          body: String::from("Rust 2024 is here!"),
+      };
+      println!("{}", book.___());
+      println!("{}", tweet.summarize());
+  }
+
+validation:
+  method: output
+  expected_output: |
+    (Read more from Tolkien...)
+    rustlang: Rust 2024 is here!
+
+hints:
+  - "The default summarize method needs to call another method on self. Which method returns the author name?"
+  - "Tweet overrides the default method. What is the name of the method being overridden?"
+  - "Fill in: self.author() in the default, fn summarize for Tweet's override, and book.summarize() in main."
+
+solution: |
+  trait Summary {
+      fn author(&self) -> String;
+
+      fn summarize(&self) -> String {
+          format!("(Read more from {}...)", self.author())
+      }
+  }
+
+  struct Book {
+      author_name: String,
+      title: String,
+  }
+
+  impl Summary for Book {
+      fn author(&self) -> String {
+          self.author_name.clone()
+      }
+      // Uses default summarize
+  }
+
+  struct Tweet {
+      username: String,
+      body: String,
+  }
+
+  impl Summary for Tweet {
+      fn author(&self) -> String {
+          format!("@{}", self.username)
+      }
+
+      fn summarize(&self) -> String {
+          format!("{}: {}", self.username, self.body)
+      }
+  }
+
+  fn main() {
+      let book = Book {
+          author_name: String::from("Tolkien"),
+          title: String::from("The Hobbit"),
+      };
+      let tweet = Tweet {
+          username: String::from("rustlang"),
+          body: String::from("Rust 2024 is here!"),
+      };
+      println!("{}", book.summarize());
+      println!("{}", tweet.summarize());
+  }
+
+explanation: |
+  Default methods in a trait provide a body that implementors get for free.
+  The `summarize` default calls `self.author()` --- a required method that
+  each type must provide.
+
+  `Book` only implements `author`, so calling `book.summarize()` uses the
+  default: "(Read more from Tolkien...)".
+
+  `Tweet` implements both `author` and `summarize`, so its custom version
+  takes priority: "rustlang: Rust 2024 is here!".
+
+  Default methods are powerful because they let you add new functionality
+  to a trait without breaking existing implementors --- they simply inherit
+  the default.

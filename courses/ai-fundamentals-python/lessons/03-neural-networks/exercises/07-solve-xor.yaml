@@ -1,0 +1,147 @@
+id: solve-xor
+title: "Solve XOR"
+type: write
+
+prompt: |
+  Train a 2-layer neural network (2→2→1) to solve XOR. This is the problem
+  that a single perceptron could not solve.
+
+  Use:
+  - `random.seed(42)` for reproducible initial weights
+  - Learning rate of 2.0
+  - 1000 training epochs
+  - Sigmoid activation
+
+  After training, test all four XOR inputs and print the output rounded to the
+  nearest integer (0 or 1), one per line:
+  - (0,0) → 0
+  - (0,1) → 1
+  - (1,0) → 1
+  - (1,1) → 0
+
+starter: |
+  import math
+  import random
+
+  random.seed(42)
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  def rand_weight():
+      return random.uniform(-1, 1)
+
+  # Initialize 2->2->1 network with random weights
+  # Hidden layer: 2 neurons, 2 inputs each
+  wh = [[rand_weight(), rand_weight()], [rand_weight(), rand_weight()]]
+  bh = [rand_weight(), rand_weight()]
+  # Output layer: 1 neuron, 2 inputs
+  wo = [[rand_weight(), rand_weight()]]
+  bo = [rand_weight()]
+
+  xor_data = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 0)]
+  lr = 2.0
+
+  # Train for 1000 epochs
+  # Each epoch: loop through all 4 training examples
+  # For each example: forward pass, backward pass, update weights
+
+  # --- Your training loop here ---
+
+
+  # Test the trained network
+  for inputs, target in xor_data:
+      # Forward pass through trained network
+      h = []
+      for i in range(2):
+          z = sum(wh[i][j] * inputs[j] for j in range(2)) + bh[i]
+          h.append(sigmoid(z))
+      zo = sum(wo[0][j] * h[j] for j in range(2)) + bo[0]
+      o = sigmoid(zo)
+      print(round(o))
+
+validation:
+  method: output
+  expected_output: "0\n1\n1\n0"
+
+hints:
+  - "For each training example: 1) Forward through hidden layer, 2) Forward through output layer, 3) Compute output error and gradient, 4) Propagate error back to hidden layer, 5) Update all weights."
+  - |
+    The backward pass for the output layer:
+    do = 2*(o - target) * o*(1-o)
+    Update: wo[0][j] -= lr * do * h[j], bo[0] -= lr * do
+
+    For the hidden layer:
+    dh_i = do * wo[0][i] * h[i]*(1-h[i])
+    Update: wh[i][j] -= lr * dh_i * inputs[j], bh[i] -= lr * dh_i
+
+solution: |
+  import math
+  import random
+
+  random.seed(42)
+
+  def sigmoid(x):
+      return 1 / (1 + math.exp(-x))
+
+  def rand_weight():
+      return random.uniform(-1, 1)
+
+  wh = [[rand_weight(), rand_weight()], [rand_weight(), rand_weight()]]
+  bh = [rand_weight(), rand_weight()]
+  wo = [[rand_weight(), rand_weight()]]
+  bo = [rand_weight()]
+
+  xor_data = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 0)]
+  lr = 2.0
+
+  for epoch in range(1000):
+      for inputs, target in xor_data:
+          # Forward - hidden layer
+          h = []
+          for i in range(2):
+              z = sum(wh[i][j] * inputs[j] for j in range(2)) + bh[i]
+              h.append(sigmoid(z))
+
+          # Forward - output layer
+          zo = sum(wo[0][j] * h[j] for j in range(2)) + bo[0]
+          o = sigmoid(zo)
+
+          # Backward - output layer gradient
+          do = 2 * (o - target) * o * (1 - o)
+          for j in range(2):
+              wo[0][j] -= lr * do * h[j]
+          bo[0] -= lr * do
+
+          # Backward - hidden layer gradients
+          for i in range(2):
+              dh = do * wo[0][i] * h[i] * (1 - h[i])
+              for j in range(2):
+                  wh[i][j] -= lr * dh * inputs[j]
+              bh[i] -= lr * dh
+
+  # Test the trained network
+  for inputs, target in xor_data:
+      h = []
+      for i in range(2):
+          z = sum(wh[i][j] * inputs[j] for j in range(2)) + bh[i]
+          h.append(sigmoid(z))
+      zo = sum(wo[0][j] * h[j] for j in range(2)) + bo[0]
+      o = sigmoid(zo)
+      print(round(o))
+
+explanation: |
+  After 1000 epochs, the network has learned weights that solve XOR:
+  - (0,0) outputs ~0.03 → rounds to 0
+  - (0,1) outputs ~0.97 → rounds to 1
+  - (1,0) outputs ~0.97 → rounds to 1
+  - (1,1) outputs ~0.04 → rounds to 0
+
+  The hidden layer learned to represent XOR as two separate conditions: "at
+  least one input is 1" (like OR) and "not both inputs are 1" (like NAND).
+  The output layer combines these to produce XOR.
+
+  This is the power of multi-layer networks: the hidden layer transforms the
+  problem into one that is linearly separable. This is the same idea that
+  powers deep learning at scale — each layer transforms data into a
+  representation that makes the next layer's job easier.

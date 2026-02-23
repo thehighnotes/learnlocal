@@ -1,0 +1,49 @@
+id: keep-theirs
+title: "Accept All Incoming Changes"
+type: command
+prompt: |
+  The opposite situation: the `feature` branch has the better version
+  and you want to accept ALL of its changes.
+
+  A merge has already been started, and there's a conflict in `data.txt`.
+  Use `git checkout --theirs` to accept the feature branch's version
+  of the file, then stage it and complete the merge.
+
+  After resolving, `data.txt` should contain: `new format`
+starter: |
+  # Accept the incoming (feature branch) version of data.txt,
+  # then add and commit to complete the merge.
+
+environment:
+  setup:
+    - name: create-theirs-scenario
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'old format' > data.txt && git add data.txt && git commit -m 'initial' && git checkout -b feature && echo 'new format' > data.txt && git add data.txt && git commit -m 'new format' && git checkout main && echo 'legacy format' > data.txt && git add data.txt && git commit -m 'legacy' && git merge feature || true"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && echo \"markers=$(grep -c '<<<<<<' data.txt 2>/dev/null || echo 0)\" > {dir}/result.txt && echo \"content=$(cat data.txt)\" >> {dir}/result.txt && echo \"parents=$(git log -1 --format=%P | wc -w | tr -d ' ')\" >> {dir}/result.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: repo/data.txt
+        content: "new format"
+    - file_matches:
+        path: result.txt
+        pattern: "markers=0"
+hints:
+  - "git checkout --theirs replaces a conflicted file with the incoming branch's version"
+  - "git checkout --theirs data.txt && git add data.txt && git commit -m 'accept theirs'"
+solution: |
+  git checkout --theirs data.txt
+  git add data.txt
+  git commit -m "accept incoming changes"
+explanation: |
+  git checkout --theirs <file> replaces the conflicted file with the version
+  from the branch being merged in. The counterpart is git checkout --ours <file>
+  which keeps your current branch's version. After checkout, you still need to
+  git add and git commit to complete the merge.

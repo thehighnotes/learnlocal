@@ -1,0 +1,120 @@
+id: write-postmortem
+title: "Write the Post-Mortem"
+type: command
+prompt: |
+  The incident is over. The system is back up. Now comes the most important
+  part: **documentation**.
+
+  The logs and timeline from today's incident are in `incident_log.txt`.
+  Write a post-mortem document in `postmortem.txt` that includes these
+  four sections:
+
+  1. **Summary** — What happened, in 2-3 sentences
+  2. **Timeline** — Key events in chronological order
+  3. **Root Cause** — The actual underlying problem
+  4. **Action Items** — Concrete steps to prevent recurrence
+
+  Use those exact section headers. The content doesn't need to be perfect —
+  but the structure matters. This is how real teams learn from incidents.
+starter: |
+  # Write postmortem.txt with four sections:
+  # Summary, Timeline, Root Cause, Action Items
+  # Base it on the incident described in incident_log.txt
+environment:
+  files:
+    - path: incident_log.txt
+      content: |
+        === INCIDENT TIMELINE: Order Service Outage ===
+        Date: 2024-03-15
+        Duration: 47 minutes
+        Severity: SEV-1 (customer-facing, revenue impact)
+
+        02:00 UTC — Automated deploy of order-service v3.4.1 begins
+        02:01 UTC — Deploy completes successfully, v3.4.1 is live
+        02:05 UTC — First 500 errors appear on /api/checkout
+        02:08 UTC — Error rate exceeds 50%, PagerDuty alert fires
+        02:12 UTC — On-call engineer acknowledges page, begins investigation
+        02:15 UTC — Engineer checks deploy log, sees v3.4.1 deployed at 02:00
+        02:18 UTC — Engineer checks error logs: "KeyError: 'shipping_rate'"
+        02:22 UTC — Root cause identified: v3.4.1 expects a new config field
+                     'shipping_rate' in config.json that was not added during deploy
+        02:25 UTC — Config updated: shipping_rate=0.08 added to config.json
+        02:26 UTC — Service restarted with new config
+        02:27 UTC — Health check passes, error rate drops to 0%
+        02:30 UTC — Monitoring confirms: all systems nominal
+        02:47 UTC — Incident declared resolved after 20 min observation period
+
+        Impact:
+        - ~1,200 failed checkout attempts
+        - Estimated revenue loss: $18,000
+        - No data loss or corruption
+
+        Contributing factors:
+        - Deploy pipeline does not validate config compatibility
+        - No pre-deploy staging test with new config requirements
+        - v3.4.1 changelog did not mention new required config field
+validation:
+  method: state
+  assertions:
+    - file_exists: postmortem.txt
+    - file_matches:
+        path: postmortem.txt
+        pattern: "(?i)summary"
+    - file_matches:
+        path: postmortem.txt
+        pattern: "(?i)timeline"
+    - file_matches:
+        path: postmortem.txt
+        pattern: "(?i)root.?cause"
+    - file_matches:
+        path: postmortem.txt
+        pattern: "(?i)action.?items?"
+hints:
+  - "Create `postmortem.txt` with four sections. Use the headers: Summary, Timeline, Root Cause, Action Items."
+  - "The Summary should describe the outage (order-service v3.4.1 deploy, missing config field, 47 min outage). The Root Cause was a missing `shipping_rate` config field."
+  - "Use `cat > postmortem.txt << 'EOF'` to write the whole file at once. Include all four section headers."
+solution: |
+  cat > postmortem.txt << 'EOF'
+  # Post-Mortem: Order Service Outage — 2024-03-15
+
+  ## Summary
+
+  A deploy of order-service v3.4.1 at 02:00 UTC caused a 47-minute outage
+  on the checkout endpoint. The new version required a config field
+  (shipping_rate) that was not present, causing 500 errors on all checkout
+  requests. Approximately 1,200 checkouts failed with an estimated $18,000
+  revenue impact.
+
+  ## Timeline
+
+  - 02:00 — Automated deploy of v3.4.1
+  - 02:05 — First 500 errors on /api/checkout
+  - 02:08 — PagerDuty alert fires (error rate > 50%)
+  - 02:12 — On-call engineer begins investigation
+  - 02:22 — Root cause identified: missing shipping_rate config field
+  - 02:25 — Config updated, service restarted
+  - 02:27 — Health check passes, errors stop
+  - 02:47 — Incident resolved after observation period
+
+  ## Root Cause
+
+  Version 3.4.1 introduced a new required configuration field (shipping_rate)
+  but the deploy pipeline did not update config.json to include it. The
+  application crashed with a KeyError when any checkout request tried to
+  read the missing field.
+
+  ## Action Items
+
+  1. Add config schema validation to the deploy pipeline
+  2. Require config changes to be included in deploy manifests
+  3. Add a pre-deploy staging test that exercises all critical endpoints
+  4. Update changelog requirements to include new config field documentation
+  EOF
+explanation: |
+  Post-mortems are not about blame — they're about learning. The four
+  sections capture everything the team needs: what happened (Summary),
+  the sequence of events (Timeline), why it happened (Root Cause), and
+  how to prevent it from happening again (Action Items). The action items
+  are the most important part — they should be specific, actionable, and
+  assignable. "Be more careful" is not an action item. "Add config
+  validation to the deploy pipeline" is.

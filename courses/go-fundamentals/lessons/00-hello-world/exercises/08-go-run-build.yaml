@@ -1,0 +1,36 @@
+id: go-run-build
+title: "Go Run vs Go Build"
+type: command
+prompt: |
+  A main.go file is provided. First run it directly with go run.
+  Then build it to a binary named 'hello' and run the binary.
+  Both should produce the same output.
+environment:
+  files:
+    - path: main.go
+      content: |
+        package main
+
+        import "fmt"
+
+        func main() {
+        	fmt.Println("Hello from Go!")
+        }
+starter: |
+  # Run with go run, then build and run the binary
+validation:
+  method: output
+  expected_output: |
+    Hello from Go!
+    Hello from Go!
+hints:
+  - "go run main.go compiles and runs in one step"
+  - "go build -o hello main.go creates a binary, then ./hello runs it"
+solution: |
+  go run main.go
+  go build -o hello main.go
+  ./hello
+explanation: |
+  go run compiles to a temp file and executes it — great for development.
+  go build creates a permanent binary you can distribute. The binary has
+  no dependencies — it's a single self-contained executable.

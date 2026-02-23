@@ -1,0 +1,58 @@
+id: multi-file-conflict
+title: "Conflicts in Multiple Files"
+type: command
+prompt: |
+  This time, the merge created conflicts in TWO files: `config.txt`
+  and `readme.txt`. Both need to be resolved before you can commit.
+
+  The `feature` branch changed both files, and so did `main`.
+
+  Resolve both files:
+  - `config.txt` should contain: `mode = production`
+  - `readme.txt` should contain: `Project Alpha`
+
+  Then stage both and complete the merge with a single commit.
+starter: |
+  # Two files have conflicts. Resolve both, then add and commit.
+
+environment:
+  setup:
+    - name: create-multi-conflict
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'mode = debug' > config.txt && echo 'Project Beta' > readme.txt && git add config.txt readme.txt && git commit -m 'initial' && git checkout -b feature && echo 'mode = testing' > config.txt && echo 'Project Gamma' > readme.txt && git add config.txt readme.txt && git commit -m 'feature changes' && git checkout main && echo 'mode = production' > config.txt && echo 'Project Alpha' > readme.txt && git add config.txt readme.txt && git commit -m 'main changes' && git merge feature || true"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && echo \"config_markers=$(grep -c '<<<<<<' config.txt 2>/dev/null || echo 0)\" > {dir}/result.txt && echo \"readme_markers=$(grep -c '<<<<<<' readme.txt 2>/dev/null || echo 0)\" >> {dir}/result.txt && git log -1 --format=%P >> {dir}/result.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: repo/config.txt
+        content: "mode = production"
+    - file_contains:
+        path: repo/readme.txt
+        content: "Project Alpha"
+    - file_matches:
+        path: result.txt
+        pattern: "config_markers=0"
+    - file_matches:
+        path: result.txt
+        pattern: "readme_markers=0"
+hints:
+  - "Use git status to see which files have conflicts — both will show as 'both modified'"
+  - "Resolve each file separately, then git add both before committing"
+  - "echo 'mode = production' > config.txt && echo 'Project Alpha' > readme.txt && git add config.txt readme.txt && git commit -m 'resolve'"
+solution: |
+  echo 'mode = production' > config.txt
+  echo 'Project Alpha' > readme.txt
+  git add config.txt readme.txt
+  git commit -m "resolve both conflicts"
+explanation: |
+  When a merge creates conflicts in multiple files, you must resolve ALL of
+  them before committing. Git won't let you commit with any unresolved
+  conflicts remaining. Stage each resolved file with git add, then commit
+  once to complete the merge.

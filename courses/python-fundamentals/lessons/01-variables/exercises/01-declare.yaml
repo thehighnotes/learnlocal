@@ -1,0 +1,40 @@
+id: declare
+title: "Create a Variable"
+type: write
+
+prompt: |
+  Create a variable named `age` with the value `25`, then print it.
+
+  The starter code already has a print statement that uses `age` — you just
+  need to create the variable on the line above it.
+
+starter: |
+  # Create a variable named 'age' with value 25
+
+  print(age)
+
+validation:
+  method: output
+  expected_output: "25"
+
+hints:
+  - "In Python, you create a variable by assigning a value to a name with the = operator."
+  - "The syntax is simply: name = value — no type declaration needed."
+  - "The solution is: age = 25"
+
+solution: |
+  age = 25
+
+  print(age)
+
+explanation: |
+  `age = 25` does two things:
+  1. Creates a variable named `age`
+  2. Assigns it the integer value `25`
+
+  In Python, there is no type declaration — you do not write `int age = 25` like
+  in C++ or `let age = 25` like in JavaScript. The variable comes into existence
+  the moment you assign to it, and Python infers the type from the value.
+
+  The variable must be created before the `print(age)` line that uses it,
+  otherwise Python raises a `NameError` saying that `age` is not defined.

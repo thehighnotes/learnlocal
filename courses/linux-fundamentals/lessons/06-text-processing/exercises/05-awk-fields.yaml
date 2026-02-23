@@ -1,0 +1,35 @@
+id: awk-fields
+title: "Extract Columns with awk"
+type: command
+prompt: |
+  A file called data.txt already exists with these space-separated lines:
+    alice 30 engineer
+    bob 25 designer
+    carol 35 manager
+  Use awk to print just the name and job (columns 1 and 3),
+  separated by a space.
+starter: |
+  # data.txt exists — use awk to extract columns 1 and 3
+environment:
+  files:
+    - path: data.txt
+      content: |
+        alice 30 engineer
+        bob 25 designer
+        carol 35 manager
+validation:
+  method: output
+  expected_output: |
+    alice engineer
+    bob designer
+    carol manager
+hints:
+  - "awk '{print $1, $3}' data.txt"
+  - "$1 is the first field, $3 is the third"
+  - "awk splits on whitespace by default"
+solution: |
+  awk '{print $1, $3}' data.txt
+explanation: |
+  awk splits each line on whitespace by default. $1 is the first field,
+  $2 the second, etc. print $1, $3 outputs fields 1 and 3 separated
+  by a space.

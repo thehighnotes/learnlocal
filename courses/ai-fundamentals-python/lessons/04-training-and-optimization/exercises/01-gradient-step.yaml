@@ -1,0 +1,57 @@
+id: gradient-step
+title: "One Gradient Descent Step"
+type: write
+
+prompt: |
+  Implement one step of gradient descent on the function `f(x) = (x - 3)²`.
+
+  The derivative (gradient) is `f'(x) = 2(x - 3)`.
+  The update rule is: `x_new = x - learning_rate * gradient`
+
+  Start at x=0.0, use learning_rate=0.1. Compute the gradient and the new x.
+
+  Print both values rounded to 1 decimal place.
+
+starter: |
+  x = 0.0
+  lr = 0.1
+
+  # Compute the gradient of f(x) = (x-3)^2 at current x
+  # gradient = 2 * (x - 3)
+
+
+  # Apply gradient descent update
+  # x_new = x - lr * gradient
+
+
+  print(f"gradient: {round(gradient, 1)}")
+  print(f"x: {x} -> {round(x_new, 1)}")
+
+validation:
+  method: output
+  expected_output: "gradient: -6.0\nx: 0.0 -> 0.6"
+
+hints:
+  - "The gradient at x=0 is 2*(0-3) = -6. Negative because x is to the left of the minimum at x=3."
+  - "x_new = 0.0 - 0.1 * (-6.0) = 0.0 + 0.6 = 0.6. Subtracting a negative gradient moves x to the right, toward the minimum."
+
+solution: |
+  x = 0.0
+  lr = 0.1
+
+  gradient = 2 * (x - 3)
+
+  x_new = x - lr * gradient
+
+  print(f"gradient: {round(gradient, 1)}")
+  print(f"x: {x} -> {round(x_new, 1)}")
+
+explanation: |
+  The gradient at x=0 is 2*(0-3) = -6.0. It is negative because the function
+  slopes downward to the right (the minimum is at x=3, to our right).
+
+  The update x_new = 0.0 - 0.1*(-6.0) = 0.6 moves x in the direction of
+  decreasing loss. Subtracting the negative gradient pushes x toward 3.
+
+  After many steps, x would converge to 3.0 (the minimum). Each step gets
+  smaller as x approaches 3 because the gradient shrinks near the minimum.

@@ -1,0 +1,91 @@
+id: simple-search
+title: "Simple Search Engine"
+type: write
+
+prompt: |
+  Build a mini search engine. Given documents represented as vectors and a query
+  vector, rank the documents by cosine similarity and print the top 3 results.
+
+  Print each result on its own line in the format: `N. title`
+
+starter: |
+  import math
+
+  documents = {
+      "machine learning basics": [0.9, 0.8, 0.3, 0.1],
+      "cooking recipes":         [0.0, 0.1, 0.0, 0.9],
+      "deep learning intro":     [0.85, 0.9, 0.4, 0.0],
+      "gardening tips":          [0.0, 0.0, 0.1, 0.8],
+      "data science overview":   [0.7, 0.6, 0.8, 0.1],
+  }
+  query = [0.9, 0.85, 0.4, 0.0]
+
+  def dot(a, b):
+      return sum(a[i] * b[i] for i in range(len(a)))
+
+  def mag(v):
+      return math.sqrt(sum(x**2 for x in v))
+
+  def cosine_sim(a, b):
+      return dot(a, b) / (mag(a) * mag(b))
+
+  # Score each document by cosine similarity with the query
+  # Sort by similarity (highest first)
+  # Print the top 3 results
+
+validation:
+  method: output
+  expected_output: |
+    1. deep learning intro
+    2. machine learning basics
+    3. data science overview
+
+hints:
+  - "Create a list of (similarity, title) tuples, then sort by similarity in descending order using `sort(reverse=True)`."
+  - "Use: `scored = [(cosine_sim(query, vec), title) for title, vec in documents.items()]` then `scored.sort(reverse=True)` and print the top 3."
+
+solution: |
+  import math
+
+  documents = {
+      "machine learning basics": [0.9, 0.8, 0.3, 0.1],
+      "cooking recipes":         [0.0, 0.1, 0.0, 0.9],
+      "deep learning intro":     [0.85, 0.9, 0.4, 0.0],
+      "gardening tips":          [0.0, 0.0, 0.1, 0.8],
+      "data science overview":   [0.7, 0.6, 0.8, 0.1],
+  }
+  query = [0.9, 0.85, 0.4, 0.0]
+
+  def dot(a, b):
+      return sum(a[i] * b[i] for i in range(len(a)))
+
+  def mag(v):
+      return math.sqrt(sum(x**2 for x in v))
+
+  def cosine_sim(a, b):
+      return dot(a, b) / (mag(a) * mag(b))
+
+  scored = []
+  for title, vec in documents.items():
+      sim = cosine_sim(query, vec)
+      scored.append((sim, title))
+  scored.sort(reverse=True)
+
+  for i in range(3):
+      print(f"{i + 1}. {scored[i][1]}")
+
+explanation: |
+  The cosine similarities with the query [0.9, 0.85, 0.4, 0.0]:
+  - "deep learning intro": ~0.998 (highest — very close to query direction)
+  - "machine learning basics": ~0.991
+  - "data science overview": ~0.952
+  - "cooking recipes": ~0.097
+  - "gardening tips": ~0.038
+
+  The AI-related documents rank highest because their vectors point in a similar
+  direction to the query. Cooking and gardening are nearly perpendicular — their
+  vectors have almost no overlap with the query.
+
+  This is how real search engines work: represent the query and documents as
+  vectors, then return the most similar documents. You just built the core of
+  a search engine in 20 lines of Python.

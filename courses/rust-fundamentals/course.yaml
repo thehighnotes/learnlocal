@@ -1,0 +1,56 @@
+name: "Rust Fundamentals"
+version: "1.0.0"
+description: "Learn Rust from scratch — ownership, types, pattern matching, error handling, and more. Build safe, fast programs in your terminal."
+author: "LearnLocal Community"
+license: "CC-BY-4.0"
+
+language:
+  id: rust
+  display_name: "Rust"
+  extension: ".rs"
+  steps:
+    - name: compile
+      command: "rustc"
+      args: ["--edition", "2021", "-o", "{dir}/{output}", "{dir}/{main}"]
+      check_exit_code: true
+    - name: run
+      command: "{dir}/{output}"
+      args: []
+      capture_output: true
+  limits:
+    timeout_seconds: 30
+    max_output_bytes: 65536
+
+lessons:
+  - id: hello-world
+    title: "Hello World & Basics"
+
+  - id: ownership
+    title: "Ownership & Borrowing"
+    requires: [hello-world]
+
+  - id: structs-enums
+    title: "Structs & Enums"
+    requires: [ownership]
+
+  - id: pattern-matching
+    title: "Pattern Matching"
+    requires: [structs-enums]
+
+  - id: error-handling
+    title: "Error Handling"
+    requires: [pattern-matching]
+
+  - id: traits
+    title: "Traits & Generics"
+    requires: [error-handling]
+
+  - id: collections
+    title: "Collections & Iterators"
+    requires: [traits]
+
+  - id: modules-testing
+    title: "Modules & Testing"
+    requires: [collections]
+
+estimated_minutes_per_lesson: 30

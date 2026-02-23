@@ -1,0 +1,34 @@
+id: control-flow
+title: "Control Flow"
+description: "Control program execution with conditions and loops"
+estimated_minutes: 30
+content: content.md
+exercises:
+  - if-else
+  - elif-chain
+  - while-loop
+  - for-range
+  - fizzbuzz
+  - break-continue
+  - for-string
+  - nested-loops
+teaches:
+  - if-else
+  - elif
+  - while-loops
+  - for-loops
+  - range-function
+  - fizzbuzz-pattern
+  - break-continue
+  - string-iteration
+  - nested-loops
+recap: |
+  You learned:
+  - if/elif/else for conditional branching (colon + indentation, not braces)
+  - while loops repeat while a condition is true
+  - for loops iterate over sequences (range, strings, lists)
+  - range(n) produces 0 through n-1, range(start, stop, step) for more control
+  - break exits a loop early, continue skips to the next iteration
+  - Strings are iterable — for char in string works naturally
+  - Nested loops for 2D patterns
+  - FizzBuzz combines loops with conditionals

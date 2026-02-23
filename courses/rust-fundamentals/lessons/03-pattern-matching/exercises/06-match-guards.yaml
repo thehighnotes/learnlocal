@@ -1,0 +1,99 @@
+id: match-guards
+title: "Classify with Match Guards"
+type: write
+
+prompt: |
+  Write a function `classify(n: i32)` that uses a `match` expression with
+  guards to print:
+
+  - "zero" if n is 0
+  - "positive even" if n is positive and even
+  - "positive odd" if n is positive and odd
+  - "negative even" if n is negative and even
+  - "negative odd" if n is negative and odd
+
+  Then call `classify` with these values in order: 0, 7, -4, 13, -9
+
+  Expected output (five lines):
+  zero
+  positive odd
+  negative even
+  positive odd
+  negative odd
+
+starter: |
+  fn classify(n: i32) {
+      // Use match with guards (if conditions) to classify the number
+      // Hint: n % 2 == 0 checks for even numbers
+  }
+
+  fn main() {
+      classify(0);
+      classify(7);
+      classify(-4);
+      classify(13);
+      classify(-9);
+  }
+
+validation:
+  method: output
+  expected_output: |
+    zero
+    positive odd
+    negative even
+    positive odd
+    negative odd
+
+hints:
+  - "A match guard looks like: `x if x > 0 && x % 2 == 0 => println!(\"positive even\")`"
+  - "Check for zero first with a literal `0` pattern. Then use guards to combine sign and parity checks."
+  - |
+    The full match:
+    match n {
+        0 => println!("zero"),
+        x if x > 0 && x % 2 == 0 => println!("positive even"),
+        x if x > 0 => println!("positive odd"),
+        x if x % 2 == 0 => println!("negative even"),
+        _ => println!("negative odd"),
+    }
+
+solution: |
+  fn classify(n: i32) {
+      match n {
+          0 => println!("zero"),
+          x if x > 0 && x % 2 == 0 => println!("positive even"),
+          x if x > 0 => println!("positive odd"),
+          x if x % 2 == 0 => println!("negative even"),
+          _ => println!("negative odd"),
+      }
+  }
+
+  fn main() {
+      classify(0);
+      classify(7);
+      classify(-4);
+      classify(13);
+      classify(-9);
+  }
+
+explanation: |
+  Match guards add an `if` condition after the pattern. The arm matches only
+  when both the pattern and the guard are true.
+
+  The evaluation for each input:
+
+  - `classify(0)`: Matches the literal `0` pattern directly.
+  - `classify(7)`: Not 0. Guard `x > 0 && x % 2 == 0` fails (7 is odd).
+    Guard `x > 0` succeeds -- prints "positive odd".
+  - `classify(-4)`: Not 0. Guard `x > 0` fails (negative). Guard
+    `x % 2 == 0` succeeds -- prints "negative even".
+  - `classify(13)`: Same path as 7 -- prints "positive odd".
+  - `classify(-9)`: Not 0, not positive, not negative even. Falls to
+    wildcard -- prints "negative odd".
+
+  Order matters: more specific guards must come before less specific ones.
+  The "positive even" arm must precede the general "positive" arm, or every
+  positive number would match the first and never reach the even check.
+
+  Note: In Rust, `-4 % 2` evaluates to `0` (the remainder keeps the sign of
+  the dividend, but for even numbers the result is always 0 regardless of sign).

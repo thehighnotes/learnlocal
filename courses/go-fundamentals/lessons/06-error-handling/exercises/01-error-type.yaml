@@ -1,0 +1,79 @@
+id: error-type
+title: "The error Interface"
+type: write
+
+prompt: |
+  Write a function `divide(a, b float64) (float64, error)` that divides `a` by `b`.
+  If `b` is zero, return `0` and an error with the message `"division by zero"`.
+  Otherwise, return the result and `nil`.
+
+  In `main`, call `divide(10, 2)` and print the result formatted to 2 decimal
+  places and the error, separated by a space. Then call `divide(10, 0)` and if
+  there is an error, print `"error: "` followed by the error message.
+
+  Expected output:
+  5.00 <nil>
+  error: division by zero
+
+starter: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  // TODO: write func divide(a, b float64) (float64, error)
+
+  func main() {
+      // TODO: call divide(10, 2), print result and error
+      // TODO: call divide(10, 0), print error if present
+  }
+
+validation:
+  method: output
+  expected_output: "5.00 <nil>\nerror: division by zero"
+
+hints:
+  - "Use `errors.New(\"division by zero\")` to create the error value."
+  - "For the first call: `fmt.Printf(\"%.2f %v\\n\", result, err)` prints the float to 2 decimal places and the error using its default format."
+  - "For the second call: check `if err != nil` and then `fmt.Println(\"error:\", err)`."
+
+solution: |
+  package main
+
+  import (
+      "errors"
+      "fmt"
+  )
+
+  func divide(a, b float64) (float64, error) {
+      if b == 0 {
+          return 0, errors.New("division by zero")
+      }
+      return a / b, nil
+  }
+
+  func main() {
+      result, err := divide(10, 2)
+      fmt.Printf("%.2f %v\n", result, err)
+
+      _, err = divide(10, 0)
+      if err != nil {
+          fmt.Println("error:", err)
+      }
+  }
+
+explanation: |
+  This exercise demonstrates the fundamental Go error pattern:
+
+  - Functions that can fail return `(result, error)` as a pair.
+  - `errors.New("message")` creates a simple error value.
+  - When there is no error, return `nil` for the error value.
+  - The caller checks `if err != nil` to detect failure.
+
+  The `%v` format verb prints any value in its default format. For `nil`, it
+  prints `<nil>`. For an error, it calls the `Error()` method.
+
+  This pattern — return a result and an error, check the error before using
+  the result — is the single most important idiom in Go.

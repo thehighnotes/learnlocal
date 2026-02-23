@@ -1,0 +1,42 @@
+id: list-branches
+title: "Find the Current Branch"
+type: command
+prompt: |
+  You just joined a project and cloned the repo. Someone left you on
+  a branch that isn't main, but they didn't tell you which one.
+
+  The repo has 4 branches. Figure out which branch you're currently
+  on and write its name (just the name, nothing else) to a file
+  called `answer.txt`.
+starter: |
+  #!/bin/bash
+  # Figure out which branch you're on and write its name to answer.txt
+  # The name should be the only content in the file (no extra spaces or lines)
+environment:
+  setup:
+    - name: init-repo
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base' > readme.txt && git add readme.txt && git commit -m 'Initial commit' && git branch staging && git branch develop && git branch hotfix && git checkout develop && echo 'dev work' > dev.txt && git add dev.txt && git commit -m 'Dev work'"]
+      timeout_seconds: 10
+  cwd: repo
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/answer.txt
+    - file_contains:
+        path: repo/answer.txt
+        content: "develop"
+hints:
+  - "git branch lists all branches -- the current one has an asterisk (*) next to it"
+  - "git branch --show-current prints just the branch name with no extra formatting"
+  - "Write the output to a file: git branch --show-current > answer.txt"
+solution: |
+  #!/bin/bash
+  git branch --show-current > answer.txt
+explanation: |
+  `git branch --show-current` prints just the name of the current
+  branch with no formatting or asterisks. It's the cleanest way to
+  get the branch name programmatically. You could also parse the
+  output of `git branch` (look for the * prefix) or use
+  `git rev-parse --abbrev-ref HEAD`, but --show-current is the
+  most straightforward option.

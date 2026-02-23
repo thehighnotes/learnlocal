@@ -1,0 +1,32 @@
+id: list-comprehension
+title: "List Comprehension"
+type: write
+
+prompt: |
+  Use a list comprehension to create a list of the squares of numbers 1 through
+  5 (i.e., 1, 4, 9, 16, 25). Print the resulting list.
+
+starter: |
+  # Create a list of squares using a list comprehension
+
+
+  # Print the list
+
+validation:
+  method: output
+  expected_output: "[1, 4, 9, 16, 25]"
+
+hints:
+  - "The syntax is `[expression for variable in iterable]`. Use `range(1, 6)` to get numbers 1 through 5."
+  - "Write `squares = [x ** 2 for x in range(1, 6)]` then `print(squares)`."
+
+solution: |
+  squares = [x ** 2 for x in range(1, 6)]
+  print(squares)
+
+explanation: |
+  `[x ** 2 for x in range(1, 6)]` iterates over 1, 2, 3, 4, 5 and computes
+  the square of each. The results are collected into a new list: `[1, 4, 9, 16, 25]`.
+  This is equivalent to building the list with a `for` loop and `append`, but
+  the comprehension is more concise. `range(1, 6)` produces numbers from 1 to
+  5 because the stop value (6) is exclusive.

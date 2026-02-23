@@ -1,0 +1,60 @@
+id: empty-interface
+title: "Empty Interface"
+type: write
+
+prompt: |
+  Write a function `printType(v interface{})` that uses `fmt.Printf` to print the
+  type and value of its argument. Use the format `"%T: %v\n"` where `%T` prints
+  the type name and `%v` prints the value.
+
+  In `main`, call `printType` with three values: `42` (int), `"hello"` (string),
+  and `true` (bool).
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Write printType(v interface{}) that prints type and value
+  // Use fmt.Printf("%T: %v\n", v, v)
+
+
+  func main() {
+  	_ = fmt.Println
+
+  	// Call printType with 42, "hello", and true
+
+  }
+
+validation:
+  method: output
+  expected_output: "int: 42\nstring: hello\nbool: true\n"
+
+hints:
+  - "`interface{}` (or `any`) accepts any value because it has zero required methods."
+  - "Use `fmt.Printf(\"%T: %v\\n\", v, v)` — `%T` prints the type, `%v` prints the value."
+  - "Call: `printType(42)`, `printType(\"hello\")`, `printType(true)`."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func printType(v interface{}) {
+  	fmt.Printf("%T: %v\n", v, v)
+  }
+
+  func main() {
+  	printType(42)
+  	printType("hello")
+  	printType(true)
+  }
+
+explanation: |
+  The empty interface `interface{}` has no methods, so every type satisfies it.
+  This makes it Go's equivalent of a "generic" parameter (before generics were
+  added). The `%T` verb in `fmt.Printf` prints the dynamic type of the value,
+  and `%v` prints the default representation. When you pass `42`, Go sees it as
+  `int`; `"hello"` as `string`; `true` as `bool`. The empty interface is useful
+  for functions that truly need to accept any type, but you give up compile-time
+  type checking.

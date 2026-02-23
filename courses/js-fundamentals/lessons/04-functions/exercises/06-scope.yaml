@@ -1,0 +1,56 @@
+id: scope
+title: "Variable Scope"
+type: predict
+
+prompt: |
+  What does the following program print?
+
+  ```javascript
+  let x = "global";
+
+  function test() {
+    let x = "local";
+    console.log(x);
+  }
+
+  test();
+  console.log(x);
+  ```
+
+  The variable x is declared in two places. What value does each
+  console.log print?
+
+validation:
+  method: output
+  expected_output: "local\nglobal"
+
+hints:
+  - "The let x inside the function creates a new, separate variable that shadows the outer x."
+  - "Inside the function, x refers to the local variable. Outside, it refers to the global one."
+
+solution: |
+  let x = "global";
+
+  function test() {
+    let x = "local";
+    console.log(x);
+  }
+
+  test();
+  console.log(x);
+
+explanation: |
+  This demonstrates variable shadowing:
+
+  1. `let x = "global"` creates a variable in the outer (module) scope.
+  2. Inside `test()`, `let x = "local"` creates a completely separate
+     variable that happens to have the same name. This inner x "shadows"
+     the outer one within the function.
+  3. `console.log(x)` inside test() prints "local" — it sees the inner x.
+  4. `console.log(x)` outside test() prints "global" — the outer x was
+     never modified.
+
+  The two variables named x are independent. Changing the inner one does
+  not affect the outer one. If the function had not declared its own x
+  (no `let x = "local"` line), then it would have accessed and printed
+  the outer "global" variable.

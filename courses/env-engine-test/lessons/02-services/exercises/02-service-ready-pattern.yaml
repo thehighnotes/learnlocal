@@ -1,0 +1,39 @@
+id: service-ready-pattern
+title: "Service Ready Pattern"
+type: write
+prompt: |
+  A background service runs a script that prints "server ready" to stdout.
+  The environment engine waits for that pattern before running your code.
+  Print "pattern confirmed" to prove your code ran after the service was ready.
+starter: |
+  #!/bin/bash
+  # The service printed "server ready" — the engine waited for that pattern.
+  # Print "pattern confirmed" to verify.
+environment:
+  files:
+    - path: server.sh
+      content: |
+        #!/bin/bash
+        echo "server ready"
+        sleep 60
+      permissions: "755"
+  services:
+    - name: test-server
+      command: bash
+      args: ["server.sh"]
+      ready_pattern: "server ready"
+      ready_timeout_seconds: 5
+validation:
+  method: output
+  expected_output: "pattern confirmed"
+hints:
+  - "Just print the expected text"
+  - "echo 'pattern confirmed'"
+solution: |
+  #!/bin/bash
+  echo "pattern confirmed"
+explanation: |
+  The environment creates server.sh via env.files, then starts it as a
+  background service. The engine reads stdout lines until one matches
+  the ready_pattern "server ready". Only then does your script run.
+  The service is killed after teardown.

@@ -1,0 +1,58 @@
+id: three-way-merge
+title: "Merge Two Feature Branches"
+type: command
+prompt: |
+  Time to bring it all together. There are two feature branches that
+  need to be merged into `main`:
+
+  - `feature-a` added a file called `a.txt` with content "feature A"
+  - `feature-b` added a file called `b.txt` with content "feature B"
+
+  Neither branch conflicts with the other (they touch different files).
+  Merge BOTH branches into `main` so that all three files exist:
+  `base.txt`, `a.txt`, and `b.txt`.
+
+  Two merges, zero conflicts. A clean victory.
+starter: |
+  # Merge both feature-a and feature-b into main.
+  # No conflicts expected — they changed different files.
+
+environment:
+  setup:
+    - name: create-three-way-scenario
+      command: sh
+      args: ["-c", "cd {dir} && mkdir -p repo && cd repo && git init && git branch -M main && git config user.email test@test.com && git config user.name Test && echo 'base content' > base.txt && git add base.txt && git commit -m 'initial' && git checkout -b feature-a && echo 'feature A' > a.txt && git add a.txt && git commit -m 'add feature A' && git checkout main && git checkout -b feature-b && echo 'feature B' > b.txt && git add b.txt && git commit -m 'add feature B' && git checkout main"]
+      timeout_seconds: 10
+  cwd: repo
+  teardown:
+    - name: capture-state
+      command: sh
+      args: ["-c", "cd {dir}/repo && echo \"branch=$(git branch --show-current)\" > {dir}/result.txt && echo \"commits=$(git log --oneline | wc -l | tr -d ' ')\" >> {dir}/result.txt && git log --oneline --all >> {dir}/result.txt"]
+      timeout_seconds: 5
+validation:
+  method: state
+  assertions:
+    - file_exists: repo/base.txt
+    - file_exists: repo/a.txt
+    - file_exists: repo/b.txt
+    - file_contains:
+        path: repo/a.txt
+        content: "feature A"
+    - file_contains:
+        path: repo/b.txt
+        content: "feature B"
+    - file_matches:
+        path: result.txt
+        pattern: "branch=main"
+hints:
+  - "You can merge branches one at a time: git merge feature-a, then git merge feature-b"
+  - "Since there are no conflicts, both merges should complete automatically"
+  - "git merge feature-a && git merge feature-b"
+solution: |
+  git merge feature-a
+  git merge feature-b
+explanation: |
+  Merging two non-conflicting branches is straightforward — just merge them
+  one after another. Each merge creates a merge commit (or fast-forwards if
+  possible). Since feature-a and feature-b modified different files, there
+  are no conflicts. In practice, most merges are this clean.

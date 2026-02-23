@@ -1,0 +1,65 @@
+id: opposite-vectors
+title: "Opposite Vectors"
+type: predict
+
+prompt: |
+  What does this code print?
+
+  ```python
+  import math
+
+  a = [1, 0]
+  b = [-1, 0]
+
+  d = sum(a[i] * b[i] for i in range(len(a)))
+  mag_a = math.sqrt(sum(x**2 for x in a))
+  mag_b = math.sqrt(sum(x**2 for x in b))
+  cos_sim = d / (mag_a * mag_b)
+  print(round(cos_sim, 1))
+  ```
+
+  Think about the direction of these two vectors. One points right, the other
+  points left.
+
+starter: |
+  import math
+
+  a = [1, 0]
+  b = [-1, 0]
+
+  d = sum(a[i] * b[i] for i in range(len(a)))
+  mag_a = math.sqrt(sum(x**2 for x in a))
+  mag_b = math.sqrt(sum(x**2 for x in b))
+  cos_sim = d / (mag_a * mag_b)
+  print(round(cos_sim, 1))
+
+validation:
+  method: output
+  expected_output: "-1.0"
+
+hints:
+  - "Compute the dot product step by step: 1*(-1) + 0*0 = -1. Both magnitudes are 1. What is -1 / (1 * 1)?"
+  - "The answer is -1.0. Vectors pointing in opposite directions always have cosine similarity of -1.0."
+
+solution: |
+  import math
+
+  a = [1, 0]
+  b = [-1, 0]
+
+  d = sum(a[i] * b[i] for i in range(len(a)))
+  mag_a = math.sqrt(sum(x**2 for x in a))
+  mag_b = math.sqrt(sum(x**2 for x in b))
+  cos_sim = d / (mag_a * mag_b)
+  print(round(cos_sim, 1))
+
+explanation: |
+  Dot product: 1*(-1) + 0*0 = -1. Both magnitudes: sqrt(1) = 1.
+  Cosine similarity: -1 / (1 * 1) = -1.0.
+
+  This is the minimum possible cosine similarity. It means the vectors are
+  as dissimilar as possible — they point in exactly opposite directions. In a
+  word embedding, this would mean the concepts are maximally different.
+
+  The three key values: 1.0 (same direction), 0.0 (perpendicular), -1.0
+  (opposite direction).

@@ -1,0 +1,89 @@
+id: deploy-gone-wrong
+title: "Deploy Gone Wrong"
+type: command
+prompt: |
+  ALERT: Partial deploy left the system in a broken state. Severity: HIGH.
+
+  A deploy of v2 was interrupted halfway through. Some files were updated
+  to v2, but others are still on v1. The system is in an inconsistent state
+  and nothing works.
+
+  The `manifest.txt` file lists every file that v2 needs and what its
+  content should be. Compare the current state against the manifest and
+  fix any files that are still on v1 or missing.
+
+  All files live under the `app/` directory.
+starter: |
+  # Half-finished deploy. Check manifest.txt for what v2 should look like.
+  # Fix any files that are wrong or missing.
+environment:
+  dirs:
+    - app
+  files:
+    - path: manifest.txt
+      content: |
+        # Deploy Manifest: v2.0.0
+        # Each line: <path> <expected content marker>
+        #
+        # app/server.py    — must contain "version = '2.0.0'"
+        # app/config.json  — must contain "api_version": "v2"
+        # app/routes.py    — must contain "# Routes v2"
+        # app/middleware.py — must contain "# Middleware v2"
+    - path: app/server.py
+      content: |
+        # Order Service
+        version = '2.0.0'
+        print(f"Starting server {version}")
+    - path: app/config.json
+      content: |
+        {
+          "app_name": "order-service",
+          "api_version": "v1",
+          "port": 8080
+        }
+    - path: app/routes.py
+      content: |
+        # Routes v1
+        def get_orders():
+            return []
+    - path: error.log
+      content: |
+        2024-03-15 07:00:00 [deploy] Starting deploy v2.0.0
+        2024-03-15 07:00:01 [deploy] Updated: app/server.py -> v2
+        2024-03-15 07:00:02 [deploy] ERROR: Connection timeout during file transfer
+        2024-03-15 07:00:02 [deploy] ABORTED: Deploy incomplete — 2 of 4 files updated
+        2024-03-15 07:00:03 [deploy] WARNING: System in inconsistent state
+        2024-03-15 07:00:03 [deploy] Files NOT updated: app/config.json, app/routes.py
+        2024-03-15 07:00:03 [deploy] File MISSING: app/middleware.py (new in v2)
+validation:
+  method: state
+  assertions:
+    - file_contains:
+        path: app/server.py
+        content: "version = '2.0.0'"
+    - file_contains:
+        path: app/config.json
+        content: '"api_version": "v2"'
+    - file_contains:
+        path: app/routes.py
+        content: "# Routes v2"
+    - file_exists: app/middleware.py
+    - file_contains:
+        path: app/middleware.py
+        content: "# Middleware v2"
+hints:
+  - "Read `manifest.txt` and `error.log`. The deploy log tells you which files weren't updated: `app/config.json`, `app/routes.py`, and `app/middleware.py` (missing entirely)."
+  - "Fix config.json: change `\"api_version\": \"v1\"` to `\"api_version\": \"v2\"`. Fix routes.py: change `# Routes v1` to `# Routes v2`. Create middleware.py with `# Middleware v2`."
+  - "`sed -i 's/\"v1\"/\"v2\"/' app/config.json && sed -i 's/Routes v1/Routes v2/' app/routes.py && echo '# Middleware v2' > app/middleware.py`"
+solution: |
+  sed -i 's/"v1"/"v2"/' app/config.json
+  sed -i 's/Routes v1/Routes v2/' app/routes.py
+  echo '# Middleware v2' > app/middleware.py
+explanation: |
+  Interrupted deploys are one of the scariest incidents because the system
+  is in a state that was never tested — half old code, half new. The deploy
+  log told us exactly which files were updated and which weren't. The
+  manifest told us what each file should contain. In production, atomic
+  deploy strategies (like the symlink pattern from the previous lesson)
+  prevent this: either the new version is fully deployed, or you're still
+  on the old one. There's no half-state.

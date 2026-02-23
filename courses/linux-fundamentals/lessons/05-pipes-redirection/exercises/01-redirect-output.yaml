@@ -1,0 +1,20 @@
+id: redirect-output
+title: "Redirect to a File"
+type: command
+prompt: |
+  Use echo and output redirection (>) to write "hello world" to a
+  file called out.txt, then use cat to print the file contents.
+starter: |
+  # Write to file with >, then read it back with cat
+validation:
+  method: output
+  expected_output: "hello world"
+hints:
+  - 'echo "hello world" > out.txt'
+  - "cat out.txt prints the contents"
+solution: |
+  echo "hello world" > out.txt
+  cat out.txt
+explanation: |
+  > redirects stdout to a file, creating or overwriting it.
+  cat reads it back to stdout.

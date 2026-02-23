@@ -1,0 +1,88 @@
+id: implicit-impl
+title: "Implicit Implementation"
+type: write
+
+prompt: |
+  Define a `Speaker` interface with a single method `Speak() string`. Then create
+  two structs — `Dog` and `Cat` — each implementing `Speak()`. A `Dog` speaks
+  `"Woof!"` and a `Cat` speaks `"Meow!"`.
+
+  Write a function `makeSpeak(s Speaker)` that prints the result of `s.Speak()`.
+  In `main`, call `makeSpeak` with a `Dog` and then a `Cat`.
+
+starter: |
+  package main
+
+  import "fmt"
+
+  // Define the Speaker interface with Speak() string
+
+
+  // Define Dog struct
+
+
+  // Implement Speak() for Dog — return "Woof!"
+
+
+  // Define Cat struct
+
+
+  // Implement Speak() for Cat — return "Meow!"
+
+
+  // Write makeSpeak(s Speaker) that prints s.Speak()
+
+
+  func main() {
+  	_ = fmt.Println
+
+  	// Call makeSpeak with a Dog and then a Cat
+
+  }
+
+validation:
+  method: output
+  expected_output: "Woof!\nMeow!\n"
+
+hints:
+  - "The interface is: `type Speaker interface { Speak() string }`."
+  - "`func (d Dog) Speak() string { return \"Woof!\" }` — no `implements` keyword needed."
+  - "`func makeSpeak(s Speaker) { fmt.Println(s.Speak()) }` — accepts any Speaker."
+
+solution: |
+  package main
+
+  import "fmt"
+
+  type Speaker interface {
+  	Speak() string
+  }
+
+  type Dog struct{}
+
+  func (d Dog) Speak() string {
+  	return "Woof!"
+  }
+
+  type Cat struct{}
+
+  func (c Cat) Speak() string {
+  	return "Meow!"
+  }
+
+  func makeSpeak(s Speaker) {
+  	fmt.Println(s.Speak())
+  }
+
+  func main() {
+  	makeSpeak(Dog{})
+  	makeSpeak(Cat{})
+  }
+
+explanation: |
+  Go uses implicit interface satisfaction. `Dog` has a `Speak() string` method,
+  so it is a `Speaker`. Same for `Cat`. Neither type mentions `Speaker` in its
+  definition. The `makeSpeak` function accepts any `Speaker`, demonstrating
+  polymorphism: the same function works with different concrete types. This is
+  the core of Go's interface design — you define what behavior you need, and
+  any type that provides it can be used.

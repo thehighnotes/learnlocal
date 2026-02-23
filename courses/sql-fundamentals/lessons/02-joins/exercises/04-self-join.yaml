@@ -1,0 +1,69 @@
+id: self-join
+title: "Self-Join — Org Chart"
+type: write
+
+prompt: |
+  The `employees` table has a `manager_id` column that references another
+  employee's `id`. The CEO (Sarah) has a NULL manager_id.
+
+  Write a self-join query that shows each employee's name alongside their
+  manager's name. Use a LEFT JOIN so that Sarah (who has no manager) still
+  appears with an empty manager column.
+
+  Expected columns: employee name, manager name (or empty for CEO).
+  Order by: employee's id.
+
+starter: |
+  -- Show each employee and their manager
+  -- The CEO has no manager (NULL manager_id)
+  -- Use LEFT JOIN so the CEO still appears
+  -- Order by: employee id
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (id INTEGER, name TEXT, manager_id INTEGER);
+        INSERT INTO employees VALUES (1, 'Sarah', NULL);
+        INSERT INTO employees VALUES (2, 'Tom', 1);
+        INSERT INTO employees VALUES (3, 'Lisa', 1);
+        INSERT INTO employees VALUES (4, 'Mike', 2);
+        INSERT INTO employees VALUES (5, 'Anna', 2);
+        INSERT INTO employees VALUES (6, 'Jake', 3);
+
+validation:
+  method: output
+  expected_output: |
+    Sarah|
+    Tom|Sarah
+    Lisa|Sarah
+    Mike|Tom
+    Anna|Tom
+    Jake|Lisa
+
+hints:
+  - "A self-join uses the same table twice. You need aliases to tell them apart: FROM employees e LEFT JOIN employees m"
+  - "The join condition links the employee's manager_id to the manager's id: ON e.manager_id = m.id"
+  - "Full query: SELECT e.name, m.name FROM employees e LEFT JOIN employees m ON e.manager_id = m.id ORDER BY e.id;"
+
+solution: |
+  SELECT e.name, m.name
+  FROM employees e
+  LEFT JOIN employees m ON e.manager_id = m.id
+  ORDER BY e.id;
+
+explanation: |
+  A self-join joins a table to itself. The `employees` table appears twice in
+  the query:
+  - `employees e` represents the employee (the person we are looking up).
+  - `employees m` represents the manager (the person they report to).
+
+  The condition `e.manager_id = m.id` links each employee to their manager.
+
+  We use LEFT JOIN because Sarah's `manager_id` is NULL — there is no matching
+  row in the manager copy of the table. With INNER JOIN, Sarah would be excluded
+  entirely. LEFT JOIN keeps her in the result with NULL (empty) for the manager
+  name.
+
+  Table aliases (`e` and `m`) are mandatory here. Without them, SQLite would not
+  know which `employees.name` or `employees.id` you mean.

@@ -1,0 +1,60 @@
+id: auto-keyword
+title: "The auto Keyword"
+type: write
+
+prompt: |
+  Use `auto` to declare three variables:
+
+  1. An integer with value `42`
+  2. A double with value `3.14`
+  3. A character with value `'Z'`
+
+  Print all three on a single line, separated by spaces.
+
+  Expected output: `42 3.14 Z`
+
+starter: |
+  #include <iostream>
+
+  int main() {
+      // Declare three variables using auto
+
+      // Print them space-separated on one line
+
+      return 0;
+  }
+
+validation:
+  method: output
+  expected_output: "42 3.14 Z"
+
+hints:
+  - "The `auto` keyword replaces the type name: `auto x = 42;` instead of `int x = 42;`"
+  - "The compiler deduces the type from the value: `42` is `int`, `3.14` is `double`, `'Z'` is `char`."
+  - "Print them with: `std::cout << a << \" \" << b << \" \" << c << std::endl;`"
+
+solution: |
+  #include <iostream>
+
+  int main() {
+      auto number = 42;
+      auto pi = 3.14;
+      auto letter = 'Z';
+
+      std::cout << number << " " << pi << " " << letter << std::endl;
+
+      return 0;
+  }
+
+explanation: |
+  The `auto` keyword tells the compiler to figure out the type from the
+  initializer:
+
+  - `auto number = 42;` — `42` is an integer literal, so `number` is `int`
+  - `auto pi = 3.14;` — `3.14` is a floating-point literal, so `pi` is `double`
+  - `auto letter = 'Z';` — `'Z'` is a character literal, so `letter` is `char`
+
+  The deduction happens entirely at compile time. The resulting program is
+  identical to one where you wrote `int`, `double`, and `char` explicitly.
+  `auto` shines most with complex types, but it works with any type that has
+  an initializer.

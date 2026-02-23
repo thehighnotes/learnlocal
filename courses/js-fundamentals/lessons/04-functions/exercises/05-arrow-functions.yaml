@@ -1,0 +1,50 @@
+id: arrow-functions
+title: "Arrow Functions"
+type: write
+
+prompt: |
+  Rewrite these two operations as arrow functions and print their results:
+
+  1. A "double" arrow function that takes x and returns x * 2. Print double(5).
+  2. A "subtract" arrow function that takes a and b and returns a - b. Print subtract(10, 3).
+
+  Expected output:
+  10
+  7
+
+starter: |
+  // Define double as an arrow function: const double = (x) => x * 2;
+  // Define subtract as an arrow function: const subtract = (a, b) => a - b;
+
+  // Print: double(5) and subtract(10, 3)
+
+validation:
+  method: output
+  expected_output: "10\n7"
+
+hints:
+  - "Arrow function with one param: const double = (x) => x * 2;"
+  - "Arrow function with two params: const subtract = (a, b) => a - b;"
+  - "Print: console.log(double(5)); console.log(subtract(10, 3));"
+
+solution: |
+  const double = (x) => x * 2;
+  const subtract = (a, b) => a - b;
+  console.log(double(5));
+  console.log(subtract(10, 3));
+
+explanation: |
+  Arrow functions are a concise syntax introduced in ES2015:
+
+  - `(x) => x * 2` is equivalent to `function(x) { return x * 2; }`
+  - When the body is a single expression, the return is implicit — no need
+    to write `return` or curly braces.
+  - For multiple statements, use braces and explicit return:
+    `(x) => { const result = x * 2; return result; }`
+
+  Arrow functions are stored in variables (const or let) since they don't
+  have their own name. They are not hoisted like function declarations, so
+  you must define them before using them.
+
+  Arrow functions also differ in how they handle `this`, but that becomes
+  important later when working with objects and classes.

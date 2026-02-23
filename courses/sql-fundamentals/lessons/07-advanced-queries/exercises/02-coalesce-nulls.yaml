@@ -1,0 +1,83 @@
+id: coalesce-nulls
+title: "COALESCE for NULLs"
+type: fix
+
+prompt: |
+  This query tries to display each employee's name and email, substituting
+  'not provided' for anyone without an email. But it has a bug — it uses an
+  equality check instead of COALESCE.
+
+  Fix the query so employees with NULL emails show 'not provided' instead of
+  a blank.
+
+  Order the results by name.
+
+  Table schema: employees (id INTEGER, name TEXT, department TEXT, salary INTEGER,
+  hire_date TEXT, email TEXT)
+
+  Three employees have NULL emails: Bob Martinez, Eve Johnson, Hank Brown.
+
+starter: |
+  SELECT name,
+         CASE WHEN email = NULL THEN 'not provided' ELSE email END AS contact
+  FROM employees
+  ORDER BY name;
+
+environment:
+  files:
+    - path: setup.sql
+      content: |
+        CREATE TABLE employees (
+            id INTEGER, name TEXT, department TEXT,
+            salary INTEGER, hire_date TEXT, email TEXT
+        );
+        INSERT INTO employees VALUES (1, 'Alice Chen', 'Engineering', 92000, '2020-03-15', 'alice@company.com');
+        INSERT INTO employees VALUES (2, 'Bob Martinez', 'Engineering', 85000, '2021-07-01', NULL);
+        INSERT INTO employees VALUES (3, 'Carol Davis', 'Marketing', 78000, '2019-11-20', 'carol@company.com');
+        INSERT INTO employees VALUES (4, 'Dan Wilson', 'Marketing', 72000, '2022-01-10', 'dan@company.com');
+        INSERT INTO employees VALUES (5, 'Eve Johnson', 'Sales', 68000, '2023-06-01', NULL);
+        INSERT INTO employees VALUES (6, 'Frank Lee', 'Engineering', 95000, '2018-09-12', 'frank@company.com');
+        INSERT INTO employees VALUES (7, 'Grace Kim', 'Sales', 71000, '2021-04-05', 'grace@company.com');
+        INSERT INTO employees VALUES (8, 'Hank Brown', 'Marketing', 82000, '2020-08-30', NULL);
+        INSERT INTO employees VALUES (9, 'Iris Patel', 'Sales', 74000, '2022-12-15', 'iris@company.com');
+
+validation:
+  method: output
+  expected_output: |
+    Alice Chen|alice@company.com
+    Bob Martinez|not provided
+    Carol Davis|carol@company.com
+    Dan Wilson|dan@company.com
+    Eve Johnson|not provided
+    Frank Lee|frank@company.com
+    Grace Kim|grace@company.com
+    Hank Brown|not provided
+    Iris Patel|iris@company.com
+
+hints:
+  - "NULL = NULL evaluates to NULL (not true), so the CASE WHEN never matches. You cannot compare NULL with ="
+  - "COALESCE(value, fallback) returns the first non-NULL argument. Replace the entire CASE expression with COALESCE"
+  - |
+    The fix is:
+    SELECT name,
+           COALESCE(email, 'not provided') AS contact
+    FROM employees
+    ORDER BY name;
+
+solution: |
+  SELECT name,
+         COALESCE(email, 'not provided') AS contact
+  FROM employees
+  ORDER BY name;
+
+explanation: |
+  The bug is a classic NULL trap: `email = NULL` does not return true even when
+  email is NULL. In SQL, any comparison with NULL yields NULL (which is falsy).
+  The correct way to check for NULL is `IS NULL`, but COALESCE is even cleaner.
+
+  `COALESCE(email, 'not provided')` returns `email` if it is not NULL, otherwise
+  it returns `'not provided'`. It handles the NULL check and the fallback value
+  in a single function call.
+
+  This is one of the most common SQL bugs. Remember: you can never use = or !=
+  with NULL. Always use IS NULL, IS NOT NULL, or COALESCE.

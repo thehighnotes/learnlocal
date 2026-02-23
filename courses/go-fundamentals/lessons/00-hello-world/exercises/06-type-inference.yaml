@@ -1,0 +1,66 @@
+id: type-inference
+title: "Fix the Short Declarations"
+type: fix
+
+prompt: |
+  The program below has bugs related to the `:=` short declaration operator.
+  Find and fix them so the program compiles and prints:
+
+  x=10 y=20 z=hello world
+
+  There are two errors:
+  1. One variable is being redeclared with `:=` when it should use `=`
+  2. One variable declaration is missing the short declaration operator
+
+starter: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      x := 10
+      y := 20
+      x := x + 0
+      z "hello world"
+      fmt.Printf("x=%d y=%d z=%s\n", x, y, z)
+  }
+
+validation:
+  method: output
+  expected_output: "x=10 y=20 z=hello world"
+
+hints:
+  - "The `:=` operator declares a NEW variable. If the variable already exists, use `=` to reassign."
+  - "Line 3 tries to redeclare x with `:=`, but x was already declared on line 1. Change `:=` to `=`."
+  - "The z line is missing the `:=` operator. It should be: z := \"hello world\""
+
+solution: |
+  package main
+
+  import "fmt"
+
+  func main() {
+      x := 10
+      y := 20
+      x = x + 0
+      z := "hello world"
+      fmt.Printf("x=%d y=%d z=%s\n", x, y, z)
+  }
+
+explanation: |
+  Two fixes were needed:
+
+  1. `x := x + 0` changed to `x = x + 0` — the variable `x` was already
+     declared on the first line. Using `:=` again tries to create a new variable
+     with the same name, which Go rejects with: "no new variables on left side
+     of :=". Use `=` for reassignment.
+
+  2. `z "hello world"` changed to `z := "hello world"` — this line was missing
+     the short declaration operator entirely. Without `:=` or `var`, Go does
+     not know you are creating a variable.
+
+  The rule is simple:
+  - `:=` declares AND assigns (first time only)
+  - `=` reassigns (variable must already exist)
+  - You cannot use `:=` on a variable that is already declared in the same scope
+    (unless at least one other variable on the left side is new)

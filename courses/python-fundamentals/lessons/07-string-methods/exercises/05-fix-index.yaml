@@ -1,0 +1,54 @@
+id: fix-index
+title: "Fix the Index Bug"
+type: fix
+
+prompt: |
+  This program tries to get the first and last characters of the word
+  "Python". The first character works, but the last character is wrong.
+
+  The programmer used `word[-0]` to get the last character, but `-0` is the
+  same as `0` in Python — it gives the first character, not the last.
+
+  Fix the bug so the output is: First: P, Last: n
+
+starter: |
+  word = "Python"
+  first = word[0]
+  last = word[-0]  # Bug: -0 is the same as 0
+  print(f"First: {first}, Last: {last}")
+
+validation:
+  method: output
+  expected_output: "First: P, Last: n"
+
+hints:
+  - "The bug is that -0 equals 0 in Python, so word[-0] gives 'P' (the first character) instead of 'n' (the last)"
+  - "Negative indexing starts at -1, not -0. Use word[-1] for the last character"
+  - "Change word[-0] to word[-1]"
+
+solution: |
+  word = "Python"
+  first = word[0]
+  last = word[-1]
+  print(f"First: {first}, Last: {last}")
+
+explanation: |
+  The bug is subtle: `-0` is mathematically identical to `0`. In Python,
+  `word[-0]` is the same as `word[0]`, which gives the first character 'P' —
+  not the last character.
+
+  Negative indexing in Python starts at `-1`:
+
+  - `word[-1]` is the last character: 'n'
+  - `word[-2]` is the second to last: 'o'
+  - `word[-3]` is the third to last: 'h'
+  - And so on...
+
+  The fix is simply changing `-0` to `-1`. This is a common mistake when
+  first learning negative indexing — it is natural to think "negative zero
+  means the end" by analogy with how `0` means the beginning, but that is
+  not how it works.
+
+  The positive indices go 0, 1, 2, ... from the left.
+  The negative indices go -1, -2, -3, ... from the right.
+  There is no -0 because it would overlap with 0.

@@ -1,0 +1,29 @@
+id: fix-path
+title: "Fix the Broken Path"
+type: fix
+prompt: |
+  This script tries to create a directory and navigate into it, but the
+  cd command has the wrong path. Fix it so the script prints:
+  /tmp/fixme/correct
+starter: |
+  #!/bin/bash
+  mkdir -p /tmp/fixme/correct
+  cd /tmp/fixme/wrong
+  pwd
+  rm -rf /tmp/fixme
+validation:
+  method: output
+  expected_output: "/tmp/fixme/correct"
+hints:
+  - "The mkdir creates /tmp/fixme/correct but cd goes to /tmp/fixme/wrong"
+  - 'Change "wrong" to "correct" in the cd command'
+solution: |
+  #!/bin/bash
+  mkdir -p /tmp/fixme/correct
+  cd /tmp/fixme/correct
+  pwd
+  rm -rf /tmp/fixme
+explanation: |
+  The cd path must match the directory that actually exists. cd to a
+  nonexistent directory silently fails, and pwd prints wherever you
+  still are.

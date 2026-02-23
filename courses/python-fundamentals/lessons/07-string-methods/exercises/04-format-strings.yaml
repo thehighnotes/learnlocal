@@ -1,0 +1,49 @@
+id: format-strings
+title: "f-String Formatting"
+type: write
+
+prompt: |
+  Given `name = "Alice"` and `score = 95.678`, use an f-string to print:
+
+  Alice scored 95.68
+
+  The score must be rounded to exactly 2 decimal places using the :.2f
+  format specifier inside the f-string.
+
+starter: |
+  name = "Alice"
+  score = 95.678
+  # Print using an f-string with score rounded to 2 decimal places
+
+validation:
+  method: output
+  expected_output: "Alice scored 95.68"
+
+hints:
+  - "f-strings start with f before the quote: f\"text {variable}\""
+  - "Format specifiers go after a colon inside the braces: {score:.2f} rounds to 2 decimal places"
+  - "The complete line is: print(f\"{name} scored {score:.2f}\")"
+
+solution: |
+  name = "Alice"
+  score = 95.678
+  print(f"{name} scored {score:.2f}")
+
+explanation: |
+  f-strings let you embed expressions directly in strings by prefixing with
+  `f` and wrapping expressions in curly braces `{}`.
+
+  The format specifier `:.2f` after the variable name controls how the number
+  is displayed:
+
+  - The `:` separates the variable from its format specifier
+  - `.2` means 2 decimal places
+  - `f` means fixed-point notation (always show the decimal point)
+
+  So `{score:.2f}` takes the value 95.678 and displays it as "95.68",
+  rounding to 2 decimal places.
+
+  Without the format specifier, `{score}` would print "95.678" — all the
+  decimal places Python stored. The :.2f specifier gives you precise control
+  over numeric output, which is essential for displaying prices, percentages,
+  scientific measurements, and any other formatted numbers.

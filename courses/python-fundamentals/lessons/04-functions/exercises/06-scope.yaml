@@ -1,0 +1,45 @@
+id: scope
+title: "Variable Scope"
+type: write
+
+prompt: |
+  Demonstrate local variable scope. Write a function `set_x()` that creates
+  a local variable `x = 10` and prints it. Then:
+  - Set a global variable `x = 5`
+  - Call `set_x()` (which prints 10)
+  - Print `x` (which should still be 5)
+
+  The output should be two lines: `10` then `5`.
+
+starter: |
+  # Define set_x() that creates a local x = 10 and prints it
+
+
+  x = 5
+  set_x()
+  print(x)
+
+validation:
+  method: output
+  expected_output: "10\n5"
+
+hints:
+  - "Inside the function, `x = 10` creates a local variable that shadows the global `x`. The global `x` is not affected."
+  - "Define: `def set_x():` with `x = 10` and `print(x)` inside. The function's `x` is separate from the global `x = 5`."
+
+solution: |
+  def set_x():
+      x = 10
+      print(x)
+
+  x = 5
+  set_x()
+  print(x)
+
+explanation: |
+  When `set_x()` assigns `x = 10`, it creates a **local** variable `x` that
+  only exists inside the function. The global variable `x = 5` is completely
+  separate. After `set_x()` finishes, its local `x` disappears. The global
+  `x` is unchanged, so `print(x)` outputs 5. This is how Python scope works:
+  assignments inside a function create local variables by default, protecting
+  the rest of your program from unintended side effects.

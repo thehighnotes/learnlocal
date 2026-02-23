@@ -1,0 +1,18 @@
+id: evaluate-expression
+title: "Evaluate an Expression"
+type: command
+prompt: |
+  Use node -e to print the result of 6 * 7 without creating a file.
+starter: |
+  # Use node -e to evaluate an expression
+validation:
+  method: output
+  expected_output: "42"
+hints:
+  - "node -e lets you run JavaScript from the command line"
+  - "node -e \"console.log(6 * 7)\""
+solution: |
+  node -e "console.log(6 * 7)"
+explanation: |
+  The -e flag evaluates a JavaScript expression from the command line.
+  Great for quick calculations and testing snippets without creating files.

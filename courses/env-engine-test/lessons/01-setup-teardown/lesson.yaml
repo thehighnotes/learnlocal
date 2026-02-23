@@ -1,0 +1,14 @@
+id: setup-teardown
+title: "Setup & Teardown"
+description: "Test environment setup commands, stdin piping, and teardown with capture_to."
+estimated_minutes: 10
+content: content.md
+teaches: [env-setup, env-teardown, env-stdin, capture-to, state-validation]
+exercises:
+  - setup-creates-data
+  - setup-with-stdin
+  - teardown-capture
+recap: |
+  You tested environment setup commands that run before student code,
+  stdin piping to setup commands, and teardown with capture_to for
+  post-execution file capture.

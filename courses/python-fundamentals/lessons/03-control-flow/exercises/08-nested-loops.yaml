@@ -1,0 +1,58 @@
+id: nested-loops
+title: "Star Triangle"
+type: write
+
+prompt: |
+  Print a right triangle of stars with 4 rows. Row 1 has 1 star, row 2 has
+  2 stars, row 3 has 3 stars, and row 4 has 4 stars.
+
+  Expected output:
+  *
+  **
+  ***
+  ****
+
+starter: |
+  # Print a right triangle of stars (4 rows)
+  # Row 1: *
+  # Row 2: **
+  # Row 3: ***
+  # Row 4: ****
+
+validation:
+  method: output
+  expected_output: |
+    *
+    **
+    ***
+    ****
+
+hints:
+  - "The outer loop controls the row number (1 through 4). The number of stars in each row equals the row number."
+  - "You can use string repetition: \"*\" * row_number gives you the right number of stars."
+  - "for row in range(1, 5): print(\"*\" * row) -- this uses string repetition instead of a nested loop."
+
+solution: |
+  for row in range(1, 5):
+      print("*" * row)
+
+explanation: |
+  The simplest approach uses string repetition:
+
+  1. `for row in range(1, 5)` iterates from 1 to 4.
+  2. `"*" * row` creates a string with `row` number of stars.
+  3. `print()` outputs the string with an automatic newline.
+
+  An alternative using a nested loop:
+  ```python
+  for row in range(1, 5):
+      for col in range(row):
+          print("*", end="")
+      print()
+  ```
+
+  The nested version uses `end=""` to prevent print from adding a newline
+  after each star, then `print()` adds a newline at the end of each row.
+  Both approaches produce the same output, but string repetition is more
+  Pythonic. Understanding the nested loop version is still valuable because
+  many patterns (grids, matrices, game boards) require true nested iteration.

@@ -1,0 +1,39 @@
+id: fix-print
+title: "Fix the Print Statement"
+type: fix
+
+prompt: |
+  The starter code tries to print a message, but it uses Python 2 syntax that
+  does not work in Python 3. Fix the code so it prints: Hello, Python!
+
+  Look carefully at how print is being called — something is missing.
+
+starter: |
+  print "Hello, Python!"
+
+validation:
+  method: output
+  expected_output: "Hello, Python!"
+
+hints:
+  - "In Python 3, print is a function, not a statement. Functions are called with parentheses."
+  - "The old Python 2 syntax was `print \"Hello\"`. In Python 3 you must write `print(\"Hello\")`."
+  - "Add parentheses around the argument: print(\"Hello, Python!\")"
+
+solution: |
+  print("Hello, Python!")
+
+explanation: |
+  In Python 2 (which reached end of life in 2020), `print` was a statement and
+  did not require parentheses:
+
+      print "Hello"     # Python 2 only
+
+  In Python 3, `print` is a function, and like all functions it must be called
+  with parentheses:
+
+      print("Hello")    # Python 3
+
+  This is one of the most common issues people encounter when following older
+  tutorials. If you see `print` without parentheses, you are looking at Python 2
+  code. Always use `print()` with parentheses.

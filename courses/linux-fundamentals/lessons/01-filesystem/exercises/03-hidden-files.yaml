@@ -1,0 +1,30 @@
+id: hidden-files
+title: "Show Hidden Files"
+type: command
+prompt: |
+  A directory called workspace/ contains one normal file (visible.txt)
+  and one hidden file (.secret.txt). Print the count of ALL files
+  (including hidden), excluding the `.` and `..` entries.
+  Output a single number.
+starter: |
+  # Count all files in workspace/ including hidden ones
+environment:
+  dirs:
+    - workspace
+  files:
+    - path: workspace/visible.txt
+      content: ""
+    - path: workspace/.secret.txt
+      content: ""
+validation:
+  method: output
+  expected_output: "2"
+hints:
+  - "Hidden files start with a dot: .secret.txt"
+  - "ls -A shows hidden files but excludes . and .."
+  - "ls -A workspace/ | wc -l"
+solution: |
+  ls -A workspace/ | wc -l
+explanation: |
+  ls -A shows all files including hidden ones, but excludes the special
+  . and .. entries. wc -l counts the lines of output.

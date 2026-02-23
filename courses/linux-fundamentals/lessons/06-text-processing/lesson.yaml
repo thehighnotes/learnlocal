@@ -1,0 +1,18 @@
+id: text-processing
+title: "Text Processing"
+description: "Process text with sort, uniq, cut, sed, awk, and tr — the Unix text toolkit."
+estimated_minutes: 30
+content: content.md
+teaches: [sort, uniq, cut, sed, awk, tr]
+exercises:
+  - sort-data
+  - unique-lines
+  - cut-fields
+  - sed-replace
+  - awk-fields
+  - tr-translate
+  - pipeline-combine
+recap: |
+  You learned the Unix text processing toolkit: sort for ordering, uniq
+  for deduplication, cut for extracting fields, sed for find-and-replace,
+  awk for column extraction, and tr for character translation.

@@ -1,0 +1,31 @@
+id: basic-queries
+title: "Basic Queries"
+description: "Write your first SQL queries — selecting data, sorting, limiting results, and more"
+estimated_minutes: 25
+content: content.md
+exercises:
+  - select-all
+  - select-columns
+  - distinct
+  - limit-offset
+  - order-by
+  - aliases
+  - comments
+teaches:
+  - select-statement
+  - select-all-columns
+  - select-specific-columns
+  - distinct-keyword
+  - limit-and-offset
+  - order-by-asc-desc
+  - column-aliases
+  - sql-comments
+recap: |
+  You learned:
+  - SELECT * FROM table retrieves all columns and rows
+  - SELECT col1, col2 retrieves only the columns you name
+  - DISTINCT removes duplicate rows from results
+  - LIMIT restricts how many rows are returned, OFFSET skips rows
+  - ORDER BY sorts results (ASC for ascending, DESC for descending)
+  - AS creates column aliases for more readable output
+  - Single-line comments use --, block comments use /* */

@@ -1,0 +1,30 @@
+id: traits
+title: "Traits & Generics"
+description: "Define shared behavior with traits, write generic functions, and implement Display and Debug"
+estimated_minutes: 35
+content: content.md
+exercises:
+  - define-trait
+  - impl-trait
+  - default-methods
+  - trait-bounds
+  - generic-functions
+  - display-trait
+  - debug-trait
+teaches:
+  - trait-definition
+  - impl-trait-for-type
+  - default-methods
+  - trait-bounds
+  - generic-functions
+  - display-trait
+  - debug-derive
+recap: |
+  You learned:
+  - Traits define shared behavior as a set of method signatures
+  - impl Trait for Type provides concrete implementations for specific types
+  - Default methods in traits supply a fallback that implementors can override
+  - Trait bounds like T: Trait constrain generic parameters to types with required behavior
+  - Generic functions work with any type that satisfies their trait bounds
+  - Implementing std::fmt::Display gives your type custom println!("{}", x) output
+  - #[derive(Debug)] auto-generates debug formatting; you can also implement Debug manually
