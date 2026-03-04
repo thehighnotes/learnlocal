@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            archive: tar.gz
+          - os: macos-13
+            target: x86_64-apple-darwin
+            archive: tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            archive: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: zip
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-${{ matrix.target }}
+
+      - name: Build release binary
+        run: cargo build --release --features llm
+
+      - name: Package (unix)
+        if: matrix.archive == 'tar.gz'
+        run: |
+          STAGING="learnlocal-${{ github.ref_name }}-${{ matrix.target }}"
+          mkdir "$STAGING"
+          cp target/release/learnlocal "$STAGING/"
+          cp LICENSE-MIT LICENSE-APACHE LICENSE-COURSES README.md "$STAGING/"
+          # Include courses (exclude test course)
+          mkdir "$STAGING/courses"
+          for course in courses/*/; do
+            name=$(basename "$course")
+            [ "$name" = "env-engine-test" ] && continue
+            cp -r "$course" "$STAGING/courses/"
+          done
+          tar czf "$STAGING.tar.gz" "$STAGING"
+          echo "ASSET=$STAGING.tar.gz" >> "$GITHUB_ENV"
+
+      - name: Package (windows)
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: |
+          $staging = "learnlocal-${{ github.ref_name }}-${{ matrix.target }}"
+          New-Item -ItemType Directory -Path $staging
+          Copy-Item "target/release/learnlocal.exe" "$staging/"
+          Copy-Item "LICENSE-MIT","LICENSE-APACHE","LICENSE-COURSES","README.md" "$staging/"
+          New-Item -ItemType Directory -Path "$staging/courses"
+          Get-ChildItem -Directory "courses/" | Where-Object { $_.Name -ne "env-engine-test" } | ForEach-Object {
+            Copy-Item -Recurse $_.FullName "$staging/courses/"
+          }
+          Compress-Archive -Path "$staging" -DestinationPath "$staging.zip"
+          echo "ASSET=$staging.zip" >> $env:GITHUB_ENV
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: learnlocal-${{ matrix.target }}
+          path: ${{ env.ASSET }}
+
+  release:
+    name: Create release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: artifacts/*

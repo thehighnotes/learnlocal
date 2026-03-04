@@ -45,7 +45,7 @@ pub enum Command {
         path: PathBuf,
 
         /// Also run all solutions against validation
-        #[arg(long, default_value_t = true)]
+        #[arg(long, default_value_t = false)]
         run_solutions: bool,
     },
 }

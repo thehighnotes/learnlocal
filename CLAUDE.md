@@ -95,7 +95,7 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - **Sprint 11 — Content:** #5, #66-69 (asciinema demo, quality bar docs, course template, catalog, --courses docs)
 - **Sprint 12 — Future-Proofing:** #70-75 (plugins, update checker, a11y statement, i18n prep, analytics)
 
-**Current sprint:** Sprint 2 — Front Door
+**Current sprint:** Sprint 4 — CLI Polish
 
 ## Public Release Checklist
 
@@ -105,11 +105,11 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - [x] 3. Course content license clarification (LICENSE-COURSES: CC-BY-4.0 for courses/ directory)
 
 ### First Impressions
-- [ ] 4. README.md — pitch, screenshots (ui1.png/ui2.png exist), install instructions, feature list, course catalog
+- [x] 4. README.md — pitch, screenshots (ui1.png/ui2.png exist), install instructions, feature list, course catalog
 - [ ] 5. Asciinema/GIF demo recording of completing an exercise
-- [ ] 6. Badge row — CI status, crate version, license, MSRV
-- [ ] 7. "Why this exists" positioning — offline, zero-config, no browser, no cloud, no sign-up
-- [ ] 8. Comparison table vs Exercism, Codecademy, Rustlings, vimtutor
+- [x] 6. Badge row — license badge (CI/crate/MSRV badges deferred to Sprint 3/6)
+- [x] 7. "Why this exists" positioning — offline, zero-config, no browser, no cloud, no sign-up
+- [x] 8. Comparison table vs Exercism, Codecademy, Rustlings, vimtutor
 
 ### Repo Hygiene
 - [x] 9. `.gitignore` expansion — `*.swp`, `*.swo`, `.DS_Store`, `.vscode/`, `.idea/`, `nohup.out`, `*.log`
@@ -119,13 +119,13 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - [x] 13. Verify `Cargo.lock` has no stale entries
 
 ### CI/CD & Automation
-- [ ] 14. GitHub Actions: test matrix — `cargo test` + `cargo test --features llm` on Linux/macOS (x86_64, aarch64)
-- [ ] 15. GitHub Actions: course validation — `learnlocal validate` on all shipped courses
-- [ ] 16. GitHub Actions: `cargo clippy` + `cargo fmt --check`
-- [ ] 17. GitHub Actions: MSRV check
-- [ ] 18. GitHub Actions: release builds — cross-compile binaries on tag push
-- [ ] 19. Dependabot or Renovate for dependency update PRs
-- [ ] 20. `cargo audit` in CI for known CVEs
+- [x] 14. GitHub Actions: test matrix — `cargo test` + `cargo test --features llm` on Linux/macOS (x86_64, aarch64)
+- [x] 15. GitHub Actions: course validation — `learnlocal validate` on all shipped courses
+- [x] 16. GitHub Actions: `cargo clippy` + `cargo fmt --check`
+- [x] 17. GitHub Actions: MSRV check
+- [x] 18. GitHub Actions: release builds — cross-compile binaries on tag push
+- [x] 19. Dependabot or Renovate for dependency update PRs
+- [x] 20. `cargo audit` in CI for known CVEs
 
 ### Distribution & Installation
 - [ ] 21. Pre-built binaries on GitHub Releases (Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64)
@@ -135,7 +135,7 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - [ ] 25. AUR package
 - [ ] 26. Nix flake
 - [x] 27. `[profile.release] strip = true` in Cargo.toml to reduce binary size
-- [ ] 28. `rust-toolchain.toml` — pin toolchain for contributors
+- [x] 28. `rust-toolchain.toml` — pin toolchain for contributors
 
 ### CLI Polish
 - [ ] 29. Shell completions via `clap_complete` (bash, zsh, fish, PowerShell)

@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo clippy --all-targets --features llm -- -D warnings
+
+  test:
+    name: Test (${{ matrix.os }}, ${{ matrix.features || 'no features' }})
+    needs: check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: ubuntu-latest
+            features: --features llm
+          - os: ubuntu-24.04-arm
+          - os: macos-latest
+          - os: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.features || 'default' }}
+      - run: cargo test ${{ matrix.features }}
+
+  msrv:
+    name: MSRV (1.74.0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.74.0
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: msrv
+      - run: cargo check
+      - run: cargo check --features llm
+
+  validate-courses:
+    name: Validate courses
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release
+      - name: Validate all shipped courses
+        run: |
+          for course in \
+            cpp-fundamentals \
+            python-fundamentals \
+            js-fundamentals \
+            rust-fundamentals \
+            go-fundamentals \
+            ai-fundamentals-python \
+            linux-fundamentals \
+            sql-fundamentals \
+            git-time-travel \
+            incident-sim; do
+            echo "::group::Validating $course"
+            ./target/release/learnlocal validate "courses/$course"
+            echo "::endgroup::"
+          done
+
+  audit:
+    name: Security audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

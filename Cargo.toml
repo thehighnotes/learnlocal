@@ -10,6 +10,7 @@ homepage = "https://github.com/thehighnotes/learnlocal"
 readme = "README.md"
 keywords = ["tutorial", "education", "terminal", "offline", "programming"]
 categories = ["command-line-utilities", "development-tools"]
+rust-version = "1.74.0"
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
