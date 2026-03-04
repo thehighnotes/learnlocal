@@ -40,9 +40,9 @@ pub fn find_toolchain(language_id: &str) -> Option<&'static ToolchainEntry> {
         _ => return None,
     };
 
-    REGISTRY.iter().find(|e| {
-        e.language_id == language_id && e.platform == reg_platform && e.arch == reg_arch
-    })
+    REGISTRY
+        .iter()
+        .find(|e| e.language_id == language_id && e.platform == reg_platform && e.arch == reg_arch)
 }
 
 /// Static registry of portable toolchains.
@@ -219,8 +219,19 @@ mod tests {
     #[test]
     fn test_all_entries_have_sha256() {
         for entry in REGISTRY {
-            assert!(!entry.sha256.is_empty(), "entry {} {} missing sha256", entry.language_id, entry.platform);
-            assert_eq!(entry.sha256.len(), 64, "sha256 wrong length for {} {}", entry.language_id, entry.platform);
+            assert!(
+                !entry.sha256.is_empty(),
+                "entry {} {} missing sha256",
+                entry.language_id,
+                entry.platform
+            );
+            assert_eq!(
+                entry.sha256.len(),
+                64,
+                "sha256 wrong length for {} {}",
+                entry.language_id,
+                entry.platform
+            );
         }
     }
 
@@ -228,7 +239,9 @@ mod tests {
     fn test_all_entries_have_valid_format() {
         for entry in REGISTRY {
             match entry.archive_format {
-                ArchiveFormat::TarGz => assert!(entry.url.ends_with(".tar.gz") || entry.url.ends_with(".tgz")),
+                ArchiveFormat::TarGz => {
+                    assert!(entry.url.ends_with(".tar.gz") || entry.url.ends_with(".tgz"))
+                }
                 ArchiveFormat::TarXz => assert!(entry.url.ends_with(".tar.xz")),
             }
         }

@@ -82,11 +82,19 @@ pub fn render_markdown(md: &str, theme: &Theme) -> Vec<Line<'static>> {
                     flush_line(&mut lines, &mut current_spans);
                     // Add underline for H1 and H2
                     if heading_level <= 2 {
-                        let underline_char = if heading_level == 1 { "\u{2550}" } else { "\u{2500}" };
+                        let underline_char = if heading_level == 1 {
+                            "\u{2550}"
+                        } else {
+                            "\u{2500}"
+                        };
                         let underline_len = 40;
                         lines.push(Line::from(Span::styled(
                             format!("  {}", underline_char.repeat(underline_len)),
-                            Style::default().fg(if heading_level == 1 { theme.heading } else { theme.heading_h2 }),
+                            Style::default().fg(if heading_level == 1 {
+                                theme.heading
+                            } else {
+                                theme.heading_h2
+                            }),
                         )));
                     }
                     lines.push(Line::from(""));
@@ -147,10 +155,7 @@ pub fn render_markdown(md: &str, theme: &Theme) -> Vec<Line<'static>> {
                                 "  \u{2502} ".to_string(),
                                 Style::default().fg(theme.code_border),
                             ),
-                            Span::styled(
-                                code_line.to_string(),
-                                Style::default().fg(theme.code),
-                            ),
+                            Span::styled(code_line.to_string(), Style::default().fg(theme.code)),
                         ]));
                     }
                 } else if in_heading {
@@ -173,10 +178,7 @@ pub fn render_markdown(md: &str, theme: &Theme) -> Vec<Line<'static>> {
                     }
                     if in_blockquote {
                         let quoted = format!("  \u{2502} {}", text_str);
-                        current_spans.push(Span::styled(
-                            quoted,
-                            style.fg(theme.muted),
-                        ));
+                        current_spans.push(Span::styled(quoted, style.fg(theme.muted)));
                     } else {
                         current_spans.push(Span::styled(format!("  {}", text_str), style));
                     }
@@ -248,7 +250,9 @@ fn render_table(lines: &mut Vec<Line<'static>>, rows: &[Vec<String>], theme: &Th
     }
 
     let border_style = Style::default().fg(theme.table_border);
-    let header_style = Style::default().fg(theme.heading).add_modifier(Modifier::BOLD);
+    let header_style = Style::default()
+        .fg(theme.heading)
+        .add_modifier(Modifier::BOLD);
     let cell_style = Style::default().fg(theme.body_text);
 
     // Top border: ┌──────┬──────┐
@@ -269,7 +273,11 @@ fn render_table(lines: &mut Vec<Line<'static>>, rows: &[Vec<String>], theme: &Th
         for (i, width) in col_widths.iter().enumerate() {
             let cell_text = row.get(i).map(|s| s.as_str()).unwrap_or("");
             let padded = format!(" {:<width$} ", cell_text, width = width);
-            let style = if row_idx == 0 { header_style } else { cell_style };
+            let style = if row_idx == 0 {
+                header_style
+            } else {
+                cell_style
+            };
             spans.push(Span::styled(padded, style));
             spans.push(Span::styled("\u{2502}".to_string(), border_style));
         }

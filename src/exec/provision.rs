@@ -165,12 +165,15 @@ pub fn download_toolchain(language_id: &str) -> Result<PathBuf, String> {
 
     if !curl_status.success() {
         let _ = std::fs::remove_dir_all(&tc_dir);
-        return Err(format!("Download failed (curl exit {})", curl_status.code().unwrap_or(-1)));
+        return Err(format!(
+            "Download failed (curl exit {})",
+            curl_status.code().unwrap_or(-1)
+        ));
     }
 
     // Verify SHA256
-    let actual_hash = sha256_file(&archive_path)
-        .map_err(|e| format!("Failed to compute SHA256: {}", e))?;
+    let actual_hash =
+        sha256_file(&archive_path).map_err(|e| format!("Failed to compute SHA256: {}", e))?;
 
     if actual_hash != entry.sha256 {
         let _ = std::fs::remove_dir_all(&tc_dir);
@@ -196,7 +199,10 @@ pub fn download_toolchain(language_id: &str) -> Result<PathBuf, String> {
 
     if !tar_status.success() {
         let _ = std::fs::remove_dir_all(&tc_dir);
-        return Err(format!("Extraction failed (tar exit {})", tar_status.code().unwrap_or(-1)));
+        return Err(format!(
+            "Extraction failed (tar exit {})",
+            tar_status.code().unwrap_or(-1)
+        ));
     }
 
     // Remove archive to save space

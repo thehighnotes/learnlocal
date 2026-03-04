@@ -6,37 +6,26 @@ use crate::exec::sandbox::StepOutput;
 #[allow(dead_code)]
 pub enum ValidationResult {
     Success,
-    OutputMismatch {
-        expected: String,
-        actual: String,
-    },
-    RegexMismatch {
-        pattern: String,
-        actual: String,
-    },
+    OutputMismatch { expected: String, actual: String },
+    RegexMismatch { pattern: String, actual: String },
     CompileSuccess,
-    CustomScriptFailed {
-        message: String,
-    },
-    StateAssertionFailed {
-        results: Vec<AssertionResult>,
-    },
+    CustomScriptFailed { message: String },
+    StateAssertionFailed { results: Vec<AssertionResult> },
 }
 
 impl ValidationResult {
     pub fn is_success(&self) -> bool {
-        matches!(self, ValidationResult::Success | ValidationResult::CompileSuccess)
+        matches!(
+            self,
+            ValidationResult::Success | ValidationResult::CompileSuccess
+        )
     }
 }
 
 pub fn validate_output(validation: &Validation, output: &StepOutput) -> ValidationResult {
     match validation.method {
         ValidationMethod::Output => {
-            let expected = validation
-                .expected_output
-                .as_deref()
-                .unwrap_or("")
-                .trim();
+            let expected = validation.expected_output.as_deref().unwrap_or("").trim();
             let actual = output.stdout.trim();
 
             if actual == expected {

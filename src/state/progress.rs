@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-use crate::error::{LearnLocalError, Result};
 use super::types::Progress;
+use crate::error::{LearnLocalError, Result};
+use std::path::PathBuf;
 
 pub struct ProgressStore {
     path: PathBuf,
@@ -39,9 +39,8 @@ impl ProgressStore {
         // Atomic write: write to temp file, then rename
         let tmp_path = self.path.with_extension("json.tmp");
         std::fs::write(&tmp_path, &json)?;
-        std::fs::rename(&tmp_path, &self.path).map_err(|e| {
-            LearnLocalError::Progress(format!("Failed to save progress: {}", e))
-        })?;
+        std::fs::rename(&tmp_path, &self.path)
+            .map_err(|e| LearnLocalError::Progress(format!("Failed to save progress: {}", e)))?;
 
         Ok(())
     }
@@ -62,8 +61,9 @@ impl ProgressStore {
 }
 
 fn progress_file_path() -> Result<PathBuf> {
-    let data_dir = dirs::data_dir()
-        .ok_or_else(|| LearnLocalError::Progress("Could not determine data directory".to_string()))?;
+    let data_dir = dirs::data_dir().ok_or_else(|| {
+        LearnLocalError::Progress("Could not determine data directory".to_string())
+    })?;
     Ok(data_dir.join("learnlocal").join("progress.json"))
 }
 

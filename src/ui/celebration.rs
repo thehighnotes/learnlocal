@@ -108,8 +108,8 @@ pub fn mini_progress_bar(completed: usize, total: usize, width: usize) -> String
     let empty = width - filled;
     format!(
         "[{}{}]",
-        "\u{2550}".repeat(filled),   // ═
-        "\u{2500}".repeat(empty),     // ─
+        "\u{2550}".repeat(filled), // ═
+        "\u{2500}".repeat(empty),  // ─
     )
 }
 
@@ -193,7 +193,9 @@ impl AggregateStats {
                 }
 
                 // Check if all lessons are completed
-                let completed_lessons = cp.lessons.values()
+                let completed_lessons = cp
+                    .lessons
+                    .values()
                     .filter(|lp| lp.status == ProgressStatus::Completed)
                     .count();
                 if completed_lessons >= info.lesson_count && info.lesson_count > 0 {
@@ -236,7 +238,11 @@ pub fn exercise_success_art(
 ) -> Vec<Line<'static>> {
     let bar = mini_progress_bar(exercise_idx + 1, total_exercises, 10);
     let progress_str = format!("Exercise {}/{} {}", exercise_idx + 1, total_exercises, bar);
-    let green = if theme.no_color { Color::Reset } else { theme.success };
+    let green = if theme.no_color {
+        Color::Reset
+    } else {
+        theme.success
+    };
 
     vec![
         Line::from(""),
@@ -270,8 +276,16 @@ pub fn lesson_complete_art(
     total_lessons: usize,
     theme: &Theme,
 ) -> Vec<Line<'static>> {
-    let green = if theme.no_color { Color::Reset } else { theme.success };
-    let body = if theme.no_color { Color::Reset } else { theme.body_text };
+    let green = if theme.no_color {
+        Color::Reset
+    } else {
+        theme.success
+    };
+    let body = if theme.no_color {
+        Color::Reset
+    } else {
+        theme.body_text
+    };
 
     let bar_width = 10usize;
     let filled = if total_lessons > 0 {
@@ -280,11 +294,7 @@ pub fn lesson_complete_art(
         0
     };
     let empty = bar_width - filled;
-    let progress_bar = format!(
-        "{}{}",
-        "\u{2588}".repeat(filled),
-        "\u{2591}".repeat(empty),
-    );
+    let progress_bar = format!("{}{}", "\u{2588}".repeat(filled), "\u{2591}".repeat(empty),);
     let progress_text = format!("{}/{} lessons", lesson_idx + 1, total_lessons);
 
     // Truncate title if too long
@@ -326,10 +336,26 @@ pub fn course_complete_art(
     stats: &CourseStats,
     theme: &Theme,
 ) -> Vec<Line<'static>> {
-    let green = if theme.no_color { Color::Reset } else { theme.success };
-    let cyan = if theme.no_color { Color::Reset } else { Color::Cyan };
-    let body = if theme.no_color { Color::Reset } else { theme.body_text };
-    let muted = if theme.no_color { Color::Reset } else { theme.muted };
+    let green = if theme.no_color {
+        Color::Reset
+    } else {
+        theme.success
+    };
+    let cyan = if theme.no_color {
+        Color::Reset
+    } else {
+        Color::Cyan
+    };
+    let body = if theme.no_color {
+        Color::Reset
+    } else {
+        theme.body_text
+    };
+    let muted = if theme.no_color {
+        Color::Reset
+    } else {
+        theme.muted
+    };
 
     let star_line = if theme.no_color {
         "     * * *  COMPLETE  * * *"
@@ -402,7 +428,10 @@ pub fn course_complete_art(
         Style::default().fg(body),
     )));
     lines.push(Line::from(Span::styled(
-        format!("    Total time: {}", format_duration(stats.total_time_seconds)),
+        format!(
+            "    Total time: {}",
+            format_duration(stats.total_time_seconds)
+        ),
         Style::default().fg(body),
     )));
 
@@ -514,9 +543,9 @@ mod tests {
 
     #[test]
     fn test_aggregate_stats_populated() {
-        use crate::ui::screens::{CourseProgressSummary, CourseStatus};
         use crate::course::types::CourseInfo;
         use crate::state::types::*;
+        use crate::ui::screens::{CourseProgressSummary, CourseStatus};
         use std::collections::HashMap;
         use std::path::PathBuf;
 
@@ -525,50 +554,62 @@ mod tests {
         // Add a course with some exercises completed
         let mut lessons = HashMap::new();
         let mut exercises = HashMap::new();
-        exercises.insert("ex1".to_string(), ExerciseProgress {
-            status: ProgressStatus::Completed,
-            attempts: vec![AttemptRecord {
-                timestamp: "2026-01-15T10:00:00Z".to_string(),
-                time_spent_seconds: 60,
-                compile_success: true,
-                run_exit_code: Some(0),
-                output_matched: Some(true),
-                hints_revealed: 0,
-            }],
-        });
-        exercises.insert("ex2".to_string(), ExerciseProgress {
-            status: ProgressStatus::Completed,
-            attempts: vec![
-                AttemptRecord {
-                    timestamp: "2026-01-15T10:01:00Z".to_string(),
-                    time_spent_seconds: 30,
-                    compile_success: false,
-                    run_exit_code: None,
-                    output_matched: None,
-                    hints_revealed: 1,
-                },
-                AttemptRecord {
-                    timestamp: "2026-01-15T10:02:00Z".to_string(),
-                    time_spent_seconds: 45,
+        exercises.insert(
+            "ex1".to_string(),
+            ExerciseProgress {
+                status: ProgressStatus::Completed,
+                attempts: vec![AttemptRecord {
+                    timestamp: "2026-01-15T10:00:00Z".to_string(),
+                    time_spent_seconds: 60,
                     compile_success: true,
                     run_exit_code: Some(0),
                     output_matched: Some(true),
                     hints_revealed: 0,
-                },
-            ],
-        });
-        lessons.insert("lesson-1".to_string(), LessonProgress {
-            status: ProgressStatus::Completed,
-            completed_at: Some("2026-01-15T10:05:00Z".to_string()),
-            exercises,
-        });
+                }],
+            },
+        );
+        exercises.insert(
+            "ex2".to_string(),
+            ExerciseProgress {
+                status: ProgressStatus::Completed,
+                attempts: vec![
+                    AttemptRecord {
+                        timestamp: "2026-01-15T10:01:00Z".to_string(),
+                        time_spent_seconds: 30,
+                        compile_success: false,
+                        run_exit_code: None,
+                        output_matched: None,
+                        hints_revealed: 1,
+                    },
+                    AttemptRecord {
+                        timestamp: "2026-01-15T10:02:00Z".to_string(),
+                        time_spent_seconds: 45,
+                        compile_success: true,
+                        run_exit_code: Some(0),
+                        output_matched: Some(true),
+                        hints_revealed: 0,
+                    },
+                ],
+            },
+        );
+        lessons.insert(
+            "lesson-1".to_string(),
+            LessonProgress {
+                status: ProgressStatus::Completed,
+                completed_at: Some("2026-01-15T10:05:00Z".to_string()),
+                exercises,
+            },
+        );
 
-        store.data.courses.insert("test-course@1".to_string(), CourseProgress {
-            course_version: "1.0.0".to_string(),
-            started_at: "2026-01-15T09:00:00Z".to_string(),
-            last_activity: "2026-01-15T10:05:00Z".to_string(),
-            lessons,
-        });
+        store.data.courses.insert(
+            "test-course@1".to_string(),
+            CourseProgress {
+                course_version: "1.0.0".to_string(),
+                started_at: "2026-01-15T09:00:00Z".to_string(),
+                last_activity: "2026-01-15T10:05:00Z".to_string(),
+                lessons,
+            },
+        );
 
         let summaries = vec![CourseProgressSummary {
             info: CourseInfo {

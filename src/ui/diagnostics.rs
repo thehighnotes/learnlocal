@@ -1,6 +1,6 @@
-use regex::Regex;
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
+use regex::Regex;
 
 use crate::ui::theme::Theme;
 
@@ -65,10 +65,13 @@ pub fn parse_compiler_output(stderr: &str) -> ParsedOutput {
                 message,
                 context_lines: Vec::new(),
             });
-        } else if !diagnostics.is_empty()
-            && (context_re.is_match(line) || caret_re.is_match(line))
+        } else if !diagnostics.is_empty() && (context_re.is_match(line) || caret_re.is_match(line))
         {
-            diagnostics.last_mut().unwrap().context_lines.push(line.to_string());
+            diagnostics
+                .last_mut()
+                .unwrap()
+                .context_lines
+                .push(line.to_string());
         }
         // Skip lines that don't match either pattern (linker summaries, etc.)
     }
@@ -129,7 +132,9 @@ fn render_structured<'a>(
         };
 
         let level_style = if diag.level == DiagnosticLevel::Error {
-            Style::default().fg(level_color).add_modifier(Modifier::BOLD)
+            Style::default()
+                .fg(level_color)
+                .add_modifier(Modifier::BOLD)
         } else {
             Style::default().fg(level_color)
         };

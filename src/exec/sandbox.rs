@@ -80,9 +80,8 @@ pub struct Sandbox {
 
 impl Sandbox {
     pub fn new(limits: &ExecutionLimits, level: SandboxLevel) -> Result<Self> {
-        let temp_dir = TempDir::new().map_err(|e| {
-            LearnLocalError::Execution(format!("Failed to create temp dir: {}", e))
-        })?;
+        let temp_dir = TempDir::new()
+            .map_err(|e| LearnLocalError::Execution(format!("Failed to create temp dir: {}", e)))?;
         Ok(Self {
             temp_dir,
             limits: limits.clone(),
@@ -112,7 +111,15 @@ impl Sandbox {
         env_vars: Option<&std::collections::HashMap<String, String>>,
         cwd_override: Option<&Path>,
     ) -> Result<StepOutput> {
-        self.run_command_inner(command, args, stdin_input, env_vars, cwd_override, self.limits.timeout_seconds, false)
+        self.run_command_inner(
+            command,
+            args,
+            stdin_input,
+            env_vars,
+            cwd_override,
+            self.limits.timeout_seconds,
+            false,
+        )
     }
 
     /// Like `run_command` but with loopback networking enabled for sandbox.
@@ -126,7 +133,15 @@ impl Sandbox {
         cwd_override: Option<&Path>,
         allow_loopback: bool,
     ) -> Result<StepOutput> {
-        self.run_command_inner(command, args, stdin_input, env_vars, cwd_override, self.limits.timeout_seconds, allow_loopback)
+        self.run_command_inner(
+            command,
+            args,
+            stdin_input,
+            env_vars,
+            cwd_override,
+            self.limits.timeout_seconds,
+            allow_loopback,
+        )
     }
 
     /// Like `run_command` but with a caller-specified timeout. Used by setup/teardown steps.
@@ -139,7 +154,15 @@ impl Sandbox {
         cwd_override: Option<&Path>,
         timeout_seconds: u64,
     ) -> Result<StepOutput> {
-        self.run_command_inner(command, args, stdin_input, env_vars, cwd_override, timeout_seconds, false)
+        self.run_command_inner(
+            command,
+            args,
+            stdin_input,
+            env_vars,
+            cwd_override,
+            timeout_seconds,
+            false,
+        )
     }
 
     /// Spawn a background service process. Does NOT wait for exit.
@@ -263,13 +286,22 @@ impl Sandbox {
         }
     }
 
-    fn wrap_command(&self, command: &str, args: &[String], allow_loopback: bool) -> (String, Vec<String>) {
+    fn wrap_command(
+        &self,
+        command: &str,
+        args: &[String],
+        allow_loopback: bool,
+    ) -> (String, Vec<String>) {
         let tmpdir = self.temp_dir.path().to_string_lossy().to_string();
 
         match self.level {
             SandboxLevel::Basic => (command.to_string(), args.to_vec()),
             SandboxLevel::Firejail => {
-                let net_flag = if allow_loopback { "--net=lo" } else { "--net=none" };
+                let net_flag = if allow_loopback {
+                    "--net=lo"
+                } else {
+                    "--net=none"
+                };
                 let mut firejail_args = vec![
                     format!("--whitelist={}", tmpdir),
                     "--quiet".to_string(),
@@ -334,7 +366,9 @@ mod tests {
     fn test_sandbox_run_echo() {
         let limits = ExecutionLimits::default();
         let sandbox = Sandbox::new(&limits, SandboxLevel::Basic).unwrap();
-        let result = sandbox.run_command("echo", &["hello".to_string()], None, None, None).unwrap();
+        let result = sandbox
+            .run_command("echo", &["hello".to_string()], None, None, None)
+            .unwrap();
         assert_eq!(result.stdout.trim(), "hello");
         assert_eq!(result.exit_code, 0);
     }
@@ -388,7 +422,9 @@ mod tests {
             max_output_bytes: 65536,
         };
         let sandbox = Sandbox::new(&limits, SandboxLevel::Basic).unwrap();
-        let result = sandbox.run_command("sleep", &["100".to_string()], None, None, None).unwrap();
+        let result = sandbox
+            .run_command("sleep", &["100".to_string()], None, None, None)
+            .unwrap();
         assert!(result.timed_out);
     }
 
@@ -396,7 +432,8 @@ mod tests {
     fn test_wrap_command_basic() {
         let limits = ExecutionLimits::default();
         let sandbox = Sandbox::new(&limits, SandboxLevel::Basic).unwrap();
-        let (cmd, args) = sandbox.wrap_command("g++", &["-o".to_string(), "out".to_string()], false);
+        let (cmd, args) =
+            sandbox.wrap_command("g++", &["-o".to_string(), "out".to_string()], false);
         assert_eq!(cmd, "g++");
         assert_eq!(args, vec!["-o", "out"]);
     }
@@ -405,7 +442,8 @@ mod tests {
     fn test_wrap_command_firejail() {
         let limits = ExecutionLimits::default();
         let sandbox = Sandbox::new(&limits, SandboxLevel::Firejail).unwrap();
-        let (cmd, args) = sandbox.wrap_command("g++", &["-o".to_string(), "out".to_string()], false);
+        let (cmd, args) =
+            sandbox.wrap_command("g++", &["-o".to_string(), "out".to_string()], false);
         assert_eq!(cmd, "firejail");
         assert!(args.contains(&"--quiet".to_string()));
         assert!(args.contains(&"--net=none".to_string()));
@@ -426,7 +464,8 @@ mod tests {
     fn test_wrap_command_bubblewrap() {
         let limits = ExecutionLimits::default();
         let sandbox = Sandbox::new(&limits, SandboxLevel::Bubblewrap).unwrap();
-        let (cmd, args) = sandbox.wrap_command("g++", &["-o".to_string(), "out".to_string()], false);
+        let (cmd, args) =
+            sandbox.wrap_command("g++", &["-o".to_string(), "out".to_string()], false);
         assert_eq!(cmd, "bwrap");
         assert!(args.contains(&"--unshare-net".to_string()));
         assert!(args.contains(&"--die-with-parent".to_string()));
@@ -486,7 +525,13 @@ mod tests {
         let mut vars = std::collections::HashMap::new();
         vars.insert("MY_VAR".to_string(), "hello_env".to_string());
         let result = sandbox
-            .run_command("sh", &["-c".to_string(), "echo $MY_VAR".to_string()], None, Some(&vars), None)
+            .run_command(
+                "sh",
+                &["-c".to_string(), "echo $MY_VAR".to_string()],
+                None,
+                Some(&vars),
+                None,
+            )
             .unwrap();
         assert_eq!(result.stdout.trim(), "hello_env");
     }

@@ -29,6 +29,8 @@ semver = { version = "1.0", features = ["serde"] }
 regex = "1.10"
 notify = "6.1"
 rusqlite = { version = "0.31", features = ["bundled"] }
+clap_complete = "4.4"
+clap_mangen = "0.2"
 
 [features]
 llm = ["tokio", "reqwest", "tokio-stream"]

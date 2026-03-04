@@ -32,7 +32,11 @@ impl InlineEditorState {
             content.lines().map(|l| l.to_string()).collect()
         };
         // Ensure at least one line
-        let lines = if lines.is_empty() { vec![String::new()] } else { lines };
+        let lines = if lines.is_empty() {
+            vec![String::new()]
+        } else {
+            lines
+        };
         Self {
             lines,
             cursor_line: 0,
@@ -56,7 +60,11 @@ impl InlineEditorState {
     }
 
     /// Process a key event. Returns an EditorAction.
-    pub fn handle_key(&mut self, code: crossterm::event::KeyCode, modifiers: crossterm::event::KeyModifiers) -> EditorAction {
+    pub fn handle_key(
+        &mut self,
+        code: crossterm::event::KeyCode,
+        modifiers: crossterm::event::KeyModifiers,
+    ) -> EditorAction {
         use crossterm::event::{KeyCode, KeyModifiers};
 
         // Ctrl+S = save
@@ -211,7 +219,6 @@ impl InlineEditorState {
             self.scroll_offset = self.cursor_line - visible + 1;
         }
     }
-
 }
 
 /// Split a line at the cursor position, returning (before, cursor_char, after).

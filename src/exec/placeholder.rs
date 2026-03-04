@@ -40,7 +40,10 @@ mod tests {
             "main.cpp",
             &["main.cpp".to_string()],
         );
-        assert_eq!(result, "g++ -o /tmp/sandbox123/main /tmp/sandbox123/main.cpp");
+        assert_eq!(
+            result,
+            "g++ -o /tmp/sandbox123/main /tmp/sandbox123/main.cpp"
+        );
     }
 
     #[test]

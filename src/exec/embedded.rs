@@ -103,7 +103,10 @@ pub fn execute_sql(setup_sql: Option<&str>, student_sql: &str) -> Result<Embedde
 }
 
 /// Execute a SELECT query and format results as pipe-separated values.
-fn execute_query(conn: &rusqlite::Connection, sql: &str) -> std::result::Result<String, rusqlite::Error> {
+fn execute_query(
+    conn: &rusqlite::Connection,
+    sql: &str,
+) -> std::result::Result<String, rusqlite::Error> {
     let mut stmt = conn.prepare(sql)?;
     let col_count = stmt.column_count();
     let mut output = String::new();
@@ -260,7 +263,8 @@ mod tests {
         let result = execute_sql(
             Some("CREATE TABLE t(id INTEGER, name TEXT); INSERT INTO t VALUES(1, 'Alice');"),
             "SELECT * FROM t;",
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(result.exit_code, 0);
         assert_eq!(result.stdout, "1|Alice\n");
     }
@@ -280,7 +284,8 @@ mod tests {
         let result = execute_sql(
             Some("CREATE TABLE t(id INTEGER);"),
             "INSERT INTO t VALUES(42); SELECT * FROM t;",
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(result.exit_code, 0);
         assert_eq!(result.stdout, "42\n");
     }
@@ -297,7 +302,8 @@ mod tests {
         let result = execute_sql(
             Some("CREATE TABLE t(a INTEGER); INSERT INTO t VALUES(NULL);"),
             "SELECT * FROM t;",
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(result.exit_code, 0);
         assert_eq!(result.stdout, "\n"); // NULL renders as empty string
     }
@@ -311,10 +317,7 @@ mod tests {
 
     #[test]
     fn test_setup_error() {
-        let result = execute_sql(
-            Some("CREATE TABLE INVALID SYNTAX"),
-            "SELECT 1;",
-        ).unwrap();
+        let result = execute_sql(Some("CREATE TABLE INVALID SYNTAX"), "SELECT 1;").unwrap();
         assert_eq!(result.exit_code, 1);
         assert!(result.stderr.contains("Setup error"));
     }
@@ -324,7 +327,8 @@ mod tests {
         let result = execute_sql(
             Some("CREATE TABLE t(x INTEGER);"),
             "INSERT INTO t VALUES(1); INSERT INTO t VALUES(2); SELECT COUNT(*) FROM t;",
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(result.exit_code, 0);
         assert_eq!(result.stdout, "2\n");
     }
@@ -334,7 +338,8 @@ mod tests {
         let result = execute_sql(
             Some("CREATE TABLE t(msg TEXT);"),
             "INSERT INTO t VALUES('hello; world'); SELECT * FROM t;",
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(result.exit_code, 0);
         assert_eq!(result.stdout, "hello; world\n");
     }
@@ -378,7 +383,8 @@ mod tests {
         let result = execute_sql(
             Some("CREATE TABLE t(id INTEGER, name TEXT); INSERT INTO t VALUES(1, 'Alice');"),
             "-- This is a comment\nSELECT * FROM t;",
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(result.exit_code, 0);
         assert_eq!(result.stdout, "1|Alice\n");
     }
@@ -398,7 +404,10 @@ mod tests {
         assert_eq!(strip_leading_comments("SELECT 1"), "SELECT 1");
         assert_eq!(strip_leading_comments("-- comment\nSELECT 1"), "SELECT 1");
         assert_eq!(strip_leading_comments("/* block */ SELECT 1"), "SELECT 1");
-        assert_eq!(strip_leading_comments("-- line\n/* block */\nSELECT 1"), "SELECT 1");
+        assert_eq!(
+            strip_leading_comments("-- line\n/* block */\nSELECT 1"),
+            "SELECT 1"
+        );
         assert_eq!(strip_leading_comments("-- only comment"), "");
     }
 }

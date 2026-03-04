@@ -1,5 +1,5 @@
 use crate::course::types::{Course, CourseInfo};
-use crate::exec::toolcheck::{ToolStatus, PlatformStatus};
+use crate::exec::toolcheck::{PlatformStatus, ToolStatus};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Screen {
@@ -108,17 +108,24 @@ impl HomeState {
 
     /// Resolve visual cursor position to the flat summaries index.
     pub fn flat_idx(&self) -> usize {
-        self.display_order.get(self.selected_idx).copied().unwrap_or(self.selected_idx)
+        self.display_order
+            .get(self.selected_idx)
+            .copied()
+            .unwrap_or(self.selected_idx)
     }
 
     /// Check if a course (by flat summaries index) can be started.
     /// Blocked if required tools are missing or platform doesn't match.
     pub fn is_course_startable(&self, flat_idx: usize) -> bool {
-        let tools_ok = self.tool_check_cache.get(flat_idx)
+        let tools_ok = self
+            .tool_check_cache
+            .get(flat_idx)
             .and_then(|c| c.as_ref())
             .map(|statuses| statuses.iter().all(|s| s.found))
             .unwrap_or(true);
-        let platform_ok = self.platform_check_cache.get(flat_idx)
+        let platform_ok = self
+            .platform_check_cache
+            .get(flat_idx)
             .and_then(|c| c.as_ref())
             .map(|ps| ps.supported)
             .unwrap_or(true);

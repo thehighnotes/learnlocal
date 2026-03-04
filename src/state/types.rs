@@ -75,7 +75,10 @@ mod tests {
 
     #[test]
     fn test_progress_key() {
-        assert_eq!(progress_key("cpp-fundamentals", "1.2.3"), "cpp-fundamentals@1");
+        assert_eq!(
+            progress_key("cpp-fundamentals", "1.2.3"),
+            "cpp-fundamentals@1"
+        );
         assert_eq!(progress_key("rust-basics", "2.0.0"), "rust-basics@2");
     }
 

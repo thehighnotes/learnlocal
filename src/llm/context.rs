@@ -102,11 +102,7 @@ impl LlmContext {
                         completed_exercises.push(CompletedExerciseSummary {
                             exercise_id: ex_id.clone(),
                             attempts: ep.attempts.len() as u32,
-                            hints_used: ep
-                                .attempts
-                                .last()
-                                .map(|a| a.hints_revealed)
-                                .unwrap_or(0),
+                            hints_used: ep.attempts.last().map(|a| a.hints_revealed).unwrap_or(0),
                         });
                     }
                 }
@@ -160,9 +156,7 @@ impl LlmContext {
         lesson_idx: usize,
     ) -> Self {
         let current_code_str = format_files(current_code);
-        let last_execution_summary = last_output
-            .unwrap_or("No execution yet")
-            .to_string();
+        let last_execution_summary = last_output.unwrap_or("No execution yet").to_string();
 
         LlmContext {
             course_name: course.name.clone(),
@@ -203,10 +197,7 @@ impl LlmContext {
         let lesson_section = if self.lesson_content.is_empty() {
             String::new()
         } else {
-            format!(
-                "\n## Lesson Content\n{}\n",
-                self.lesson_content
-            )
+            format!("\n## Lesson Content\n{}\n", self.lesson_content)
         };
 
         let concepts_section = if self.concepts_taught.is_empty() {
@@ -364,10 +355,7 @@ Starter code:
         let lesson_section = if self.lesson_content.is_empty() {
             String::new()
         } else {
-            format!(
-                "\n## Lesson Content\n{}\n",
-                self.lesson_content
-            )
+            format!("\n## Lesson Content\n{}\n", self.lesson_content)
         };
 
         let concepts_section = if self.concepts_taught.is_empty() {
@@ -591,9 +579,7 @@ mod tests {
         let session = SessionState::new(exercise.get_starter_files(&course.language.extension));
         let store = ProgressStore::empty();
 
-        let ctx = LlmContext::assemble(
-            &course, lesson, exercise, &session, &store, 0, true, 3,
-        );
+        let ctx = LlmContext::assemble(&course, lesson, exercise, &session, &store, 0, true, 3);
 
         assert_eq!(ctx.course_name, "C++ Fundamentals");
         assert_eq!(ctx.language, "C++");
@@ -616,9 +602,7 @@ mod tests {
         let session = SessionState::new(exercise.get_starter_files(&course.language.extension));
         let store = ProgressStore::empty();
 
-        let ctx = LlmContext::assemble(
-            &course, lesson, exercise, &session, &store, 0, false, 3,
-        );
+        let ctx = LlmContext::assemble(&course, lesson, exercise, &session, &store, 0, false, 3);
 
         assert!(ctx.lesson_content.is_empty());
     }
@@ -631,9 +615,7 @@ mod tests {
         let session = SessionState::new(exercise.get_starter_files(&course.language.extension));
         let store = ProgressStore::empty();
 
-        let ctx = LlmContext::assemble(
-            &course, lesson, exercise, &session, &store, 0, true, 3,
-        );
+        let ctx = LlmContext::assemble(&course, lesson, exercise, &session, &store, 0, true, 3);
         let prompt = ctx.to_system_prompt();
 
         assert!(prompt.contains("friendly programming tutor"));

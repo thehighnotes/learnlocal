@@ -60,7 +60,10 @@ impl Drop for ServiceGuard {
 
 impl ExecutionResult {
     pub fn is_success(&self) -> bool {
-        matches!(self, ExecutionResult::Success | ExecutionResult::CompileSuccess)
+        matches!(
+            self,
+            ExecutionResult::Success | ExecutionResult::CompileSuccess
+        )
     }
 }
 
@@ -173,12 +176,8 @@ fn run_lifecycle(
 
     // 1. Set up environment (dirs, files, symlinks, env vars, cwd)
     let (env_vars, cwd_override) = if let Some(ref env_spec) = exercise.environment {
-        let setup = environment::setup_environment(
-            sandbox.dir(),
-            env_spec,
-            &main_file,
-            &file_names,
-        )?;
+        let setup =
+            environment::setup_environment(sandbox.dir(), env_spec, &main_file, &file_names)?;
         (Some(setup.env_vars), setup.cwd_override)
     } else {
         (None, None)
@@ -215,7 +214,9 @@ fn run_lifecycle(
     if phase_error.is_none() {
         if let Some(ref env_spec) = exercise.environment {
             for svc in &env_spec.services {
-                let svc_args: Vec<String> = svc.args.iter()
+                let svc_args: Vec<String> = svc
+                    .args
+                    .iter()
                     .map(|a| a.replace("{dir}", &sandbox.dir().to_string_lossy()))
                     .collect();
                 let mut child = sandbox.spawn_service(
@@ -297,128 +298,134 @@ fn run_lifecycle(
                 last_output = output;
             }
         } else {
-        // Normal exercises: resolve toolchain and run language steps
-        let resolution = provision::resolve_toolchain(&course.language);
+            // Normal exercises: resolve toolchain and run language steps
+            let resolution = provision::resolve_toolchain(&course.language);
 
-        match resolution {
-            ToolchainResolution::Embedded(ref runtime) if runtime == "sqlite" => {
-                // Find setup.sql in environment files
-                let setup_sql = exercise.environment.as_ref().and_then(|env| {
-                    env.files.iter()
-                        .find(|f| f.path.ends_with(".sql") && f.path != main_file)
-                        .map(|f| f.content.clone())
-                });
+            match resolution {
+                ToolchainResolution::Embedded(ref runtime) if runtime == "sqlite" => {
+                    // Find setup.sql in environment files
+                    let setup_sql = exercise.environment.as_ref().and_then(|env| {
+                        env.files
+                            .iter()
+                            .find(|f| f.path.ends_with(".sql") && f.path != main_file)
+                            .map(|f| f.content.clone())
+                    });
 
-                // Read the student's SQL file from sandbox
-                let student_sql = if let Some(file) = user_files.iter().find(|f| f.name == main_file) {
-                    file.content.clone()
-                } else {
-                    String::new()
-                };
+                    // Read the student's SQL file from sandbox
+                    let student_sql =
+                        if let Some(file) = user_files.iter().find(|f| f.name == main_file) {
+                            file.content.clone()
+                        } else {
+                            String::new()
+                        };
 
-                let result = embedded::execute_sql(
-                    setup_sql.as_deref(),
-                    &student_sql,
-                )?;
+                    let result = embedded::execute_sql(setup_sql.as_deref(), &student_sql)?;
 
-                last_output = StepOutput {
-                    stdout: result.stdout,
-                    stderr: result.stderr,
-                    exit_code: result.exit_code,
-                    timed_out: false,
-                };
-
-                if result.exit_code != 0 {
-                    phase_error = Some(LifecycleError::StepFailed {
-                        step_name: "sql-execute".to_string(),
-                        stderr: last_output.stderr.clone(),
+                    last_output = StepOutput {
+                        stdout: result.stdout,
+                        stderr: result.stderr,
                         exit_code: result.exit_code,
+                        timed_out: false,
+                    };
+
+                    if result.exit_code != 0 {
+                        phase_error = Some(LifecycleError::StepFailed {
+                            step_name: "sql-execute".to_string(),
+                            stderr: last_output.stderr.clone(),
+                            exit_code: result.exit_code,
+                            teardown_warnings: Vec::new(),
+                        });
+                    }
+                }
+                ToolchainResolution::NotAvailable(msg) => {
+                    phase_error = Some(LifecycleError::SetupFailed {
+                        step_name: "toolchain".to_string(),
+                        stderr: msg,
+                        exit_code: 127,
+                        timed_out: false,
                         teardown_warnings: Vec::new(),
                     });
                 }
-            }
-            ToolchainResolution::NotAvailable(msg) => {
-                phase_error = Some(LifecycleError::SetupFailed {
-                    step_name: "toolchain".to_string(),
-                    stderr: msg,
-                    exit_code: 127,
-                    timed_out: false,
-                    teardown_warnings: Vec::new(),
-                });
-            }
-            _ => {
-                // System or Portable — run normal language steps
-                let extra_path = if let ToolchainResolution::Portable(ref bin_dir) = resolution {
-                    Some(bin_dir.clone())
-                } else {
-                    None
-                };
-
-                let needs_loopback = exercise
-                    .environment
-                    .as_ref()
-                    .map_or(false, |env| !env.services.is_empty());
-
-                for step in &course.language.steps {
-                    let command = substitute(&step.command, sandbox.dir(), &main_file, &file_names);
-                    let args: Vec<String> = step
-                        .args
-                        .iter()
-                        .map(|a| substitute(a, sandbox.dir(), &main_file, &file_names))
-                        .collect();
-
-                    let stdin_input = if step.capture_output {
-                        exercise.input.as_deref()
+                _ => {
+                    // System or Portable — run normal language steps
+                    let extra_path = if let ToolchainResolution::Portable(ref bin_dir) = resolution
+                    {
+                        Some(bin_dir.clone())
                     } else {
                         None
                     };
 
-                    // If we have a portable toolchain, prepend its bin dir to PATH
-                    let step_env_vars = if let Some(ref bin_dir) = extra_path {
-                        let path_prefix = bin_dir.to_string_lossy().to_string();
-                        let mut vars = env_vars.clone().unwrap_or_default();
-                        let existing_path = vars.get("PATH").cloned()
-                            .unwrap_or_else(|| std::env::var("PATH").unwrap_or_default());
-                        vars.insert("PATH".to_string(), format!("{}:{}", path_prefix, existing_path));
-                        Some(vars)
-                    } else {
-                        env_vars.clone()
-                    };
+                    let needs_loopback = exercise
+                        .environment
+                        .as_ref()
+                        .map_or(false, |env| !env.services.is_empty());
 
-                    let output = sandbox.run_command_with_loopback(
-                        &command,
-                        &args,
-                        stdin_input,
-                        step_env_vars.as_ref(),
-                        cwd_override.as_deref(),
-                        needs_loopback,
-                    )?;
+                    for step in &course.language.steps {
+                        let command =
+                            substitute(&step.command, sandbox.dir(), &main_file, &file_names);
+                        let args: Vec<String> = step
+                            .args
+                            .iter()
+                            .map(|a| substitute(a, sandbox.dir(), &main_file, &file_names))
+                            .collect();
 
-                    if output.timed_out {
-                        phase_error = Some(LifecycleError::Timeout {
-                            step_name: step.name.clone(),
-                            stderr: clean_sandbox_paths(&output.stderr, sandbox.dir()),
-                            teardown_warnings: Vec::new(),
-                        });
-                        break;
-                    }
+                        let stdin_input = if step.capture_output {
+                            exercise.input.as_deref()
+                        } else {
+                            None
+                        };
 
-                    if step.check_exit_code && output.exit_code != 0 {
-                        phase_error = Some(LifecycleError::StepFailed {
-                            step_name: step.name.clone(),
-                            stderr: clean_sandbox_paths(&output.stderr, sandbox.dir()),
-                            exit_code: output.exit_code,
-                            teardown_warnings: Vec::new(),
-                        });
-                        break;
-                    }
+                        // If we have a portable toolchain, prepend its bin dir to PATH
+                        let step_env_vars = if let Some(ref bin_dir) = extra_path {
+                            let path_prefix = bin_dir.to_string_lossy().to_string();
+                            let mut vars = env_vars.clone().unwrap_or_default();
+                            let existing_path = vars
+                                .get("PATH")
+                                .cloned()
+                                .unwrap_or_else(|| std::env::var("PATH").unwrap_or_default());
+                            vars.insert(
+                                "PATH".to_string(),
+                                format!("{}:{}", path_prefix, existing_path),
+                            );
+                            Some(vars)
+                        } else {
+                            env_vars.clone()
+                        };
 
-                    if step.capture_output {
-                        last_output = output;
+                        let output = sandbox.run_command_with_loopback(
+                            &command,
+                            &args,
+                            stdin_input,
+                            step_env_vars.as_ref(),
+                            cwd_override.as_deref(),
+                            needs_loopback,
+                        )?;
+
+                        if output.timed_out {
+                            phase_error = Some(LifecycleError::Timeout {
+                                step_name: step.name.clone(),
+                                stderr: clean_sandbox_paths(&output.stderr, sandbox.dir()),
+                                teardown_warnings: Vec::new(),
+                            });
+                            break;
+                        }
+
+                        if step.check_exit_code && output.exit_code != 0 {
+                            phase_error = Some(LifecycleError::StepFailed {
+                                step_name: step.name.clone(),
+                                stderr: clean_sandbox_paths(&output.stderr, sandbox.dir()),
+                                exit_code: output.exit_code,
+                                teardown_warnings: Vec::new(),
+                            });
+                            break;
+                        }
+
+                        if step.capture_output {
+                            last_output = output;
+                        }
                     }
                 }
             }
-        }
         } // end else (non-Command exercises)
     }
 
@@ -442,14 +449,14 @@ fn run_lifecycle(
                     if output.exit_code != 0 {
                         teardown_warnings.push(format!(
                             "teardown '{}' failed (exit {}): {}",
-                            step.name, output.exit_code, output.stderr.trim()
+                            step.name,
+                            output.exit_code,
+                            output.stderr.trim()
                         ));
                     }
                 }
                 Err(e) => {
-                    teardown_warnings.push(format!(
-                        "teardown '{}' error: {}", step.name, e
-                    ));
+                    teardown_warnings.push(format!("teardown '{}' error: {}", step.name, e));
                 }
             }
         }
@@ -464,10 +471,22 @@ fn run_lifecycle(
     // Return error with teardown warnings attached, or success
     if let Some(mut err) = phase_error {
         match &mut err {
-            LifecycleError::SetupFailed { teardown_warnings: tw, .. }
-            | LifecycleError::ServiceFailed { teardown_warnings: tw, .. }
-            | LifecycleError::StepFailed { teardown_warnings: tw, .. }
-            | LifecycleError::Timeout { teardown_warnings: tw, .. } => {
+            LifecycleError::SetupFailed {
+                teardown_warnings: tw,
+                ..
+            }
+            | LifecycleError::ServiceFailed {
+                teardown_warnings: tw,
+                ..
+            }
+            | LifecycleError::StepFailed {
+                teardown_warnings: tw,
+                ..
+            }
+            | LifecycleError::Timeout {
+                teardown_warnings: tw,
+                ..
+            } => {
                 *tw = teardown_warnings;
             }
         }
@@ -499,7 +518,13 @@ pub fn run_exercise_with_sandbox(
             timed_out: false,
             teardown_warnings: output.teardown_warnings,
         }),
-        Err(LifecycleError::SetupFailed { step_name, stderr, timed_out, teardown_warnings, .. }) => Ok(RunOutput {
+        Err(LifecycleError::SetupFailed {
+            step_name,
+            stderr,
+            timed_out,
+            teardown_warnings,
+            ..
+        }) => Ok(RunOutput {
             stdout: String::new(),
             stderr,
             success: false,
@@ -507,7 +532,11 @@ pub fn run_exercise_with_sandbox(
             timed_out,
             teardown_warnings,
         }),
-        Err(LifecycleError::ServiceFailed { service_name, error, teardown_warnings }) => Ok(RunOutput {
+        Err(LifecycleError::ServiceFailed {
+            service_name,
+            error,
+            teardown_warnings,
+        }) => Ok(RunOutput {
             stdout: String::new(),
             stderr: error,
             success: false,
@@ -515,7 +544,12 @@ pub fn run_exercise_with_sandbox(
             timed_out: false,
             teardown_warnings,
         }),
-        Err(LifecycleError::StepFailed { step_name, stderr, teardown_warnings, .. }) => Ok(RunOutput {
+        Err(LifecycleError::StepFailed {
+            step_name,
+            stderr,
+            teardown_warnings,
+            ..
+        }) => Ok(RunOutput {
             stdout: String::new(),
             stderr,
             success: false,
@@ -523,7 +557,11 @@ pub fn run_exercise_with_sandbox(
             timed_out: false,
             teardown_warnings,
         }),
-        Err(LifecycleError::Timeout { step_name, stderr, teardown_warnings }) => Ok(RunOutput {
+        Err(LifecycleError::Timeout {
+            step_name,
+            stderr,
+            teardown_warnings,
+        }) => Ok(RunOutput {
             stdout: String::new(),
             stderr,
             success: false,
@@ -561,9 +599,12 @@ pub fn execute_exercise_with_sandbox(
                     let all_passed = results.iter().all(|r| r.passed);
 
                     if !all_passed {
-                        return Ok((ExecutionResult::ValidationFailed(
-                            ValidationResult::StateAssertionFailed { results },
-                        ), teardown_warnings));
+                        return Ok((
+                            ExecutionResult::ValidationFailed(
+                                ValidationResult::StateAssertionFailed { results },
+                            ),
+                            teardown_warnings,
+                        ));
                     }
 
                     // Also check expected_output if present (combined validation)
@@ -571,7 +612,10 @@ pub fn execute_exercise_with_sandbox(
                         let output_result =
                             validate::validate_output(&exercise.validation, &output.last_output);
                         if !output_result.is_success() {
-                            return Ok((ExecutionResult::ValidationFailed(output_result), teardown_warnings));
+                            return Ok((
+                                ExecutionResult::ValidationFailed(output_result),
+                                teardown_warnings,
+                            ));
                         }
                     }
 
@@ -580,28 +624,65 @@ pub fn execute_exercise_with_sandbox(
             }
 
             // Standard output-based validation
-            let validation_result = validate::validate_output(&exercise.validation, &output.last_output);
+            let validation_result =
+                validate::validate_output(&exercise.validation, &output.last_output);
 
             if validation_result.is_success() {
                 match validation_result {
-                    ValidationResult::CompileSuccess => Ok((ExecutionResult::CompileSuccess, teardown_warnings)),
+                    ValidationResult::CompileSuccess => {
+                        Ok((ExecutionResult::CompileSuccess, teardown_warnings))
+                    }
                     _ => Ok((ExecutionResult::Success, teardown_warnings)),
                 }
             } else {
-                Ok((ExecutionResult::ValidationFailed(validation_result), teardown_warnings))
+                Ok((
+                    ExecutionResult::ValidationFailed(validation_result),
+                    teardown_warnings,
+                ))
             }
         }
-        Err(LifecycleError::SetupFailed { step_name, stderr, exit_code, teardown_warnings, .. }) => {
-            Ok((ExecutionResult::SetupFailed { step_name, stderr, exit_code }, teardown_warnings))
-        }
-        Err(LifecycleError::ServiceFailed { service_name, error, teardown_warnings }) => {
-            Ok((ExecutionResult::ServiceFailed { service_name, error }, teardown_warnings))
-        }
-        Err(LifecycleError::StepFailed { step_name, stderr, exit_code, teardown_warnings }) => {
-            Ok((ExecutionResult::StepFailed { step_name, stderr, exit_code }, teardown_warnings))
-        }
-        Err(LifecycleError::Timeout { step_name, teardown_warnings, .. }) => {
-            Ok((ExecutionResult::Timeout { step_name }, teardown_warnings))
-        }
+        Err(LifecycleError::SetupFailed {
+            step_name,
+            stderr,
+            exit_code,
+            teardown_warnings,
+            ..
+        }) => Ok((
+            ExecutionResult::SetupFailed {
+                step_name,
+                stderr,
+                exit_code,
+            },
+            teardown_warnings,
+        )),
+        Err(LifecycleError::ServiceFailed {
+            service_name,
+            error,
+            teardown_warnings,
+        }) => Ok((
+            ExecutionResult::ServiceFailed {
+                service_name,
+                error,
+            },
+            teardown_warnings,
+        )),
+        Err(LifecycleError::StepFailed {
+            step_name,
+            stderr,
+            exit_code,
+            teardown_warnings,
+        }) => Ok((
+            ExecutionResult::StepFailed {
+                step_name,
+                stderr,
+                exit_code,
+            },
+            teardown_warnings,
+        )),
+        Err(LifecycleError::Timeout {
+            step_name,
+            teardown_warnings,
+            ..
+        }) => Ok((ExecutionResult::Timeout { step_name }, teardown_warnings)),
     }
 }

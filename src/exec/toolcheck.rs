@@ -54,10 +54,16 @@ pub fn suggest_install(cmd: &str) -> Option<String> {
     match cmd {
         "g++" | "gcc" => Some("sudo apt install g++  (or: brew install gcc)".to_string()),
         "clang++" | "clang" => Some("sudo apt install clang  (or: brew install llvm)".to_string()),
-        "python3" | "python" => Some("sudo apt install python3  (or: brew install python)".to_string()),
-        "rustc" | "cargo" => Some("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh".to_string()),
+        "python3" | "python" => {
+            Some("sudo apt install python3  (or: brew install python)".to_string())
+        }
+        "rustc" | "cargo" => {
+            Some("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh".to_string())
+        }
         "node" | "nodejs" => Some("sudo apt install nodejs  (or: brew install node)".to_string()),
-        "javac" | "java" => Some("sudo apt install default-jdk  (or: brew install openjdk)".to_string()),
+        "javac" | "java" => {
+            Some("sudo apt install default-jdk  (or: brew install openjdk)".to_string())
+        }
         "go" => Some("sudo apt install golang  (or: brew install go)".to_string()),
         "ruby" => Some("sudo apt install ruby  (or: brew install ruby)".to_string()),
         "bash" => Some("sudo apt install bash  (or: brew install bash)".to_string()),
@@ -80,11 +86,7 @@ pub fn check_language_tools(language: &Language) -> Vec<ToolStatus> {
         if let Some(cmd) = extract_command(&step.command) {
             if seen.insert(cmd.clone()) {
                 let found = command_exists(&cmd);
-                let install_hint = if !found {
-                    suggest_install(&cmd)
-                } else {
-                    None
-                };
+                let install_hint = if !found { suggest_install(&cmd) } else { None };
                 results.push(ToolStatus {
                     command: cmd,
                     found,
@@ -141,7 +143,10 @@ mod tests {
     #[test]
     fn test_extract_command_normal() {
         assert_eq!(extract_command("g++"), Some("g++".to_string()));
-        assert_eq!(extract_command("python3 {dir}/{main}"), Some("python3".to_string()));
+        assert_eq!(
+            extract_command("python3 {dir}/{main}"),
+            Some("python3".to_string())
+        );
     }
 
     #[test]

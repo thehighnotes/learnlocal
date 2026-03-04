@@ -1,13 +1,18 @@
-use std::path::{Path, PathBuf};
 use crate::error::{LearnLocalError, Result};
+use std::path::{Path, PathBuf};
 
 /// Returns the persistent sandbox directory for a given course/lesson.
 /// `~/.local/share/learnlocal/sandboxes/{course_id}@{major}/{lesson_id}/`
 pub fn sandbox_dir(course_id: &str, version: &str, lesson_id: &str) -> Result<PathBuf> {
-    let data_dir = dirs::data_dir()
-        .ok_or_else(|| LearnLocalError::Progress("Could not determine data directory".to_string()))?;
+    let data_dir = dirs::data_dir().ok_or_else(|| {
+        LearnLocalError::Progress("Could not determine data directory".to_string())
+    })?;
     let major = crate::state::types::progress_key(course_id, version);
-    Ok(data_dir.join("learnlocal").join("sandboxes").join(major).join(lesson_id))
+    Ok(data_dir
+        .join("learnlocal")
+        .join("sandboxes")
+        .join(major)
+        .join(lesson_id))
 }
 
 /// Save sandbox files to the persistent directory.
@@ -30,7 +35,8 @@ pub fn load_sandbox_files(dir: &Path) -> Result<Vec<(String, String)>> {
         let entry = entry?;
         let path = entry.path();
         if path.is_file() {
-            let name = path.file_name()
+            let name = path
+                .file_name()
                 .unwrap_or_default()
                 .to_string_lossy()
                 .to_string();
@@ -46,11 +52,22 @@ pub fn load_sandbox_files(dir: &Path) -> Result<Vec<(String, String)>> {
 
 /// Returns the persistent draft directory for a given course/lesson/exercise.
 /// `~/.local/share/learnlocal/drafts/{course_id}@{major}/{lesson_id}/{exercise_id}/`
-pub fn draft_dir(course_id: &str, version: &str, lesson_id: &str, exercise_id: &str) -> Result<PathBuf> {
-    let data_dir = dirs::data_dir()
-        .ok_or_else(|| LearnLocalError::Progress("Could not determine data directory".to_string()))?;
+pub fn draft_dir(
+    course_id: &str,
+    version: &str,
+    lesson_id: &str,
+    exercise_id: &str,
+) -> Result<PathBuf> {
+    let data_dir = dirs::data_dir().ok_or_else(|| {
+        LearnLocalError::Progress("Could not determine data directory".to_string())
+    })?;
     let major = crate::state::types::progress_key(course_id, version);
-    Ok(data_dir.join("learnlocal").join("drafts").join(major).join(lesson_id).join(exercise_id))
+    Ok(data_dir
+        .join("learnlocal")
+        .join("drafts")
+        .join(major)
+        .join(lesson_id)
+        .join(exercise_id))
 }
 
 /// Save exercise draft files to the persistent directory.
@@ -73,7 +90,8 @@ pub fn load_draft_files(dir: &Path) -> Result<Vec<(String, String)>> {
         let entry = entry?;
         let path = entry.path();
         if path.is_file() {
-            let name = path.file_name()
+            let name = path
+                .file_name()
                 .unwrap_or_default()
                 .to_string_lossy()
                 .to_string();
@@ -97,7 +115,13 @@ pub fn clear_draft_files(dir: &Path) -> Result<()> {
 pub fn has_sandbox_files(course_id: &str, version: &str, lesson_id: &str) -> bool {
     sandbox_dir(course_id, version, lesson_id)
         .ok()
-        .map(|dir| dir.exists() && std::fs::read_dir(&dir).ok().map(|mut d| d.next().is_some()).unwrap_or(false))
+        .map(|dir| {
+            dir.exists()
+                && std::fs::read_dir(&dir)
+                    .ok()
+                    .map(|mut d| d.next().is_some())
+                    .unwrap_or(false)
+        })
         .unwrap_or(false)
 }
 
@@ -120,8 +144,12 @@ mod tests {
         let loaded = load_sandbox_files(&dir).unwrap();
 
         assert_eq!(loaded.len(), 2);
-        assert!(loaded.iter().any(|(n, c)| n == "main.py" && c == "print('hello')"));
-        assert!(loaded.iter().any(|(n, c)| n == "helper.py" && c == "def foo(): pass"));
+        assert!(loaded
+            .iter()
+            .any(|(n, c)| n == "main.py" && c == "print('hello')"));
+        assert!(loaded
+            .iter()
+            .any(|(n, c)| n == "helper.py" && c == "def foo(): pass"));
     }
 
     #[test]
@@ -135,7 +163,11 @@ mod tests {
     #[test]
     fn test_has_sandbox_files_false_when_missing() {
         // Uses a course_id that won't exist on disk
-        assert!(!has_sandbox_files("nonexistent-course", "1.0.0", "lesson-1"));
+        assert!(!has_sandbox_files(
+            "nonexistent-course",
+            "1.0.0",
+            "lesson-1"
+        ));
     }
 
     #[test]
@@ -178,9 +210,7 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let dir = tmp.path().join("draft");
 
-        let files = vec![
-            ("main.cpp".to_string(), "int main() {}".to_string()),
-        ];
+        let files = vec![("main.cpp".to_string(), "int main() {}".to_string())];
 
         save_draft_files(&dir, &files).unwrap();
         let loaded = load_draft_files(&dir).unwrap();

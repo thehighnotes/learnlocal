@@ -1,23 +1,26 @@
 use crate::config::EditorType;
 
 const GUI_EDITORS: &[&str] = &[
-    "code", "code-insiders", "codium", "vscodium",
-    "subl", "sublime_text",
+    "code",
+    "code-insiders",
+    "codium",
+    "vscodium",
+    "subl",
+    "sublime_text",
     "zed",
-    "gedit", "kate", "kwrite", "mousepad", "pluma", "xed",
+    "gedit",
+    "kate",
+    "kwrite",
+    "mousepad",
+    "pluma",
+    "xed",
     "atom",
     "notepadpp",
 ];
 
 const TERMINAL_EDITORS: &[&str] = &[
-    "vim", "nvim", "neovim",
-    "nano", "pico",
-    "micro",
-    "helix", "hx",
-    "emacs",
-    "vi", "nvi",
-    "joe", "jed", "ne",
-    "kakoune", "kak",
+    "vim", "nvim", "neovim", "nano", "pico", "micro", "helix", "hx", "emacs", "vi", "nvi", "joe",
+    "jed", "ne", "kakoune", "kak",
 ];
 
 /// Extract the base command name from an editor string (e.g. "code --wait" → "code").
@@ -28,7 +31,9 @@ fn base_command(editor: &str) -> &str {
 /// Check if the editor command contains a blocking flag (--wait or -w),
 /// which means a GUI editor will behave like a terminal editor (blocking).
 fn has_wait_flag(editor: &str) -> bool {
-    editor.split_whitespace().any(|arg| arg == "--wait" || arg == "-w")
+    editor
+        .split_whitespace()
+        .any(|arg| arg == "--wait" || arg == "-w")
 }
 
 /// Detect whether an editor is GUI or Terminal based on its command name.
@@ -63,12 +68,10 @@ pub fn resolve_editor_type(editor_name: Option<&str>, config_type: &EditorType) 
     match config_type {
         EditorType::Terminal => EditorType::Terminal,
         EditorType::Gui => EditorType::Gui,
-        EditorType::Auto => {
-            match editor_name {
-                Some(name) if !name.is_empty() => detect_editor_type(name),
-                _ => EditorType::Terminal,
-            }
-        }
+        EditorType::Auto => match editor_name {
+            Some(name) if !name.is_empty() => detect_editor_type(name),
+            _ => EditorType::Terminal,
+        },
     }
 }
 

@@ -76,7 +76,9 @@ pub fn setup_environment(
             })?;
         }
         // Substitute {dir} placeholder in file content
-        let content = file.content.replace("{dir}", &sandbox_dir.to_string_lossy());
+        let content = file
+            .content
+            .replace("{dir}", &sandbox_dir.to_string_lossy());
         std::fs::write(&full_path, &content).map_err(|e| {
             LearnLocalError::Execution(format!("Failed to write file '{}': {}", file.path, e))
         })?;
@@ -193,9 +195,10 @@ fn allocate_ports(count: usize) -> Result<Vec<u16>> {
         let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| {
             LearnLocalError::Execution(format!("Failed to allocate port {}: {}", i, e))
         })?;
-        let port = listener.local_addr().map_err(|e| {
-            LearnLocalError::Execution(format!("Failed to get port address: {}", e))
-        })?.port();
+        let port = listener
+            .local_addr()
+            .map_err(|e| LearnLocalError::Execution(format!("Failed to get port address: {}", e)))?
+            .port();
         ports.push(port);
         // Drop listener — port is now free for use
     }
@@ -355,8 +358,7 @@ pub fn wait_for_service_ready(
         // Watch stdout unless ready_stream is "stderr"
         if watch_stream != "stderr" {
             if let Some(stdout) = child.stdout.take() {
-                let capture = service.capture_stdout.as_ref()
-                    .map(|p| sandbox_dir.join(p));
+                let capture = service.capture_stdout.as_ref().map(|p| sandbox_dir.join(p));
                 reader_handles.push(spawn_stream_reader(
                     stdout,
                     re.clone(),
@@ -371,8 +373,7 @@ pub fn wait_for_service_ready(
         // Watch stderr unless ready_stream is "stdout"
         if watch_stream != "stdout" {
             if let Some(stderr) = child.stderr.take() {
-                let capture = service.capture_stderr.as_ref()
-                    .map(|p| sandbox_dir.join(p));
+                let capture = service.capture_stderr.as_ref().map(|p| sandbox_dir.join(p));
                 reader_handles.push(spawn_stream_reader(
                     stderr,
                     re.clone(),
@@ -594,8 +595,7 @@ fn check_assertion(sandbox_dir: &Path, assertion: &StateAssertion) -> AssertionR
                     Ok(meta) => {
                         use std::os::unix::fs::PermissionsExt;
                         let actual_mode = meta.permissions().mode() & 0o777;
-                        let expected_mode =
-                            u32::from_str_radix(&check.mode, 8).unwrap_or(0);
+                        let expected_mode = u32::from_str_radix(&check.mode, 8).unwrap_or(0);
                         let passed = actual_mode == expected_mode;
                         AssertionResult {
                             description: format!("permissions: {} = {}", check.path, check.mode),
@@ -782,7 +782,11 @@ mod tests {
         };
         setup_environment(tmp.path(), &spec, "main.sh", &["main.sh".to_string()]).unwrap();
         let link_path = tmp.path().join("latest");
-        assert!(link_path.symlink_metadata().unwrap().file_type().is_symlink());
+        assert!(link_path
+            .symlink_metadata()
+            .unwrap()
+            .file_type()
+            .is_symlink());
     }
 
     #[test]
@@ -1076,17 +1080,11 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         std::fs::create_dir(tmp.path().join("empty")).unwrap();
 
-        let results = validate_state(
-            tmp.path(),
-            &[StateAssertion::DirEmpty("empty".to_string())],
-        );
+        let results = validate_state(tmp.path(), &[StateAssertion::DirEmpty("empty".to_string())]);
         assert!(results[0].passed);
 
         std::fs::write(tmp.path().join("empty/file.txt"), "x").unwrap();
-        let results = validate_state(
-            tmp.path(),
-            &[StateAssertion::DirEmpty("empty".to_string())],
-        );
+        let results = validate_state(tmp.path(), &[StateAssertion::DirEmpty("empty".to_string())]);
         assert!(!results[0].passed);
     }
 
@@ -1187,7 +1185,10 @@ mod tests {
         let sandbox = Sandbox::new(&limits, SandboxLevel::Basic).unwrap();
         // Write a script that prints a ready message
         sandbox
-            .write_file("srv.sh", "#!/bin/bash\necho 'server listening on 8080'\nsleep 100\n")
+            .write_file(
+                "srv.sh",
+                "#!/bin/bash\necho 'server listening on 8080'\nsleep 100\n",
+            )
             .unwrap();
 
         let service = EnvService {
@@ -1219,7 +1220,10 @@ mod tests {
         let sandbox = Sandbox::new(&limits, SandboxLevel::Basic).unwrap();
         // Script that prints ready message to stderr
         sandbox
-            .write_file("srv.sh", "#!/bin/bash\necho 'server listening on 8080' >&2\nsleep 100\n")
+            .write_file(
+                "srv.sh",
+                "#!/bin/bash\necho 'server listening on 8080' >&2\nsleep 100\n",
+            )
             .unwrap();
 
         let service = EnvService {
@@ -1251,7 +1255,10 @@ mod tests {
         let sandbox = Sandbox::new(&limits, SandboxLevel::Basic).unwrap();
         // Script that prints ready message to stderr (default "both" should catch it)
         sandbox
-            .write_file("srv.sh", "#!/bin/bash\necho 'server ready' >&2\nsleep 100\n")
+            .write_file(
+                "srv.sh",
+                "#!/bin/bash\necho 'server ready' >&2\nsleep 100\n",
+            )
             .unwrap();
 
         let service = EnvService {

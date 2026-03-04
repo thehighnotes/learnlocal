@@ -95,7 +95,7 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - **Sprint 11 — Content:** #5, #66-69 (asciinema demo, quality bar docs, course template, catalog, --courses docs)
 - **Sprint 12 — Future-Proofing:** #70-75 (plugins, update checker, a11y statement, i18n prep, analytics)
 
-**Current sprint:** Sprint 4 — CLI Polish
+**Current sprint:** Sprint 5 — Robustness
 
 ## Public Release Checklist
 
@@ -138,15 +138,15 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - [x] 28. `rust-toolchain.toml` — pin toolchain for contributors
 
 ### CLI Polish
-- [ ] 29. Shell completions via `clap_complete` (bash, zsh, fish, PowerShell)
-- [ ] 30. `--verbose` / `--debug` flag for troubleshooting exercise failures
-- [ ] 31. Usage examples in `--help` subcommands
-- [ ] 32. `learnlocal doctor` command — check $EDITOR, sandbox tools, Ollama, terminal size, disk space
-- [ ] 33. `learnlocal init <course-name>` — scaffold course directory for authors
-- [ ] 34. `learnlocal export` — export progress to shareable format
-- [ ] 35. Colored `validate` output (green/red/yellow)
-- [ ] 36. Differentiated exit codes (0=success, 1=error, 2=validation fail, 3=missing tool)
-- [ ] 37. Man page generation via `clap_mangen`
+- [x] 29. Shell completions via `clap_complete` (bash, zsh, fish, PowerShell)
+- [x] 30. `--verbose` / `--debug` flag for troubleshooting exercise failures
+- [x] 31. Usage examples in `--help` subcommands
+- [x] 32. `learnlocal doctor` command — check $EDITOR, sandbox tools, Ollama, terminal size, disk space
+- [x] 33. `learnlocal init <course-name>` — scaffold course directory for authors
+- [x] 34. `learnlocal export` — export progress to shareable format
+- [x] 35. Colored `validate` output (green/red/yellow)
+- [x] 36. Differentiated exit codes (0=success, 1=error, 2=validation fail, 3=missing tool)
+- [x] 37. Man page generation via `clap_mangen`
 
 ### TUI & Accessibility
 - [ ] 38. High-contrast theme option

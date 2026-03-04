@@ -42,12 +42,9 @@ pub fn edit_file_with_config(file_path: &Path, config_editor: Option<&str>) -> R
 
     match editor {
         Some(editor) => {
-            let status = Command::new(&editor)
-                .arg(file_path)
-                .status()
-                .map_err(|e| {
-                    LearnLocalError::Editor(format!("Failed to launch editor '{}': {}", editor, e))
-                })?;
+            let status = Command::new(&editor).arg(file_path).status().map_err(|e| {
+                LearnLocalError::Editor(format!("Failed to launch editor '{}': {}", editor, e))
+            })?;
 
             if !status.success() {
                 return Err(LearnLocalError::Editor(format!(

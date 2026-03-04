@@ -809,7 +809,10 @@ cwd: data
     fn test_state_assertion_simple_variants() {
         let yaml = "file_exists: output/report.txt";
         let a: StateAssertion = serde_yaml::from_str(yaml).unwrap();
-        assert_eq!(a, StateAssertion::FileExists("output/report.txt".to_string()));
+        assert_eq!(
+            a,
+            StateAssertion::FileExists("output/report.txt".to_string())
+        );
 
         let yaml = "dir_exists: output/logs";
         let a: StateAssertion = serde_yaml::from_str(yaml).unwrap();
@@ -836,10 +839,13 @@ file_contains:
   content: "Total: 55"
 "#;
         let a: StateAssertion = serde_yaml::from_str(yaml).unwrap();
-        assert_eq!(a, StateAssertion::FileContains(FileContentCheck {
-            path: "output/report.txt".to_string(),
-            content: "Total: 55".to_string(),
-        }));
+        assert_eq!(
+            a,
+            StateAssertion::FileContains(FileContentCheck {
+                path: "output/report.txt".to_string(),
+                content: "Total: 55".to_string(),
+            })
+        );
 
         let yaml = r#"
 file_matches:
@@ -847,10 +853,13 @@ file_matches:
   pattern: "\\d+ items"
 "#;
         let a: StateAssertion = serde_yaml::from_str(yaml).unwrap();
-        assert_eq!(a, StateAssertion::FileMatches(FilePatternCheck {
-            path: "output/log.txt".to_string(),
-            pattern: "\\d+ items".to_string(),
-        }));
+        assert_eq!(
+            a,
+            StateAssertion::FileMatches(FilePatternCheck {
+                path: "output/log.txt".to_string(),
+                pattern: "\\d+ items".to_string(),
+            })
+        );
 
         let yaml = r#"
 permissions:
@@ -858,10 +867,13 @@ permissions:
   mode: "755"
 "#;
         let a: StateAssertion = serde_yaml::from_str(yaml).unwrap();
-        assert_eq!(a, StateAssertion::Permissions(PermissionsCheck {
-            path: "script.sh".to_string(),
-            mode: "755".to_string(),
-        }));
+        assert_eq!(
+            a,
+            StateAssertion::Permissions(PermissionsCheck {
+                path: "script.sh".to_string(),
+                mode: "755".to_string(),
+            })
+        );
 
         let yaml = r#"
 symlink:
@@ -869,10 +881,13 @@ symlink:
   target: data/v2
 "#;
         let a: StateAssertion = serde_yaml::from_str(yaml).unwrap();
-        assert_eq!(a, StateAssertion::Symlink(SymlinkCheck {
-            path: "latest".to_string(),
-            target: "data/v2".to_string(),
-        }));
+        assert_eq!(
+            a,
+            StateAssertion::Symlink(SymlinkCheck {
+                path: "latest".to_string(),
+                target: "data/v2".to_string(),
+            })
+        );
 
         let yaml = r#"
 file_count:
@@ -880,10 +895,13 @@ file_count:
   count: 3
 "#;
         let a: StateAssertion = serde_yaml::from_str(yaml).unwrap();
-        assert_eq!(a, StateAssertion::FileCount(FileCountCheck {
-            path: "output".to_string(),
-            count: 3,
-        }));
+        assert_eq!(
+            a,
+            StateAssertion::FileCount(FileCountCheck {
+                path: "output".to_string(),
+                count: 3,
+            })
+        );
     }
 
     #[test]
@@ -897,8 +915,14 @@ file_count:
 "#;
         let assertions: Vec<StateAssertion> = serde_yaml::from_str(yaml).unwrap();
         assert_eq!(assertions.len(), 3);
-        assert_eq!(assertions[0], StateAssertion::FileExists("output/report.txt".to_string()));
-        assert_eq!(assertions[1], StateAssertion::DirExists("output".to_string()));
+        assert_eq!(
+            assertions[0],
+            StateAssertion::FileExists("output/report.txt".to_string())
+        );
+        assert_eq!(
+            assertions[1],
+            StateAssertion::DirExists("output".to_string())
+        );
     }
 
     #[test]

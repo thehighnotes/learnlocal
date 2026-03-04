@@ -76,33 +76,29 @@ fn check_provision(language: &Language) -> Vec<ValidationCheck> {
     let mut checks = Vec::new();
 
     match language.provision {
-        Provision::Embedded => {
-            match &language.runtime {
-                None => {
-                    checks.push(ValidationCheck {
-                        name: "provision: embedded requires runtime".to_string(),
-                        passed: false,
-                        message: "provision is 'embedded' but no runtime specified".to_string(),
-                    });
-                }
-                Some(rt) if rt == "sqlite" => {
-                    checks.push(ValidationCheck {
-                        name: "provision valid".to_string(),
-                        passed: true,
-                        message: "provision: embedded, runtime: sqlite".to_string(),
-                    });
-                }
-                Some(rt) => {
-                    checks.push(ValidationCheck {
-                        name: "provision: embedded runtime known".to_string(),
-                        passed: false,
-                        message: format!(
-                            "unknown embedded runtime '{}'. Known: sqlite", rt
-                        ),
-                    });
-                }
+        Provision::Embedded => match &language.runtime {
+            None => {
+                checks.push(ValidationCheck {
+                    name: "provision: embedded requires runtime".to_string(),
+                    passed: false,
+                    message: "provision is 'embedded' but no runtime specified".to_string(),
+                });
             }
-        }
+            Some(rt) if rt == "sqlite" => {
+                checks.push(ValidationCheck {
+                    name: "provision valid".to_string(),
+                    passed: true,
+                    message: "provision: embedded, runtime: sqlite".to_string(),
+                });
+            }
+            Some(rt) => {
+                checks.push(ValidationCheck {
+                    name: "provision: embedded runtime known".to_string(),
+                    passed: false,
+                    message: format!("unknown embedded runtime '{}'. Known: sqlite", rt),
+                });
+            }
+        },
         Provision::Auto => {
             checks.push(ValidationCheck {
                 name: "provision valid".to_string(),
@@ -141,7 +137,11 @@ fn check_semver(version: &str) -> ValidationCheck {
 }
 
 fn check_lessons_exist(course: &Course) -> ValidationCheck {
-    let loaded_ids: HashSet<&str> = course.loaded_lessons.iter().map(|l| l.id.as_str()).collect();
+    let loaded_ids: HashSet<&str> = course
+        .loaded_lessons
+        .iter()
+        .map(|l| l.id.as_str())
+        .collect();
     let referenced_ids: Vec<&str> = course.lessons.iter().map(|l| l.id.as_str()).collect();
 
     let missing: Vec<&&str> = referenced_ids
@@ -271,7 +271,8 @@ fn check_exercise(exercise: &Exercise, lesson_id: &str) -> Vec<ValidationCheck> 
     if matches!(
         exercise.exercise_type,
         ExerciseType::Write | ExerciseType::Fix | ExerciseType::FillBlank | ExerciseType::Command
-    ) && !has_starter && !has_files
+    ) && !has_starter
+        && !has_files
     {
         checks.push(ValidationCheck {
             name: format!("{}: has starter code", prefix),
@@ -421,7 +422,10 @@ fn check_exercise(exercise: &Exercise, lesson_id: &str) -> Vec<ValidationCheck> 
                     checks.push(ValidationCheck {
                         name: format!("{}: service capture_stdout path valid", prefix),
                         passed: false,
-                        message: format!("service '{}' capture_stdout '{}': {}", svc.name, path, msg),
+                        message: format!(
+                            "service '{}' capture_stdout '{}': {}",
+                            svc.name, path, msg
+                        ),
                     });
                 }
             }
@@ -430,14 +434,20 @@ fn check_exercise(exercise: &Exercise, lesson_id: &str) -> Vec<ValidationCheck> 
                     checks.push(ValidationCheck {
                         name: format!("{}: service capture_stderr path valid", prefix),
                         passed: false,
-                        message: format!("service '{}' capture_stderr '{}': {}", svc.name, path, msg),
+                        message: format!(
+                            "service '{}' capture_stderr '{}': {}",
+                            svc.name, path, msg
+                        ),
                     });
                 }
             }
             checks.push(ValidationCheck {
                 name: format!("{}: service runs '{}' (background)", prefix, svc.command),
                 passed: true,
-                message: format!("service '{}' runs '{}' as background process", svc.name, svc.command),
+                message: format!(
+                    "service '{}' runs '{}' as background process",
+                    svc.name, svc.command
+                ),
             });
         }
 
@@ -454,7 +464,10 @@ fn check_exercise(exercise: &Exercise, lesson_id: &str) -> Vec<ValidationCheck> 
                     checks.push(ValidationCheck {
                         name: format!("{}: teardown timeout valid", prefix),
                         passed: false,
-                        message: format!("teardown '{}': timeout must be 1-60s, got {}", step.name, t),
+                        message: format!(
+                            "teardown '{}': timeout must be 1-60s, got {}",
+                            step.name, t
+                        ),
                     });
                 }
             }
@@ -669,7 +682,11 @@ mod tests {
         // Create cycle: a requires b, b requires a
         course.lessons[0].requires = vec!["b".to_string()];
         let result = validate_course(&course);
-        let cycle_check = result.checks.iter().find(|c| c.name.contains("cycle")).unwrap();
+        let cycle_check = result
+            .checks
+            .iter()
+            .find(|c| c.name.contains("cycle"))
+            .unwrap();
         assert!(!cycle_check.passed);
     }
 
@@ -678,7 +695,11 @@ mod tests {
         let mut course = make_test_course();
         course.version = "not-a-version".to_string();
         let result = validate_course(&course);
-        let semver_check = result.checks.iter().find(|c| c.name.contains("schema")).unwrap();
+        let semver_check = result
+            .checks
+            .iter()
+            .find(|c| c.name.contains("schema"))
+            .unwrap();
         assert!(!semver_check.passed);
     }
 
@@ -686,7 +707,11 @@ mod tests {
     fn test_platform_none_passes() {
         let course = make_test_course();
         let result = validate_course(&course);
-        let check = result.checks.iter().find(|c| c.name.contains("platform")).unwrap();
+        let check = result
+            .checks
+            .iter()
+            .find(|c| c.name.contains("platform"))
+            .unwrap();
         assert!(check.passed);
     }
 
@@ -695,7 +720,11 @@ mod tests {
         let mut course = make_test_course();
         course.platform = Some("linux".to_string());
         let result = validate_course(&course);
-        let check = result.checks.iter().find(|c| c.name.contains("platform")).unwrap();
+        let check = result
+            .checks
+            .iter()
+            .find(|c| c.name.contains("platform"))
+            .unwrap();
         assert!(check.passed);
     }
 
@@ -704,7 +733,11 @@ mod tests {
         let mut course = make_test_course();
         course.platform = Some("beos".to_string());
         let result = validate_course(&course);
-        let check = result.checks.iter().find(|c| c.name.contains("platform")).unwrap();
+        let check = result
+            .checks
+            .iter()
+            .find(|c| c.name.contains("platform"))
+            .unwrap();
         assert!(!check.passed);
         assert!(check.message.contains("beos"));
     }
@@ -715,7 +748,11 @@ mod tests {
         course.language.provision = Provision::Embedded;
         course.language.runtime = None;
         let result = validate_course(&course);
-        let check = result.checks.iter().find(|c| c.name.contains("provision")).unwrap();
+        let check = result
+            .checks
+            .iter()
+            .find(|c| c.name.contains("provision"))
+            .unwrap();
         assert!(!check.passed);
         assert!(check.message.contains("no runtime"));
     }
@@ -726,7 +763,11 @@ mod tests {
         course.language.provision = Provision::Embedded;
         course.language.runtime = Some("sqlite".to_string());
         let result = validate_course(&course);
-        let check = result.checks.iter().find(|c| c.name.contains("provision")).unwrap();
+        let check = result
+            .checks
+            .iter()
+            .find(|c| c.name.contains("provision"))
+            .unwrap();
         assert!(check.passed);
     }
 
@@ -736,7 +777,11 @@ mod tests {
         course.language.provision = Provision::Embedded;
         course.language.runtime = Some("lua".to_string());
         let result = validate_course(&course);
-        let check = result.checks.iter().find(|c| c.name.contains("provision")).unwrap();
+        let check = result
+            .checks
+            .iter()
+            .find(|c| c.name.contains("provision"))
+            .unwrap();
         assert!(!check.passed);
         assert!(check.message.contains("lua"));
     }
@@ -746,7 +791,11 @@ mod tests {
         let mut course = make_test_course();
         course.language.provision = Provision::Auto;
         let result = validate_course(&course);
-        let check = result.checks.iter().find(|c| c.name.contains("provision")).unwrap();
+        let check = result
+            .checks
+            .iter()
+            .find(|c| c.name.contains("provision"))
+            .unwrap();
         assert!(check.passed);
     }
 }

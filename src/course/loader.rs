@@ -1,6 +1,6 @@
-use std::path::Path;
-use crate::error::{LearnLocalError, Result};
 use super::types::*;
+use crate::error::{LearnLocalError, Result};
+use std::path::Path;
 
 /// Load only course.yaml metadata — no lessons or exercises.
 pub fn load_course_info(path: &Path) -> Result<CourseInfo> {

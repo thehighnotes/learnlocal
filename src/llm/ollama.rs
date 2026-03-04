@@ -164,8 +164,7 @@ impl OllamaBackend {
         let mut stream = resp.bytes_stream();
 
         while let Some(chunk_result) = stream.next().await {
-            let chunk = chunk_result
-                .map_err(|e| format!("Failed to read Ollama stream: {}", e))?;
+            let chunk = chunk_result.map_err(|e| format!("Failed to read Ollama stream: {}", e))?;
             line_buffer.push_str(&String::from_utf8_lossy(&chunk));
 
             // Process complete lines (Ollama sends newline-delimited JSON)
@@ -249,10 +248,7 @@ pub fn spawn_llm_thread(config: LlmConfig) -> LlmChannel {
 
             // Check availability
             if let Some(model) = backend.find_available_model().await {
-                let _ = resp_tx.send(LlmEvent::BackendReady(format!(
-                    "Ollama ({})",
-                    model
-                )));
+                let _ = resp_tx.send(LlmEvent::BackendReady(format!("Ollama ({})", model)));
             } else {
                 let _ = resp_tx.send(LlmEvent::BackendUnavailable(format!(
                     "Cannot reach Ollama at {} or model {} not found",
@@ -335,7 +331,8 @@ mod tests {
 
     #[test]
     fn test_parse_tags_response() {
-        let json = r#"{"models":[{"name":"qwen3:4b","size":12345},{"name":"llama3:8b","size":67890}]}"#;
+        let json =
+            r#"{"models":[{"name":"qwen3:4b","size":12345},{"name":"llama3:8b","size":67890}]}"#;
         let resp: OllamaTagsResponse = serde_json::from_str(json).unwrap();
         assert_eq!(resp.models.len(), 2);
         assert_eq!(resp.models[0].name, "qwen3:4b");
@@ -344,7 +341,8 @@ mod tests {
 
     #[test]
     fn test_parse_chat_chunk() {
-        let json = r#"{"model":"qwen3:4b","message":{"role":"assistant","content":"Hello"},"done":false}"#;
+        let json =
+            r#"{"model":"qwen3:4b","message":{"role":"assistant","content":"Hello"},"done":false}"#;
         let chunk: OllamaChatChunk = serde_json::from_str(json).unwrap();
         assert_eq!(chunk.message.content, "Hello");
         assert!(!chunk.done);
@@ -352,7 +350,8 @@ mod tests {
 
     #[test]
     fn test_parse_chat_chunk_done() {
-        let json = r#"{"model":"qwen3:4b","message":{"role":"assistant","content":""},"done":true}"#;
+        let json =
+            r#"{"model":"qwen3:4b","message":{"role":"assistant","content":""},"done":true}"#;
         let chunk: OllamaChatChunk = serde_json::from_str(json).unwrap();
         assert!(chunk.done);
         assert!(chunk.message.content.is_empty());

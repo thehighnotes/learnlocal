@@ -9,17 +9,17 @@ use std::time::Duration;
 
 use crate::config::{Config, EditorType, SandboxLevelPref};
 use crate::course::types::{Course, CourseInfo};
-use crate::exec::toolcheck;
 use crate::error::Result;
 use crate::exec::sandbox::SandboxLevel;
+use crate::exec::toolcheck;
 use crate::state::progress::ProgressStore;
 use crate::state::types::*;
-use crate::ui::celebration::{AggregateStats, format_duration};
+use crate::ui::celebration::{format_duration, AggregateStats};
 use crate::ui::course_app::CourseApp;
+use crate::ui::howto;
 use crate::ui::screens::*;
 use crate::ui::terminal::Tui;
 use crate::ui::theme::Theme;
-use crate::ui::howto;
 use crate::ui::tour;
 
 #[cfg(feature = "llm")]
@@ -208,7 +208,7 @@ impl App {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(3), // title header
-                Constraint::Min(1),   // content area
+                Constraint::Min(1),    // content area
                 Constraint::Length(1), // key bar
             ])
             .split(frame.size());
@@ -269,10 +269,7 @@ impl App {
             // Two-panel split: 40% left, 60% right
             let panels = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints([
-                    Constraint::Percentage(40),
-                    Constraint::Percentage(60),
-                ])
+                .constraints([Constraint::Percentage(40), Constraint::Percentage(60)])
                 .split(outer[1]);
 
             self.render_home_left_panel(frame, panels[0]);
@@ -299,9 +296,7 @@ impl App {
         };
         let key_bar = Paragraph::new(Line::from(Span::styled(
             key_text,
-            Style::default()
-                .fg(Color::Black)
-                .bg(Color::White),
+            Style::default().fg(Color::Black).bg(Color::White),
         )));
         frame.render_widget(key_bar, outer[2]);
     }
@@ -349,7 +344,11 @@ impl App {
                             statuses.push(toolcheck::ToolStatus {
                                 command: cmd.clone(),
                                 found,
-                                install_hint: if !found { toolcheck::suggest_install(cmd) } else { None },
+                                install_hint: if !found {
+                                    toolcheck::suggest_install(cmd)
+                                } else {
+                                    None
+                                },
                             });
                         }
                     }
@@ -362,20 +361,30 @@ impl App {
 
         // Group by language
         // Tuple: (flat_idx, completed, total, total_lessons, issue_label, tools_ready, startable)
-        let mut groups: BTreeMap<String, Vec<(usize, usize, usize, usize, String, bool, bool)>> = BTreeMap::new();
+        let mut groups: BTreeMap<String, Vec<(usize, usize, usize, usize, String, bool, bool)>> =
+            BTreeMap::new();
         for (i, summary) in self.home.summaries.iter().enumerate() {
             // Check tool readiness from cache
-            let all_ready = self.home.tool_check_cache.get(i)
+            let all_ready = self
+                .home
+                .tool_check_cache
+                .get(i)
                 .and_then(|c| c.as_ref())
                 .map(|statuses| statuses.iter().all(|s| s.found))
                 .unwrap_or(true); // assume ready if not checked
 
-            let platform_ok = self.home.platform_check_cache.get(i)
+            let platform_ok = self
+                .home
+                .platform_check_cache
+                .get(i)
                 .and_then(|c| c.as_ref())
                 .map(|ps| ps.supported)
                 .unwrap_or(true);
 
-            let missing_tool = self.home.tool_check_cache.get(i)
+            let missing_tool = self
+                .home
+                .tool_check_cache
+                .get(i)
                 .and_then(|c| c.as_ref())
                 .and_then(|statuses| statuses.iter().find(|s| !s.found))
                 .map(|s| s.command.clone())
@@ -392,7 +401,8 @@ impl App {
 
             let startable = all_ready && platform_ok;
 
-            groups.entry(summary.info.language_name.clone())
+            groups
+                .entry(summary.info.language_name.clone())
                 .or_default()
                 .push((
                     i,
@@ -406,7 +416,10 @@ impl App {
         }
 
         // Find max course name width for alignment
-        let max_name_len = self.home.summaries.iter()
+        let max_name_len = self
+            .home
+            .summaries
+            .iter()
             .map(|s| s.info.name.len())
             .max()
             .unwrap_or(20);
@@ -422,7 +435,16 @@ impl App {
                     .add_modifier(Modifier::BOLD),
             )));
 
-            for &(flat_idx, completed, total, _total_lessons, ref issue_label, _tools_ready, startable) in entries {
+            for &(
+                flat_idx,
+                completed,
+                total,
+                _total_lessons,
+                ref issue_label,
+                _tools_ready,
+                startable,
+            ) in entries
+            {
                 let selected = flat_idx == self.home.flat_idx();
                 let cursor = if selected && self.home.focus == HomePanelFocus::CourseList {
                     "\u{25b6}"
@@ -432,8 +454,16 @@ impl App {
                     " "
                 };
 
-                let pct = if total > 0 { completed * 100 / total } else { 0 };
-                let filled = if total > 0 { (pct * bar_width) / 100 } else { 0 };
+                let pct = if total > 0 {
+                    completed * 100 / total
+                } else {
+                    0
+                };
+                let filled = if total > 0 {
+                    (pct * bar_width) / 100
+                } else {
+                    0
+                };
                 let empty = bar_width - filled;
 
                 let name_style = if !startable {
@@ -451,10 +481,7 @@ impl App {
                 let mut spans = vec![
                     Span::styled(format!("  {} ", cursor), name_style),
                     Span::styled(format!("{:<width$}", name, width = name_col), name_style),
-                    Span::styled(
-                        "\u{2588}".repeat(filled),
-                        Style::default().fg(Color::Green),
-                    ),
+                    Span::styled("\u{2588}".repeat(filled), Style::default().fg(Color::Green)),
                     Span::styled(
                         "\u{2591}".repeat(empty),
                         Style::default().fg(Color::DarkGray),
@@ -467,8 +494,12 @@ impl App {
 
                 // Issue indicator (platform or tool)
                 if !issue_label.is_empty() {
-                    let color = if !startable && self.home.summaries[flat_idx].info.platform.is_some()
-                        && !self.home.platform_check_cache.get(flat_idx)
+                    let color = if !startable
+                        && self.home.summaries[flat_idx].info.platform.is_some()
+                        && !self
+                            .home
+                            .platform_check_cache
+                            .get(flat_idx)
                             .and_then(|c| c.as_ref())
                             .map(|ps| ps.supported)
                             .unwrap_or(true)
@@ -537,11 +568,17 @@ impl App {
             // Metadata
             right_lines.push(Line::from(vec![
                 Span::styled("  Author: ", Style::default().fg(self.theme.muted)),
-                Span::styled(info.author.clone(), Style::default().fg(self.theme.body_text)),
+                Span::styled(
+                    info.author.clone(),
+                    Style::default().fg(self.theme.body_text),
+                ),
             ]));
             right_lines.push(Line::from(vec![
                 Span::styled("  Version: ", Style::default().fg(self.theme.muted)),
-                Span::styled(info.version.clone(), Style::default().fg(self.theme.body_text)),
+                Span::styled(
+                    info.version.clone(),
+                    Style::default().fg(self.theme.body_text),
+                ),
             ]));
             if let Some(ref license) = info.license {
                 right_lines.push(Line::from(vec![
@@ -552,7 +589,8 @@ impl App {
             right_lines.push(Line::from(""));
 
             // Lesson count + exercise count + time estimate
-            let exercise_str = info.total_exercise_count
+            let exercise_str = info
+                .total_exercise_count
                 .map(|n| format!(" \u{00b7} {} exercises", n))
                 .unwrap_or_default();
             let time_str = if let Some(mins) = info.estimated_minutes_per_lesson {
@@ -561,7 +599,10 @@ impl App {
                 String::new()
             };
             right_lines.push(Line::from(Span::styled(
-                format!("  {} lessons{}{}", info.lesson_count, exercise_str, time_str),
+                format!(
+                    "  {} lessons{}{}",
+                    info.lesson_count, exercise_str, time_str
+                ),
                 Style::default().fg(self.theme.muted),
             )));
 
@@ -644,7 +685,9 @@ impl App {
 
             // Determine "current" lesson: first non-completed lesson
             let mut found_current = false;
-            for (i, (lesson_id, lesson_title)) in info.lesson_ids.iter()
+            for (i, (lesson_id, lesson_title)) in info
+                .lesson_ids
+                .iter()
                 .zip(info.lesson_titles.iter())
                 .enumerate()
             {
@@ -685,14 +728,8 @@ impl App {
                 };
 
                 right_lines.push(Line::from(vec![
-                    Span::styled(
-                        format!("  {} ", icon),
-                        Style::default().fg(icon_color),
-                    ),
-                    Span::styled(
-                        format!("{}. {}", i + 1, lesson_title),
-                        text_style,
-                    ),
+                    Span::styled(format!("  {} ", icon), Style::default().fg(icon_color)),
+                    Span::styled(format!("{}. {}", i + 1, lesson_title), text_style),
                 ]));
             }
         } else {
@@ -712,7 +749,7 @@ impl App {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(1), // title bar
-                Constraint::Min(1),   // content
+                Constraint::Min(1),    // content
                 Constraint::Length(1), // key bar
             ])
             .split(frame.size());
@@ -730,10 +767,20 @@ impl App {
         // Build context for slides that need file paths
         let ctx = howto::HowToCtx {
             config_path: dirs::config_dir()
-                .map(|d| d.join("learnlocal").join("config.yaml").display().to_string())
+                .map(|d| {
+                    d.join("learnlocal")
+                        .join("config.yaml")
+                        .display()
+                        .to_string()
+                })
                 .unwrap_or_else(|| "~/.config/learnlocal/config.yaml".to_string()),
             progress_path: dirs::data_dir()
-                .map(|d| d.join("learnlocal").join("progress.json").display().to_string())
+                .map(|d| {
+                    d.join("learnlocal")
+                        .join("progress.json")
+                        .display()
+                        .to_string()
+                })
                 .unwrap_or_else(|| "~/.local/share/learnlocal/progress.json".to_string()),
             sandbox_path: dirs::data_dir()
                 .map(|d| d.join("learnlocal").join("sandboxes").display().to_string())
@@ -769,9 +816,7 @@ impl App {
         );
         let key_bar = Paragraph::new(Line::from(Span::styled(
             key_text,
-            Style::default()
-                .fg(Color::Black)
-                .bg(Color::White),
+            Style::default().fg(Color::Black).bg(Color::White),
         )));
         frame.render_widget(key_bar, chunks[2]);
     }
@@ -807,7 +852,7 @@ impl App {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(1), // title bar
-                Constraint::Min(1),   // content
+                Constraint::Min(1),    // content
                 Constraint::Length(1), // key bar
             ])
             .split(frame.size());
@@ -853,9 +898,7 @@ impl App {
         );
         let key_bar = Paragraph::new(Line::from(Span::styled(
             key_text,
-            Style::default()
-                .fg(Color::Black)
-                .bg(Color::White),
+            Style::default().fg(Color::Black).bg(Color::White),
         )));
         frame.render_widget(key_bar, chunks[2]);
     }
@@ -891,7 +934,7 @@ impl App {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(1), // title bar
-                Constraint::Min(1),   // content
+                Constraint::Min(1),    // content
                 Constraint::Length(1), // key bar
             ])
             .split(frame.size());
@@ -929,7 +972,10 @@ impl App {
         lines.push(Line::from(vec![
             Span::styled("  Courses:    ", Style::default().fg(muted)),
             Span::styled(
-                format!("{} started, {} completed", stats.courses_started, stats.courses_completed),
+                format!(
+                    "{} started, {} completed",
+                    stats.courses_started, stats.courses_completed
+                ),
                 Style::default().fg(body),
             ),
         ]));
@@ -942,7 +988,10 @@ impl App {
         lines.push(Line::from(vec![
             Span::styled("  Exercises:  ", Style::default().fg(muted)),
             Span::styled(
-                format!("{}/{} completed ({}%)", stats.exercises_completed, stats.exercises_total, pct),
+                format!(
+                    "{}/{} completed ({}%)",
+                    stats.exercises_completed, stats.exercises_total, pct
+                ),
                 Style::default().fg(body),
             ),
         ]));
@@ -960,7 +1009,10 @@ impl App {
             lines.push(Line::from(vec![
                 Span::styled("  First-try:  ", Style::default().fg(muted)),
                 Span::styled(
-                    format!("{}% ({}/{})", ft_pct, stats.first_try_count, stats.exercises_completed),
+                    format!(
+                        "{}% ({}/{})",
+                        ft_pct, stats.first_try_count, stats.exercises_completed
+                    ),
                     Style::default().fg(body),
                 ),
             ]));
@@ -969,7 +1021,10 @@ impl App {
             lines.push(Line::from(vec![
                 Span::styled("  Hint-free:  ", Style::default().fg(muted)),
                 Span::styled(
-                    format!("{}% ({}/{})", hf_pct, stats.hint_free_count, stats.exercises_completed),
+                    format!(
+                        "{}% ({}/{})",
+                        hf_pct, stats.hint_free_count, stats.exercises_completed
+                    ),
                     Style::default().fg(body),
                 ),
             ]));
@@ -988,7 +1043,9 @@ impl App {
         )));
 
         // Find max course name width for alignment
-        let max_name = stats.per_course.iter()
+        let max_name = stats
+            .per_course
+            .iter()
             .map(|c| c.name.len())
             .max()
             .unwrap_or(20);
@@ -1019,18 +1076,9 @@ impl App {
                     format!("  {:<width$}  ", pc.name, width = max_name),
                     Style::default().fg(body),
                 ),
-                Span::styled(
-                    progress,
-                    Style::default().fg(status_color),
-                ),
-                Span::styled(
-                    format!("  {:>7}", time),
-                    Style::default().fg(muted),
-                ),
-                Span::styled(
-                    format!("   {}", started),
-                    Style::default().fg(muted),
-                ),
+                Span::styled(progress, Style::default().fg(status_color)),
+                Span::styled(format!("  {:>7}", time), Style::default().fg(muted)),
+                Span::styled(format!("   {}", started), Style::default().fg(muted)),
             ]));
         }
 
@@ -1047,10 +1095,20 @@ impl App {
         )));
 
         let config_path = dirs::config_dir()
-            .map(|d| d.join("learnlocal").join("config.yaml").display().to_string())
+            .map(|d| {
+                d.join("learnlocal")
+                    .join("config.yaml")
+                    .display()
+                    .to_string()
+            })
             .unwrap_or_else(|| "~/.config/learnlocal/config.yaml".to_string());
         let data_path = dirs::data_dir()
-            .map(|d| d.join("learnlocal").join("progress.json").display().to_string())
+            .map(|d| {
+                d.join("learnlocal")
+                    .join("progress.json")
+                    .display()
+                    .to_string()
+            })
             .unwrap_or_else(|| "~/.local/share/learnlocal/progress.json".to_string());
         let sandbox_path = dirs::data_dir()
             .map(|d| d.join("learnlocal").join("sandboxes").display().to_string())
@@ -1123,9 +1181,7 @@ impl App {
         // Key bar
         let key_bar = Paragraph::new(Line::from(Span::styled(
             " [\u{2191}/\u{2193}] Scroll  [Esc] Back",
-            Style::default()
-                .fg(Color::Black)
-                .bg(Color::White),
+            Style::default().fg(Color::Black).bg(Color::White),
         )));
         frame.render_widget(key_bar, chunks[2]);
     }
@@ -1163,7 +1219,7 @@ impl App {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(1), // title bar
-                Constraint::Min(1),   // settings content
+                Constraint::Min(1),    // settings content
                 Constraint::Length(1), // key bar
             ])
             .split(frame.size());
@@ -1232,7 +1288,11 @@ impl App {
                 }
                 #[cfg(feature = "llm")]
                 SettingsField::AiEnabled => {
-                    let val = if self.settings.ai_enabled { "Enabled" } else { "Disabled" };
+                    let val = if self.settings.ai_enabled {
+                        "Enabled"
+                    } else {
+                        "Disabled"
+                    };
                     ("AI Hints", val.to_string())
                 }
                 #[cfg(feature = "llm")]
@@ -1272,7 +1332,11 @@ impl App {
                 Style::default().add_modifier(Modifier::BOLD),
             )));
             for (i, model) in self.settings.available_models.iter().enumerate() {
-                let sel = if i == self.settings.model_picker_idx { ">" } else { " " };
+                let sel = if i == self.settings.model_picker_idx {
+                    ">"
+                } else {
+                    " "
+                };
                 let s = if i == self.settings.model_picker_idx {
                     Style::default().add_modifier(Modifier::BOLD)
                 } else {
@@ -1318,7 +1382,7 @@ impl App {
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(1), // title bar
-                Constraint::Min(1),   // content
+                Constraint::Min(1),    // content
                 Constraint::Length(1), // key bar
             ])
             .split(frame.size());
@@ -1352,28 +1416,42 @@ impl App {
 
         if let Some(cp) = cp {
             lines.push(Line::from(format!("  Started: {}", &cp.started_at[..10])));
-            lines.push(Line::from(format!("  Last active: {}", &cp.last_activity[..10])));
+            lines.push(Line::from(format!(
+                "  Last active: {}",
+                &cp.last_activity[..10]
+            )));
         }
 
         let total_lessons = course.loaded_lessons.len();
-        let completed_lessons = course.loaded_lessons.iter().filter(|l| {
-            cp.and_then(|cp| cp.lessons.get(&l.id))
-                .map(|lp| lp.status == ProgressStatus::Completed)
-                .unwrap_or(false)
-        }).count();
+        let completed_lessons = course
+            .loaded_lessons
+            .iter()
+            .filter(|l| {
+                cp.and_then(|cp| cp.lessons.get(&l.id))
+                    .map(|lp| lp.status == ProgressStatus::Completed)
+                    .unwrap_or(false)
+            })
+            .count();
 
-        let total_exercises: usize = course.loaded_lessons.iter()
+        let total_exercises: usize = course
+            .loaded_lessons
+            .iter()
             .map(|l| l.loaded_exercises.len())
             .sum();
-        let completed_exercises: usize = course.loaded_lessons.iter().map(|l| {
-            cp.and_then(|cp| cp.lessons.get(&l.id))
-                .map(|lp| {
-                    lp.exercises.values()
-                        .filter(|e| e.status == ProgressStatus::Completed)
-                        .count()
-                })
-                .unwrap_or(0)
-        }).sum();
+        let completed_exercises: usize = course
+            .loaded_lessons
+            .iter()
+            .map(|l| {
+                cp.and_then(|cp| cp.lessons.get(&l.id))
+                    .map(|lp| {
+                        lp.exercises
+                            .values()
+                            .filter(|e| e.status == ProgressStatus::Completed)
+                            .count()
+                    })
+                    .unwrap_or(0)
+            })
+            .sum();
 
         let pct = if total_exercises > 0 {
             completed_exercises * 100 / total_exercises
@@ -1421,7 +1499,9 @@ impl App {
             };
 
             let sandbox_marker = if crate::state::sandbox::has_sandbox_files(
-                &course_id, &course.version, &lesson.id,
+                &course_id,
+                &course.version,
+                &lesson.id,
             ) {
                 " S"
             } else {
@@ -1448,7 +1528,9 @@ impl App {
             lines.push(Line::from(""));
             lines.push(Line::from(Span::styled(
                 "  Reset all progress for this course? [y] Yes  [any] Cancel",
-                Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
             )));
         }
 
@@ -1497,99 +1579,99 @@ impl App {
 
     fn handle_home_input(&mut self, key: KeyCode) {
         match self.home.focus {
-            HomePanelFocus::CourseList => {
-                match key {
-                    KeyCode::Char('q') => self.should_quit = true,
-                    KeyCode::Up | KeyCode::Char('k') => {
-                        if self.home.selected_idx > 0 {
-                            self.home.selected_idx -= 1;
-                            self.home.right_selected_idx = 0;
-                        }
+            HomePanelFocus::CourseList => match key {
+                KeyCode::Char('q') => self.should_quit = true,
+                KeyCode::Up | KeyCode::Char('k') => {
+                    if self.home.selected_idx > 0 {
+                        self.home.selected_idx -= 1;
+                        self.home.right_selected_idx = 0;
                     }
-                    KeyCode::Down | KeyCode::Char('j') => {
-                        if self.home.selected_idx + 1 < self.home.display_order.len() {
-                            self.home.selected_idx += 1;
-                            self.home.right_selected_idx = 0;
-                        }
-                    }
-                    KeyCode::Right | KeyCode::Char('l') => {
-                        if !self.home.summaries.is_empty() {
-                            let idx = self.home.flat_idx();
-                            if idx < self.home.summaries.len()
-                                && !self.home.summaries[idx].info.lesson_ids.is_empty()
-                            {
-                                self.home.focus = HomePanelFocus::LessonList;
-                            }
-                        }
-                    }
-                    KeyCode::Enter => {
-                        if self.home.is_course_startable(self.home.flat_idx()) {
-                            self.start_selected_course(None);
-                        }
-                    }
-                    KeyCode::Char('p') => {
-                        self.open_progress_for_selected();
-                    }
-                    KeyCode::Char('s') => {
-                        self.screen = Screen::Settings;
-                    }
-                    KeyCode::Char('h') => {
-                        self.howto.slide_index = 0;
-                        self.screen = Screen::HowTo;
-                    }
-                    KeyCode::Char('t') => {
-                        self.stats.scroll_offset = 0;
-                        self.screen = Screen::Stats;
-                    }
-                    KeyCode::Char('w') => {
-                        self.tour.slide_index = 0;
-                        self.screen = Screen::Tour;
-                    }
-                    _ => {}
                 }
-            }
-            HomePanelFocus::LessonList => {
-                match key {
-                    KeyCode::Char('q') => self.should_quit = true,
-                    KeyCode::Left | KeyCode::Char('h') | KeyCode::Esc => {
-                        self.home.focus = HomePanelFocus::CourseList;
+                KeyCode::Down | KeyCode::Char('j') => {
+                    if self.home.selected_idx + 1 < self.home.display_order.len() {
+                        self.home.selected_idx += 1;
+                        self.home.right_selected_idx = 0;
                     }
-                    KeyCode::Up | KeyCode::Char('k') => {
-                        if self.home.right_selected_idx > 0 {
-                            self.home.right_selected_idx -= 1;
-                        }
-                    }
-                    KeyCode::Down | KeyCode::Char('j') => {
+                }
+                KeyCode::Right | KeyCode::Char('l') => {
+                    if !self.home.summaries.is_empty() {
                         let idx = self.home.flat_idx();
-                        if idx < self.home.summaries.len() {
-                            let max = self.home.summaries[idx].info.lesson_ids.len().saturating_sub(1);
-                            if self.home.right_selected_idx < max {
-                                self.home.right_selected_idx += 1;
-                            }
+                        if idx < self.home.summaries.len()
+                            && !self.home.summaries[idx].info.lesson_ids.is_empty()
+                        {
+                            self.home.focus = HomePanelFocus::LessonList;
                         }
                     }
-                    KeyCode::Enter => {
-                        if self.home.is_course_startable(self.home.flat_idx()) {
-                            let lesson_idx = self.home.right_selected_idx;
-                            self.start_selected_course(Some(lesson_idx));
-                        }
-                    }
-                    KeyCode::Char('s') => {
-                        if self.home.is_course_startable(self.home.flat_idx()) {
-                            let lesson_idx = self.home.right_selected_idx;
-                            self.start_selected_course(Some(lesson_idx));
-                            if let Some(ref mut ca) = self.course_app {
-                                ca.enter_sandbox(lesson_idx);
-                            }
-                        }
-                    }
-                    KeyCode::Char('w') => {
-                        self.tour.slide_index = 0;
-                        self.screen = Screen::Tour;
-                    }
-                    _ => {}
                 }
-            }
+                KeyCode::Enter => {
+                    if self.home.is_course_startable(self.home.flat_idx()) {
+                        self.start_selected_course(None);
+                    }
+                }
+                KeyCode::Char('p') => {
+                    self.open_progress_for_selected();
+                }
+                KeyCode::Char('s') => {
+                    self.screen = Screen::Settings;
+                }
+                KeyCode::Char('h') => {
+                    self.howto.slide_index = 0;
+                    self.screen = Screen::HowTo;
+                }
+                KeyCode::Char('t') => {
+                    self.stats.scroll_offset = 0;
+                    self.screen = Screen::Stats;
+                }
+                KeyCode::Char('w') => {
+                    self.tour.slide_index = 0;
+                    self.screen = Screen::Tour;
+                }
+                _ => {}
+            },
+            HomePanelFocus::LessonList => match key {
+                KeyCode::Char('q') => self.should_quit = true,
+                KeyCode::Left | KeyCode::Char('h') | KeyCode::Esc => {
+                    self.home.focus = HomePanelFocus::CourseList;
+                }
+                KeyCode::Up | KeyCode::Char('k') => {
+                    if self.home.right_selected_idx > 0 {
+                        self.home.right_selected_idx -= 1;
+                    }
+                }
+                KeyCode::Down | KeyCode::Char('j') => {
+                    let idx = self.home.flat_idx();
+                    if idx < self.home.summaries.len() {
+                        let max = self.home.summaries[idx]
+                            .info
+                            .lesson_ids
+                            .len()
+                            .saturating_sub(1);
+                        if self.home.right_selected_idx < max {
+                            self.home.right_selected_idx += 1;
+                        }
+                    }
+                }
+                KeyCode::Enter => {
+                    if self.home.is_course_startable(self.home.flat_idx()) {
+                        let lesson_idx = self.home.right_selected_idx;
+                        self.start_selected_course(Some(lesson_idx));
+                    }
+                }
+                KeyCode::Char('s') => {
+                    if self.home.is_course_startable(self.home.flat_idx()) {
+                        let lesson_idx = self.home.right_selected_idx;
+                        self.start_selected_course(Some(lesson_idx));
+                        if let Some(ref mut ca) = self.course_app {
+                            ca.enter_sandbox(lesson_idx);
+                        }
+                    }
+                }
+                KeyCode::Char('w') => {
+                    self.tour.slide_index = 0;
+                    self.screen = Screen::Tour;
+                }
+                _ => {}
+            },
         }
     }
 
@@ -1609,7 +1691,11 @@ impl App {
                     }
                 }
                 KeyCode::Enter => {
-                    if let Some(model) = self.settings.available_models.get(self.settings.model_picker_idx) {
+                    if let Some(model) = self
+                        .settings
+                        .available_models
+                        .get(self.settings.model_picker_idx)
+                    {
                         self.settings.ollama_model = model.clone();
                     }
                     self.settings.model_picker_open = false;
@@ -1682,7 +1768,8 @@ impl App {
                     // Reset progress for this course
                     if let Some(ref course) = self.progress_view.course {
                         let course_id = course.name.to_lowercase().replace(' ', "-");
-                        let keys_to_remove: Vec<String> = self.progress_store
+                        let keys_to_remove: Vec<String> = self
+                            .progress_store
                             .data
                             .courses
                             .keys()
@@ -1694,7 +1781,8 @@ impl App {
                         }
                         let _ = self.progress_store.save();
                         // Refresh home summaries
-                        self.home.summaries = build_course_summaries(&self.courses, &self.progress_store);
+                        self.home.summaries =
+                            build_course_summaries(&self.courses, &self.progress_store);
                         self.home.display_order = build_display_order(&self.home.summaries);
                     }
                     self.progress_view.confirm_reset = false;
@@ -1718,7 +1806,9 @@ impl App {
                 }
             }
             KeyCode::Down | KeyCode::Char('j') => {
-                let max = self.progress_view.course
+                let max = self
+                    .progress_view
+                    .course
                     .as_ref()
                     .map(|c| c.loaded_lessons.len().saturating_sub(1))
                     .unwrap_or(0);
@@ -1751,7 +1841,12 @@ impl App {
 
     fn handle_course_input(&mut self, key: crossterm::event::KeyEvent) -> Result<()> {
         let action = if let Some(ref mut ca) = self.course_app {
-            ca.handle_input(key, &mut self.progress_store, &self.config, self.sandbox_level)?
+            ca.handle_input(
+                key,
+                &mut self.progress_store,
+                &self.config,
+                self.sandbox_level,
+            )?
         } else {
             CourseAction::GoHome
         };
@@ -1887,7 +1982,10 @@ impl App {
         match field {
             SettingsField::EditorType => {
                 let types = ["auto", "terminal", "gui"];
-                let current = types.iter().position(|&t| t == self.settings.editor_type_value).unwrap_or(0);
+                let current = types
+                    .iter()
+                    .position(|&t| t == self.settings.editor_type_value)
+                    .unwrap_or(0);
                 let next = match key {
                     KeyCode::Right => (current + 1) % types.len(),
                     KeyCode::Left => (current + types.len() - 1) % types.len(),
@@ -1897,7 +1995,10 @@ impl App {
             }
             SettingsField::SandboxLevel => {
                 let levels = ["auto", "basic", "contained"];
-                let current = levels.iter().position(|&l| l == self.settings.sandbox_value).unwrap_or(0);
+                let current = levels
+                    .iter()
+                    .position(|&l| l == self.settings.sandbox_value)
+                    .unwrap_or(0);
                 let next = match key {
                     KeyCode::Right => (current + 1) % levels.len(),
                     KeyCode::Left => (current + levels.len() - 1) % levels.len(),
@@ -1982,48 +2083,67 @@ impl App {
 fn build_display_order(summaries: &[CourseProgressSummary]) -> Vec<usize> {
     let mut groups: BTreeMap<String, Vec<usize>> = BTreeMap::new();
     for (i, s) in summaries.iter().enumerate() {
-        groups.entry(s.info.language_name.clone()).or_default().push(i);
+        groups
+            .entry(s.info.language_name.clone())
+            .or_default()
+            .push(i);
     }
     groups.into_values().flatten().collect()
 }
 
-fn build_course_summaries(courses: &[CourseInfo], store: &ProgressStore) -> Vec<CourseProgressSummary> {
-    courses.iter().map(|info| {
-        let course_id = info.name.to_lowercase().replace(' ', "-");
-        let key = crate::state::types::progress_key(&course_id, &info.version);
+fn build_course_summaries(
+    courses: &[CourseInfo],
+    store: &ProgressStore,
+) -> Vec<CourseProgressSummary> {
+    courses
+        .iter()
+        .map(|info| {
+            let course_id = info.name.to_lowercase().replace(' ', "-");
+            let key = crate::state::types::progress_key(&course_id, &info.version);
 
-        let (status, completed_lessons, completed_exercises) = if let Some(cp) = store.data.courses.get(&key) {
-            let cl = cp.lessons.values()
-                .filter(|lp| lp.status == ProgressStatus::Completed)
-                .count();
-            let ce: usize = cp.lessons.values()
-                .map(|lp| lp.exercises.values().filter(|e| e.status == ProgressStatus::Completed).count())
-                .sum();
+            let (status, completed_lessons, completed_exercises) =
+                if let Some(cp) = store.data.courses.get(&key) {
+                    let cl = cp
+                        .lessons
+                        .values()
+                        .filter(|lp| lp.status == ProgressStatus::Completed)
+                        .count();
+                    let ce: usize = cp
+                        .lessons
+                        .values()
+                        .map(|lp| {
+                            lp.exercises
+                                .values()
+                                .filter(|e| e.status == ProgressStatus::Completed)
+                                .count()
+                        })
+                        .sum();
 
-            let status = if cl >= info.lesson_count && info.lesson_count > 0 {
-                CourseStatus::Completed
-            } else if ce > 0 || cl > 0 {
-                CourseStatus::InProgress
-            } else {
-                CourseStatus::NotStarted
-            };
+                    let status = if cl >= info.lesson_count && info.lesson_count > 0 {
+                        CourseStatus::Completed
+                    } else if ce > 0 || cl > 0 {
+                        CourseStatus::InProgress
+                    } else {
+                        CourseStatus::NotStarted
+                    };
 
-            (status, cl, ce)
-        } else {
-            (CourseStatus::NotStarted, 0, 0)
-        };
+                    (status, cl, ce)
+                } else {
+                    (CourseStatus::NotStarted, 0, 0)
+                };
 
-        let total_exercises = info.total_exercise_count.unwrap_or(info.lesson_count * 4);
+            let total_exercises = info.total_exercise_count.unwrap_or(info.lesson_count * 4);
 
-        CourseProgressSummary {
-            info: info.clone(),
-            status,
-            completed_lessons,
-            total_lessons: info.lesson_count,
-            completed_exercises,
-            total_exercises,
-        }
-    }).collect()
+            CourseProgressSummary {
+                info: info.clone(),
+                status,
+                completed_lessons,
+                total_lessons: info.lesson_count,
+                completed_exercises,
+                total_exercises,
+            }
+        })
+        .collect()
 }
 
 #[cfg(test)]

@@ -12,11 +12,7 @@ pub fn render_output_diff<'a>(expected: &str, actual: &str, theme: &Theme) -> Ve
 
     // Single-line case: character-level highlight of divergence point
     if expected_lines.len() == 1 && actual_lines.len() == 1 {
-        return render_single_line_diff(
-            expected_lines[0],
-            actual_lines[0],
-            theme,
-        );
+        return render_single_line_diff(expected_lines[0], actual_lines[0], theme);
     }
 
     // Multi-line: simple line-level diff using LCS
@@ -36,17 +32,13 @@ pub fn render_output_diff<'a>(expected: &str, actual: &str, theme: &Theme) -> Ve
             li += 1;
         } else {
             // Output expected-only lines before actual-only lines
-            if ei < expected_lines.len()
-                && (li >= lcs.len() || ei < lcs[li].0)
-            {
+            if ei < expected_lines.len() && (li >= lcs.len() || ei < lcs[li].0) {
                 lines.push(Line::from(Span::styled(
                     format!("  - {}", expected_lines[ei]),
                     Style::default().fg(theme.diff_expected),
                 )));
                 ei += 1;
-            } else if ai < actual_lines.len()
-                && (li >= lcs.len() || ai < lcs[li].1)
-            {
+            } else if ai < actual_lines.len() && (li >= lcs.len() || ai < lcs[li].1) {
                 lines.push(Line::from(Span::styled(
                     format!("  + {}", actual_lines[ai]),
                     Style::default().fg(theme.diff_actual),

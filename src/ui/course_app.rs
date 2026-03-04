@@ -6,7 +6,9 @@ use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
 use std::time::{Duration, Instant};
 
 use crate::config::Config;
-use crate::course::types::{Course, Exercise, ExerciseFile, ExerciseType, EnvironmentSpec, StateAssertion, ValidationMethod};
+use crate::course::types::{
+    Course, EnvironmentSpec, Exercise, ExerciseFile, ExerciseType, StateAssertion, ValidationMethod,
+};
 use crate::error::Result;
 use crate::exec::environment;
 use crate::exec::runner::{self, ExecutionResult};
@@ -53,10 +55,21 @@ pub enum AppState {
 #[derive(Debug, Clone)]
 pub enum FailureDetail {
     Plain(String),
-    OutputMismatch { expected: String, actual: String },
-    RegexMismatch { pattern: String, actual: String },
-    StateAssertionFailed { results: Vec<crate::exec::environment::AssertionResult> },
-    InfrastructureFailed { phase: String, detail: String },
+    OutputMismatch {
+        expected: String,
+        actual: String,
+    },
+    RegexMismatch {
+        pattern: String,
+        actual: String,
+    },
+    StateAssertionFailed {
+        results: Vec<crate::exec::environment::AssertionResult>,
+    },
+    InfrastructureFailed {
+        phase: String,
+        detail: String,
+    },
 }
 
 pub struct CourseApp {
@@ -136,7 +149,9 @@ impl CourseApp {
         let exercise_idx = find_resume_exercise(&course, progress_store, lesson_idx);
 
         let mut starter_files = if !course.loaded_lessons.is_empty()
-            && !course.loaded_lessons[lesson_idx].loaded_exercises.is_empty()
+            && !course.loaded_lessons[lesson_idx]
+                .loaded_exercises
+                .is_empty()
         {
             let ex = &course.loaded_lessons[lesson_idx].loaded_exercises[exercise_idx];
             ex.get_starter_files(&course.language.extension)
@@ -146,16 +161,26 @@ impl CourseApp {
 
         // Load draft files if they exist (persisted edits from a previous session)
         if !course.loaded_lessons.is_empty()
-            && !course.loaded_lessons[lesson_idx].loaded_exercises.is_empty()
+            && !course.loaded_lessons[lesson_idx]
+                .loaded_exercises
+                .is_empty()
         {
             let course_id = course.name.to_lowercase().replace(' ', "-");
             let lesson_id = &course.loaded_lessons[lesson_idx].id;
             let exercise_id = &course.loaded_lessons[lesson_idx].loaded_exercises[exercise_idx].id;
-            if let Ok(dir) = crate::state::sandbox::draft_dir(&course_id, &course.version, lesson_id, exercise_id) {
+            if let Ok(dir) = crate::state::sandbox::draft_dir(
+                &course_id,
+                &course.version,
+                lesson_id,
+                exercise_id,
+            ) {
                 if let Ok(drafts) = crate::state::sandbox::load_draft_files(&dir) {
                     if !drafts.is_empty() {
                         for (name, content) in &drafts {
-                            if let Some(f) = starter_files.iter_mut().find(|f| f.editable && f.name == *name) {
+                            if let Some(f) = starter_files
+                                .iter_mut()
+                                .find(|f| f.editable && f.name == *name)
+                            {
                                 f.content = content.clone();
                             }
                         }
@@ -254,16 +279,12 @@ impl CourseApp {
 
     // --- Rendering ---
 
-    pub fn render(
-        &mut self,
-        frame: &mut ratatui::Frame,
-        theme: &Theme,
-    ) {
+    pub fn render(&mut self, frame: &mut ratatui::Frame, theme: &Theme) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(1), // status bar
-                Constraint::Min(1),   // content
+                Constraint::Min(1),    // content
                 Constraint::Length(1), // keybinding bar
             ])
             .split(frame.size());
@@ -326,13 +347,15 @@ impl CourseApp {
         #[cfg(not(feature = "llm"))]
         let ai_info = String::new();
 
-        let scroll_info = if self.content_line_count > self.viewport_height && self.viewport_height > 0 {
-            let current_page = (self.scroll_offset / self.viewport_height) + 1;
-            let total_pages = (self.content_line_count + self.viewport_height - 1) / self.viewport_height;
-            format!(" | {}/{}", current_page, total_pages)
-        } else {
-            String::new()
-        };
+        let scroll_info =
+            if self.content_line_count > self.viewport_height && self.viewport_height > 0 {
+                let current_page = (self.scroll_offset / self.viewport_height) + 1;
+                let total_pages =
+                    (self.content_line_count + self.viewport_height - 1) / self.viewport_height;
+                format!(" | {}/{}", current_page, total_pages)
+            } else {
+                String::new()
+            };
 
         let status = format!(
             " LearnLocal | {} | {} | {}{}{}{}",
@@ -381,7 +404,12 @@ impl CourseApp {
         // Show ▲ at top-right when scrolled down
         if self.scroll_offset > 0 {
             let indicator = Paragraph::new(Line::from(Span::styled(" ▲ more ", indicator_style)));
-            let r = Rect::new(area.x + area.width.saturating_sub(9), area.y, 9.min(area.width), 1);
+            let r = Rect::new(
+                area.x + area.width.saturating_sub(9),
+                area.y,
+                9.min(area.width),
+                1,
+            );
             frame.render_widget(indicator, r);
         }
 
@@ -423,10 +451,7 @@ impl CourseApp {
                     // Split: banner on top, exercise below
                     let banner_chunks = Layout::default()
                         .direction(Direction::Vertical)
-                        .constraints([
-                            Constraint::Length(10),
-                            Constraint::Min(1),
-                        ])
+                        .constraints([Constraint::Length(10), Constraint::Min(1)])
                         .split(exercise_area);
                     self.render_quickstart_banner(frame, banner_chunks[0], theme);
                     self.render_exercise_prompt(frame, banner_chunks[1], theme);
@@ -537,13 +562,19 @@ impl CourseApp {
         let header = " WORKSPACE ";
         let fill = 46_usize.saturating_sub(header.len());
         lines.push(Line::from(Span::styled(
-            format!("  \u{250C}\u{2500}{}{}\u{2510}", header, "\u{2500}".repeat(fill)),
+            format!(
+                "  \u{250C}\u{2500}{}{}\u{2510}",
+                header,
+                "\u{2500}".repeat(fill)
+            ),
             Style::default().fg(border_color),
         )));
 
         // Files
         for file in &env.files {
-            let perm_info = file.permissions.as_ref()
+            let perm_info = file
+                .permissions
+                .as_ref()
                 .map(|p| format!(" ({})", p))
                 .unwrap_or_default();
             lines.push(Line::from(vec![
@@ -558,10 +589,7 @@ impl CourseApp {
             for cl in &content_lines {
                 lines.push(Line::from(vec![
                     Span::styled("  \u{2502}    ", Style::default().fg(border_color)),
-                    Span::styled(
-                        format!("{}", cl),
-                        Style::default().fg(content_color),
-                    ),
+                    Span::styled(format!("{}", cl), Style::default().fg(content_color)),
                 ]));
             }
             let total_lines = file.content.lines().count();
@@ -614,7 +642,11 @@ impl CourseApp {
             lines.push(Line::from(vec![
                 Span::styled("  \u{2502}  ", Style::default().fg(border_color)),
                 Span::styled(
-                    format!("\u{1F310} {} dynamic port{}", env.ports, if env.ports > 1 { "s" } else { "" }),
+                    format!(
+                        "\u{1F310} {} dynamic port{}",
+                        env.ports,
+                        if env.ports > 1 { "s" } else { "" }
+                    ),
                     Style::default().fg(label_color),
                 ),
             ]));
@@ -625,7 +657,11 @@ impl CourseApp {
             lines.push(Line::from(vec![
                 Span::styled("  \u{2502}  ", Style::default().fg(border_color)),
                 Span::styled(
-                    format!("\u{2699}\u{FE0F}  {} setup step{}", env.setup.len(), if env.setup.len() > 1 { "s" } else { "" }),
+                    format!(
+                        "\u{2699}\u{FE0F}  {} setup step{}",
+                        env.setup.len(),
+                        if env.setup.len() > 1 { "s" } else { "" }
+                    ),
                     Style::default().fg(muted),
                 ),
             ]));
@@ -642,7 +678,10 @@ impl CourseApp {
     }
 
     /// Render pre-run assertion checklist lines (unchecked ○ items).
-    fn render_assertion_checklist_lines(assertions: &[StateAssertion], theme: &Theme) -> Vec<Line<'static>> {
+    fn render_assertion_checklist_lines(
+        assertions: &[StateAssertion],
+        theme: &Theme,
+    ) -> Vec<Line<'static>> {
         if assertions.is_empty() {
             return Vec::new();
         }
@@ -653,7 +692,11 @@ impl CourseApp {
         let header = " EXPECTED ";
         let fill = 46_usize.saturating_sub(header.len());
         lines.push(Line::from(Span::styled(
-            format!("  \u{250C}\u{2500}{}{}\u{2510}", header, "\u{2500}".repeat(fill)),
+            format!(
+                "  \u{250C}\u{2500}{}{}\u{2510}",
+                header,
+                "\u{2500}".repeat(fill)
+            ),
             Style::default().fg(border_color),
         )));
 
@@ -688,14 +731,26 @@ impl CourseApp {
 
         let border_color = theme.code_border;
         let all_passed = results.iter().all(|r| r.passed);
-        let header = if all_passed { " RESULTS \u{2714} " } else { " RESULTS " };
-        let header_color = if all_passed { theme.success } else { border_color };
+        let header = if all_passed {
+            " RESULTS \u{2714} "
+        } else {
+            " RESULTS "
+        };
+        let header_color = if all_passed {
+            theme.success
+        } else {
+            border_color
+        };
         let fill = 46_usize.saturating_sub(header.len());
 
         let mut lines: Vec<Line<'static>> = Vec::new();
 
         lines.push(Line::from(Span::styled(
-            format!("  \u{250C}\u{2500}{}{}\u{2510}", header, "\u{2500}".repeat(fill)),
+            format!(
+                "  \u{250C}\u{2500}{}{}\u{2510}",
+                header,
+                "\u{2500}".repeat(fill)
+            ),
             Style::default().fg(header_color),
         )));
 
@@ -787,14 +842,12 @@ impl CourseApp {
         }
 
         let modified = self.is_code_modified();
-        let mut title_spans = vec![
-            Span::styled(
-                format!("  Exercise: {}", exercise.title),
-                Style::default()
-                    .fg(theme.prompt)
-                    .add_modifier(Modifier::BOLD),
-            ),
-        ];
+        let mut title_spans = vec![Span::styled(
+            format!("  Exercise: {}", exercise.title),
+            Style::default()
+                .fg(theme.prompt)
+                .add_modifier(Modifier::BOLD),
+        )];
         if modified {
             title_spans.push(Span::styled(
                 "  (modified)",
@@ -815,7 +868,12 @@ impl CourseApp {
         if exercise.golf {
             lines.push(Line::from(vec![
                 Span::styled(format!("  {}", type_str), Style::default().fg(type_color)),
-                Span::styled("  [GOLF]", Style::default().fg(Color::Green).add_modifier(Modifier::BOLD)),
+                Span::styled(
+                    "  [GOLF]",
+                    Style::default()
+                        .fg(Color::Green)
+                        .add_modifier(Modifier::BOLD),
+                ),
             ]));
         } else {
             lines.push(Line::from(Span::styled(
@@ -854,8 +912,7 @@ impl CourseApp {
             }
         }
 
-        if !self.session.current_code.is_empty()
-            && exercise.exercise_type != ExerciseType::Command
+        if !self.session.current_code.is_empty() && exercise.exercise_type != ExerciseType::Command
         {
             // Adaptive code box: use area width minus indent/margin
             let box_w = (area.width as usize).saturating_sub(4).max(20);
@@ -875,14 +932,25 @@ impl CourseApp {
                 // File label for multi-file exercises
                 if self.session.current_code.len() > 1 {
                     lines.push(Line::from(Span::styled(
-                        format!("  File: {} {}", file.name, if file.editable { "(editable)" } else { "(read-only)" }),
+                        format!(
+                            "  File: {} {}",
+                            file.name,
+                            if file.editable {
+                                "(editable)"
+                            } else {
+                                "(read-only)"
+                            }
+                        ),
                         Style::default().fg(theme.muted),
                     )));
                 }
 
                 // Check if this file is the one being edited
                 let editing_this_file = is_editing
-                    && self.inline_editor.as_ref().map_or(false, |e| e.file_idx == file_i);
+                    && self
+                        .inline_editor
+                        .as_ref()
+                        .map_or(false, |e| e.file_idx == file_i);
 
                 if editing_this_file {
                     let editor = self.inline_editor.as_ref().unwrap();
@@ -890,7 +958,11 @@ impl CourseApp {
                     let label = format!(" {} [editing] ", file.name);
                     let border_fill = box_w.saturating_sub(2).saturating_sub(label.len());
                     lines.push(Line::from(Span::styled(
-                        format!("  \u{250C}\u{2500}{}{}\u{2510}", label, "\u{2500}".repeat(border_fill)),
+                        format!(
+                            "  \u{250C}\u{2500}{}{}\u{2510}",
+                            label,
+                            "\u{2500}".repeat(border_fill)
+                        ),
                         Style::default().fg(border_color),
                     )));
                     // Track where the code starts for auto-scroll
@@ -899,7 +971,9 @@ impl CourseApp {
                     for (i, editor_line) in editor.lines.iter().enumerate() {
                         let is_cursor_line = i == editor.cursor_line;
                         let num_style = if is_cursor_line {
-                            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
+                            Style::default()
+                                .fg(Color::Yellow)
+                                .add_modifier(Modifier::BOLD)
                         } else {
                             Style::default().fg(Color::DarkGray)
                         };
@@ -908,7 +982,10 @@ impl CourseApp {
 
                         if is_cursor_line {
                             let (before, cursor_char, after) =
-                                crate::ui::inline_editor::split_at_cursor(editor_line, editor.cursor_col);
+                                crate::ui::inline_editor::split_at_cursor(
+                                    editor_line,
+                                    editor.cursor_col,
+                                );
                             // Pad the after portion so the right border aligns
                             let used = before.len() + cursor_char.len() + after.len();
                             let pad = code_w.saturating_sub(used);
@@ -943,10 +1020,7 @@ impl CourseApp {
                     let status_fill = box_w.saturating_sub(2).saturating_sub(status.len());
                     lines.push(Line::from(vec![
                         Span::styled("  \u{2514}", Style::default().fg(border_color)),
-                        Span::styled(
-                            status,
-                            Style::default().fg(Color::Black).bg(Color::Cyan),
-                        ),
+                        Span::styled(status, Style::default().fg(Color::Black).bg(Color::Cyan)),
                         Span::styled(
                             "\u{2500}".repeat(status_fill),
                             Style::default().fg(border_color),
@@ -963,28 +1037,29 @@ impl CourseApp {
                     let label = format!(" {} ", file.name);
                     let border_fill = box_w.saturating_sub(2).saturating_sub(label.len());
                     lines.push(Line::from(Span::styled(
-                        format!("  \u{250C}\u{2500}{}{}\u{2510}", label, "\u{2500}".repeat(border_fill)),
+                        format!(
+                            "  \u{250C}\u{2500}{}{}\u{2510}",
+                            label,
+                            "\u{2500}".repeat(border_fill)
+                        ),
                         Style::default().fg(border_color),
                     )));
                     for (i, code_line) in file.content.lines().enumerate() {
                         let prefix = format!("  \u{2502} {:3}  ", i + 1);
                         lines.push(Line::from(vec![
-                            Span::styled(
-                                prefix,
-                                Style::default().fg(border_color),
-                            ),
+                            Span::styled(prefix, Style::default().fg(border_color)),
                             Span::styled(
                                 format!("{:<width$}", code_line, width = code_w),
                                 Style::default().fg(theme.code),
                             ),
-                            Span::styled(
-                                "\u{2502}",
-                                Style::default().fg(border_color),
-                            ),
+                            Span::styled("\u{2502}", Style::default().fg(border_color)),
                         ]));
                     }
                     lines.push(Line::from(Span::styled(
-                        format!("  \u{2514}{}\u{2518}", "\u{2500}".repeat(box_w.saturating_sub(2))),
+                        format!(
+                            "  \u{2514}{}\u{2518}",
+                            "\u{2500}".repeat(box_w.saturating_sub(2))
+                        ),
                         Style::default().fg(border_color),
                     )));
                     lines.push(Line::from(""));
@@ -1020,7 +1095,9 @@ impl CourseApp {
     }
 
     fn render_quickstart_banner(&self, frame: &mut ratatui::Frame, area: Rect, theme: &Theme) {
-        let key_style = Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD);
+        let key_style = Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD);
         let text_style = Style::default().fg(theme.body_text);
         let dim_style = Style::default().fg(theme.muted);
 
@@ -1045,10 +1122,7 @@ impl CourseApp {
                 Span::styled("   Back to home", text_style),
             ]),
             Line::from(""),
-            Line::from(Span::styled(
-                "  Press any key to start",
-                dim_style,
-            )),
+            Line::from(Span::styled("  Press any key to start", dim_style)),
         ];
 
         let banner = Paragraph::new(lines)
@@ -1136,7 +1210,9 @@ impl CourseApp {
             lines.push(Line::from(""));
             lines.push(Line::from(Span::styled(
                 "  ⚠ Teardown warnings:",
-                Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
             )));
             for warning in &self.teardown_warnings {
                 lines.push(Line::from(Span::styled(
@@ -1175,11 +1251,8 @@ impl CourseApp {
         }
 
         let exercise = self.current_exercise();
-        let mut lines = celebration::exercise_success_art(
-            self.current_exercise_idx,
-            total_exercises,
-            theme,
-        );
+        let mut lines =
+            celebration::exercise_success_art(self.current_exercise_idx, total_exercises, theme);
 
         if let Some(ex) = exercise {
             if let Some(ref explanation) = ex.explanation {
@@ -1203,7 +1276,9 @@ impl CourseApp {
         // Code golf scoring
         if let Some(ex) = self.current_exercise() {
             if ex.golf {
-                let student_chars: usize = self.session.current_code
+                let student_chars: usize = self
+                    .session
+                    .current_code
                     .iter()
                     .filter(|f| f.editable)
                     .map(|f| f.content.trim().len())
@@ -1216,7 +1291,9 @@ impl CourseApp {
                     Span::styled("  Your solution: ", Style::default().fg(theme.muted)),
                     Span::styled(
                         format!("{} chars", student_chars),
-                        Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+                        Style::default()
+                            .fg(Color::Yellow)
+                            .add_modifier(Modifier::BOLD),
                     ),
                 ];
 
@@ -1230,7 +1307,9 @@ impl CourseApp {
                         lines.push(Line::from(score_spans));
                         lines.push(Line::from(Span::styled(
                             "  At or under par!",
-                            Style::default().fg(theme.success).add_modifier(Modifier::BOLD),
+                            Style::default()
+                                .fg(theme.success)
+                                .add_modifier(Modifier::BOLD),
                         )));
                     } else {
                         let over = student_chars - par;
@@ -1346,7 +1425,9 @@ impl CourseApp {
                 lines.push(Line::from(""));
                 lines.push(Line::from(Span::styled(
                     "  Infrastructure error — this is a course setup problem, not your code",
-                    Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+                    Style::default()
+                        .fg(Color::Yellow)
+                        .add_modifier(Modifier::BOLD),
                 )));
                 lines.push(Line::from(Span::styled(
                     format!("  Phase: {}", phase),
@@ -1376,7 +1457,9 @@ impl CourseApp {
             lines.push(Line::from(""));
             lines.push(Line::from(Span::styled(
                 "  ⚠ Teardown warnings:",
-                Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
             )));
             for warning in &self.teardown_warnings {
                 lines.push(Line::from(Span::styled(
@@ -1431,11 +1514,8 @@ impl CourseApp {
 
         // Sandbox prompt
         let course_id = self.course_id();
-        let has_sandbox = crate::state::sandbox::has_sandbox_files(
-            &course_id,
-            &self.course.version,
-            &lesson.id,
-        );
+        let has_sandbox =
+            crate::state::sandbox::has_sandbox_files(&course_id, &self.course.version, &lesson.id);
         let sandbox_text = if has_sandbox {
             "  Press [s] to resume sandbox"
         } else {
@@ -1460,11 +1540,7 @@ impl CourseApp {
             total_time_seconds: 0,
         });
 
-        let lines = celebration::course_complete_art(
-            &self.course.name,
-            &stats,
-            theme,
-        );
+        let lines = celebration::course_complete_art(&self.course.name, &stats, theme);
 
         self.render_scrollable(frame, area, lines);
     }
@@ -1511,9 +1587,20 @@ impl CourseApp {
         lines.push(Line::from(""));
 
         // Auto-test status
-        let auto_test = self.watch_state.as_ref().map(|w| w.auto_test).unwrap_or(false);
+        let auto_test = self
+            .watch_state
+            .as_ref()
+            .map(|w| w.auto_test)
+            .unwrap_or(false);
         lines.push(Line::from(Span::styled(
-            format!("  Auto-Test: {}", if auto_test { "ON (will grade on save)" } else { "OFF (run only)" }),
+            format!(
+                "  Auto-Test: {}",
+                if auto_test {
+                    "ON (will grade on save)"
+                } else {
+                    "OFF (run only)"
+                }
+            ),
             Style::default().fg(theme.muted),
         )));
         lines.push(Line::from(""));
@@ -1524,12 +1611,16 @@ impl CourseApp {
                 if output.timed_out {
                     lines.push(Line::from(Span::styled(
                         "  Execution timed out",
-                        Style::default().fg(theme.error).add_modifier(Modifier::BOLD),
+                        Style::default()
+                            .fg(theme.error)
+                            .add_modifier(Modifier::BOLD),
                     )));
                 } else if !output.success {
                     lines.push(Line::from(Span::styled(
                         "  Build/Run Failed:",
-                        Style::default().fg(theme.error).add_modifier(Modifier::BOLD),
+                        Style::default()
+                            .fg(theme.error)
+                            .add_modifier(Modifier::BOLD),
                     )));
                     lines.push(Line::from(""));
                     let parsed = crate::ui::diagnostics::parse_compiler_output(&output.stderr);
@@ -1557,7 +1648,9 @@ impl CourseApp {
                         lines.push(Line::from(""));
                         lines.push(Line::from(Span::styled(
                             "  Warnings:",
-                            Style::default().fg(theme.keyword).add_modifier(Modifier::BOLD),
+                            Style::default()
+                                .fg(theme.keyword)
+                                .add_modifier(Modifier::BOLD),
                         )));
                         let parsed = crate::ui::diagnostics::parse_compiler_output(&output.stderr);
                         lines.extend(crate::ui::diagnostics::render_diagnostics(&parsed, theme));
@@ -1585,7 +1678,8 @@ impl CourseApp {
                 s
             }
             AppState::ExercisePrompt => {
-                let is_cmd = self.current_exercise()
+                let is_cmd = self
+                    .current_exercise()
                     .map_or(false, |e| e.exercise_type == ExerciseType::Command);
                 if is_cmd {
                     "[Enter] Shell  [h] Hint  [s] Skip  [Esc] Home".to_string()
@@ -1604,10 +1698,16 @@ impl CourseApp {
             AppState::ResultFail => {
                 "[Enter] Back  [e] Edit  [t] Retest  [h] Hint  [Esc] Home  [?] Help".to_string()
             }
-            AppState::LessonRecap => "[Enter] Next lesson  [s] Sandbox  [Esc] Home  [q] Quit".to_string(),
+            AppState::LessonRecap => {
+                "[Enter] Next lesson  [s] Sandbox  [Esc] Home  [q] Quit".to_string()
+            }
             AppState::CourseComplete => "[Esc] Home  [q] Quit".to_string(),
             AppState::Watching => {
-                let auto = self.watch_state.as_ref().map(|w| w.auto_test).unwrap_or(false);
+                let auto = self
+                    .watch_state
+                    .as_ref()
+                    .map(|w| w.auto_test)
+                    .unwrap_or(false);
                 let auto_str = if auto { "ON" } else { "OFF" };
                 format!("[Esc] Exit Watch  [t] Auto-Test: {}  [?] Help", auto_str)
             }
@@ -1646,14 +1746,12 @@ impl CourseApp {
             None
         };
 
-        let mut spans = vec![
-            Span::styled(
-                format!(" {}", keys),
-                Style::default()
-                    .fg(ratatui::style::Color::Black)
-                    .bg(ratatui::style::Color::White),
-            ),
-        ];
+        let mut spans = vec![Span::styled(
+            format!(" {}", keys),
+            Style::default()
+                .fg(ratatui::style::Color::Black)
+                .bg(ratatui::style::Color::White),
+        )];
 
         if let Some(tip_text) = tip {
             spans.push(Span::styled(
@@ -1693,51 +1791,84 @@ impl CourseApp {
                     .add_modifier(Modifier::BOLD),
             )),
             Line::from(""),
-            Line::from(Span::styled(" Editing", Style::default().add_modifier(Modifier::BOLD))),
+            Line::from(Span::styled(
+                " Editing",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
             Line::from(vec![
                 Span::styled("  [e]          ", key_style),
                 Span::raw("Inline editor"),
             ]),
-            Line::from(Span::styled("               Edit right in the TUI", desc_style)),
+            Line::from(Span::styled(
+                "               Edit right in the TUI",
+                desc_style,
+            )),
             Line::from(vec![
                 Span::styled("  [E]          ", key_style),
                 Span::raw("External editor"),
             ]),
-            Line::from(Span::styled("               Opens $EDITOR (vim, VS Code)", desc_style)),
+            Line::from(Span::styled(
+                "               Opens $EDITOR (vim, VS Code)",
+                desc_style,
+            )),
             Line::from(vec![
                 Span::styled("  [w]          ", key_style),
                 Span::raw("Watch mode"),
             ]),
-            Line::from(Span::styled("               Auto-runs code on save", desc_style)),
+            Line::from(Span::styled(
+                "               Auto-runs code on save",
+                desc_style,
+            )),
             Line::from(vec![
                 Span::styled("  [W]          ", key_style),
                 Span::raw("Watch + auto-test"),
             ]),
-            Line::from(Span::styled("               Auto-validates on save", desc_style)),
+            Line::from(Span::styled(
+                "               Auto-validates on save",
+                desc_style,
+            )),
             Line::from(vec![
                 Span::styled("  [r]          ", key_style),
                 Span::raw("Reset code"),
             ]),
-            Line::from(Span::styled("               Restore starter code", desc_style)),
+            Line::from(Span::styled(
+                "               Restore starter code",
+                desc_style,
+            )),
             Line::from(""),
-            Line::from(Span::styled(" Running & Testing", Style::default().add_modifier(Modifier::BOLD))),
+            Line::from(Span::styled(
+                " Running & Testing",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
             Line::from(vec![
                 Span::styled("  [Enter]      ", key_style),
                 Span::raw("Run (ungraded)"),
             ]),
-            Line::from(Span::styled("               See output without grading", desc_style)),
+            Line::from(Span::styled(
+                "               See output without grading",
+                desc_style,
+            )),
             Line::from(vec![
                 Span::styled("  [t]          ", key_style),
                 Span::raw("Test (graded)"),
             ]),
-            Line::from(Span::styled("               Validate your solution", desc_style)),
+            Line::from(Span::styled(
+                "               Validate your solution",
+                desc_style,
+            )),
             Line::from(""),
-            Line::from(Span::styled(" Getting Help", Style::default().add_modifier(Modifier::BOLD))),
+            Line::from(Span::styled(
+                " Getting Help",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
             Line::from(vec![
                 Span::styled("  [h]          ", key_style),
                 Span::raw("Reveal next hint"),
             ]),
-            Line::from(Span::styled("               Progressive, one at a time", desc_style)),
+            Line::from(Span::styled(
+                "               Progressive, one at a time",
+                desc_style,
+            )),
         ];
 
         #[cfg(feature = "llm")]
@@ -1746,17 +1877,26 @@ impl CourseApp {
                 Span::styled("  [a]          ", key_style),
                 Span::raw("AI Chat"),
             ]));
-            help_lines.push(Line::from(Span::styled("               Ask questions anytime", desc_style)));
+            help_lines.push(Line::from(Span::styled(
+                "               Ask questions anytime",
+                desc_style,
+            )));
             help_lines.push(Line::from(vec![
                 Span::styled("  [w] / [x]    ", key_style),
                 Span::raw("Why wrong / Explain error"),
             ]));
-            help_lines.push(Line::from(Span::styled("               After a failed test", desc_style)));
+            help_lines.push(Line::from(Span::styled(
+                "               After a failed test",
+                desc_style,
+            )));
         }
 
         help_lines.extend_from_slice(&[
             Line::from(""),
-            Line::from(Span::styled(" Reading Lessons", Style::default().add_modifier(Modifier::BOLD))),
+            Line::from(Span::styled(
+                " Reading Lessons",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
             Line::from(vec![
                 Span::styled("  [Space]      ", key_style),
                 Span::raw("Reveal next section"),
@@ -1770,14 +1910,23 @@ impl CourseApp {
                 Span::raw("Navigate between lessons"),
             ]),
             Line::from(""),
-            Line::from(Span::styled(" Sandbox", Style::default().add_modifier(Modifier::BOLD))),
+            Line::from(Span::styled(
+                " Sandbox",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
             Line::from(vec![
                 Span::styled("  [s]          ", key_style),
                 Span::raw("Enter sandbox (from recap)"),
             ]),
-            Line::from(Span::styled("               Free experimentation mode", desc_style)),
+            Line::from(Span::styled(
+                "               Free experimentation mode",
+                desc_style,
+            )),
             Line::from(""),
-            Line::from(Span::styled(" Navigation", Style::default().add_modifier(Modifier::BOLD))),
+            Line::from(Span::styled(
+                " Navigation",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
             Line::from(vec![
                 Span::styled("  [PgUp/PgDn]  ", key_style),
                 Span::raw("Scroll content"),
@@ -1799,7 +1948,10 @@ impl CourseApp {
                 Span::raw("Quit"),
             ]),
             Line::from(""),
-            Line::from(Span::styled("  [\u{2191}/\u{2193}] Scroll  [Esc] Close", desc_style)),
+            Line::from(Span::styled(
+                "  [\u{2191}/\u{2193}] Scroll  [Esc] Close",
+                desc_style,
+            )),
         ]);
 
         let total_lines = help_lines.len() as u16;
@@ -1809,12 +1961,7 @@ impl CourseApp {
 
         let y = area.y + area.height.saturating_sub(help_height) / 2;
         let x = area.x + area.width.saturating_sub(help_width) / 2;
-        let overlay_area = Rect::new(
-            x,
-            y,
-            help_width.min(area.width),
-            help_height,
-        );
+        let overlay_area = Rect::new(x, y, help_width.min(area.width), help_height);
 
         // Apply scroll
         let inner_height = help_height.saturating_sub(2); // borders
@@ -1887,17 +2034,18 @@ impl CourseApp {
         }
 
         // Global scroll keys (all scrollable states, but not when editing)
-        let scrollable = !self.editing && matches!(
-            self.state,
-            AppState::LessonContent
-                | AppState::ExercisePrompt
-                | AppState::RunResult
-                | AppState::ResultSuccess
-                | AppState::ResultFail
-                | AppState::LessonRecap
-                | AppState::Watching
-                | AppState::Sandbox
-        );
+        let scrollable = !self.editing
+            && matches!(
+                self.state,
+                AppState::LessonContent
+                    | AppState::ExercisePrompt
+                    | AppState::RunResult
+                    | AppState::ResultSuccess
+                    | AppState::ResultFail
+                    | AppState::LessonRecap
+                    | AppState::Watching
+                    | AppState::Sandbox
+            );
         if scrollable {
             let page = self.viewport_height.max(1);
             match key {
@@ -1930,14 +2078,36 @@ impl CourseApp {
 
         match self.state {
             AppState::LessonContent => Ok(self.handle_lesson_content_input(key)),
-            AppState::ExercisePrompt => self.handle_exercise_input(key, key_event.modifiers, progress_store, config, sandbox_level),
-            AppState::RunResult => self.handle_run_result_input(key, key_event.modifiers, progress_store, config, sandbox_level),
+            AppState::ExercisePrompt => self.handle_exercise_input(
+                key,
+                key_event.modifiers,
+                progress_store,
+                config,
+                sandbox_level,
+            ),
+            AppState::RunResult => self.handle_run_result_input(
+                key,
+                key_event.modifiers,
+                progress_store,
+                config,
+                sandbox_level,
+            ),
             AppState::ResultSuccess => Ok(self.handle_success_input(key, progress_store)),
-            AppState::ResultFail => self.handle_fail_input(key, key_event.modifiers, progress_store, config, sandbox_level),
+            AppState::ResultFail => self.handle_fail_input(
+                key,
+                key_event.modifiers,
+                progress_store,
+                config,
+                sandbox_level,
+            ),
             AppState::LessonRecap => Ok(self.handle_recap_input(key, progress_store)),
-            AppState::Watching => Ok(self.handle_watching_input(key, progress_store, sandbox_level)),
+            AppState::Watching => {
+                Ok(self.handle_watching_input(key, progress_store, sandbox_level))
+            }
             AppState::Shell => self.handle_shell_input(key, key_event.modifiers, progress_store),
-            AppState::Sandbox => self.handle_sandbox_input(key, key_event.modifiers, config, sandbox_level),
+            AppState::Sandbox => {
+                self.handle_sandbox_input(key, key_event.modifiers, config, sandbox_level)
+            }
             AppState::CourseComplete => {
                 if key == KeyCode::Char('q') {
                     Ok(CourseAction::Quit)
@@ -2061,7 +2231,8 @@ impl CourseApp {
 
         // Command exercises that landed on ExercisePrompt (via Esc from shell):
         // re-enter shell mode on Enter/e/t instead of running code through the old path
-        let is_command_exercise = self.current_exercise()
+        let is_command_exercise = self
+            .current_exercise()
             .map_or(false, |e| e.exercise_type == ExerciseType::Command);
         if is_command_exercise {
             return match key {
@@ -2149,7 +2320,11 @@ impl CourseApp {
         }
     }
 
-    fn handle_success_input(&mut self, key: KeyCode, progress_store: &mut ProgressStore) -> CourseAction {
+    fn handle_success_input(
+        &mut self,
+        key: KeyCode,
+        progress_store: &mut ProgressStore,
+    ) -> CourseAction {
         self.animation_start = None;
         match key {
             KeyCode::Char('q') => CourseAction::Quit,
@@ -2217,14 +2392,20 @@ impl CourseApp {
             }
             #[cfg(feature = "llm")]
             KeyCode::Char('x') if self.ai_enabled && self.ai_status == "ready" => {
-                self.send_quick_action("Explain this error message. What does it mean and how do I fix it?");
+                self.send_quick_action(
+                    "Explain this error message. What does it mean and how do I fix it?",
+                );
                 Ok(CourseAction::Continue)
             }
             _ => Ok(CourseAction::Continue),
         }
     }
 
-    fn handle_recap_input(&mut self, key: KeyCode, progress_store: &mut ProgressStore) -> CourseAction {
+    fn handle_recap_input(
+        &mut self,
+        key: KeyCode,
+        progress_store: &mut ProgressStore,
+    ) -> CourseAction {
         match key {
             KeyCode::Char('q') => CourseAction::Quit,
             KeyCode::Esc => CourseAction::GoHome,
@@ -2238,7 +2419,10 @@ impl CourseApp {
                 } else {
                     // Compute stats before entering CourseComplete
                     let course_id = self.course_id();
-                    let total_exercises: usize = self.course.loaded_lessons.iter()
+                    let total_exercises: usize = self
+                        .course
+                        .loaded_lessons
+                        .iter()
                         .map(|l| l.loaded_exercises.len())
                         .sum();
                     self.course_complete_stats = Some(CourseStats::compute(
@@ -2287,9 +2471,15 @@ impl CourseApp {
 
         for (name, _) in &editable_info {
             let path = sandbox_dir.path().join(name);
-            let new_content = crate::ui::editor::edit_file_with_config(&path, config.editor.as_deref())?;
+            let new_content =
+                crate::ui::editor::edit_file_with_config(&path, config.editor.as_deref())?;
 
-            if let Some(f) = self.session.current_code.iter_mut().find(|f| f.name == *name) {
+            if let Some(f) = self
+                .session
+                .current_code
+                .iter_mut()
+                .find(|f| f.name == *name)
+            {
                 f.content = new_content;
             }
         }
@@ -2301,7 +2491,8 @@ impl CourseApp {
     }
 
     fn enter_inline_editor(&mut self) {
-        let is_command = self.current_exercise()
+        let is_command = self
+            .current_exercise()
             .map_or(false, |e| e.exercise_type == ExerciseType::Command);
         if self.current_exercise().is_none() {
             return;
@@ -2480,10 +2671,7 @@ impl CourseApp {
         self.shell_state = None;
     }
 
-    fn shell_execute_and_validate(
-        &mut self,
-        progress_store: &mut ProgressStore,
-    ) -> Result<()> {
+    fn shell_execute_and_validate(&mut self, progress_store: &mut ProgressStore) -> Result<()> {
         let cmd = match self.shell_state {
             Some(ref mut shell) => shell.take_input(),
             None => return Ok(()),
@@ -2509,8 +2697,14 @@ impl CourseApp {
         // Push to history
         let entry = ShellHistoryEntry {
             command: cmd,
-            stdout: runner::clean_sandbox_paths(&output.stdout, self.shell_state.as_ref().unwrap().sandbox.dir()),
-            stderr: runner::clean_sandbox_paths(&output.stderr, self.shell_state.as_ref().unwrap().sandbox.dir()),
+            stdout: runner::clean_sandbox_paths(
+                &output.stdout,
+                self.shell_state.as_ref().unwrap().sandbox.dir(),
+            ),
+            stderr: runner::clean_sandbox_paths(
+                &output.stderr,
+                self.shell_state.as_ref().unwrap().sandbox.dir(),
+            ),
             exit_code: output.exit_code,
             timed_out: output.timed_out,
         };
@@ -2567,12 +2761,30 @@ impl CourseApp {
             {
                 // Validate against the last command's output
                 let step_output = crate::exec::sandbox::StepOutput {
-                    stdout: self.shell_state.as_ref().unwrap().history.last()
-                        .map(|e| e.stdout.clone()).unwrap_or_default(),
-                    stderr: self.shell_state.as_ref().unwrap().history.last()
-                        .map(|e| e.stderr.clone()).unwrap_or_default(),
-                    exit_code: self.shell_state.as_ref().unwrap().history.last()
-                        .map(|e| e.exit_code).unwrap_or(-1),
+                    stdout: self
+                        .shell_state
+                        .as_ref()
+                        .unwrap()
+                        .history
+                        .last()
+                        .map(|e| e.stdout.clone())
+                        .unwrap_or_default(),
+                    stderr: self
+                        .shell_state
+                        .as_ref()
+                        .unwrap()
+                        .history
+                        .last()
+                        .map(|e| e.stderr.clone())
+                        .unwrap_or_default(),
+                    exit_code: self
+                        .shell_state
+                        .as_ref()
+                        .unwrap()
+                        .history
+                        .last()
+                        .map(|e| e.exit_code)
+                        .unwrap_or(-1),
                     timed_out: false,
                 };
                 let vr = validate::validate_output(&exercise.validation, &step_output);
@@ -2704,19 +2916,25 @@ impl CourseApp {
             }
             KeyCode::PageUp => {
                 if let Some(ref mut shell) = self.shell_state {
-                    shell.scroll_offset = shell.scroll_offset.saturating_sub(self.viewport_height.max(1));
+                    shell.scroll_offset = shell
+                        .scroll_offset
+                        .saturating_sub(self.viewport_height.max(1));
                 }
                 Ok(CourseAction::Continue)
             }
             KeyCode::PageDown => {
                 if let Some(ref mut shell) = self.shell_state {
-                    shell.scroll_offset = shell.scroll_offset.saturating_add(self.viewport_height.max(1));
+                    shell.scroll_offset = shell
+                        .scroll_offset
+                        .saturating_add(self.viewport_height.max(1));
                 }
                 Ok(CourseAction::Continue)
             }
             #[cfg(feature = "llm")]
-            KeyCode::Char('a') if modifiers.contains(KeyModifiers::CONTROL)
-                && self.ai_enabled && self.ai_status == "ready" =>
+            KeyCode::Char('a')
+                if modifiers.contains(KeyModifiers::CONTROL)
+                    && self.ai_enabled
+                    && self.ai_status == "ready" =>
             {
                 self.open_chat();
                 Ok(CourseAction::Continue)
@@ -2868,7 +3086,9 @@ impl CourseApp {
             lines.push(Line::from(""));
             lines.push(Line::from(Span::styled(
                 "  Shell Mode Help",
-                Style::default().fg(theme.heading).add_modifier(Modifier::BOLD),
+                Style::default()
+                    .fg(theme.heading)
+                    .add_modifier(Modifier::BOLD),
             )));
             lines.push(Line::from(""));
             let help_items = [
@@ -2916,14 +3136,21 @@ impl CourseApp {
                 .add_modifier(Modifier::BOLD);
 
             if clamped_scroll > 0 {
-                let indicator = Paragraph::new(Line::from(Span::styled(" \u{25B2} more ", indicator_style)));
-                let r = Rect::new(area.x + area.width.saturating_sub(9), area.y, 9.min(area.width), 1);
+                let indicator =
+                    Paragraph::new(Line::from(Span::styled(" \u{25B2} more ", indicator_style)));
+                let r = Rect::new(
+                    area.x + area.width.saturating_sub(9),
+                    area.y,
+                    9.min(area.width),
+                    1,
+                );
                 frame.render_widget(indicator, r);
             }
 
             let max_scroll = total.saturating_sub(area.height);
             if clamped_scroll < max_scroll {
-                let indicator = Paragraph::new(Line::from(Span::styled(" \u{25BC} more ", indicator_style)));
+                let indicator =
+                    Paragraph::new(Line::from(Span::styled(" \u{25BC} more ", indicator_style)));
                 let r = Rect::new(
                     area.x + area.width.saturating_sub(9),
                     area.y + area.height.saturating_sub(1),
@@ -2935,10 +3162,7 @@ impl CourseApp {
         }
     }
 
-    fn run_exercise(
-        &mut self,
-        sandbox_level: SandboxLevel,
-    ) -> Result<()> {
+    fn run_exercise(&mut self, sandbox_level: SandboxLevel) -> Result<()> {
         self.state = AppState::Executing;
 
         let mut output = runner::run_exercise_with_sandbox(
@@ -3024,16 +3248,18 @@ impl CourseApp {
     ) -> Result<()> {
         self.state = AppState::Executing;
 
-        let (result, teardown_warnings) =
-            runner::execute_exercise_with_sandbox(&self.course, self.current_exercise().unwrap(), &self.session.current_code, sandbox_level)?;
+        let (result, teardown_warnings) = runner::execute_exercise_with_sandbox(
+            &self.course,
+            self.current_exercise().unwrap(),
+            &self.session.current_code,
+            sandbox_level,
+        )?;
 
         let time_spent = self.session.time_spent_seconds();
         let (compile_success, run_exit_code, output_matched) = match &result {
             ExecutionResult::Success => (true, Some(0), Some(true)),
             ExecutionResult::CompileSuccess => (true, None, None),
-            ExecutionResult::StepFailed {
-                exit_code, ..
-            } => (false, Some(*exit_code), None),
+            ExecutionResult::StepFailed { exit_code, .. } => (false, Some(*exit_code), None),
             ExecutionResult::ValidationFailed(_) => (true, Some(0), Some(false)),
             ExecutionResult::Timeout { .. } => (false, None, None),
             ExecutionResult::SetupFailed { exit_code, .. } => (false, Some(*exit_code), None),
@@ -3077,25 +3303,26 @@ impl CourseApp {
                         expected,
                         actual,
                     } => {
-                        self.last_error = Some(format!("Expected output: \"{}\"\nActual output:   \"{}\"", expected, actual));
+                        self.last_error = Some(format!(
+                            "Expected output: \"{}\"\nActual output:   \"{}\"",
+                            expected, actual
+                        ));
                         self.failure_detail = Some(FailureDetail::OutputMismatch {
                             expected: expected.clone(),
                             actual: actual.clone(),
                         });
                     }
-                    crate::exec::validate::ValidationResult::RegexMismatch {
-                        pattern,
-                        actual,
-                    } => {
-                        self.last_error = Some(format!("Output \"{}\" didn't match pattern /{}/", actual, pattern));
+                    crate::exec::validate::ValidationResult::RegexMismatch { pattern, actual } => {
+                        self.last_error = Some(format!(
+                            "Output \"{}\" didn't match pattern /{}/",
+                            actual, pattern
+                        ));
                         self.failure_detail = Some(FailureDetail::RegexMismatch {
                             pattern: pattern.clone(),
                             actual: actual.clone(),
                         });
                     }
-                    crate::exec::validate::ValidationResult::StateAssertionFailed {
-                        results,
-                    } => {
+                    crate::exec::validate::ValidationResult::StateAssertionFailed { results } => {
                         let failed_count = results.iter().filter(|r| !r.passed).count();
                         self.last_error = Some(format!("{} assertion(s) failed", failed_count));
                         self.last_assertion_results = Some(results.clone());
@@ -3105,7 +3332,8 @@ impl CourseApp {
                     }
                     _ => {
                         self.last_error = Some("Validation failed".to_string());
-                        self.failure_detail = Some(FailureDetail::Plain("Validation failed".to_string()));
+                        self.failure_detail =
+                            Some(FailureDetail::Plain("Validation failed".to_string()));
                     }
                 }
                 self.state = AppState::ResultFail;
@@ -3157,10 +3385,7 @@ impl CourseApp {
     }
 
     fn reveal_hint(&mut self) {
-        let max_hints = self
-            .current_exercise()
-            .map(|e| e.hints.len())
-            .unwrap_or(0);
+        let max_hints = self.current_exercise().map(|e| e.hints.len()).unwrap_or(0);
         if self.session.hints_revealed < max_hints {
             self.session.hints_revealed += 1;
         }
@@ -3171,7 +3396,12 @@ impl CourseApp {
         if let Some(exercise) = self.current_exercise() {
             let starter_files = exercise.get_starter_files(&ext);
             for starter in &starter_files {
-                if let Some(f) = self.session.current_code.iter_mut().find(|f| f.name == starter.name) {
+                if let Some(f) = self
+                    .session
+                    .current_code
+                    .iter_mut()
+                    .find(|f| f.name == starter.name)
+                {
                     f.content = starter.content.clone();
                 }
             }
@@ -3228,14 +3458,30 @@ impl CourseApp {
 
         // Try to load draft files (persisted edits from a previous session)
         let course_id = self.course_id();
-        let lesson_id = self.current_lesson().map(|l| l.id.clone()).unwrap_or_default();
-        let exercise_id = self.current_exercise().map(|e| e.id.clone()).unwrap_or_default();
+        let lesson_id = self
+            .current_lesson()
+            .map(|l| l.id.clone())
+            .unwrap_or_default();
+        let exercise_id = self
+            .current_exercise()
+            .map(|e| e.id.clone())
+            .unwrap_or_default();
         if !lesson_id.is_empty() && !exercise_id.is_empty() {
-            if let Ok(dir) = crate::state::sandbox::draft_dir(&course_id, &self.course.version, &lesson_id, &exercise_id) {
+            if let Ok(dir) = crate::state::sandbox::draft_dir(
+                &course_id,
+                &self.course.version,
+                &lesson_id,
+                &exercise_id,
+            ) {
                 if let Ok(drafts) = crate::state::sandbox::load_draft_files(&dir) {
                     if !drafts.is_empty() {
                         for (name, content) in &drafts {
-                            if let Some(f) = self.session.current_code.iter_mut().find(|f| f.editable && f.name == *name) {
+                            if let Some(f) = self
+                                .session
+                                .current_code
+                                .iter_mut()
+                                .find(|f| f.editable && f.name == *name)
+                            {
                                 f.content = content.clone();
                             }
                         }
@@ -3254,14 +3500,14 @@ impl CourseApp {
             }
             self.chat_visible = false;
         }
-
     }
 
     /// Transition to the correct exercise state: Shell for command exercises,
     /// ExercisePrompt for everything else. This is the ONLY correct way to
     /// enter the exercise view — never set `AppState::ExercisePrompt` directly.
     fn enter_exercise_state(&mut self) {
-        if self.current_exercise()
+        if self
+            .current_exercise()
             .map_or(false, |e| e.exercise_type == ExerciseType::Command)
         {
             // Clean up any previous shell state before re-entering
@@ -3332,18 +3578,31 @@ impl CourseApp {
 
     pub fn save_draft_to_disk(&self) {
         let course_id = self.course_id();
-        let lesson_id = self.current_lesson().map(|l| l.id.clone()).unwrap_or_default();
-        let exercise_id = self.current_exercise().map(|e| e.id.clone()).unwrap_or_default();
+        let lesson_id = self
+            .current_lesson()
+            .map(|l| l.id.clone())
+            .unwrap_or_default();
+        let exercise_id = self
+            .current_exercise()
+            .map(|e| e.id.clone())
+            .unwrap_or_default();
         if lesson_id.is_empty() || exercise_id.is_empty() {
             return;
         }
 
-        let dir = match crate::state::sandbox::draft_dir(&course_id, &self.course.version, &lesson_id, &exercise_id) {
+        let dir = match crate::state::sandbox::draft_dir(
+            &course_id,
+            &self.course.version,
+            &lesson_id,
+            &exercise_id,
+        ) {
             Ok(d) => d,
             Err(_) => return,
         };
 
-        let files: Vec<(String, String)> = self.session.current_code
+        let files: Vec<(String, String)> = self
+            .session
+            .current_code
             .iter()
             .filter(|f| f.editable)
             .map(|f| (f.name.clone(), f.content.clone()))
@@ -3354,13 +3613,24 @@ impl CourseApp {
 
     fn clear_current_draft(&self) {
         let course_id = self.course_id();
-        let lesson_id = self.current_lesson().map(|l| l.id.clone()).unwrap_or_default();
-        let exercise_id = self.current_exercise().map(|e| e.id.clone()).unwrap_or_default();
+        let lesson_id = self
+            .current_lesson()
+            .map(|l| l.id.clone())
+            .unwrap_or_default();
+        let exercise_id = self
+            .current_exercise()
+            .map(|e| e.id.clone())
+            .unwrap_or_default();
         if lesson_id.is_empty() || exercise_id.is_empty() {
             return;
         }
 
-        if let Ok(dir) = crate::state::sandbox::draft_dir(&course_id, &self.course.version, &lesson_id, &exercise_id) {
+        if let Ok(dir) = crate::state::sandbox::draft_dir(
+            &course_id,
+            &self.course.version,
+            &lesson_id,
+            &exercise_id,
+        ) {
             let _ = crate::state::sandbox::clear_draft_files(&dir);
         }
     }
@@ -3372,12 +3642,17 @@ impl CourseApp {
             None => return,
         };
 
-        let dir = match crate::state::sandbox::sandbox_dir(&course_id, &self.course.version, &lesson.id) {
+        let dir = match crate::state::sandbox::sandbox_dir(
+            &course_id,
+            &self.course.version,
+            &lesson.id,
+        ) {
             Ok(d) => d,
             Err(_) => return,
         };
 
-        let files: Vec<(String, String)> = self.sandbox_code
+        let files: Vec<(String, String)> = self
+            .sandbox_code
             .iter()
             .map(|f| (f.name.clone(), f.content.clone()))
             .collect();
@@ -3386,13 +3661,17 @@ impl CourseApp {
     }
 
     fn sandbox_has_code(&self) -> bool {
-        self.sandbox_code.iter().any(|f| !f.content.trim().is_empty())
+        self.sandbox_code
+            .iter()
+            .any(|f| !f.content.trim().is_empty())
     }
 
     fn render_sandbox(&mut self, frame: &mut ratatui::Frame, area: Rect, theme: &Theme) {
         let mut lines: Vec<Line<'static>> = Vec::new();
 
-        let lesson_title = self.course.loaded_lessons
+        let lesson_title = self
+            .course
+            .loaded_lessons
             .get(self.sandbox_lesson_idx)
             .map(|l| l.title.clone())
             .unwrap_or_default();
@@ -3449,7 +3728,11 @@ impl CourseApp {
             let content = &file.content;
 
             let code_modified = self.sandbox_has_code();
-            let border_color = if code_modified { Color::Yellow } else { theme.code_border };
+            let border_color = if code_modified {
+                Color::Yellow
+            } else {
+                theme.code_border
+            };
 
             let code_width = area.width.saturating_sub(4) as usize;
             let title_text = format!("─ {} ", filename);
@@ -3465,10 +3748,7 @@ impl CourseApp {
                 // Show empty placeholder
                 lines.push(Line::from(vec![
                     Span::styled("  │ ", Style::default().fg(border_color)),
-                    Span::styled(
-                        "1 │ ",
-                        Style::default().fg(border_color),
-                    ),
+                    Span::styled("1 │ ", Style::default().fg(border_color)),
                     Span::styled(
                         format!("{: <width$}", "", width = code_width.saturating_sub(6)),
                         Style::default().fg(theme.muted),
@@ -3506,12 +3786,16 @@ impl CourseApp {
             if output.timed_out {
                 lines.push(Line::from(Span::styled(
                     "  Execution timed out",
-                    Style::default().fg(theme.error).add_modifier(Modifier::BOLD),
+                    Style::default()
+                        .fg(theme.error)
+                        .add_modifier(Modifier::BOLD),
                 )));
             } else if !output.success {
                 lines.push(Line::from(Span::styled(
                     "  ── Error ──",
-                    Style::default().fg(theme.error).add_modifier(Modifier::BOLD),
+                    Style::default()
+                        .fg(theme.error)
+                        .add_modifier(Modifier::BOLD),
                 )));
                 lines.push(Line::from(""));
                 let parsed = crate::ui::diagnostics::parse_compiler_output(&output.stderr);
@@ -3539,7 +3823,9 @@ impl CourseApp {
                     lines.push(Line::from(""));
                     lines.push(Line::from(Span::styled(
                         "  Warnings:",
-                        Style::default().fg(theme.keyword).add_modifier(Modifier::BOLD),
+                        Style::default()
+                            .fg(theme.keyword)
+                            .add_modifier(Modifier::BOLD),
                     )));
                     let parsed = crate::ui::diagnostics::parse_compiler_output(&output.stderr);
                     lines.extend(crate::ui::diagnostics::render_diagnostics(&parsed, theme));
@@ -3639,14 +3925,16 @@ impl CourseApp {
         // Save before running
         self.save_sandbox_to_disk();
 
-        let sandbox = crate::exec::sandbox::Sandbox::new(&self.course.language.limits, sandbox_level)?;
+        let sandbox =
+            crate::exec::sandbox::Sandbox::new(&self.course.language.limits, sandbox_level)?;
 
         let file_names: Vec<String> = self.sandbox_code.iter().map(|f| f.name.clone()).collect();
         for file in &self.sandbox_code {
             sandbox.write_file(&file.name, &file.content)?;
         }
 
-        let main_file = self.sandbox_code
+        let main_file = self
+            .sandbox_code
             .first()
             .map(|f| f.name.clone())
             .unwrap_or_default();
@@ -3666,8 +3954,12 @@ impl CourseApp {
                 &main_file,
                 &file_names,
             );
-            let args: Vec<String> = step.args.iter()
-                .map(|a| crate::exec::placeholder::substitute(a, sandbox.dir(), &main_file, &file_names))
+            let args: Vec<String> = step
+                .args
+                .iter()
+                .map(|a| {
+                    crate::exec::placeholder::substitute(a, sandbox.dir(), &main_file, &file_names)
+                })
                 .collect();
 
             let output = sandbox.run_command(&command, &args, None, None, None)?;
@@ -3723,7 +4015,8 @@ impl CourseApp {
         terminal::leave_alternate_screen()?;
 
         let sandbox_dir = tempfile::tempdir()?;
-        let editable_info: Vec<(String, String)> = self.sandbox_code
+        let editable_info: Vec<(String, String)> = self
+            .sandbox_code
             .iter()
             .map(|f| (f.name.clone(), f.content.clone()))
             .collect();
@@ -3735,7 +4028,8 @@ impl CourseApp {
 
         for (name, _) in &editable_info {
             let path = sandbox_dir.path().join(name);
-            let new_content = crate::ui::editor::edit_file_with_config(&path, config.editor.as_deref())?;
+            let new_content =
+                crate::ui::editor::edit_file_with_config(&path, config.editor.as_deref())?;
             if let Some(f) = self.sandbox_code.iter_mut().find(|f| f.name == *name) {
                 f.content = new_content;
             }
@@ -3773,17 +4067,11 @@ impl CourseApp {
             if let Some(file_path) = first_file {
                 match editor_type {
                     crate::config::EditorType::Gui => {
-                        std::process::Command::new(cmd)
-                            .arg(&file_path)
-                            .spawn()
-                            .ok()
+                        std::process::Command::new(cmd).arg(&file_path).spawn().ok()
                     }
                     _ => {
                         terminal::leave_alternate_screen()?;
-                        let child = std::process::Command::new(cmd)
-                            .arg(&file_path)
-                            .spawn()
-                            .ok();
+                        let child = std::process::Command::new(cmd).arg(&file_path).spawn().ok();
                         terminal::enter_alternate_screen()?;
                         child
                     }
@@ -3841,19 +4129,13 @@ impl CourseApp {
                 match editor_type {
                     crate::config::EditorType::Gui => {
                         // GUI: spawn and don't wait
-                        std::process::Command::new(cmd)
-                            .arg(&file_path)
-                            .spawn()
-                            .ok()
+                        std::process::Command::new(cmd).arg(&file_path).spawn().ok()
                     }
                     _ => {
                         // Terminal: leave alt screen, run blocking, come back
                         // For watch mode, we still spawn non-blocking since the user explicitly asked
                         terminal::leave_alternate_screen()?;
-                        let child = std::process::Command::new(cmd)
-                            .arg(&file_path)
-                            .spawn()
-                            .ok();
+                        let child = std::process::Command::new(cmd).arg(&file_path).spawn().ok();
                         terminal::enter_alternate_screen()?;
                         child
                     }
@@ -3934,7 +4216,12 @@ impl CourseApp {
                 }
             } else {
                 for (name, content) in file_contents {
-                    if let Some(f) = self.session.current_code.iter_mut().find(|f| f.name == name) {
+                    if let Some(f) = self
+                        .session
+                        .current_code
+                        .iter_mut()
+                        .find(|f| f.name == name)
+                    {
                         f.content = content;
                     }
                 }
@@ -3956,7 +4243,11 @@ impl CourseApp {
                 &self.session.current_code,
                 sandbox_level,
             ) {
-                let auto_test = self.watch_state.as_ref().map(|w| w.auto_test).unwrap_or(false);
+                let auto_test = self
+                    .watch_state
+                    .as_ref()
+                    .map(|w| w.auto_test)
+                    .unwrap_or(false);
 
                 if auto_test && output.success {
                     // Auto-grade: transition out of watch mode on success
@@ -3970,14 +4261,16 @@ impl CourseApp {
     }
 
     fn run_sandbox_for_watch(&self, sandbox_level: SandboxLevel) -> Result<runner::RunOutput> {
-        let sandbox = crate::exec::sandbox::Sandbox::new(&self.course.language.limits, sandbox_level)?;
+        let sandbox =
+            crate::exec::sandbox::Sandbox::new(&self.course.language.limits, sandbox_level)?;
 
         let file_names: Vec<String> = self.sandbox_code.iter().map(|f| f.name.clone()).collect();
         for file in &self.sandbox_code {
             sandbox.write_file(&file.name, &file.content)?;
         }
 
-        let main_file = self.sandbox_code
+        let main_file = self
+            .sandbox_code
             .first()
             .map(|f| f.name.clone())
             .unwrap_or_default();
@@ -3991,10 +4284,17 @@ impl CourseApp {
             }
 
             let command = crate::exec::placeholder::substitute(
-                &step.command, sandbox.dir(), &main_file, &file_names,
+                &step.command,
+                sandbox.dir(),
+                &main_file,
+                &file_names,
             );
-            let args: Vec<String> = step.args.iter()
-                .map(|a| crate::exec::placeholder::substitute(a, sandbox.dir(), &main_file, &file_names))
+            let args: Vec<String> = step
+                .args
+                .iter()
+                .map(|a| {
+                    crate::exec::placeholder::substitute(a, sandbox.dir(), &main_file, &file_names)
+                })
                 .collect();
 
             let output = sandbox.run_command(&command, &args, None, None, None)?;
@@ -4047,7 +4347,12 @@ impl CourseApp {
                 }
             } else {
                 for (name, content) in file_contents {
-                    if let Some(f) = self.session.current_code.iter_mut().find(|f| f.name == name) {
+                    if let Some(f) = self
+                        .session
+                        .current_code
+                        .iter_mut()
+                        .find(|f| f.name == name)
+                    {
                         f.content = content;
                     }
                 }
@@ -4057,17 +4362,18 @@ impl CourseApp {
         let was_sandbox = self.sandbox_watching;
         self.watch_state = None;
         self.sandbox_watching = false;
-        self.state = if was_sandbox { AppState::Sandbox } else { AppState::ExercisePrompt };
+        self.state = if was_sandbox {
+            AppState::Sandbox
+        } else {
+            AppState::ExercisePrompt
+        };
         self.scroll_offset = 0;
     }
 
     // --- Progress management ---
 
     fn course_id(&self) -> String {
-        self.course
-            .name
-            .to_lowercase()
-            .replace(' ', "-")
+        self.course.name.to_lowercase().replace(' ', "-")
     }
 
     fn ensure_course_progress(&self, progress_store: &mut ProgressStore) {
@@ -4109,22 +4415,24 @@ impl CourseApp {
         if let Some(course_progress) = progress_store.data.courses.get_mut(&key) {
             course_progress.last_activity = chrono::Utc::now().to_rfc3339();
 
-            let lesson_progress = course_progress
-                .lessons
-                .entry(lesson_id)
-                .or_insert_with(|| LessonProgress {
-                    status: ProgressStatus::InProgress,
-                    completed_at: None,
-                    exercises: std::collections::HashMap::new(),
-                });
+            let lesson_progress =
+                course_progress
+                    .lessons
+                    .entry(lesson_id)
+                    .or_insert_with(|| LessonProgress {
+                        status: ProgressStatus::InProgress,
+                        completed_at: None,
+                        exercises: std::collections::HashMap::new(),
+                    });
 
-            let exercise_progress = lesson_progress
-                .exercises
-                .entry(exercise_id)
-                .or_insert_with(|| ExerciseProgress {
-                    status: ProgressStatus::InProgress,
-                    attempts: Vec::new(),
-                });
+            let exercise_progress =
+                lesson_progress
+                    .exercises
+                    .entry(exercise_id)
+                    .or_insert_with(|| ExerciseProgress {
+                        status: ProgressStatus::InProgress,
+                        attempts: Vec::new(),
+                    });
 
             exercise_progress.attempts.push(attempt.clone());
         }
@@ -4153,22 +4461,24 @@ impl CourseApp {
         let (key, lesson_id, exercise_id) = self.get_current_ids();
 
         if let Some(course_progress) = progress_store.data.courses.get_mut(&key) {
-            let lesson_progress = course_progress
-                .lessons
-                .entry(lesson_id)
-                .or_insert_with(|| LessonProgress {
-                    status: ProgressStatus::InProgress,
-                    completed_at: None,
-                    exercises: std::collections::HashMap::new(),
-                });
+            let lesson_progress =
+                course_progress
+                    .lessons
+                    .entry(lesson_id)
+                    .or_insert_with(|| LessonProgress {
+                        status: ProgressStatus::InProgress,
+                        completed_at: None,
+                        exercises: std::collections::HashMap::new(),
+                    });
 
-            let exercise_progress = lesson_progress
-                .exercises
-                .entry(exercise_id)
-                .or_insert_with(|| ExerciseProgress {
-                    status: ProgressStatus::InProgress,
-                    attempts: Vec::new(),
-                });
+            let exercise_progress =
+                lesson_progress
+                    .exercises
+                    .entry(exercise_id)
+                    .or_insert_with(|| ExerciseProgress {
+                        status: ProgressStatus::InProgress,
+                        attempts: Vec::new(),
+                    });
 
             exercise_progress.status = ProgressStatus::Skipped;
         }
@@ -4263,7 +4573,9 @@ impl CourseApp {
             .unwrap_or_default();
 
         if let Some(ref channel) = self.llm_channel {
-            let _ = channel.request_tx.send(LlmRequest::Chat { context, messages });
+            let _ = channel
+                .request_tx
+                .send(LlmRequest::Chat { context, messages });
         }
     }
 
@@ -4271,7 +4583,10 @@ impl CourseApp {
     fn build_llm_context(&self) -> LlmContext {
         // Sandbox mode: use sandbox-specific context
         if self.state == AppState::Sandbox {
-            let lesson = self.course.loaded_lessons.get(self.sandbox_lesson_idx)
+            let lesson = self
+                .course
+                .loaded_lessons
+                .get(self.sandbox_lesson_idx)
                 .expect("no lesson for sandbox");
             let last_output = self.sandbox_last_output.as_ref().map(|o| {
                 if o.success {
@@ -4295,14 +4610,26 @@ impl CourseApp {
         if self.state == AppState::Shell {
             let lesson = self.current_lesson().expect("no lesson");
             let exercise = self.current_exercise().expect("no exercise");
-            let include_content = self.llm_config.as_ref()
-                .map(|c| c.settings.include_lesson_content).unwrap_or(true);
-            let max_history = self.llm_config.as_ref()
-                .map(|c| c.settings.max_history_attempts).unwrap_or(3);
+            let include_content = self
+                .llm_config
+                .as_ref()
+                .map(|c| c.settings.include_lesson_content)
+                .unwrap_or(true);
+            let max_history = self
+                .llm_config
+                .as_ref()
+                .map(|c| c.settings.max_history_attempts)
+                .unwrap_or(3);
             let empty_store = ProgressStore::empty();
             let mut ctx = LlmContext::assemble(
-                &self.course, lesson, exercise, &self.session,
-                &empty_store, self.current_lesson_idx, include_content, max_history,
+                &self.course,
+                lesson,
+                exercise,
+                &self.session,
+                &empty_store,
+                self.current_lesson_idx,
+                include_content,
+                max_history,
             );
             ctx.current_code = self.format_shell_history_for_llm();
             ctx.last_execution_summary = "See shell transcript in current_code".to_string();
@@ -4370,7 +4697,10 @@ impl CourseApp {
                 self.chat_visible = false;
             }
             // Ctrl+Enter or Alt+Enter = send message
-            KeyCode::Enter if modifiers.contains(KeyModifiers::CONTROL) || modifiers.contains(KeyModifiers::ALT) => {
+            KeyCode::Enter
+                if modifiers.contains(KeyModifiers::CONTROL)
+                    || modifiers.contains(KeyModifiers::ALT) =>
+            {
                 self.try_send_chat();
             }
             // Plain Enter = newline (up to 3 lines)
@@ -4531,13 +4861,11 @@ impl CourseApp {
                 Block::default()
                     .borders(Borders::ALL)
                     .title(format!(" AI Chat ({}) ", self.ai_status))
-                    .border_style(Style::default().fg(
-                        if self.chat_visible {
-                            ratatui::style::Color::Cyan
-                        } else {
-                            ratatui::style::Color::DarkGray
-                        },
-                    )),
+                    .border_style(Style::default().fg(if self.chat_visible {
+                        ratatui::style::Color::Cyan
+                    } else {
+                        ratatui::style::Color::DarkGray
+                    })),
             )
             .wrap(Wrap { trim: false })
             .scroll((chat.scroll_offset, 0));
@@ -4654,9 +4982,11 @@ fn get_tips_for_state(state: &AppState) -> &'static [&'static str] {
 
 fn dim_lines(lines: &mut Vec<Line<'static>>, dim_color: Color) {
     for line in lines.iter_mut() {
-        let spans: Vec<Span<'static>> = line.spans.drain(..).map(|span| {
-            Span::styled(span.content, span.style.fg(dim_color))
-        }).collect();
+        let spans: Vec<Span<'static>> = line
+            .spans
+            .drain(..)
+            .map(|span| Span::styled(span.content, span.style.fg(dim_color)))
+            .collect();
         *line = Line::from(spans);
     }
 }

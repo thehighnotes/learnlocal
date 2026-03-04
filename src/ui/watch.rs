@@ -36,8 +36,7 @@ impl WatchState {
     ) -> anyhow::Result<Self> {
         let (tx, rx) = mpsc::channel();
 
-        let config = NotifyConfig::default()
-            .with_poll_interval(Duration::from_millis(500));
+        let config = NotifyConfig::default().with_poll_interval(Duration::from_millis(500));
 
         let mut watcher = PollWatcher::new(tx, config)?;
 
