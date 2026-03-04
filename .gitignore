@@ -1,1 +1,23 @@
+# Build artifacts
 /target
+
+# Editor temp files
+*.swp
+*.swo
+*~
+
+# IDE configs
+.vscode/
+.idea/
+*.iml
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Runtime artifacts
+nohup.out
+*.log
+
+# Rust backup files
+**/*.rs.bk

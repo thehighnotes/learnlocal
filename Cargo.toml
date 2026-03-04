@@ -3,6 +3,13 @@ name = "learnlocal"
 version = "0.1.0"
 edition = "2021"
 description = "Offline terminal-based programming tutorial framework"
+authors = ["Mark Wind"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/thehighnotes/learnlocal"
+homepage = "https://github.com/thehighnotes/learnlocal"
+readme = "README.md"
+keywords = ["tutorial", "education", "terminal", "offline", "programming"]
+categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
@@ -39,3 +46,6 @@ optional = true
 [dependencies.tokio-stream]
 version = "0.1"
 optional = true
+
+[profile.release]
+strip = true
