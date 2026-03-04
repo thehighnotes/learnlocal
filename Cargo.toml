@@ -27,7 +27,7 @@ chrono = { version = "0.4", features = ["serde"] }
 tempfile = "3.8"
 semver = { version = "1.0", features = ["serde"] }
 regex = "1.10"
-notify = "6.1"
+notify = "8.2"
 rusqlite = { version = "0.31", features = ["bundled"] }
 clap_complete = "4.4"
 clap_mangen = "0.2"
