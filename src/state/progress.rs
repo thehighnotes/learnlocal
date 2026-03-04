@@ -18,10 +18,17 @@ impl ProgressStore {
     pub fn load_from(path: PathBuf) -> Result<Self> {
         let data = if path.exists() {
             let contents = std::fs::read_to_string(&path)?;
-            serde_json::from_str(&contents).map_err(|e| {
+            let progress: Progress = serde_json::from_str(&contents).map_err(|e| {
                 LearnLocalError::Progress(format!("Failed to parse progress file: {}", e))
-            })?
+            })?;
+            log::debug!(
+                "Progress loaded from {} ({} courses)",
+                path.display(),
+                progress.courses.len()
+            );
+            progress
         } else {
+            log::debug!("No progress file at {}, starting fresh", path.display());
             Progress::new()
         };
 
@@ -42,7 +49,21 @@ impl ProgressStore {
         std::fs::rename(&tmp_path, &self.path)
             .map_err(|e| LearnLocalError::Progress(format!("Failed to save progress: {}", e)))?;
 
+        log::debug!("Progress saved to {}", self.path.display());
         Ok(())
+    }
+
+    /// Create a backup of progress.json as progress.json.bak before destructive operations.
+    /// Returns Ok(true) if backup was created, Ok(false) if no file to back up.
+    pub fn backup(&self) -> Result<bool> {
+        if !self.path.exists() {
+            return Ok(false);
+        }
+        let bak_path = self.path.with_extension("json.bak");
+        std::fs::copy(&self.path, &bak_path)
+            .map_err(|e| LearnLocalError::Progress(format!("Failed to create backup: {}", e)))?;
+        log::debug!("Progress backed up to {}", bak_path.display());
+        Ok(true)
     }
 
     #[allow(dead_code)]
@@ -79,6 +100,43 @@ mod tests {
         let store = ProgressStore::load_from(path).unwrap();
         assert_eq!(store.data.version, 2);
         assert!(store.data.courses.is_empty());
+    }
+
+    #[test]
+    fn test_backup_creates_bak_file() {
+        let tmp = TempDir::new().unwrap();
+        let path = tmp.path().join("progress.json");
+
+        // Create and save some progress
+        let mut store = ProgressStore::load_from(path.clone()).unwrap();
+        store.data.courses.insert(
+            "test@1".to_string(),
+            super::super::types::CourseProgress {
+                course_version: "1.0.0".to_string(),
+                started_at: "2026-02-07T10:00:00Z".to_string(),
+                last_activity: "2026-02-07T11:00:00Z".to_string(),
+                lessons: std::collections::HashMap::new(),
+            },
+        );
+        store.save().unwrap();
+
+        // Backup should succeed and create .bak
+        assert!(store.backup().unwrap());
+        let bak_path = tmp.path().join("progress.json.bak");
+        assert!(bak_path.exists());
+
+        // Verify backup content matches original
+        let original = std::fs::read_to_string(&path).unwrap();
+        let backup = std::fs::read_to_string(&bak_path).unwrap();
+        assert_eq!(original, backup);
+    }
+
+    #[test]
+    fn test_backup_returns_false_for_nonexistent() {
+        let tmp = TempDir::new().unwrap();
+        let path = tmp.path().join("nonexistent.json");
+        let store = ProgressStore::load_from(path).unwrap();
+        assert!(!store.backup().unwrap());
     }
 
     #[test]

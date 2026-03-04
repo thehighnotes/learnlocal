@@ -95,7 +95,7 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - **Sprint 11 — Content:** #5, #66-69 (asciinema demo, quality bar docs, course template, catalog, --courses docs)
 - **Sprint 12 — Future-Proofing:** #70-75 (plugins, update checker, a11y statement, i18n prep, analytics)
 
-**Current sprint:** Sprint 5 — Robustness
+**Current sprint:** Sprint 6 — Distribution
 
 ## Public Release Checklist
 
@@ -156,11 +156,11 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - [ ] 42. Theme customization in `config.yaml`
 
 ### Robustness & Safety
-- [ ] 43. Signal handling via `signal-hook` for SIGTERM/SIGINT (not just panic hook)
-- [ ] 44. Structured logging — `tracing` or `log` behind `--verbose`
-- [ ] 45. Config parse warning — show message on malformed YAML instead of silent fallback
-- [ ] 46. Progress backup — `progress.json.bak` before destructive reset
-- [ ] 47. Crash report — write `learnlocal-crash.log` with system info + backtrace on panic
+- [x] 43. Signal handling via `signal-hook` for SIGTERM/SIGINT/SIGHUP — clean terminal restoration
+- [x] 44. Structured logging — `log` + `env_logger` behind `--verbose`
+- [x] 45. Config parse warning — show yellow message on malformed YAML instead of silent fallback
+- [x] 46. Progress backup — `progress.json.bak` before destructive reset (CLI + TUI)
+- [x] 47. Crash report — write `learnlocal-crash.log` with system info + backtrace on panic
 
 ### Testing & Quality
 - [ ] 48. Integration tests — end-to-end: load course → run exercise → verify progress written

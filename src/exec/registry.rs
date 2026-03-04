@@ -201,12 +201,12 @@ mod tests {
         // On any linux/mac system this should find an entry
         let result = find_toolchain("python");
         // May or may not find depending on OS/arch, but shouldn't panic
-        if std::env::consts::OS == "linux" || std::env::consts::OS == "macos" {
-            if std::env::consts::ARCH == "x86_64" || std::env::consts::ARCH == "aarch64" {
-                assert!(result.is_some());
-                let entry = result.unwrap();
-                assert_eq!(entry.language_id, "python");
-            }
+        if (std::env::consts::OS == "linux" || std::env::consts::OS == "macos")
+            && (std::env::consts::ARCH == "x86_64" || std::env::consts::ARCH == "aarch64")
+        {
+            assert!(result.is_some());
+            let entry = result.unwrap();
+            assert_eq!(entry.language_id, "python");
         }
     }
 

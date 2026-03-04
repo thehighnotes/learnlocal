@@ -44,11 +44,11 @@ fn detect_editor_type(editor: &str) -> EditorType {
     // Extract just the filename if it's a path
     let name = base.rsplit('/').next().unwrap_or(base);
 
-    if TERMINAL_EDITORS.iter().any(|&t| t == name) {
+    if TERMINAL_EDITORS.contains(&name) {
         return EditorType::Terminal;
     }
 
-    if GUI_EDITORS.iter().any(|&g| g == name) {
+    if GUI_EDITORS.contains(&name) {
         // GUI editor with --wait flag behaves like terminal (blocks)
         if has_wait_flag(editor) {
             return EditorType::Terminal;

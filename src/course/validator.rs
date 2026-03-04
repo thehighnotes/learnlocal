@@ -173,19 +173,19 @@ fn check_no_cycles(course: &Course) -> ValidationCheck {
     let mut in_stack = HashSet::new();
 
     for lesson_ref in &course.lessons {
-        if !visited.contains(lesson_ref.id.as_str()) {
-            if has_cycle(
+        if !visited.contains(lesson_ref.id.as_str())
+            && has_cycle(
                 lesson_ref.id.as_str(),
                 &lesson_map,
                 &mut visited,
                 &mut in_stack,
-            ) {
-                return ValidationCheck {
-                    name: "No dependency cycles in lesson graph".to_string(),
-                    passed: false,
-                    message: "Dependency cycle detected in lesson graph".to_string(),
-                };
-            }
+            )
+        {
+            return ValidationCheck {
+                name: "No dependency cycles in lesson graph".to_string(),
+                passed: false,
+                message: "Dependency cycle detected in lesson graph".to_string(),
+            };
         }
     }
 
@@ -494,7 +494,7 @@ fn check_exercise(exercise: &Exercise, lesson_id: &str) -> Vec<ValidationCheck> 
             .validation
             .assertions
             .as_ref()
-            .map_or(false, |a| !a.is_empty());
+            .is_some_and(|a| !a.is_empty());
         if !has_assertions {
             checks.push(ValidationCheck {
                 name: format!("{}: state validation has assertions", prefix),

@@ -146,6 +146,11 @@ impl App {
         }
 
         while !self.should_quit {
+            // Check for termination signals (SIGTERM/SIGINT/SIGHUP)
+            if crate::ui::terminal::signal_received() {
+                break;
+            }
+
             // Drain LLM events from course_app if active
             #[cfg(feature = "llm")]
             if let Some(ref mut ca) = self.course_app {
@@ -235,33 +240,34 @@ impl App {
 
         if self.home.summaries.is_empty() {
             // Empty state: styled welcome
-            let mut lines: Vec<Line<'static>> = Vec::new();
-            lines.push(Line::from(""));
-            lines.push(Line::from(""));
-            lines.push(Line::from(Span::styled(
-                "  Welcome to LearnLocal!",
-                Style::default()
-                    .fg(self.theme.heading)
-                    .add_modifier(Modifier::BOLD),
-            )));
-            lines.push(Line::from(""));
-            lines.push(Line::from(Span::styled(
-                "  No courses found in courses/",
-                Style::default().fg(self.theme.body_text),
-            )));
-            lines.push(Line::from(""));
-            lines.push(Line::from(Span::styled(
-                "  Get started:",
-                Style::default().fg(self.theme.body_text),
-            )));
-            lines.push(Line::from(Span::styled(
-                "    1. Place a course directory in courses/",
-                Style::default().fg(self.theme.muted),
-            )));
-            lines.push(Line::from(Span::styled(
-                "    2. Or run: learnlocal validate <path>",
-                Style::default().fg(self.theme.muted),
-            )));
+            let lines: Vec<Line<'static>> = vec![
+                Line::from(""),
+                Line::from(""),
+                Line::from(Span::styled(
+                    "  Welcome to LearnLocal!",
+                    Style::default()
+                        .fg(self.theme.heading)
+                        .add_modifier(Modifier::BOLD),
+                )),
+                Line::from(""),
+                Line::from(Span::styled(
+                    "  No courses found in courses/",
+                    Style::default().fg(self.theme.body_text),
+                )),
+                Line::from(""),
+                Line::from(Span::styled(
+                    "  Get started:",
+                    Style::default().fg(self.theme.body_text),
+                )),
+                Line::from(Span::styled(
+                    "    1. Place a course directory in courses/",
+                    Style::default().fg(self.theme.muted),
+                )),
+                Line::from(Span::styled(
+                    "    2. Or run: learnlocal validate <path>",
+                    Style::default().fg(self.theme.muted),
+                )),
+            ];
 
             let content = Paragraph::new(lines);
             frame.render_widget(content, outer[1]);
@@ -361,8 +367,11 @@ impl App {
 
         // Group by language
         // Tuple: (flat_idx, completed, total, total_lessons, issue_label, tools_ready, startable)
-        let mut groups: BTreeMap<String, Vec<(usize, usize, usize, usize, String, bool, bool)>> =
-            BTreeMap::new();
+        #[allow(clippy::type_complexity)]
+        let mut groups: BTreeMap<
+            String,
+            Vec<(usize, usize, usize, usize, String, bool, bool)>,
+        > = BTreeMap::new();
         for (i, summary) in self.home.summaries.iter().enumerate() {
             // Check tool readiness from cache
             let all_ready = self
@@ -696,23 +705,15 @@ impl App {
                     .map(|lp| lp.status == ProgressStatus::Completed)
                     .unwrap_or(false);
 
-                let has_progress = cp
-                    .and_then(|cp| cp.lessons.get(lesson_id))
-                    .map(|lp| !lp.exercises.is_empty())
-                    .unwrap_or(false);
-
                 let lesson_selected = lessons_focused && i == self.home.right_selected_idx;
 
                 let (icon, icon_color) = if lesson_selected {
                     ("\u{25b6}", Color::Cyan)
                 } else if is_complete {
                     ("\u{2713}", Color::Green)
-                } else if has_progress && !found_current {
+                } else if !found_current {
                     found_current = true;
-                    ("\u{2022}", Color::Cyan) // bullet for current
-                } else if !found_current && !is_complete {
-                    found_current = true;
-                    ("\u{2022}", Color::Cyan)
+                    ("\u{2022}", Color::Cyan) // bullet for current/next
                 } else {
                     (" ", self.theme.muted)
                 };
@@ -1307,7 +1308,7 @@ impl App {
                 #[cfg(feature = "llm")]
                 SettingsField::OllamaModel => {
                     let val = if self.settings.model_picker_open {
-                        format!("(selecting...)")
+                        "(selecting...)".to_string()
                     } else if self.settings.editing && focused {
                         format!("[{}]", self.settings.edit_buffer)
                     } else {
@@ -1767,6 +1768,9 @@ impl App {
                 KeyCode::Char('y') => {
                     // Reset progress for this course
                     if let Some(ref course) = self.progress_view.course {
+                        // Best-effort backup before destructive reset
+                        let _ = self.progress_store.backup();
+
                         let course_id = course.name.to_lowercase().replace(' ', "-");
                         let keys_to_remove: Vec<String> = self
                             .progress_store
@@ -1916,14 +1920,11 @@ impl App {
         let idx = self.home.flat_idx();
         let source_dir = self.home.summaries[idx].info.source_dir.clone();
 
-        match crate::course::load_course(&source_dir) {
-            Ok(course) => {
-                self.progress_view.course_idx = idx;
-                self.progress_view.course = Some(course);
-                self.progress_view.selected_lesson_idx = 0;
-                self.screen = Screen::Progress;
-            }
-            Err(_) => {}
+        if let Ok(course) = crate::course::load_course(&source_dir) {
+            self.progress_view.course_idx = idx;
+            self.progress_view.course = Some(course);
+            self.progress_view.selected_lesson_idx = 0;
+            self.screen = Screen::Progress;
         }
     }
 

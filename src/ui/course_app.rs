@@ -350,8 +350,7 @@ impl CourseApp {
         let scroll_info =
             if self.content_line_count > self.viewport_height && self.viewport_height > 0 {
                 let current_page = (self.scroll_offset / self.viewport_height) + 1;
-                let total_pages =
-                    (self.content_line_count + self.viewport_height - 1) / self.viewport_height;
+                let total_pages = self.content_line_count.div_ceil(self.viewport_height);
                 format!(" | {}/{}", current_page, total_pages)
             } else {
                 String::new()
@@ -589,7 +588,7 @@ impl CourseApp {
             for cl in &content_lines {
                 lines.push(Line::from(vec![
                     Span::styled("  \u{2502}    ", Style::default().fg(border_color)),
-                    Span::styled(format!("{}", cl), Style::default().fg(content_color)),
+                    Span::styled(cl.to_string(), Style::default().fg(content_color)),
                 ]));
             }
             let total_lines = file.content.lines().count();
@@ -920,9 +919,7 @@ impl CourseApp {
 
             // Determine if we're in inline edit mode for this file
             let is_editing = self.editing && self.inline_editor.is_some();
-            let border_color = if is_editing {
-                Color::Yellow
-            } else if modified {
+            let border_color = if is_editing || modified {
                 Color::Yellow
             } else {
                 theme.code_border
@@ -950,7 +947,7 @@ impl CourseApp {
                     && self
                         .inline_editor
                         .as_ref()
-                        .map_or(false, |e| e.file_idx == file_i);
+                        .is_some_and(|e| e.file_idx == file_i);
 
                 if editing_this_file {
                     let editor = self.inline_editor.as_ref().unwrap();
@@ -1680,7 +1677,7 @@ impl CourseApp {
             AppState::ExercisePrompt => {
                 let is_cmd = self
                     .current_exercise()
-                    .map_or(false, |e| e.exercise_type == ExerciseType::Command);
+                    .is_some_and(|e| e.exercise_type == ExerciseType::Command);
                 if is_cmd {
                     "[Enter] Shell  [h] Hint  [s] Skip  [Esc] Home".to_string()
                 } else if self.editing {
@@ -2233,7 +2230,7 @@ impl CourseApp {
         // re-enter shell mode on Enter/e/t instead of running code through the old path
         let is_command_exercise = self
             .current_exercise()
-            .map_or(false, |e| e.exercise_type == ExerciseType::Command);
+            .is_some_and(|e| e.exercise_type == ExerciseType::Command);
         if is_command_exercise {
             return match key {
                 KeyCode::Char('q') => Ok(CourseAction::Quit),
@@ -2493,7 +2490,7 @@ impl CourseApp {
     fn enter_inline_editor(&mut self) {
         let is_command = self
             .current_exercise()
-            .map_or(false, |e| e.exercise_type == ExerciseType::Command);
+            .is_some_and(|e| e.exercise_type == ExerciseType::Command);
         if self.current_exercise().is_none() {
             return;
         }
@@ -3082,7 +3079,7 @@ impl CourseApp {
         lines.push(Line::from(""));
 
         // Help overlay
-        if self.shell_state.as_ref().map_or(false, |s| s.show_help) {
+        if self.shell_state.as_ref().is_some_and(|s| s.show_help) {
             lines.push(Line::from(""));
             lines.push(Line::from(Span::styled(
                 "  Shell Mode Help",
@@ -3508,7 +3505,7 @@ impl CourseApp {
     fn enter_exercise_state(&mut self) {
         if self
             .current_exercise()
-            .map_or(false, |e| e.exercise_type == ExerciseType::Command)
+            .is_some_and(|e| e.exercise_type == ExerciseType::Command)
         {
             // Clean up any previous shell state before re-entering
             if self.shell_state.is_some() {
@@ -4083,14 +4080,11 @@ impl CourseApp {
             None
         };
 
-        match WatchState::new(sandbox_dir, watched_files, editor_process, false) {
-            Ok(ws) => {
-                self.watch_state = Some(ws);
-                self.sandbox_watching = true;
-                self.state = AppState::Watching;
-                self.scroll_offset = 0;
-            }
-            Err(_) => {}
+        if let Ok(ws) = WatchState::new(sandbox_dir, watched_files, editor_process, false) {
+            self.watch_state = Some(ws);
+            self.sandbox_watching = true;
+            self.state = AppState::Watching;
+            self.scroll_offset = 0;
         }
 
         Ok(())
@@ -4381,17 +4375,16 @@ impl CourseApp {
             let cid = self.course_id();
             crate::state::types::progress_key(&cid, &self.course.version)
         };
-        if !progress_store.data.courses.contains_key(&key) {
-            progress_store.data.courses.insert(
-                key,
-                CourseProgress {
-                    course_version: self.course.version.clone(),
-                    started_at: chrono::Utc::now().to_rfc3339(),
-                    last_activity: chrono::Utc::now().to_rfc3339(),
-                    lessons: std::collections::HashMap::new(),
-                },
-            );
-        }
+        progress_store
+            .data
+            .courses
+            .entry(key)
+            .or_insert_with(|| CourseProgress {
+                course_version: self.course.version.clone(),
+                started_at: chrono::Utc::now().to_rfc3339(),
+                last_activity: chrono::Utc::now().to_rfc3339(),
+                lessons: std::collections::HashMap::new(),
+            });
     }
 
     fn get_current_ids(&self) -> (String, String, String) {

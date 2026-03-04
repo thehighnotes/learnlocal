@@ -52,10 +52,11 @@ pub struct Course {
 }
 
 /// How language toolchains are provisioned for a course.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum Provision {
     /// Use system-installed tools (default, current behavior)
+    #[default]
     System,
     /// Try system first, fall back to portable download
     Auto,
@@ -63,12 +64,6 @@ pub enum Provision {
     Embedded,
     /// User must install manually; show instructions only
     Manual,
-}
-
-impl Default for Provision {
-    fn default() -> Self {
-        Provision::System
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

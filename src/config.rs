@@ -1,31 +1,21 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum SandboxLevelPref {
+    #[default]
     Auto,
     Basic,
     Contained,
 }
 
-impl Default for SandboxLevelPref {
-    fn default() -> Self {
-        SandboxLevelPref::Auto
-    }
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum EditorType {
+    #[default]
     Auto,
     Terminal,
     Gui,
-}
-
-impl Default for EditorType {
-    fn default() -> Self {
-        EditorType::Auto
-    }
 }
 
 impl std::fmt::Display for EditorType {
@@ -77,8 +67,26 @@ impl Config {
         };
 
         match std::fs::read_to_string(&path) {
-            Ok(contents) => serde_yaml::from_str(&contents).unwrap_or_default(),
-            Err(_) => Config::default(),
+            Ok(contents) => match serde_yaml::from_str(&contents) {
+                Ok(config) => {
+                    log::debug!("Config loaded from {}", path.display());
+                    config
+                }
+                Err(e) => {
+                    eprintln!(
+                        "{} Failed to parse {}: {} — using defaults",
+                        crate::cli_fmt::yellow("Warning:"),
+                        path.display(),
+                        e
+                    );
+                    log::warn!("Config parse error: {}", e);
+                    Config::default()
+                }
+            },
+            Err(_) => {
+                log::debug!("No config file at {}, using defaults", path.display());
+                Config::default()
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-/// ANSI color helpers for CLI (non-TUI) output. Respects NO_COLOR.
+//! ANSI color helpers for CLI (non-TUI) output. Respects NO_COLOR.
 
 fn no_color() -> bool {
     std::env::var("NO_COLOR").is_ok()

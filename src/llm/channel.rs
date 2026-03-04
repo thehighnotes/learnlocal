@@ -4,6 +4,7 @@ use super::chat::ChatMessage;
 use super::context::LlmContext;
 
 /// Request sent from the main TUI thread to the LLM background thread.
+#[allow(clippy::large_enum_variant)]
 pub enum LlmRequest {
     Chat {
         context: LlmContext,

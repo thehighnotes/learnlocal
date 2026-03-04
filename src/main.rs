@@ -17,6 +17,17 @@ use cli::{Cli, Command};
 fn main() {
     let cli = Cli::parse();
 
+    // Initialize logger: --verbose enables Debug level, otherwise Warn only
+    env_logger::Builder::new()
+        .filter_level(if cli.verbose {
+            log::LevelFilter::Debug
+        } else {
+            log::LevelFilter::Warn
+        })
+        .format_target(false)
+        .format_timestamp(None)
+        .init();
+
     let code = match run(cli) {
         Ok(code) => code,
         Err(e) => {
@@ -31,6 +42,13 @@ fn main() {
 fn run(cli: Cli) -> anyhow::Result<i32> {
     let config = config::Config::load();
     let verbose = cli.verbose;
+
+    log::debug!("LearnLocal v{}", env!("CARGO_PKG_VERSION"));
+    log::debug!(
+        "Courses dir: {:?}, verbose: {}",
+        cli.courses_dir,
+        cli.verbose
+    );
 
     match cli.command {
         None => cmd_home(&cli.courses_dir, &config).map(|()| exit_codes::SUCCESS),
@@ -122,8 +140,15 @@ fn cmd_home(courses_dir: &Option<PathBuf>, config: &config::Config) -> anyhow::R
         }
     }
 
+    log::debug!(
+        "Discovered {} courses in {}",
+        course_infos.len(),
+        dir.display()
+    );
+
     let progress_store = state::ProgressStore::load()?;
     let sandbox_level = exec::sandbox::SandboxLevel::detect(&config.sandbox_level);
+    log::debug!("Sandbox level: {:?}", sandbox_level);
 
     let mut terminal = ui::terminal::setup()?;
     let mut app = ui::app::App::new(
@@ -199,6 +224,12 @@ fn cmd_start(
     }
 
     let c = course::load_course(&course_path)?;
+    log::debug!(
+        "Loaded course '{}' v{} ({} lessons)",
+        c.name,
+        c.version,
+        c.loaded_lessons.len()
+    );
 
     // Check platform requirement
     let platform_status = exec::toolcheck::check_platform(&c.platform);
@@ -485,6 +516,20 @@ fn cmd_reset(course_name: &str) -> anyhow::Result<()> {
     std::io::stdin().read_line(&mut input)?;
 
     if input.trim() == "yes" {
+        // Backup before destructive reset
+        match store.backup() {
+            Ok(true) => println!(
+                "{} Progress backed up to progress.json.bak",
+                cli_fmt::green("\u{2713}")
+            ),
+            Ok(false) => {} // No file to back up
+            Err(e) => eprintln!(
+                "{} Could not create backup: {}",
+                cli_fmt::yellow("Warning:"),
+                e
+            ),
+        }
+
         for key in &keys_to_remove {
             store.data.courses.remove(key);
         }

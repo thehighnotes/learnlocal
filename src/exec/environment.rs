@@ -332,6 +332,7 @@ fn spawn_stream_reader<R: std::io::Read + Send + 'static>(
 ///   the regex, or times out after `ready_timeout_seconds`. Controlled by `ready_stream`
 ///   ("stdout", "stderr", or "both"; default "both").
 /// - **Delay mode** (no pattern): sleeps `ready_delay_ms`, then checks the process hasn't crashed.
+///
 /// Wait for a background service to become ready, returning join handles for reader threads.
 ///
 /// The returned handles must be joined after killing the service to ensure capture files are written.

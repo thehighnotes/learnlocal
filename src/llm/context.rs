@@ -48,6 +48,7 @@ pub struct CompletedExerciseSummary {
 }
 
 impl LlmContext {
+    #[allow(clippy::too_many_arguments)]
     pub fn assemble(
         course: &Course,
         lesson: &Lesson,

@@ -1,3 +1,4 @@
+#![allow(clippy::vec_init_then_push)]
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 
@@ -325,9 +326,8 @@ fn slide_core_loop(theme: &Theme) -> Vec<Line<'static>> {
         bold(&format!("┌{}┐", "─".repeat(bw)), green),
     ]));
     // READ content
-    for (label, color, _desc, rdesc, rcolor) in
-        [("  1. READ", blue, "                  ", "  2. EDIT", yellow)]
     {
+        let (label, color, rdesc, rcolor) = ("  1. READ", blue, "  2. EDIT", yellow);
         l.push(Line::from(vec![
             Span::raw("       ".to_string()),
             bold("│", cyan),

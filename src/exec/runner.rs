@@ -85,11 +85,9 @@ pub(crate) fn drain_service_pipes(
             let reader = std::io::BufReader::new(stdout);
             if let Some(path) = capture_path {
                 let mut content = String::new();
-                for line in reader.lines() {
-                    if let Ok(line) = line {
-                        content.push_str(&line);
-                        content.push('\n');
-                    }
+                for line in reader.lines().map_while(|l| l.ok()) {
+                    content.push_str(&line);
+                    content.push('\n');
                 }
                 let _ = std::fs::write(path, content);
             } else {
@@ -103,11 +101,9 @@ pub(crate) fn drain_service_pipes(
             let reader = std::io::BufReader::new(stderr);
             if let Some(path) = capture_path {
                 let mut content = String::new();
-                for line in reader.lines() {
-                    if let Ok(line) = line {
-                        content.push_str(&line);
-                        content.push('\n');
-                    }
+                for line in reader.lines().map_while(|l| l.ok()) {
+                    content.push_str(&line);
+                    content.push('\n');
                 }
                 let _ = std::fs::write(path, content);
             } else {
@@ -269,7 +265,7 @@ fn run_lifecycle(
             let needs_loopback = exercise
                 .environment
                 .as_ref()
-                .map_or(false, |env| !env.services.is_empty());
+                .is_some_and(|env| !env.services.is_empty());
 
             let script_path = format!("{}/{}", sandbox.dir().to_string_lossy(), main_file);
             let output = sandbox.run_command_with_loopback(
@@ -358,7 +354,7 @@ fn run_lifecycle(
                     let needs_loopback = exercise
                         .environment
                         .as_ref()
-                        .map_or(false, |env| !env.services.is_empty());
+                        .is_some_and(|env| !env.services.is_empty());
 
                     for step in &course.language.steps {
                         let command =

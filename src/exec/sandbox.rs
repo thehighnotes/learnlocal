@@ -8,23 +8,12 @@ use crate::config::SandboxLevelPref;
 use crate::course::types::ExecutionLimits;
 use crate::error::{LearnLocalError, Result};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct StepOutput {
     pub stdout: String,
     pub stderr: String,
     pub exit_code: i32,
     pub timed_out: bool,
-}
-
-impl Default for StepOutput {
-    fn default() -> Self {
-        Self {
-            stdout: String::new(),
-            stderr: String::new(),
-            exit_code: 0,
-            timed_out: false,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -198,6 +187,7 @@ impl Sandbox {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn run_command_inner(
         &self,
         command: &str,

@@ -97,21 +97,18 @@ impl ShellState {
 
     /// Navigate to the next command in history (Down arrow).
     pub fn history_next(&mut self) {
-        match self.history_nav_idx {
-            Some(idx) => {
-                if idx + 1 < self.history.len() {
-                    let new_idx = idx + 1;
-                    self.history_nav_idx = Some(new_idx);
-                    self.input = self.history[new_idx].command.clone();
-                    self.cursor_col = self.input.len();
-                } else {
-                    // Past end: restore saved input
-                    self.history_nav_idx = None;
-                    self.input = self.saved_input.clone();
-                    self.cursor_col = self.input.len();
-                }
+        if let Some(idx) = self.history_nav_idx {
+            if idx + 1 < self.history.len() {
+                let new_idx = idx + 1;
+                self.history_nav_idx = Some(new_idx);
+                self.input = self.history[new_idx].command.clone();
+                self.cursor_col = self.input.len();
+            } else {
+                // Past end: restore saved input
+                self.history_nav_idx = None;
+                self.input = self.saved_input.clone();
+                self.cursor_col = self.input.len();
             }
-            None => {} // Already at fresh input
         }
     }
 

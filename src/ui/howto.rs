@@ -1,3 +1,4 @@
+#![allow(clippy::vec_init_then_push)]
 use ratatui::style::Color;
 use ratatui::text::{Line, Span};
 
