@@ -101,6 +101,20 @@ fn write_crash_report(panic_info: &std::panic::PanicInfo<'_>) {
     }
 }
 
+/// Check that the terminal meets minimum size requirements.
+/// Returns Ok if size is sufficient or undetectable, Err with a message otherwise.
+pub fn check_minimum_size(min_cols: u16, min_rows: u16) -> std::result::Result<(), String> {
+    match crossterm::terminal::size() {
+        Ok((cols, rows)) if cols < min_cols || rows < min_rows => Err(format!(
+            "Terminal too small: {}x{} (minimum {}x{}).\n\
+             Please resize your terminal and try again.",
+            cols, rows, min_cols, min_rows
+        )),
+        Err(_) => Ok(()), // Can't detect = proceed (piped, etc.)
+        _ => Ok(()),
+    }
+}
+
 /// Restore the terminal to normal mode.
 pub fn restore_terminal() -> io::Result<()> {
     disable_raw_mode()?;

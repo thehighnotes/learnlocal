@@ -86,16 +86,18 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - **Sprint 2 — Front Door:** #4, #6-8, #27-28 (README, badges, Cargo.toml release profile, toolchain pin)
 - **Sprint 3 — CI/CD:** #14-20 (GitHub Actions: tests, clippy, fmt, MSRV, audit, dependabot)
 - **Sprint 4 — CLI Polish:** #29-37 (completions, --verbose, doctor, init, export, exit codes, man pages)
-- **Sprint 5 — Robustness:** #43-47, #30→44 tie-in (signal handling, logging, config warnings, crash reports, progress backup)
-- **Sprint 6 — Distribution:** #18, #21-26 (release builds, binaries, crates.io, install script, package managers)
-- **Sprint 7 — TUI & Accessibility:** #38-42 (high-contrast, terminal guard, mouse, responsive, theme config)
-- **Sprint 8 — Testing & Quality:** #48-53 (integration tests, fuzzing, benchmarks, snapshots, Go validation, Windows CI)
-- **Sprint 9 — Documentation:** #54-57 (course authoring guide, ARCHITECTURE link, rustdoc, FAQ)
-- **Sprint 10 — Community:** #58-65 (CONTRIBUTING, COC, SECURITY, CHANGELOG, issue/PR templates, discussions)
-- **Sprint 11 — Content:** #5, #66-69 (asciinema demo, quality bar docs, course template, catalog, --courses docs)
-- **Sprint 12 — Future-Proofing:** #70-75 (plugins, update checker, a11y statement, i18n prep, analytics)
+- **Sprint 5 — Robustness:** #43-47 (signal handling, logging, config warnings, crash reports, progress backup)
+- **Sprint 6 — TUI & Accessibility:** #38-42 (high-contrast, terminal guard, mouse, responsive, theme config)
+- **Sprint 7 — Editor Polish:** #76-81 (undo/redo, syntax highlighting, auto-indent, multi-file tabs, find, bracket matching)
+- **Sprint 8 — Content & Reveal:** #66-69, #82-84 (course template, catalog, progressive reveal refinements)
+- **Sprint 9 — Stats & Engagement:** #85-89 (drill-down stats, streaks, exercise difficulty tags, daily goals)
+- **Deferred — Distribution:** #5, #21-26 (asciinema demo, binaries, crates.io, install script, package managers)
+- **Deferred — Testing & Quality:** #48-53 (integration tests, fuzzing, benchmarks, snapshots, Go validation, Windows CI)
+- **Deferred — Documentation:** #54-57 (course authoring guide, ARCHITECTURE link, rustdoc, FAQ)
+- **Deferred — Community:** #58-65 (CONTRIBUTING, COC, SECURITY, CHANGELOG, issue/PR templates, discussions)
+- **Deferred — Future-Proofing:** #70-75 (plugins, update checker, a11y statement, i18n prep, analytics)
 
-**Current sprint:** Sprint 6 — Distribution
+**Current sprint:** Sprint 6 — TUI & Accessibility (pending review, Sprint 7 next)
 
 ## Public Release Checklist
 
@@ -106,7 +108,6 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 
 ### First Impressions
 - [x] 4. README.md — pitch, screenshots (ui1.png/ui2.png exist), install instructions, feature list, course catalog
-- [ ] 5. Asciinema/GIF demo recording of completing an exercise
 - [x] 6. Badge row — license badge (CI/crate/MSRV badges deferred to Sprint 3/6)
 - [x] 7. "Why this exists" positioning — offline, zero-config, no browser, no cloud, no sign-up
 - [x] 8. Comparison table vs Exercism, Codecademy, Rustlings, vimtutor
@@ -128,6 +129,7 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - [x] 20. `cargo audit` in CI for known CVEs
 
 ### Distribution & Installation
+- [ ] 5. Asciinema/GIF demo recording of completing an exercise
 - [ ] 21. Pre-built binaries on GitHub Releases (Linux x86_64/aarch64, macOS x86_64/aarch64, Windows x86_64)
 - [ ] 22. `cargo install learnlocal` — publish to crates.io
 - [ ] 23. Install script — `curl -sSf ... | sh` one-liner
@@ -149,11 +151,11 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - [x] 37. Man page generation via `clap_mangen`
 
 ### TUI & Accessibility
-- [ ] 38. High-contrast theme option
-- [ ] 39. Terminal size guard — graceful message if < 80x24
-- [ ] 40. Optional mouse support in menus
-- [ ] 41. Responsive layout testing at 80x24, 120x40, 200x60
-- [ ] 42. Theme customization in `config.yaml`
+- [x] 38. High-contrast theme option
+- [x] 39. Terminal size guard — graceful message if < 80x24
+- [x] 40. Optional mouse support in menus
+- [x] 41. Responsive layout testing at 80x24, 120x40, 200x60
+- [x] 42. Theme customization in `config.yaml`
 
 ### Robustness & Safety
 - [x] 43. Signal handling via `signal-hook` for SIGTERM/SIGINT/SIGHUP — clean terminal restoration
@@ -191,6 +193,26 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - [ ] 67. Starter course template in `courses/template/`
 - [ ] 68. Machine-readable course index/catalog
 - [ ] 69. Document `--courses` flag for third-party course directories
+
+### Editor Polish
+- [ ] 76. Undo/redo in inline editor (Ctrl+Z / Ctrl+Shift+Z)
+- [ ] 77. Syntax highlighting via `syntect` (reuse theme colors, language from course)
+- [ ] 78. Auto-indent on newline (match previous line's indentation)
+- [ ] 79. Multi-file tab bar in inline editor (switch with Tab/Shift+Tab)
+- [ ] 80. Find in file (Ctrl+F, match highlighting, Enter for next)
+- [ ] 81. Bracket matching — highlight matching `{}`, `[]`, `()`
+
+### Content & Reveal Refinements
+- [ ] 82. Progressive reveal reverse-navigation (Shift+Space to go back)
+- [ ] 83. Section counter in lesson view ("Section 3 of 7 revealed")
+- [ ] 84. Staged hint reveal UI — show hint count, cumulative display, visual progression
+
+### Stats & Engagement
+- [ ] 85. Stats drill-down — per-lesson and per-exercise detail (time, attempts, hints)
+- [ ] 86. Streak tracking — current/longest streak, displayed on home screen
+- [ ] 87. Exercise difficulty tags — optional `difficulty: 1-5` field in exercise YAML, UI badges
+- [ ] 88. Daily goal indicator — "Today: 0/3 exercises" on home screen (non-blocking)
+- [ ] 89. Time trend sparklines — ASCII time-per-exercise trend in stats view
 
 ### Future-Proofing (Post-Launch)
 - [ ] 70. Plugin/extension system for custom validators and step types

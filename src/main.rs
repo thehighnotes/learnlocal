@@ -150,6 +150,10 @@ fn cmd_home(courses_dir: &Option<PathBuf>, config: &config::Config) -> anyhow::R
     let sandbox_level = exec::sandbox::SandboxLevel::detect(&config.sandbox_level);
     log::debug!("Sandbox level: {:?}", sandbox_level);
 
+    if let Err(msg) = ui::terminal::check_minimum_size(80, 24) {
+        anyhow::bail!(msg);
+    }
+
     let mut terminal = ui::terminal::setup()?;
     let mut app = ui::app::App::new(
         course_infos,
@@ -297,6 +301,10 @@ fn cmd_start(
     if sandbox_level == exec::sandbox::SandboxLevel::Basic {
         eprintln!("Note: Running with basic sandboxing (timeout + tmpdir only).");
         eprintln!("      Install firejail or bubblewrap for stronger isolation.");
+    }
+
+    if let Err(msg) = ui::terminal::check_minimum_size(80, 24) {
+        anyhow::bail!(msg);
     }
 
     let mut terminal = ui::terminal::setup()?;

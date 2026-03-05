@@ -138,6 +138,7 @@ pub enum SettingsField {
     Editor,
     EditorType,
     SandboxLevel,
+    Theme,
     #[cfg(feature = "llm")]
     AiEnabled,
     #[cfg(feature = "llm")]
@@ -153,6 +154,7 @@ impl SettingsField {
             SettingsField::Editor,
             SettingsField::EditorType,
             SettingsField::SandboxLevel,
+            SettingsField::Theme,
         ];
         #[cfg(feature = "llm")]
         {
@@ -173,6 +175,7 @@ pub struct SettingsState {
     pub editor_value: String,
     pub editor_type_value: String,
     pub sandbox_value: String,
+    pub theme_value: String,
     #[cfg(feature = "llm")]
     pub ai_enabled: bool,
     #[cfg(feature = "llm")]
@@ -197,6 +200,7 @@ impl SettingsState {
             editor_value: String::new(),
             editor_type_value: "auto".to_string(),
             sandbox_value: "auto".to_string(),
+            theme_value: "default".to_string(),
             #[cfg(feature = "llm")]
             ai_enabled: false,
             #[cfg(feature = "llm")]
@@ -215,6 +219,23 @@ impl SettingsState {
     pub fn focused_field(&self) -> &SettingsField {
         &self.fields[self.focused_idx]
     }
+}
+
+/// Cached layout positions from the last render, used for mouse hit-testing.
+#[derive(Default)]
+pub struct LayoutCache {
+    /// Home left panel: (flat_idx, y_position) for each course row
+    pub home_course_ys: Vec<(usize, u16)>,
+    /// Home right panel: (lesson_idx, y_position) for each lesson row
+    pub home_lesson_ys: Vec<(usize, u16)>,
+    /// Home left panel area
+    pub home_left: ratatui::layout::Rect,
+    /// Home right panel area
+    pub home_right: ratatui::layout::Rect,
+    /// Settings field Y positions
+    pub settings_field_ys: Vec<u16>,
+    /// Progress lesson Y positions
+    pub progress_lesson_ys: Vec<u16>,
 }
 
 pub struct ProgressViewState {

@@ -344,7 +344,7 @@ pub fn course_complete_art(
     let cyan = if theme.no_color {
         Color::Reset
     } else {
-        Color::Cyan
+        theme.cursor
     };
     let body = if theme.no_color {
         Color::Reset
@@ -483,21 +483,21 @@ mod tests {
 
     #[test]
     fn test_exercise_success_art_has_content() {
-        let theme = Theme::new();
+        let theme = Theme::new(&crate::config::ThemePreset::Default);
         let lines = exercise_success_art(2, 7, &theme);
         assert!(!lines.is_empty());
     }
 
     #[test]
     fn test_lesson_complete_art_has_content() {
-        let theme = Theme::new();
+        let theme = Theme::new(&crate::config::ThemePreset::Default);
         let lines = lesson_complete_art("Variables and Types", 3, 8, &theme);
         assert!(!lines.is_empty());
     }
 
     #[test]
     fn test_course_complete_art_has_content() {
-        let theme = Theme::new();
+        let theme = Theme::new(&crate::config::ThemePreset::Default);
         let stats = CourseStats {
             total_exercises: 55,
             completed_exercises: 55,

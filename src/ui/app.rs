@@ -1,6 +1,6 @@
 use crossterm::event::{self, Event, KeyCode, KeyModifiers};
 use ratatui::layout::{Constraint, Direction, Layout};
-use ratatui::style::{Color, Modifier, Style};
+use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
 use std::collections::BTreeMap;
@@ -39,6 +39,7 @@ pub struct App {
     pub stats: StatsState,
     pub settings: SettingsState,
     pub progress_view: ProgressViewState,
+    pub layout_cache: LayoutCache,
     pub course_app: Option<CourseApp>,
     #[allow(dead_code)]
     pub courses_dir: PathBuf,
@@ -55,7 +56,7 @@ impl App {
         sandbox_level: SandboxLevel,
         courses_dir: PathBuf,
     ) -> Self {
-        let theme = Theme::new();
+        let theme = Theme::new(&config.theme);
         let mut home = HomeState::new();
         home.summaries = build_course_summaries(&courses, &progress_store);
         home.display_order = build_display_order(&home.summaries);
@@ -63,6 +64,7 @@ impl App {
         let mut settings = SettingsState::new();
         settings.editor_value = config.editor.clone().unwrap_or_default();
         settings.editor_type_value = config.editor_type.to_string();
+        settings.theme_value = config.theme.to_string();
         settings.sandbox_value = match config.sandbox_level {
             SandboxLevelPref::Auto => "auto".to_string(),
             SandboxLevelPref::Basic => "basic".to_string(),
@@ -89,6 +91,7 @@ impl App {
             stats: StatsState::new(),
             settings,
             progress_view: ProgressViewState::new(),
+            layout_cache: LayoutCache::default(),
             course_app: None,
             courses_dir,
             #[cfg(feature = "llm")]
@@ -105,7 +108,7 @@ impl App {
         start_lesson: Option<&str>,
         courses_dir: PathBuf,
     ) -> Self {
-        let theme = Theme::new();
+        let theme = Theme::new(&config.theme);
         let mut course_app = CourseApp::new(course, &progress_store, start_lesson, None);
         course_app.sandbox_level = sandbox_level;
 
@@ -123,6 +126,7 @@ impl App {
             stats: StatsState::new(),
             settings: SettingsState::new(),
             progress_view: ProgressViewState::new(),
+            layout_cache: LayoutCache::default(),
             course_app: Some(course_app),
             courses_dir,
             #[cfg(feature = "llm")]
@@ -222,17 +226,17 @@ impl App {
         let title_lines = vec![
             Line::from(Span::styled(
                 "  \u{2554}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2557}",
-                Style::default().fg(Color::Cyan),
+                Style::default().fg(self.theme.cursor),
             )),
             Line::from(Span::styled(
                 "  \u{2551}      L E A R N L O C A L      \u{2551}",
                 Style::default()
-                    .fg(Color::Cyan)
+                    .fg(self.theme.cursor)
                     .add_modifier(Modifier::BOLD),
             )),
             Line::from(Span::styled(
                 "  \u{255A}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{2550}\u{255D}",
-                Style::default().fg(Color::Cyan),
+                Style::default().fg(self.theme.cursor),
             )),
         ];
         let title_widget = Paragraph::new(title_lines);
@@ -272,24 +276,45 @@ impl App {
             let content = Paragraph::new(lines);
             frame.render_widget(content, outer[1]);
         } else {
-            // Two-panel split: 40% left, 60% right
-            let panels = Layout::default()
-                .direction(Direction::Horizontal)
-                .constraints([Constraint::Percentage(40), Constraint::Percentage(60)])
-                .split(outer[1]);
+            let total_width = outer[1].width;
+            if total_width < 100 {
+                // Narrow: single-panel, full-width course list
+                self.layout_cache.home_left = outer[1];
+                self.layout_cache.home_right = ratatui::layout::Rect::default();
+                self.render_home_left_panel(frame, outer[1]);
+            } else {
+                let constraints = if total_width >= 160 {
+                    // Wide: cap left panel at 60 cols
+                    [Constraint::Length(60), Constraint::Min(1)]
+                } else {
+                    // Normal: 40/60 split
+                    [Constraint::Percentage(40), Constraint::Percentage(60)]
+                };
+                let panels = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .constraints(constraints)
+                    .split(outer[1]);
 
-            self.render_home_left_panel(frame, panels[0]);
-            self.render_home_right_panel(frame, panels[1]);
+                self.layout_cache.home_left = panels[0];
+                self.layout_cache.home_right = panels[1];
+                self.render_home_left_panel(frame, panels[0]);
+                self.render_home_right_panel(frame, panels[1]);
+            }
         }
 
-        // Key bar — changes based on panel focus and startability
+        // Key bar — changes based on panel focus, startability, and width
         let startable = self.home.is_course_startable(self.home.flat_idx());
+        let narrow = outer[1].width < 100;
         let key_text = match self.home.focus {
             HomePanelFocus::CourseList => {
-                if startable {
+                if startable && !narrow {
                     " [Enter] Start  [\u{2192}] Lessons  [\u{2191}/\u{2193}] Navigate  [w] Tour  [h] How To  [t] Stats  [p] Progress  [s] Settings  [q] Quit"
-                } else {
+                } else if startable {
+                    " [Enter] Start  [\u{2191}/\u{2193}] Navigate  [w] Tour  [h] How To  [s] Settings  [q] Quit"
+                } else if !narrow {
                     " [\u{2192}] Lessons  [\u{2191}/\u{2193}] Navigate  [w] Tour  [h] How To  [t] Stats  [p] Progress  [s] Settings  [q] Quit"
+                } else {
+                    " [\u{2191}/\u{2193}] Navigate  [w] Tour  [h] How To  [s] Settings  [q] Quit"
                 }
             }
             HomePanelFocus::LessonList => {
@@ -301,14 +326,17 @@ impl App {
             }
         };
         let key_bar = Paragraph::new(Line::from(Span::styled(
-            key_text,
-            Style::default().fg(Color::Black).bg(Color::White),
+            truncate_key_bar(key_text, outer[2].width as usize),
+            Style::default()
+                .fg(self.theme.key_bar_fg)
+                .bg(self.theme.key_bar_bg),
         )));
         frame.render_widget(key_bar, outer[2]);
     }
 
     fn render_home_left_panel(&mut self, frame: &mut ratatui::Frame, area: ratatui::layout::Rect) {
         let mut left_lines: Vec<Line<'static>> = Vec::new();
+        self.layout_cache.home_course_ys.clear();
 
         // COURSES header
         left_lines.push(Line::from(Span::styled(
@@ -440,7 +468,7 @@ impl App {
             left_lines.push(Line::from(Span::styled(
                 format!("  {}", lang),
                 Style::default()
-                    .fg(Color::Yellow)
+                    .fg(self.theme.warning)
                     .add_modifier(Modifier::BOLD),
             )));
 
@@ -476,7 +504,7 @@ impl App {
                 let empty = bar_width - filled;
 
                 let name_style = if !startable {
-                    Style::default().fg(Color::DarkGray)
+                    Style::default().fg(self.theme.muted)
                 } else if selected {
                     Style::default()
                         .fg(self.theme.heading)
@@ -490,10 +518,13 @@ impl App {
                 let mut spans = vec![
                     Span::styled(format!("  {} ", cursor), name_style),
                     Span::styled(format!("{:<width$}", name, width = name_col), name_style),
-                    Span::styled("\u{2588}".repeat(filled), Style::default().fg(Color::Green)),
+                    Span::styled(
+                        "\u{2588}".repeat(filled),
+                        Style::default().fg(self.theme.progress_filled),
+                    ),
                     Span::styled(
                         "\u{2591}".repeat(empty),
-                        Style::default().fg(Color::DarkGray),
+                        Style::default().fg(self.theme.progress_empty),
                     ),
                     Span::styled(
                         format!(" {:>3}%", pct),
@@ -513,9 +544,9 @@ impl App {
                             .map(|ps| ps.supported)
                             .unwrap_or(true)
                     {
-                        Color::Red
+                        self.theme.error
                     } else {
-                        Color::Yellow
+                        self.theme.warning
                     };
                     spans.push(Span::styled(
                         issue_label.clone(),
@@ -523,6 +554,9 @@ impl App {
                     ));
                 }
 
+                self.layout_cache
+                    .home_course_ys
+                    .push((flat_idx, area.y + left_lines.len() as u16));
                 left_lines.push(Line::from(spans));
             }
 
@@ -530,8 +564,8 @@ impl App {
         }
 
         let border_color = match self.home.focus {
-            HomePanelFocus::CourseList => Color::Cyan,
-            HomePanelFocus::LessonList => Color::DarkGray,
+            HomePanelFocus::CourseList => self.theme.border_active,
+            HomePanelFocus::LessonList => self.theme.border_inactive,
         };
         let left_block = Block::default()
             .borders(Borders::RIGHT)
@@ -540,8 +574,9 @@ impl App {
         frame.render_widget(left, area);
     }
 
-    fn render_home_right_panel(&self, frame: &mut ratatui::Frame, area: ratatui::layout::Rect) {
+    fn render_home_right_panel(&mut self, frame: &mut ratatui::Frame, area: ratatui::layout::Rect) {
         let mut right_lines: Vec<Line<'static>> = Vec::new();
+        self.layout_cache.home_lesson_ys.clear();
 
         if let Some(summary) = self.home.summaries.get(self.home.flat_idx()) {
             let info = &summary.info;
@@ -623,9 +658,9 @@ impl App {
                     let total = summary.total_lessons;
                     let text = format!("In Progress ({}/{} lessons)", completed_lessons, total);
                     // We need to leak the string to get a 'static lifetime — ok for rendering
-                    (Box::leak(text.into_boxed_str()) as &str, Color::Yellow)
+                    (Box::leak(text.into_boxed_str()) as &str, self.theme.warning)
                 }
-                CourseStatus::Completed => ("Completed", Color::Green),
+                CourseStatus::Completed => ("Completed", self.theme.success),
             };
             right_lines.push(Line::from(Span::styled(
                 format!("  Status: {}", status_text.0),
@@ -640,12 +675,12 @@ impl App {
                         if status.found {
                             right_lines.push(Line::from(Span::styled(
                                 format!("  \u{2713} {} found", status.command),
-                                Style::default().fg(Color::Green),
+                                Style::default().fg(self.theme.success),
                             )));
                         } else {
                             right_lines.push(Line::from(Span::styled(
                                 format!("  \u{26a0} {} not found", status.command),
-                                Style::default().fg(Color::Yellow),
+                                Style::default().fg(self.theme.warning),
                             )));
                             if let Some(ref hint) = status.install_hint {
                                 right_lines.push(Line::from(Span::styled(
@@ -665,12 +700,12 @@ impl App {
                     if ps.supported {
                         right_lines.push(Line::from(Span::styled(
                             format!("  \u{2713} Platform: {} (current)", req),
-                            Style::default().fg(Color::Green),
+                            Style::default().fg(self.theme.success),
                         )));
                     } else {
                         right_lines.push(Line::from(Span::styled(
                             format!("  \u{2717} Requires {} (you are on {})", req, ps.current),
-                            Style::default().fg(Color::Red),
+                            Style::default().fg(self.theme.error),
                         )));
                     }
                 }
@@ -708,12 +743,12 @@ impl App {
                 let lesson_selected = lessons_focused && i == self.home.right_selected_idx;
 
                 let (icon, icon_color) = if lesson_selected {
-                    ("\u{25b6}", Color::Cyan)
+                    ("\u{25b6}", self.theme.cursor)
                 } else if is_complete {
-                    ("\u{2713}", Color::Green)
+                    ("\u{2713}", self.theme.success)
                 } else if !found_current {
                     found_current = true;
-                    ("\u{2022}", Color::Cyan) // bullet for current/next
+                    ("\u{2022}", self.theme.cursor) // bullet for current/next
                 } else {
                     (" ", self.theme.muted)
                 };
@@ -728,6 +763,9 @@ impl App {
                     Style::default().fg(self.theme.body_text)
                 };
 
+                self.layout_cache
+                    .home_lesson_ys
+                    .push((i, area.y + right_lines.len() as u16));
                 right_lines.push(Line::from(vec![
                     Span::styled(format!("  {} ", icon), Style::default().fg(icon_color)),
                     Span::styled(format!("{}. {}", i + 1, lesson_title), text_style),
@@ -759,8 +797,8 @@ impl App {
         let title_bar = Paragraph::new(Line::from(Span::styled(
             " LearnLocal | How To Use",
             Style::default()
-                .fg(Color::Black)
-                .bg(Color::Cyan)
+                .fg(self.theme.title_bar_fg)
+                .bg(self.theme.title_bar_bg)
                 .add_modifier(Modifier::BOLD),
         )));
         frame.render_widget(title_bar, chunks[0]);
@@ -816,8 +854,10 @@ impl App {
             slide_num, slide_total,
         );
         let key_bar = Paragraph::new(Line::from(Span::styled(
-            key_text,
-            Style::default().fg(Color::Black).bg(Color::White),
+            truncate_key_bar(&key_text, chunks[2].width as usize),
+            Style::default()
+                .fg(self.theme.key_bar_fg)
+                .bg(self.theme.key_bar_bg),
         )));
         frame.render_widget(key_bar, chunks[2]);
     }
@@ -862,8 +902,8 @@ impl App {
         let title_bar = Paragraph::new(Line::from(Span::styled(
             " LearnLocal | Welcome Tour",
             Style::default()
-                .fg(Color::Black)
-                .bg(Color::Cyan)
+                .fg(self.theme.title_bar_fg)
+                .bg(self.theme.title_bar_bg)
                 .add_modifier(Modifier::BOLD),
         )));
         frame.render_widget(title_bar, chunks[0]);
@@ -898,8 +938,10 @@ impl App {
             slide_num, slide_total,
         );
         let key_bar = Paragraph::new(Line::from(Span::styled(
-            key_text,
-            Style::default().fg(Color::Black).bg(Color::White),
+            truncate_key_bar(&key_text, chunks[2].width as usize),
+            Style::default()
+                .fg(self.theme.key_bar_fg)
+                .bg(self.theme.key_bar_bg),
         )));
         frame.render_widget(key_bar, chunks[2]);
     }
@@ -944,8 +986,8 @@ impl App {
         let title_bar = Paragraph::new(Line::from(Span::styled(
             " LearnLocal | Your Stats",
             Style::default()
-                .fg(Color::Black)
-                .bg(Color::Cyan)
+                .fg(self.theme.title_bar_fg)
+                .bg(self.theme.title_bar_bg)
                 .add_modifier(Modifier::BOLD),
         )));
         frame.render_widget(title_bar, chunks[0]);
@@ -1065,9 +1107,9 @@ impl App {
             };
 
             let status_color = if pc.completed {
-                Color::Green
+                self.theme.success
             } else if pc.exercises_done > 0 {
-                Color::Yellow
+                self.theme.warning
             } else {
                 muted
             };
@@ -1151,7 +1193,7 @@ impl App {
         // Scroll indicators
         if self.stats.content_height > viewport {
             let indicator_style = Style::default()
-                .fg(Color::Yellow)
+                .fg(self.theme.warning)
                 .add_modifier(Modifier::BOLD);
             if self.stats.scroll_offset > 0 {
                 let r = ratatui::layout::Rect::new(
@@ -1181,8 +1223,13 @@ impl App {
 
         // Key bar
         let key_bar = Paragraph::new(Line::from(Span::styled(
-            " [\u{2191}/\u{2193}] Scroll  [Esc] Back",
-            Style::default().fg(Color::Black).bg(Color::White),
+            truncate_key_bar(
+                " [\u{2191}/\u{2193}] Scroll  [Esc] Back",
+                chunks[2].width as usize,
+            ),
+            Style::default()
+                .fg(self.theme.key_bar_fg)
+                .bg(self.theme.key_bar_bg),
         )));
         frame.render_widget(key_bar, chunks[2]);
     }
@@ -1215,7 +1262,7 @@ impl App {
         }
     }
 
-    fn render_settings(&self, frame: &mut ratatui::Frame) {
+    fn render_settings(&mut self, frame: &mut ratatui::Frame) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
@@ -1229,8 +1276,8 @@ impl App {
         let title_bar = Paragraph::new(Line::from(Span::styled(
             " LearnLocal | Settings",
             Style::default()
-                .fg(ratatui::style::Color::Black)
-                .bg(ratatui::style::Color::Cyan)
+                .fg(self.theme.title_bar_fg)
+                .bg(self.theme.title_bar_bg)
                 .add_modifier(Modifier::BOLD),
         )));
         frame.render_widget(title_bar, chunks[0]);
@@ -1245,6 +1292,7 @@ impl App {
                 .add_modifier(Modifier::BOLD),
         )));
         lines.push(Line::from(""));
+        self.layout_cache.settings_field_ys.clear();
 
         for (i, field) in self.settings.fields.iter().enumerate() {
             let focused = i == self.settings.focused_idx;
@@ -1287,6 +1335,10 @@ impl App {
                     let val = format!("< {} >", self.settings.sandbox_value);
                     ("Sandbox Level", val)
                 }
+                SettingsField::Theme => {
+                    let val = format!("< {} >", self.settings.theme_value);
+                    ("Theme", val)
+                }
                 #[cfg(feature = "llm")]
                 SettingsField::AiEnabled => {
                     let val = if self.settings.ai_enabled {
@@ -1318,6 +1370,10 @@ impl App {
                 }
             };
 
+            // chunks[1].y is the content area origin; lines.len() is the current line index
+            self.layout_cache
+                .settings_field_ys
+                .push(chunks[1].y + lines.len() as u16);
             lines.push(Line::from(Span::styled(
                 format!("  {} {:<18} {}", cursor, label, value),
                 style,
@@ -1370,15 +1426,15 @@ impl App {
         };
 
         let key_bar = Paragraph::new(Line::from(Span::styled(
-            format!(" {}", keys),
+            truncate_key_bar(&format!(" {}", keys), chunks[2].width as usize),
             Style::default()
-                .fg(ratatui::style::Color::Black)
-                .bg(ratatui::style::Color::White),
+                .fg(self.theme.key_bar_fg)
+                .bg(self.theme.key_bar_bg),
         )));
         frame.render_widget(key_bar, chunks[2]);
     }
 
-    fn render_progress(&self, frame: &mut ratatui::Frame) {
+    fn render_progress(&mut self, frame: &mut ratatui::Frame) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
@@ -1401,8 +1457,8 @@ impl App {
         let title_bar = Paragraph::new(Line::from(Span::styled(
             format!(" LearnLocal | {} v{}", course.name, course.version),
             Style::default()
-                .fg(ratatui::style::Color::Black)
-                .bg(ratatui::style::Color::Cyan)
+                .fg(self.theme.title_bar_fg)
+                .bg(self.theme.title_bar_bg)
                 .add_modifier(Modifier::BOLD),
         )));
         frame.render_widget(title_bar, chunks[0]);
@@ -1465,6 +1521,7 @@ impl App {
             pct, completed_lessons, total_lessons, completed_exercises, total_exercises
         )));
         lines.push(Line::from(""));
+        self.layout_cache.progress_lesson_ys.clear();
 
         for (i, lesson) in course.loaded_lessons.iter().enumerate() {
             let total_ex = lesson.loaded_exercises.len();
@@ -1509,6 +1566,9 @@ impl App {
                 "  "
             };
 
+            self.layout_cache
+                .progress_lesson_ys
+                .push(chunks[1].y + lines.len() as u16);
             lines.push(Line::from(Span::styled(
                 format!(
                     "  {} {} {:02}. {:<24} {}/{} exercises{}",
@@ -1530,7 +1590,7 @@ impl App {
             lines.push(Line::from(Span::styled(
                 "  Reset all progress for this course? [y] Yes  [any] Cancel",
                 Style::default()
-                    .fg(Color::Yellow)
+                    .fg(self.theme.warning)
                     .add_modifier(Modifier::BOLD),
             )));
         }
@@ -1545,10 +1605,10 @@ impl App {
             " [Enter] Resume from here  [s] Sandbox  [r] Reset  [Esc] Back"
         };
         let key_bar = Paragraph::new(Line::from(Span::styled(
-            key_text,
+            truncate_key_bar(key_text, chunks[2].width as usize),
             Style::default()
-                .fg(ratatui::style::Color::Black)
-                .bg(ratatui::style::Color::White),
+                .fg(self.theme.key_bar_fg)
+                .bg(self.theme.key_bar_bg),
         )));
         frame.render_widget(key_bar, chunks[2]);
     }
@@ -1557,25 +1617,114 @@ impl App {
 
     fn handle_input(&mut self) -> Result<()> {
         if event::poll(Duration::from_millis(100))? {
-            if let Event::Key(key) = event::read()? {
-                // Global Ctrl+C
-                if key.code == KeyCode::Char('c') && key.modifiers.contains(KeyModifiers::CONTROL) {
-                    self.should_quit = true;
-                    return Ok(());
-                }
+            match event::read()? {
+                Event::Key(key) => {
+                    // Global Ctrl+C
+                    if key.code == KeyCode::Char('c')
+                        && key.modifiers.contains(KeyModifiers::CONTROL)
+                    {
+                        self.should_quit = true;
+                        return Ok(());
+                    }
 
-                match self.screen {
-                    Screen::Home => self.handle_home_input(key.code),
-                    Screen::HowTo => self.handle_howto_input(key.code),
-                    Screen::Tour => self.handle_tour_input(key.code),
-                    Screen::Stats => self.handle_stats_input(key.code),
-                    Screen::Settings => self.handle_settings_input(key.code),
-                    Screen::Progress => self.handle_progress_input(key.code)?,
-                    Screen::Course => self.handle_course_input(key)?,
+                    match self.screen {
+                        Screen::Home => self.handle_home_input(key.code),
+                        Screen::HowTo => self.handle_howto_input(key.code),
+                        Screen::Tour => self.handle_tour_input(key.code),
+                        Screen::Stats => self.handle_stats_input(key.code),
+                        Screen::Settings => self.handle_settings_input(key.code),
+                        Screen::Progress => self.handle_progress_input(key.code)?,
+                        Screen::Course => self.handle_course_input(key)?,
+                    }
                 }
+                Event::Mouse(mouse) => {
+                    self.handle_mouse(mouse);
+                }
+                _ => {}
             }
         }
         Ok(())
+    }
+
+    fn handle_mouse(&mut self, mouse: crossterm::event::MouseEvent) {
+        use crossterm::event::{MouseButton, MouseEventKind};
+
+        if mouse.kind != MouseEventKind::Down(MouseButton::Left) {
+            return;
+        }
+
+        let col = mouse.column;
+        let row = mouse.row;
+
+        match self.screen {
+            Screen::Home => {
+                // Click in left panel — select course
+                let left = self.layout_cache.home_left;
+                if col >= left.x
+                    && col < left.x + left.width
+                    && row >= left.y
+                    && row < left.y + left.height
+                {
+                    for &(flat_idx, y) in &self.layout_cache.home_course_ys {
+                        if row == y {
+                            if let Some(pos) = self
+                                .home
+                                .display_order
+                                .iter()
+                                .position(|&di| di == flat_idx)
+                            {
+                                self.home.selected_idx = pos;
+                                self.home.right_selected_idx = 0;
+                                self.home.focus = HomePanelFocus::CourseList;
+                            }
+                            break;
+                        }
+                    }
+                }
+                // Click in right panel — select lesson
+                let right = self.layout_cache.home_right;
+                if col >= right.x
+                    && col < right.x + right.width
+                    && row >= right.y
+                    && row < right.y + right.height
+                {
+                    for &(lesson_idx, y) in &self.layout_cache.home_lesson_ys {
+                        if row == y {
+                            self.home.right_selected_idx = lesson_idx;
+                            self.home.focus = HomePanelFocus::LessonList;
+                            break;
+                        }
+                    }
+                }
+            }
+            Screen::Settings => {
+                if self.settings.editing {
+                    return;
+                }
+                #[cfg(feature = "llm")]
+                if self.settings.model_picker_open {
+                    return;
+                }
+                for (i, &y) in self.layout_cache.settings_field_ys.iter().enumerate() {
+                    if row == y {
+                        self.settings.focused_idx = i;
+                        break;
+                    }
+                }
+            }
+            Screen::Progress => {
+                if self.progress_view.confirm_reset {
+                    return;
+                }
+                for (i, &y) in self.layout_cache.progress_lesson_ys.iter().enumerate() {
+                    if row == y {
+                        self.progress_view.selected_lesson_idx = i;
+                        break;
+                    }
+                }
+            }
+            _ => {} // Tour, HowTo, Stats, Course — keyboard-only
+        }
     }
 
     fn handle_home_input(&mut self, key: KeyCode) {
@@ -1595,7 +1744,8 @@ impl App {
                     }
                 }
                 KeyCode::Right | KeyCode::Char('l') => {
-                    if !self.home.summaries.is_empty() {
+                    // Only switch to lesson panel if it's visible (not narrow layout)
+                    if self.layout_cache.home_right.width > 0 && !self.home.summaries.is_empty() {
                         let idx = self.home.flat_idx();
                         if idx < self.home.summaries.len()
                             && !self.home.summaries[idx].info.lesson_ids.is_empty()
@@ -1939,7 +2089,9 @@ impl App {
                 self.toggle_settings_field(KeyCode::Right);
             }
             SettingsField::SandboxLevel => {
-                // Toggle instead of edit
+                self.toggle_settings_field(KeyCode::Right);
+            }
+            SettingsField::Theme => {
                 self.toggle_settings_field(KeyCode::Right);
             }
             #[cfg(feature = "llm")]
@@ -2007,6 +2159,19 @@ impl App {
                 };
                 self.settings.sandbox_value = levels[next].to_string();
             }
+            SettingsField::Theme => {
+                let themes = ["default", "high-contrast"];
+                let current = themes
+                    .iter()
+                    .position(|&t| t == self.settings.theme_value)
+                    .unwrap_or(0);
+                let next = match key {
+                    KeyCode::Right => (current + 1) % themes.len(),
+                    KeyCode::Left => (current + themes.len() - 1) % themes.len(),
+                    _ => current,
+                };
+                self.settings.theme_value = themes[next].to_string();
+            }
             #[cfg(feature = "llm")]
             SettingsField::AiEnabled => {
                 self.settings.ai_enabled = !self.settings.ai_enabled;
@@ -2064,6 +2229,12 @@ impl App {
             "contained" => SandboxLevelPref::Contained,
             _ => SandboxLevelPref::Auto,
         };
+        self.config.theme = match self.settings.theme_value.as_str() {
+            "high-contrast" => crate::config::ThemePreset::HighContrast,
+            _ => crate::config::ThemePreset::Default,
+        };
+        // Live-update theme without restart
+        self.theme = crate::ui::theme::Theme::new(&self.config.theme);
 
         #[cfg(feature = "llm")]
         {
@@ -2081,6 +2252,18 @@ impl App {
 
 /// Build display order: flat summaries indices grouped by language (BTreeMap order).
 /// This ensures arrow-key navigation matches the visual grouping on screen.
+/// Truncate key bar text to fit terminal width, adding "..." if truncated.
+fn truncate_key_bar(text: &str, max_width: usize) -> String {
+    if text.chars().count() <= max_width {
+        text.to_string()
+    } else if max_width > 3 {
+        let truncated: String = text.chars().take(max_width - 3).collect();
+        format!("{}...", truncated)
+    } else {
+        text.chars().take(max_width).collect()
+    }
+}
+
 fn build_display_order(summaries: &[CourseProgressSummary]) -> Vec<usize> {
     let mut groups: BTreeMap<String, Vec<usize>> = BTreeMap::new();
     for (i, s) in summaries.iter().enumerate() {

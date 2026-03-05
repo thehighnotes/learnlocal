@@ -297,9 +297,7 @@ impl CourseApp {
             self.render_help_overlay(frame, chunks[1], theme);
             let bar = Paragraph::new(Line::from(Span::styled(
                 " Press [?] or [Esc] to close help",
-                Style::default()
-                    .fg(ratatui::style::Color::Black)
-                    .bg(ratatui::style::Color::White),
+                Style::default().fg(theme.key_bar_fg).bg(theme.key_bar_bg),
             )));
             frame.render_widget(bar, chunks[2]);
         } else {
@@ -307,10 +305,10 @@ impl CourseApp {
         }
 
         // Render scroll indicators over the content area
-        self.render_scroll_indicators(frame, chunks[1]);
+        self.render_scroll_indicators(frame, chunks[1], theme);
     }
 
-    fn render_status_bar(&self, frame: &mut ratatui::Frame, area: Rect, _theme: &Theme) {
+    fn render_status_bar(&self, frame: &mut ratatui::Frame, area: Rect, theme: &Theme) {
         let lesson_info = self
             .current_lesson()
             .map(|l| l.title.clone())
@@ -364,8 +362,8 @@ impl CourseApp {
         let bar = Paragraph::new(Line::from(Span::styled(
             status,
             Style::default()
-                .fg(ratatui::style::Color::Black)
-                .bg(ratatui::style::Color::Cyan)
+                .fg(theme.title_bar_fg)
+                .bg(theme.title_bar_bg)
                 .add_modifier(Modifier::BOLD),
         )));
         frame.render_widget(bar, area);
@@ -391,13 +389,13 @@ impl CourseApp {
         frame.render_widget(paragraph, area);
     }
 
-    fn render_scroll_indicators(&self, frame: &mut ratatui::Frame, area: Rect) {
+    fn render_scroll_indicators(&self, frame: &mut ratatui::Frame, area: Rect, theme: &Theme) {
         if self.content_line_count <= area.height {
             return; // No overflow, nothing to show
         }
 
         let indicator_style = Style::default()
-            .fg(ratatui::style::Color::Yellow)
+            .fg(theme.warning)
             .add_modifier(Modifier::BOLD);
 
         // Show ▲ at top-right when scrolled down
@@ -527,7 +525,7 @@ impl CourseApp {
             lines.push(Line::from(Span::styled(
                 format!("  \u{25bc} Space to continue reading{}", dots),
                 Style::default()
-                    .fg(ratatui::style::Color::Yellow)
+                    .fg(theme.warning)
                     .add_modifier(Modifier::BOLD),
             )));
             lines.push(Line::from(""));
@@ -850,7 +848,7 @@ impl CourseApp {
         if modified {
             title_spans.push(Span::styled(
                 "  (modified)",
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(theme.warning),
             ));
         }
         lines.push(Line::from(title_spans));
@@ -858,11 +856,11 @@ impl CourseApp {
 
         let (type_str, type_color) = match exercise.exercise_type {
             ExerciseType::Write => ("[WRITE]", theme.success),
-            ExerciseType::Fix => ("[FIX]", Color::Yellow),
-            ExerciseType::FillBlank => ("[FILL BLANK]", Color::Cyan),
+            ExerciseType::Fix => ("[FIX]", theme.warning),
+            ExerciseType::FillBlank => ("[FILL BLANK]", theme.cursor),
             ExerciseType::MultipleChoice => ("[CHOICE]", Color::Magenta),
             ExerciseType::Predict => ("[PREDICT]", theme.prompt),
-            ExerciseType::Command => ("[COMMAND]", Color::Blue),
+            ExerciseType::Command => ("[COMMAND]", theme.prompt),
         };
         if exercise.golf {
             lines.push(Line::from(vec![
@@ -870,7 +868,7 @@ impl CourseApp {
                 Span::styled(
                     "  [GOLF]",
                     Style::default()
-                        .fg(Color::Green)
+                        .fg(theme.success)
                         .add_modifier(Modifier::BOLD),
                 ),
             ]));
@@ -920,7 +918,7 @@ impl CourseApp {
             // Determine if we're in inline edit mode for this file
             let is_editing = self.editing && self.inline_editor.is_some();
             let border_color = if is_editing || modified {
-                Color::Yellow
+                theme.warning
             } else {
                 theme.code_border
             };
@@ -969,10 +967,10 @@ impl CourseApp {
                         let is_cursor_line = i == editor.cursor_line;
                         let num_style = if is_cursor_line {
                             Style::default()
-                                .fg(Color::Yellow)
+                                .fg(theme.warning)
                                 .add_modifier(Modifier::BOLD)
                         } else {
-                            Style::default().fg(Color::DarkGray)
+                            Style::default().fg(theme.muted)
                         };
 
                         let prefix = format!("  \u{2502} {:3}  ", i + 1);
@@ -992,7 +990,7 @@ impl CourseApp {
                                 Span::styled(before, Style::default().fg(theme.code)),
                                 Span::styled(
                                     cursor_char,
-                                    Style::default().fg(Color::Black).bg(Color::White),
+                                    Style::default().fg(theme.key_bar_fg).bg(theme.key_bar_bg),
                                 ),
                                 Span::styled(after_padded, Style::default().fg(theme.code)),
                                 Span::styled("\u{2502}", Style::default().fg(border_color)),
@@ -1017,7 +1015,12 @@ impl CourseApp {
                     let status_fill = box_w.saturating_sub(2).saturating_sub(status.len());
                     lines.push(Line::from(vec![
                         Span::styled("  \u{2514}", Style::default().fg(border_color)),
-                        Span::styled(status, Style::default().fg(Color::Black).bg(Color::Cyan)),
+                        Span::styled(
+                            status,
+                            Style::default()
+                                .fg(theme.title_bar_fg)
+                                .bg(theme.title_bar_bg),
+                        ),
                         Span::styled(
                             "\u{2500}".repeat(status_fill),
                             Style::default().fg(border_color),
@@ -1093,7 +1096,7 @@ impl CourseApp {
 
     fn render_quickstart_banner(&self, frame: &mut ratatui::Frame, area: Rect, theme: &Theme) {
         let key_style = Style::default()
-            .fg(Color::Cyan)
+            .fg(theme.cursor)
             .add_modifier(Modifier::BOLD);
         let text_style = Style::default().fg(theme.body_text);
         let dim_style = Style::default().fg(theme.muted);
@@ -1128,7 +1131,7 @@ impl CourseApp {
                     .borders(Borders::ALL)
                     .title(" Quick Start ")
                     .title_alignment(Alignment::Left)
-                    .border_style(Style::default().fg(Color::Yellow)),
+                    .border_style(Style::default().fg(theme.warning)),
             )
             .wrap(Wrap { trim: false });
         frame.render_widget(banner, area);
@@ -1208,13 +1211,13 @@ impl CourseApp {
             lines.push(Line::from(Span::styled(
                 "  ⚠ Teardown warnings:",
                 Style::default()
-                    .fg(Color::Yellow)
+                    .fg(theme.warning)
                     .add_modifier(Modifier::BOLD),
             )));
             for warning in &self.teardown_warnings {
                 lines.push(Line::from(Span::styled(
                     format!("    {}", warning),
-                    Style::default().fg(Color::Yellow),
+                    Style::default().fg(theme.warning),
                 )));
             }
         }
@@ -1289,7 +1292,7 @@ impl CourseApp {
                     Span::styled(
                         format!("{} chars", student_chars),
                         Style::default()
-                            .fg(Color::Yellow)
+                            .fg(theme.warning)
                             .add_modifier(Modifier::BOLD),
                     ),
                 ];
@@ -1312,7 +1315,7 @@ impl CourseApp {
                         let over = student_chars - par;
                         score_spans.push(Span::styled(
                             format!("  (+{})", over),
-                            Style::default().fg(Color::Red),
+                            Style::default().fg(theme.error),
                         ));
                         lines.push(Line::from(score_spans));
                     }
@@ -1423,7 +1426,7 @@ impl CourseApp {
                 lines.push(Line::from(Span::styled(
                     "  Infrastructure error — this is a course setup problem, not your code",
                     Style::default()
-                        .fg(Color::Yellow)
+                        .fg(theme.warning)
                         .add_modifier(Modifier::BOLD),
                 )));
                 lines.push(Line::from(Span::styled(
@@ -1455,13 +1458,13 @@ impl CourseApp {
             lines.push(Line::from(Span::styled(
                 "  ⚠ Teardown warnings:",
                 Style::default()
-                    .fg(Color::Yellow)
+                    .fg(theme.warning)
                     .add_modifier(Modifier::BOLD),
             )));
             for warning in &self.teardown_warnings {
                 lines.push(Line::from(Span::styled(
                     format!("    {}", warning),
-                    Style::default().fg(Color::Yellow),
+                    Style::default().fg(theme.warning),
                 )));
             }
         }
@@ -1563,13 +1566,13 @@ impl CourseApp {
             Span::styled(
                 "  WATCH MODE  ",
                 Style::default()
-                    .fg(ratatui::style::Color::Black)
-                    .bg(Color::Yellow)
+                    .fg(theme.title_bar_fg)
+                    .bg(theme.warning)
                     .add_modifier(Modifier::BOLD),
             ),
             Span::styled(
                 format!("  Watching for changes{}", dots),
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(theme.warning),
             ),
         ]));
         lines.push(Line::from(""));
@@ -1745,17 +1748,13 @@ impl CourseApp {
 
         let mut spans = vec![Span::styled(
             format!(" {}", keys),
-            Style::default()
-                .fg(ratatui::style::Color::Black)
-                .bg(ratatui::style::Color::White),
+            Style::default().fg(theme.key_bar_fg).bg(theme.key_bar_bg),
         )];
 
         if let Some(tip_text) = tip {
             spans.push(Span::styled(
                 format!("  \u{2502} {}", tip_text),
-                Style::default()
-                    .fg(theme.muted)
-                    .bg(ratatui::style::Color::White),
+                Style::default().fg(theme.muted).bg(theme.key_bar_bg),
             ));
         }
 
@@ -1765,7 +1764,7 @@ impl CourseApp {
         if remaining > 0 {
             spans.push(Span::styled(
                 " ".repeat(remaining),
-                Style::default().bg(ratatui::style::Color::White),
+                Style::default().bg(theme.key_bar_bg),
             ));
         }
 
@@ -1776,7 +1775,7 @@ impl CourseApp {
     fn render_help_overlay(&self, frame: &mut ratatui::Frame, area: Rect, theme: &Theme) {
         use ratatui::widgets::Clear;
 
-        let key_style = Style::default().fg(Color::Cyan);
+        let key_style = Style::default().fg(theme.cursor);
         let desc_style = Style::default().fg(theme.muted);
 
         #[allow(unused_mut)]
@@ -2963,7 +2962,7 @@ impl CourseApp {
         )));
         lines.push(Line::from(Span::styled(
             "  [COMMAND]",
-            Style::default().fg(Color::Blue),
+            Style::default().fg(theme.prompt),
         )));
         lines.push(Line::from(""));
 
@@ -3029,7 +3028,7 @@ impl CourseApp {
                 } else {
                     lines.push(Line::from(Span::styled(
                         format!("  $ {}", entry.command),
-                        Style::default().fg(Color::Green),
+                        Style::default().fg(theme.success),
                     )));
                 }
                 // Stdout
@@ -3043,7 +3042,7 @@ impl CourseApp {
                 for err_line in entry.stderr.lines() {
                     lines.push(Line::from(Span::styled(
                         format!("  {}", err_line),
-                        Style::default().fg(Color::Yellow),
+                        Style::default().fg(theme.warning),
                     )));
                 }
                 // Annotations
@@ -3066,11 +3065,11 @@ impl CourseApp {
             let (before, cursor_char, after) =
                 crate::ui::inline_editor::split_at_cursor(&shell.input, shell.cursor_col);
             lines.push(Line::from(vec![
-                Span::styled("  $ ", Style::default().fg(Color::Green)),
+                Span::styled("  $ ", Style::default().fg(theme.success)),
                 Span::styled(before, Style::default().fg(theme.code)),
                 Span::styled(
                     cursor_char,
-                    Style::default().fg(Color::Black).bg(Color::White),
+                    Style::default().fg(theme.key_bar_fg).bg(theme.key_bar_bg),
                 ),
                 Span::styled(after, Style::default().fg(theme.code)),
             ]));
@@ -3099,7 +3098,7 @@ impl CourseApp {
             ];
             for (key, desc) in &help_items {
                 lines.push(Line::from(vec![
-                    Span::styled(format!("  {:14}", key), Style::default().fg(Color::Cyan)),
+                    Span::styled(format!("  {:14}", key), Style::default().fg(theme.cursor)),
                     Span::styled(*desc, Style::default().fg(theme.body_text)),
                 ]));
             }
@@ -3129,7 +3128,7 @@ impl CourseApp {
         // Scroll indicators
         if total > area.height {
             let indicator_style = Style::default()
-                .fg(ratatui::style::Color::Yellow)
+                .fg(theme.warning)
                 .add_modifier(Modifier::BOLD);
 
             if clamped_scroll > 0 {
@@ -3687,7 +3686,7 @@ impl CourseApp {
             for bl in &banner_lines {
                 lines.push(Line::from(Span::styled(
                     format!("  {}", bl),
-                    Style::default().fg(Color::Yellow),
+                    Style::default().fg(theme.warning),
                 )));
             }
 
@@ -3695,15 +3694,15 @@ impl CourseApp {
             if self.ai_enabled && self.ai_status == "ready" {
                 lines.push(Line::from(Span::styled(
                     "  │  Press [a] to ask the AI for ideas —".to_string(),
-                    Style::default().fg(Color::Yellow),
+                    Style::default().fg(theme.warning),
                 )));
                 lines.push(Line::from(Span::styled(
                     "  │  it knows the concepts from this lesson.".to_string(),
-                    Style::default().fg(Color::Yellow),
+                    Style::default().fg(theme.warning),
                 )));
                 lines.push(Line::from(Span::styled(
                     "  │".to_string(),
-                    Style::default().fg(Color::Yellow),
+                    Style::default().fg(theme.warning),
                 )));
             }
 
@@ -3713,7 +3712,7 @@ impl CourseApp {
             let bottom = format!("└{}┘", "─".repeat(border_width.saturating_sub(2)));
             lines.push(Line::from(Span::styled(
                 format!("  {}", bottom),
-                Style::default().fg(Color::Yellow),
+                Style::default().fg(theme.warning),
             )));
             lines.push(Line::from(""));
         }
@@ -3726,7 +3725,7 @@ impl CourseApp {
 
             let code_modified = self.sandbox_has_code();
             let border_color = if code_modified {
-                Color::Yellow
+                theme.warning
             } else {
                 theme.code_border
             };
@@ -4776,7 +4775,7 @@ impl CourseApp {
                     lines.push(Line::from(Span::styled(
                         "You: ".to_string(),
                         Style::default()
-                            .fg(ratatui::style::Color::Cyan)
+                            .fg(theme.cursor)
                             .add_modifier(Modifier::BOLD),
                     )));
                     for text_line in msg.content.lines() {
@@ -4790,7 +4789,7 @@ impl CourseApp {
                     lines.push(Line::from(Span::styled(
                         "AI: ".to_string(),
                         Style::default()
-                            .fg(ratatui::style::Color::Green)
+                            .fg(theme.success)
                             .add_modifier(Modifier::BOLD),
                     )));
                     let md_lines = markdown::render_markdown(&msg.content, theme);
@@ -4815,19 +4814,19 @@ impl CourseApp {
                     Span::styled(
                         "AI: ".to_string(),
                         Style::default()
-                            .fg(ratatui::style::Color::Green)
+                            .fg(theme.success)
                             .add_modifier(Modifier::BOLD),
                     ),
                     Span::styled(
                         format!("{} Thinking...", spinner),
-                        Style::default().fg(ratatui::style::Color::Yellow),
+                        Style::default().fg(theme.warning),
                     ),
                 ]));
             } else {
                 lines.push(Line::from(Span::styled(
                     "AI: ".to_string(),
                     Style::default()
-                        .fg(ratatui::style::Color::Green)
+                        .fg(theme.success)
                         .add_modifier(Modifier::BOLD),
                 )));
                 // Render streaming buffer with markdown too
@@ -4837,7 +4836,7 @@ impl CourseApp {
                 let dots = dots_frames[(epoch_ms / 400) % dots_frames.len()];
                 lines.push(Line::from(Span::styled(
                     format!("  {}", dots),
-                    Style::default().fg(ratatui::style::Color::DarkGray),
+                    Style::default().fg(theme.muted),
                 )));
             }
         }
@@ -4845,7 +4844,7 @@ impl CourseApp {
         if lines.is_empty() {
             lines.push(Line::from(Span::styled(
                 "  Type a message or use quick actions".to_string(),
-                Style::default().fg(ratatui::style::Color::DarkGray),
+                Style::default().fg(theme.muted),
             )));
         }
 
@@ -4855,9 +4854,9 @@ impl CourseApp {
                     .borders(Borders::ALL)
                     .title(format!(" AI Chat ({}) ", self.ai_status))
                     .border_style(Style::default().fg(if self.chat_visible {
-                        ratatui::style::Color::Cyan
+                        theme.border_active
                     } else {
-                        ratatui::style::Color::DarkGray
+                        theme.border_inactive
                     })),
             )
             .wrap(Wrap { trim: false })
@@ -4887,7 +4886,7 @@ impl CourseApp {
                 Block::default()
                     .borders(Borders::ALL)
                     .title(format!(" Input{} ", send_hint))
-                    .border_style(Style::default().fg(ratatui::style::Color::DarkGray)),
+                    .border_style(Style::default().fg(theme.border_inactive)),
             )
             .wrap(Wrap { trim: false });
         frame.render_widget(input_widget, chunks[1]);

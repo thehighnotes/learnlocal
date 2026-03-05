@@ -2,6 +2,23 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
+pub enum ThemePreset {
+    #[default]
+    Default,
+    HighContrast,
+}
+
+impl std::fmt::Display for ThemePreset {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ThemePreset::Default => write!(f, "default"),
+            ThemePreset::HighContrast => write!(f, "high-contrast"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "kebab-case")]
 pub enum SandboxLevelPref {
     #[default]
     Auto,
@@ -35,6 +52,8 @@ pub struct Config {
     pub sandbox_level: SandboxLevelPref,
     #[serde(default, alias = "editor-type")]
     pub editor_type: EditorType,
+    #[serde(default)]
+    pub theme: ThemePreset,
     #[cfg(feature = "llm")]
     #[serde(default)]
     pub llm: crate::llm::config::LlmConfig,
@@ -49,6 +68,7 @@ impl Default for Config {
             editor: None,
             sandbox_level: SandboxLevelPref::Auto,
             editor_type: EditorType::Auto,
+            theme: ThemePreset::Default,
             #[cfg(feature = "llm")]
             llm: crate::llm::config::LlmConfig::default(),
             #[cfg(not(feature = "llm"))]
@@ -188,5 +208,23 @@ editor: "vim"
 "#;
         let config: Config = serde_yaml::from_str(yaml).unwrap();
         assert_eq!(config.editor_type, EditorType::Auto);
+    }
+
+    #[test]
+    fn test_config_theme_high_contrast() {
+        let yaml = r#"
+theme: high-contrast
+"#;
+        let config: Config = serde_yaml::from_str(yaml).unwrap();
+        assert_eq!(config.theme, ThemePreset::HighContrast);
+    }
+
+    #[test]
+    fn test_config_theme_default_when_missing() {
+        let yaml = r#"
+editor: "vim"
+"#;
+        let config: Config = serde_yaml::from_str(yaml).unwrap();
+        assert_eq!(config.theme, ThemePreset::Default);
     }
 }
