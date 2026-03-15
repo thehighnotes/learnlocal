@@ -1,6 +1,6 @@
 [package]
 name = "learnlocal"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Offline terminal-based programming tutorial framework"
 authors = ["Mark Wind"]
