@@ -85,7 +85,11 @@ impl Sandbox {
     pub fn write_file(&self, name: &str, content: &str) -> Result<PathBuf> {
         let path = self.temp_dir.path().join(name);
         // Verify the resolved path is still within the sandbox
-        let canonical_base = self.temp_dir.path().canonicalize().unwrap_or_else(|_| self.temp_dir.path().to_path_buf());
+        let canonical_base = self
+            .temp_dir
+            .path()
+            .canonicalize()
+            .unwrap_or_else(|_| self.temp_dir.path().to_path_buf());
         // Create parent dirs if needed (for nested file structures)
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
@@ -99,7 +103,8 @@ impl Sandbox {
         });
         if !canonical_path.starts_with(&canonical_base) {
             return Err(LearnLocalError::Execution(format!(
-                "Path traversal blocked: '{}' escapes sandbox", name
+                "Path traversal blocked: '{}' escapes sandbox",
+                name
             )));
         }
         std::fs::write(&path, content)?;

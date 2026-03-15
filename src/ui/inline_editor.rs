@@ -107,7 +107,11 @@ impl InlineEditorState {
         let char_count = line.chars().count();
         let char_idx = line.char_indices().count().min(self.cursor_col);
         let char_idx = char_idx.min(char_count);
-        let byte_offset = line.char_indices().nth(char_idx).map(|(i, _)| i).unwrap_or(line.len());
+        let byte_offset = line
+            .char_indices()
+            .nth(char_idx)
+            .map(|(i, _)| i)
+            .unwrap_or(line.len());
         line.insert(byte_offset, c);
         self.cursor_col = char_idx + 1;
         self.dirty = true;
@@ -117,7 +121,11 @@ impl InlineEditorState {
         let line = &mut self.lines[self.cursor_line];
         let char_count = line.chars().count();
         let char_idx = self.cursor_col.min(char_count);
-        let byte_offset = line.char_indices().nth(char_idx).map(|(i, _)| i).unwrap_or(line.len());
+        let byte_offset = line
+            .char_indices()
+            .nth(char_idx)
+            .map(|(i, _)| i)
+            .unwrap_or(line.len());
         let rest = line[byte_offset..].to_string();
         line.truncate(byte_offset);
         self.lines.insert(self.cursor_line + 1, rest);
@@ -139,7 +147,11 @@ impl InlineEditorState {
             let char_count = line.chars().count();
             let char_idx = self.cursor_col.min(char_count);
             if char_idx > 0 {
-                let byte_offset = line.char_indices().nth(char_idx - 1).map(|(i, _)| i).unwrap_or(0);
+                let byte_offset = line
+                    .char_indices()
+                    .nth(char_idx - 1)
+                    .map(|(i, _)| i)
+                    .unwrap_or(0);
                 line.remove(byte_offset);
                 self.cursor_col = char_idx - 1;
                 self.dirty = true;
@@ -158,7 +170,11 @@ impl InlineEditorState {
         let line = &mut self.lines[self.cursor_line];
         let char_count = line.chars().count();
         if self.cursor_col < char_count {
-            let byte_offset = line.char_indices().nth(self.cursor_col).map(|(i, _)| i).unwrap_or(line.len());
+            let byte_offset = line
+                .char_indices()
+                .nth(self.cursor_col)
+                .map(|(i, _)| i)
+                .unwrap_or(line.len());
             line.remove(byte_offset);
             self.dirty = true;
         } else if self.cursor_line + 1 < self.lines.len() {
@@ -233,7 +249,11 @@ pub fn split_at_cursor(line: &str, col: usize) -> (String, String, String) {
         (line.to_string(), " ".to_string(), String::new())
     } else {
         let before: String = line.chars().take(col).collect();
-        let cursor_char: String = line.chars().nth(col).map(|c| c.to_string()).unwrap_or(" ".to_string());
+        let cursor_char: String = line
+            .chars()
+            .nth(col)
+            .map(|c| c.to_string())
+            .unwrap_or(" ".to_string());
         let after: String = line.chars().skip(col + 1).collect();
         (before, cursor_char, after)
     }

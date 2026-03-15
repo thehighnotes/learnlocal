@@ -116,7 +116,12 @@ impl ShellState {
     pub fn insert_char(&mut self, c: char) {
         let char_count = self.input.chars().count();
         let char_idx = self.cursor_col.min(char_count);
-        let byte_offset = self.input.char_indices().nth(char_idx).map(|(i, _)| i).unwrap_or(self.input.len());
+        let byte_offset = self
+            .input
+            .char_indices()
+            .nth(char_idx)
+            .map(|(i, _)| i)
+            .unwrap_or(self.input.len());
         self.input.insert(byte_offset, c);
         self.cursor_col = char_idx + 1;
         // Any edit breaks history navigation
@@ -127,7 +132,12 @@ impl ShellState {
     pub fn backspace(&mut self) {
         if self.cursor_col > 0 {
             let char_idx = self.cursor_col - 1;
-            let byte_offset = self.input.char_indices().nth(char_idx).map(|(i, _)| i).unwrap_or(0);
+            let byte_offset = self
+                .input
+                .char_indices()
+                .nth(char_idx)
+                .map(|(i, _)| i)
+                .unwrap_or(0);
             self.input.remove(byte_offset);
             self.cursor_col = char_idx;
         }
@@ -137,7 +147,12 @@ impl ShellState {
     pub fn delete_char(&mut self) {
         let char_count = self.input.chars().count();
         if self.cursor_col < char_count {
-            let byte_offset = self.input.char_indices().nth(self.cursor_col).map(|(i, _)| i).unwrap_or(self.input.len());
+            let byte_offset = self
+                .input
+                .char_indices()
+                .nth(self.cursor_col)
+                .map(|(i, _)| i)
+                .unwrap_or(self.input.len());
             self.input.remove(byte_offset);
         }
     }

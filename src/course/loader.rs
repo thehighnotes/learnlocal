@@ -91,14 +91,16 @@ fn collect_env_commands(path: &Path, course: &Course) -> Vec<String> {
                     for ex_id in &lesson.exercises {
                         // Try directory format first, then flat file format
                         let ex_yaml = exercises_dir.join(ex_id).join("exercise.yaml");
-                        let ex_contents = std::fs::read_to_string(&ex_yaml)
-                            .or_else(|_| {
-                                // Try flat file: exercises/NN-id.yaml or exercises/id.yaml
-                                find_exercise_file(&exercises_dir, ex_id)
-                                    .ok()
-                                    .and_then(|p| std::fs::read_to_string(p).ok())
-                                    .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, "not found"))
-                            });
+                        let ex_contents = std::fs::read_to_string(&ex_yaml).or_else(|_| {
+                            // Try flat file: exercises/NN-id.yaml or exercises/id.yaml
+                            find_exercise_file(&exercises_dir, ex_id)
+                                .ok()
+                                .and_then(|p| std::fs::read_to_string(p).ok())
+                                .ok_or(std::io::Error::new(
+                                    std::io::ErrorKind::NotFound,
+                                    "not found",
+                                ))
+                        });
                         if let Ok(ex_contents) = ex_contents {
                             if let Ok(exercise) = serde_yaml::from_str::<Exercise>(&ex_contents) {
                                 if let Some(ref env) = exercise.environment {

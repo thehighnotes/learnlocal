@@ -2060,7 +2060,8 @@ impl CourseApp {
                     return Ok(CourseAction::Continue);
                 }
                 KeyCode::End => {
-                    self.scroll_offset = self.content_line_count.saturating_sub(self.viewport_height);
+                    self.scroll_offset =
+                        self.content_line_count.saturating_sub(self.viewport_height);
                     return Ok(CourseAction::Continue);
                 }
                 _ => {}
@@ -3163,9 +3164,9 @@ impl CourseApp {
     fn run_exercise(&mut self, sandbox_level: SandboxLevel) -> Result<()> {
         self.state = AppState::Executing;
 
-        let exercise = self.current_exercise().ok_or_else(|| {
-            LearnLocalError::Execution("No current exercise to run".to_string())
-        })?;
+        let exercise = self
+            .current_exercise()
+            .ok_or_else(|| LearnLocalError::Execution("No current exercise to run".to_string()))?;
         let mut output = runner::run_exercise_with_sandbox(
             &self.course,
             exercise,

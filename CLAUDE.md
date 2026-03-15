@@ -27,6 +27,13 @@ src/
 courses/            # Course packs (YAML + MD)
 ```
 
+## Pre-Push Checklist
+
+Before any push to remote, always run:
+- `cargo fmt --all -- --check` (CI will reject unformatted code)
+- `cargo clippy --all-targets -- -D warnings`
+- `cargo clippy --all-targets --features llm -- -D warnings`
+
 ## Conventions
 
 - Course format schemas are defined in the spec (Section 3). Don't deviate without updating the spec.

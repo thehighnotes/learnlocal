@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Updated README with problem/solution framing, numbered quick start, prerequisites table, keyboard shortcuts, troubleshooting guide, and course authoring section
+- Applied `cargo fmt` to fix formatting diffs caught by CI lint (loader.rs, sandbox.rs, course_app.rs, inline_editor.rs)
+- Added explicit `permissions` block to security audit CI job to fix Dependabot PR check failures
+- Added pre-push checklist to CLAUDE.md (fmt, clippy) to prevent future CI lint failures
 
 ## [0.1.0] - 2026-03-14
 
