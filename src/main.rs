@@ -984,6 +984,14 @@ hints:
     Ok(())
 }
 
+fn csv_escape(field: &str) -> String {
+    if field.contains(',') || field.contains('"') || field.contains('\n') {
+        format!("\"{}\"", field.replace('"', "\"\""))
+    } else {
+        field.to_string()
+    }
+}
+
 fn cmd_export(course_filter: Option<&str>, format: &str) -> anyhow::Result<()> {
     let store = state::ProgressStore::load()?;
 
@@ -1024,12 +1032,12 @@ fn cmd_export(course_filter: Option<&str>, format: &str) -> anyhow::Result<()> {
                             .unwrap_or(&cp.last_activity);
                         println!(
                             "{},{},{},{},{},{}",
-                            course_key,
-                            lesson_id,
-                            exercise_id,
+                            csv_escape(course_key),
+                            csv_escape(lesson_id),
+                            csv_escape(exercise_id),
                             status,
                             ep.attempts.len(),
-                            last
+                            csv_escape(last)
                         );
                     }
                 }

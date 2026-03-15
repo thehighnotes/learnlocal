@@ -93,7 +93,7 @@ impl InlineEditorState {
             KeyCode::Down => self.move_down(),
             KeyCode::Home => self.cursor_col = 0,
             KeyCode::End => {
-                self.cursor_col = self.lines[self.cursor_line].len();
+                self.cursor_col = self.lines[self.cursor_line].chars().count();
             }
             _ => {}
         }
@@ -103,21 +103,23 @@ impl InlineEditorState {
 
     fn insert_char(&mut self, c: char) {
         let line = &mut self.lines[self.cursor_line];
-        if self.cursor_col > line.len() {
-            self.cursor_col = line.len();
-        }
-        line.insert(self.cursor_col, c);
-        self.cursor_col += 1;
+        // Convert byte-col to char index, clamp, then back to byte offset
+        let char_count = line.chars().count();
+        let char_idx = line.char_indices().count().min(self.cursor_col);
+        let char_idx = char_idx.min(char_count);
+        let byte_offset = line.char_indices().nth(char_idx).map(|(i, _)| i).unwrap_or(line.len());
+        line.insert(byte_offset, c);
+        self.cursor_col = char_idx + 1;
         self.dirty = true;
     }
 
     fn insert_newline(&mut self) {
         let line = &mut self.lines[self.cursor_line];
-        if self.cursor_col > line.len() {
-            self.cursor_col = line.len();
-        }
-        let rest = line[self.cursor_col..].to_string();
-        line.truncate(self.cursor_col);
+        let char_count = line.chars().count();
+        let char_idx = self.cursor_col.min(char_count);
+        let byte_offset = line.char_indices().nth(char_idx).map(|(i, _)| i).unwrap_or(line.len());
+        let rest = line[byte_offset..].to_string();
+        line.truncate(byte_offset);
         self.lines.insert(self.cursor_line + 1, rest);
         self.cursor_line += 1;
         self.cursor_col = 0;
@@ -134,18 +136,18 @@ impl InlineEditorState {
     fn backspace(&mut self) {
         if self.cursor_col > 0 {
             let line = &mut self.lines[self.cursor_line];
-            if self.cursor_col > line.len() {
-                self.cursor_col = line.len();
-            }
-            if self.cursor_col > 0 {
-                line.remove(self.cursor_col - 1);
-                self.cursor_col -= 1;
+            let char_count = line.chars().count();
+            let char_idx = self.cursor_col.min(char_count);
+            if char_idx > 0 {
+                let byte_offset = line.char_indices().nth(char_idx - 1).map(|(i, _)| i).unwrap_or(0);
+                line.remove(byte_offset);
+                self.cursor_col = char_idx - 1;
                 self.dirty = true;
             }
         } else if self.cursor_line > 0 {
             let current_line = self.lines.remove(self.cursor_line);
             self.cursor_line -= 1;
-            self.cursor_col = self.lines[self.cursor_line].len();
+            self.cursor_col = self.lines[self.cursor_line].chars().count();
             self.lines[self.cursor_line].push_str(&current_line);
             self.dirty = true;
             self.ensure_visible();
@@ -153,9 +155,11 @@ impl InlineEditorState {
     }
 
     fn delete(&mut self) {
-        let line_len = self.lines[self.cursor_line].len();
-        if self.cursor_col < line_len {
-            self.lines[self.cursor_line].remove(self.cursor_col);
+        let line = &mut self.lines[self.cursor_line];
+        let char_count = line.chars().count();
+        if self.cursor_col < char_count {
+            let byte_offset = line.char_indices().nth(self.cursor_col).map(|(i, _)| i).unwrap_or(line.len());
+            line.remove(byte_offset);
             self.dirty = true;
         } else if self.cursor_line + 1 < self.lines.len() {
             let next_line = self.lines.remove(self.cursor_line + 1);
@@ -169,14 +173,14 @@ impl InlineEditorState {
             self.cursor_col -= 1;
         } else if self.cursor_line > 0 {
             self.cursor_line -= 1;
-            self.cursor_col = self.lines[self.cursor_line].len();
+            self.cursor_col = self.lines[self.cursor_line].chars().count();
             self.ensure_visible();
         }
     }
 
     fn move_right(&mut self) {
-        let line_len = self.lines[self.cursor_line].len();
-        if self.cursor_col < line_len {
+        let char_count = self.lines[self.cursor_line].chars().count();
+        if self.cursor_col < char_count {
             self.cursor_col += 1;
         } else if self.cursor_line + 1 < self.lines.len() {
             self.cursor_line += 1;
@@ -202,9 +206,9 @@ impl InlineEditorState {
     }
 
     fn clamp_cursor_col(&mut self) {
-        let line_len = self.lines[self.cursor_line].len();
-        if self.cursor_col > line_len {
-            self.cursor_col = line_len;
+        let char_count = self.lines[self.cursor_line].chars().count();
+        if self.cursor_col > char_count {
+            self.cursor_col = char_count;
         }
     }
 
@@ -221,15 +225,16 @@ impl InlineEditorState {
     }
 }
 
-/// Split a line at the cursor position, returning (before, cursor_char, after).
+/// Split a line at the cursor position (char index), returning (before, cursor_char, after).
 /// If cursor is past end of line, cursor_char is a space.
 pub fn split_at_cursor(line: &str, col: usize) -> (String, String, String) {
-    if col >= line.len() {
+    let char_count = line.chars().count();
+    if col >= char_count {
         (line.to_string(), " ".to_string(), String::new())
     } else {
-        let before = line[..col].to_string();
-        let cursor_char = line[col..col + 1].to_string();
-        let after = line[col + 1..].to_string();
+        let before: String = line.chars().take(col).collect();
+        let cursor_char: String = line.chars().nth(col).map(|c| c.to_string()).unwrap_or(" ".to_string());
+        let after: String = line.chars().skip(col + 1).collect();
         (before, cursor_char, after)
     }
 }

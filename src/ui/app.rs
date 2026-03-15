@@ -152,6 +152,9 @@ impl App {
         while !self.should_quit {
             // Check for termination signals (SIGTERM/SIGINT/SIGHUP)
             if crate::ui::terminal::signal_received() {
+                if let Some(ref ca) = self.course_app {
+                    ca.save_draft_to_disk();
+                }
                 break;
             }
 
@@ -1623,6 +1626,9 @@ impl App {
                     if key.code == KeyCode::Char('c')
                         && key.modifiers.contains(KeyModifiers::CONTROL)
                     {
+                        if let Some(ref ca) = self.course_app {
+                            ca.save_draft_to_disk();
+                        }
                         self.should_quit = true;
                         return Ok(());
                     }
@@ -2042,6 +2048,12 @@ impl App {
 
         match crate::course::load_course(&source_dir) {
             Ok(course) => {
+                // Shut down any existing LLM thread before starting a new course
+                #[cfg(feature = "llm")]
+                if let Some(ref mut old_ca) = self.course_app {
+                    old_ca.shutdown_llm();
+                }
+
                 let mut ca = CourseApp::new(course, &self.progress_store, None, lesson_idx);
                 ca.sandbox_level = self.sandbox_level;
 

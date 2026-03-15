@@ -83,13 +83,13 @@ impl ShellState {
                 let idx = cmd_count - 1;
                 self.history_nav_idx = Some(idx);
                 self.input = self.history[idx].command.clone();
-                self.cursor_col = self.input.len();
+                self.cursor_col = self.input.chars().count();
             }
             Some(idx) if idx > 0 => {
                 let new_idx = idx - 1;
                 self.history_nav_idx = Some(new_idx);
                 self.input = self.history[new_idx].command.clone();
-                self.cursor_col = self.input.len();
+                self.cursor_col = self.input.chars().count();
             }
             _ => {} // Already at oldest
         }
@@ -102,24 +102,23 @@ impl ShellState {
                 let new_idx = idx + 1;
                 self.history_nav_idx = Some(new_idx);
                 self.input = self.history[new_idx].command.clone();
-                self.cursor_col = self.input.len();
+                self.cursor_col = self.input.chars().count();
             } else {
                 // Past end: restore saved input
                 self.history_nav_idx = None;
                 self.input = self.saved_input.clone();
-                self.cursor_col = self.input.len();
+                self.cursor_col = self.input.chars().count();
             }
         }
     }
 
     /// Insert a character at the cursor position.
     pub fn insert_char(&mut self, c: char) {
-        if self.cursor_col >= self.input.len() {
-            self.input.push(c);
-        } else {
-            self.input.insert(self.cursor_col, c);
-        }
-        self.cursor_col += 1;
+        let char_count = self.input.chars().count();
+        let char_idx = self.cursor_col.min(char_count);
+        let byte_offset = self.input.char_indices().nth(char_idx).map(|(i, _)| i).unwrap_or(self.input.len());
+        self.input.insert(byte_offset, c);
+        self.cursor_col = char_idx + 1;
         // Any edit breaks history navigation
         self.history_nav_idx = None;
     }
@@ -127,17 +126,19 @@ impl ShellState {
     /// Delete the character before the cursor (Backspace).
     pub fn backspace(&mut self) {
         if self.cursor_col > 0 {
-            self.cursor_col -= 1;
-            if self.cursor_col < self.input.len() {
-                self.input.remove(self.cursor_col);
-            }
+            let char_idx = self.cursor_col - 1;
+            let byte_offset = self.input.char_indices().nth(char_idx).map(|(i, _)| i).unwrap_or(0);
+            self.input.remove(byte_offset);
+            self.cursor_col = char_idx;
         }
     }
 
     /// Delete the character at the cursor (Delete key).
     pub fn delete_char(&mut self) {
-        if self.cursor_col < self.input.len() {
-            self.input.remove(self.cursor_col);
+        let char_count = self.input.chars().count();
+        if self.cursor_col < char_count {
+            let byte_offset = self.input.char_indices().nth(self.cursor_col).map(|(i, _)| i).unwrap_or(self.input.len());
+            self.input.remove(byte_offset);
         }
     }
 
@@ -150,7 +151,8 @@ impl ShellState {
 
     /// Move cursor right.
     pub fn move_right(&mut self) {
-        if self.cursor_col < self.input.len() {
+        let char_count = self.input.chars().count();
+        if self.cursor_col < char_count {
             self.cursor_col += 1;
         }
     }

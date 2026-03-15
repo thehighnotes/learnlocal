@@ -9,7 +9,7 @@ use crate::config::Config;
 use crate::course::types::{
     Course, EnvironmentSpec, Exercise, ExerciseFile, ExerciseType, StateAssertion, ValidationMethod,
 };
-use crate::error::Result;
+use crate::error::{LearnLocalError, Result};
 use crate::exec::environment;
 use crate::exec::runner::{self, ExecutionResult};
 use crate::exec::sandbox::{Sandbox, SandboxLevel};
@@ -376,7 +376,7 @@ impl CourseApp {
         area: Rect,
         lines: Vec<Line<'static>>,
     ) {
-        self.content_line_count = lines.len() as u16;
+        self.content_line_count = lines.len().min(u16::MAX as usize) as u16;
         // Clamp scroll offset so we don't scroll past content
         let max_scroll = self.content_line_count.saturating_sub(area.height);
         if self.scroll_offset > max_scroll {
@@ -792,8 +792,9 @@ impl CourseApp {
             StateAssertion::FileNotExists(p) => format!("{} does not exist", p),
             StateAssertion::DirNotExists(p) => format!("{}/ does not exist", p),
             StateAssertion::FileContains(c) => {
-                let preview = if c.content.len() > 30 {
-                    format!("{}...", &c.content[..27])
+                let preview = if c.content.chars().count() > 30 {
+                    let truncated: String = c.content.chars().take(27).collect();
+                    format!("{}...", truncated)
                 } else {
                     c.content.clone()
                 };
@@ -801,8 +802,9 @@ impl CourseApp {
             }
             StateAssertion::FileMatches(c) => format!("{} matches /{}/", c.path, c.pattern),
             StateAssertion::FileEquals(c) => {
-                let preview = if c.content.len() > 30 {
-                    format!("{}...", &c.content[..27])
+                let preview = if c.content.chars().count() > 30 {
+                    let truncated: String = c.content.chars().take(27).collect();
+                    format!("{}...", truncated)
                 } else {
                     c.content.clone()
                 };
@@ -2058,7 +2060,7 @@ impl CourseApp {
                     return Ok(CourseAction::Continue);
                 }
                 KeyCode::End => {
-                    self.scroll_offset = self.content_line_count;
+                    self.scroll_offset = self.content_line_count.saturating_sub(self.viewport_height);
                     return Ok(CourseAction::Continue);
                 }
                 _ => {}
@@ -3161,9 +3163,12 @@ impl CourseApp {
     fn run_exercise(&mut self, sandbox_level: SandboxLevel) -> Result<()> {
         self.state = AppState::Executing;
 
+        let exercise = self.current_exercise().ok_or_else(|| {
+            LearnLocalError::Execution("No current exercise to run".to_string())
+        })?;
         let mut output = runner::run_exercise_with_sandbox(
             &self.course,
-            self.current_exercise().unwrap(),
+            exercise,
             &self.session.current_code,
             sandbox_level,
         )?;
@@ -3244,9 +3249,12 @@ impl CourseApp {
     ) -> Result<()> {
         self.state = AppState::Executing;
 
+        let exercise = self.current_exercise().ok_or_else(|| {
+            LearnLocalError::Execution("No current exercise to submit".to_string())
+        })?;
         let (result, teardown_warnings) = runner::execute_exercise_with_sandbox(
             &self.course,
-            self.current_exercise().unwrap(),
+            exercise,
             &self.session.current_code,
             sandbox_level,
         )?;
@@ -3510,7 +3518,11 @@ impl CourseApp {
             if self.shell_state.is_some() {
                 self.exit_shell_mode();
             }
-            let _ = self.enter_shell_mode(self.sandbox_level);
+            if let Err(e) = self.enter_shell_mode(self.sandbox_level) {
+                log::error!("Failed to enter shell mode: {}", e);
+                self.last_error = Some(format!("Shell mode failed: {}", e));
+                self.state = AppState::ExercisePrompt;
+            }
         } else {
             self.state = AppState::ExercisePrompt;
         }
@@ -4230,9 +4242,13 @@ impl CourseApp {
             }
         } else {
             // Exercise watch: run with exercise validation
+            let exercise = match self.current_exercise() {
+                Some(ex) => ex,
+                None => return,
+            };
             if let Ok(output) = runner::run_exercise_with_sandbox(
                 &self.course,
-                self.current_exercise().unwrap(),
+                exercise,
                 &self.session.current_code,
                 sandbox_level,
             ) {
@@ -4429,7 +4445,9 @@ impl CourseApp {
             exercise_progress.attempts.push(attempt.clone());
         }
 
-        let _ = progress_store.save();
+        if let Err(e) = progress_store.save() {
+            log::error!("Failed to save progress: {}", e);
+        }
     }
 
     fn mark_exercise_completed(&self, progress_store: &mut ProgressStore) {
@@ -4444,7 +4462,9 @@ impl CourseApp {
             }
         }
 
-        let _ = progress_store.save();
+        if let Err(e) = progress_store.save() {
+            log::error!("Failed to save progress: {}", e);
+        }
         self.clear_current_draft();
     }
 
@@ -4475,7 +4495,9 @@ impl CourseApp {
             exercise_progress.status = ProgressStatus::Skipped;
         }
 
-        let _ = progress_store.save();
+        if let Err(e) = progress_store.save() {
+            log::error!("Failed to save progress: {}", e);
+        }
     }
 
     fn mark_lesson_completed(&self, progress_store: &mut ProgressStore) {
@@ -4489,7 +4511,9 @@ impl CourseApp {
             }
         }
 
-        let _ = progress_store.save();
+        if let Err(e) = progress_store.save() {
+            log::error!("Failed to save progress: {}", e);
+        }
     }
 
     // --- LLM integration methods ---

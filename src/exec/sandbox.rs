@@ -84,9 +84,23 @@ impl Sandbox {
 
     pub fn write_file(&self, name: &str, content: &str) -> Result<PathBuf> {
         let path = self.temp_dir.path().join(name);
+        // Verify the resolved path is still within the sandbox
+        let canonical_base = self.temp_dir.path().canonicalize().unwrap_or_else(|_| self.temp_dir.path().to_path_buf());
         // Create parent dirs if needed (for nested file structures)
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
+        }
+        let canonical_path = path.canonicalize().unwrap_or_else(|_| {
+            // File doesn't exist yet, canonicalize parent and append filename
+            path.parent()
+                .and_then(|p| p.canonicalize().ok())
+                .map(|p| p.join(path.file_name().unwrap_or_default()))
+                .unwrap_or_else(|| path.clone())
+        });
+        if !canonical_path.starts_with(&canonical_base) {
+            return Err(LearnLocalError::Execution(format!(
+                "Path traversal blocked: '{}' escapes sandbox", name
+            )));
         }
         std::fs::write(&path, content)?;
         Ok(path)
@@ -237,18 +251,30 @@ impl Sandbox {
 
         let timed_out = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
         let timed_out_flag = timed_out.clone();
+        let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let cancel_flag = cancel.clone();
         let timer = std::thread::spawn(move || {
-            std::thread::sleep(timeout);
-            timed_out_flag.store(true, std::sync::atomic::Ordering::SeqCst);
-            let _ = Command::new("kill")
-                .args(["-9", &child_id.to_string()])
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status();
+            // Sleep in small increments so we can check cancellation
+            let deadline = std::time::Instant::now() + timeout;
+            while std::time::Instant::now() < deadline {
+                if cancel_flag.load(std::sync::atomic::Ordering::SeqCst) {
+                    return; // Process finished normally, don't kill anything
+                }
+                std::thread::sleep(Duration::from_millis(50));
+            }
+            if !cancel_flag.load(std::sync::atomic::Ordering::SeqCst) {
+                timed_out_flag.store(true, std::sync::atomic::Ordering::SeqCst);
+                let _ = Command::new("kill")
+                    .args(["-9", &child_id.to_string()])
+                    .stdout(Stdio::null())
+                    .stderr(Stdio::null())
+                    .status();
+            }
         });
 
         match child.wait_with_output() {
             Ok(output) => {
+                cancel.store(true, std::sync::atomic::Ordering::SeqCst);
                 drop(timer);
 
                 let stdout = truncate_output(

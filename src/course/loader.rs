@@ -89,8 +89,17 @@ fn collect_env_commands(path: &Path, course: &Course) -> Vec<String> {
                 if let Ok(lesson) = serde_yaml::from_str::<Lesson>(&contents) {
                     let exercises_dir = lesson_dir.join("exercises");
                     for ex_id in &lesson.exercises {
+                        // Try directory format first, then flat file format
                         let ex_yaml = exercises_dir.join(ex_id).join("exercise.yaml");
-                        if let Ok(ex_contents) = std::fs::read_to_string(&ex_yaml) {
+                        let ex_contents = std::fs::read_to_string(&ex_yaml)
+                            .or_else(|_| {
+                                // Try flat file: exercises/NN-id.yaml or exercises/id.yaml
+                                find_exercise_file(&exercises_dir, ex_id)
+                                    .ok()
+                                    .and_then(|p| std::fs::read_to_string(p).ok())
+                                    .ok_or(std::io::Error::new(std::io::ErrorKind::NotFound, "not found"))
+                            });
+                        if let Ok(ex_contents) = ex_contents {
                             if let Ok(exercise) = serde_yaml::from_str::<Exercise>(&ex_contents) {
                                 if let Some(ref env) = exercise.environment {
                                     for c in crate::exec::toolcheck::extract_env_commands(env) {
@@ -189,9 +198,10 @@ fn find_lesson_dir(lessons_dir: &Path, lesson_id: &str) -> Result<std::path::Pat
     if let Ok(entries) = std::fs::read_dir(lessons_dir) {
         for entry in entries.flatten() {
             let name = entry.file_name().to_string_lossy().to_string();
-            // Match "NN-id" pattern
-            if let Some(suffix) = name.split_once('-').map(|(_, s)| s) {
-                if suffix == lesson_id {
+            // Strip leading numeric prefix segments (e.g., "01-" or "01-02-")
+            // and check if the remainder matches the lesson ID
+            if let Some((prefix, suffix)) = name.split_once('-') {
+                if prefix.chars().all(|c| c.is_ascii_digit()) && suffix == lesson_id {
                     return Ok(entry.path());
                 }
             }
