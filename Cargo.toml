@@ -39,7 +39,7 @@ signal-hook = "0.3"
 llm = ["tokio", "reqwest", "tokio-stream"]
 
 [dependencies.tokio]
-version = "1.0"
+version = "1.50"
 features = ["rt", "net", "time", "io-util", "macros", "sync"]
 optional = true
 
