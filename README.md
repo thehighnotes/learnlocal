@@ -217,9 +217,9 @@ Issues and pull requests are welcome. When reporting bugs, please include:
 
 ## Part of the AIquest Research Lab
 
-LearnLocal is part of the [AIquest](https://aiquest.info) research ecosystem — tools for learning, inference, and AI research that respect your privacy and work offline.
+LearnLocal is part of the [AIquest](https://www.aiquest.info) research ecosystem — tools for learning, inference, and AI research that respect your privacy and work offline.
 
-Explore all projects at [aiquest.info/research](https://aiquest.info/research).
+Explore all projects at [aiquest.info/research](https://www.aiquest.info/research).
 
 ## License
 
