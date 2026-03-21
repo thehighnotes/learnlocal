@@ -505,6 +505,17 @@ fn format_execution_result(result: &ExecutionResult) -> String {
             service_name, error
         ),
         ExecutionResult::Error(msg) => format!("Error: {}", msg),
+        ExecutionResult::StageComplete {
+            stage_id,
+            stage_idx,
+            is_final,
+        } => {
+            if *is_final {
+                format!("All stages complete (final: stage {} '{}')", stage_idx + 1, stage_id)
+            } else {
+                format!("Stage {} '{}' complete — next stage ready", stage_idx + 1, stage_id)
+            }
+        }
     }
 }
 
@@ -564,6 +575,7 @@ mod tests {
                     explanation: None,
                     environment: None,
                     golf: false,
+                    stages: vec![],
                 }],
                 content_markdown: "# Variables\nLearn about vars.".to_string(),
                 content_sections: vec![],

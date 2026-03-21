@@ -1,3 +1,4 @@
+mod author;
 mod cli;
 mod cli_fmt;
 mod config;
@@ -12,7 +13,7 @@ mod ui;
 use clap::{CommandFactory, Parser};
 use std::path::{Path, PathBuf};
 
-use cli::{Cli, Command};
+use cli::{AuthorCommand, Cli, Command};
 
 fn main() {
     let cli = Cli::parse();
@@ -74,6 +75,7 @@ fn run(cli: Cli) -> anyhow::Result<i32> {
         Some(Command::Export { course, format }) => {
             cmd_export(course.as_deref(), &format).map(|()| exit_codes::SUCCESS)
         }
+        Some(Command::Author { subcommand }) => cmd_author(subcommand, verbose),
     }
 }
 
@@ -1049,4 +1051,25 @@ fn cmd_export(course_filter: Option<&str>, format: &str) -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+fn cmd_author(subcommand: AuthorCommand, verbose: bool) -> anyhow::Result<i32> {
+    match subcommand {
+        AuthorCommand::RunSolution {
+            path,
+            lesson,
+            exercise,
+            update,
+        } => author::run_solution(&path, &lesson, &exercise, update, verbose)
+            .map(|()| exit_codes::SUCCESS),
+        AuthorCommand::RunAllSolutions { path, update } => {
+            author::run_all_solutions(&path, update, verbose)
+        }
+        #[cfg(feature = "author")]
+        AuthorCommand::Design {
+            path,
+            port,
+            no_open,
+        } => author::server::start(path.as_deref(), port, no_open).map(|()| exit_codes::SUCCESS),
+    }
 }

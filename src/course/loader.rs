@@ -189,7 +189,7 @@ fn load_lesson(lessons_dir: &Path, lesson_id: &str, extension: &str) -> Result<L
     Ok(lesson)
 }
 
-fn find_lesson_dir(lessons_dir: &Path, lesson_id: &str) -> Result<std::path::PathBuf> {
+pub(crate) fn find_lesson_dir(lessons_dir: &Path, lesson_id: &str) -> Result<std::path::PathBuf> {
     // Try exact match first
     let exact = lessons_dir.join(lesson_id);
     if exact.exists() {
@@ -296,7 +296,10 @@ pub fn split_display_sections(markdown: &str) -> Vec<String> {
     sections
 }
 
-fn find_exercise_file(exercises_dir: &Path, exercise_id: &str) -> Result<std::path::PathBuf> {
+pub(crate) fn find_exercise_file(
+    exercises_dir: &Path,
+    exercise_id: &str,
+) -> Result<std::path::PathBuf> {
     // Try "id.yaml"
     let direct = exercises_dir.join(format!("{}.yaml", exercise_id));
     if direct.exists() {

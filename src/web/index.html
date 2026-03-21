@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnLocal Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5/css/xterm.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0/lib/addon-fit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top bar -->
+    <header id="header">
+        <div class="header-left">
+            <span class="logo">LearnLocal Studio</span>
+            <span class="sep"></span>
+            <nav id="breadcrumb" class="breadcrumb"></nav>
+        </div>
+        <div class="header-right">
+            <span id="status" class="status-pill">Ready</span>
+            <button id="btn-validate" class="hdr-btn" title="Validate course">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+            </button>
+            <button id="btn-help" class="hdr-btn" title="Help" onclick="toggleHelp()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </button>
+            <button id="btn-ai" class="hdr-btn" title="AI Assistant" onclick="toggleAI()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 014 4v1h1a3 3 0 013 3v1a3 3 0 01-3 3h-1v4a2 2 0 01-2 2h-4a2 2 0 01-2-2v-4H7a3 3 0 01-3-3v-1a3 3 0 013-3h1V6a4 4 0 014-4z"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>
+            </button>
+            <button id="btn-preview-toggle" class="hdr-btn" title="Toggle terminal preview">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <div id="shell">
+        <!-- Left nav rail -->
+        <nav id="rail">
+            <button class="rail-btn active" data-view="course" title="Course">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                <span>Course</span>
+            </button>
+            <button class="rail-btn" data-view="lesson" title="Lesson" id="rail-lesson" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Lesson</span>
+            </button>
+            <button class="rail-btn" data-view="exercise" title="Exercise" id="rail-exercise" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>Exercise</span>
+            </button>
+            <div class="rail-spacer"></div>
+            <button class="rail-btn" data-view="preview" title="Preview" id="rail-preview">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                <span>Preview</span>
+            </button>
+        </nav>
+
+        <!-- Main content area -->
+        <main id="content">
+            <!-- Welcome view (no course loaded) -->
+            <div id="view-welcome" class="view active"></div>
+            <!-- Course view -->
+            <div id="view-course" class="view"></div>
+            <!-- Lesson view -->
+            <div id="view-lesson" class="view"></div>
+            <!-- Exercise view -->
+            <div id="view-exercise" class="view"></div>
+            <!-- Preview view -->
+            <div id="view-preview" class="view">
+                <div class="view-header">
+                    <h2>Terminal Preview</h2>
+                    <div class="view-actions">
+                        <button class="btn btn-sm" id="btn-preview-refresh">Refresh</button>
+                    </div>
+                </div>
+                <div id="terminal-container"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Help slide-out panel -->
+    <div id="help-panel" class="slide-panel">
+        <div class="slide-panel-header">
+            <span>Help</span>
+            <button class="btn btn-sm btn-ghost" onclick="toggleHelp()">✕</button>
+        </div>
+        <div id="help-content" class="slide-panel-body"></div>
+    </div>
+
+    <!-- AI Chat slide-out panel -->
+    <div id="ai-panel" class="slide-panel">
+        <div class="slide-panel-header">
+            <span>AI Assistant</span>
+            <button class="btn btn-sm btn-ghost" onclick="toggleAI()">✕</button>
+        </div>
+        <div id="ai-messages" class="slide-panel-body"></div>
+        <div class="ai-input-bar">
+            <input type="text" id="ai-input" placeholder="Ask about course authoring..." onkeydown="if(event.key==='Enter')sendAiMessage()">
+            <button class="btn btn-sm btn-primary" onclick="sendAiMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- Onboarding -->
+    <div id="onboarding-scrim" class="onboarding-scrim" style="display:none" onclick="endOnboarding()"></div>
+    <div id="onboarding" class="onboarding-overlay" style="display:none">
+        <div id="onboarding-card" class="onboarding-card no-arrow">
+            <div id="onboarding-content"></div>
+            <div class="onboarding-footer">
+                <span id="onboarding-step">1 / 5</span>
+                <div>
+                    <button class="btn btn-sm" onclick="endOnboarding()">Skip</button>
+                    <button class="btn btn-sm btn-primary" onclick="nextOnboarding()">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+    <script src="app.js"></script>
+</body>
+</html>

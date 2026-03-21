@@ -44,6 +44,13 @@ pub enum ExecutionResult {
         error: String,
     },
     Error(String),
+    /// A stage in a staged exercise was completed successfully.
+    StageComplete {
+        stage_id: String,
+        stage_idx: usize,
+        /// true if this was the final stage (exercise is done)
+        is_final: bool,
+    },
 }
 
 /// RAII guard that kills all background service processes on drop.
@@ -62,7 +69,9 @@ impl ExecutionResult {
     pub fn is_success(&self) -> bool {
         matches!(
             self,
-            ExecutionResult::Success | ExecutionResult::CompileSuccess
+            ExecutionResult::Success
+                | ExecutionResult::CompileSuccess
+                | ExecutionResult::StageComplete { .. }
         )
     }
 }
@@ -574,6 +583,135 @@ pub fn execute_exercise(
     user_files: &[ExerciseFile],
 ) -> Result<(ExecutionResult, Vec<String>)> {
     execute_exercise_with_sandbox(course, exercise, user_files, SandboxLevel::Basic)
+}
+
+/// Execute a staged exercise at a specific stage index.
+/// Runs the same lifecycle but validates against the stage's validation config.
+/// Returns `StageComplete` on success instead of `Success`.
+pub fn execute_exercise_staged(
+    course: &Course,
+    exercise: &Exercise,
+    user_files: &[ExerciseFile],
+    stage_idx: usize,
+    sandbox_level: SandboxLevel,
+) -> Result<(ExecutionResult, Vec<String>)> {
+    let stage = match exercise.stages.get(stage_idx) {
+        Some(s) => s,
+        None => {
+            return Ok((
+                ExecutionResult::Error(format!("Stage index {} out of bounds", stage_idx)),
+                vec![],
+            ))
+        }
+    };
+
+    let sandbox = Sandbox::new(&course.language.limits, sandbox_level)?;
+
+    match run_lifecycle(course, exercise, user_files, &sandbox)? {
+        Ok(output) => {
+            let teardown_warnings = output.teardown_warnings;
+            let validation = &stage.validation;
+
+            if validation.method == ValidationMethod::State {
+                if let Some(ref assertions) = validation.assertions {
+                    let results = environment::validate_state(sandbox.dir(), assertions);
+                    let all_passed = results.iter().all(|r| r.passed);
+
+                    if !all_passed {
+                        return Ok((
+                            ExecutionResult::ValidationFailed(
+                                ValidationResult::StateAssertionFailed { results },
+                            ),
+                            teardown_warnings,
+                        ));
+                    }
+
+                    if validation.expected_output.is_some() {
+                        let output_result =
+                            validate::validate_output(validation, &output.last_output);
+                        if !output_result.is_success() {
+                            return Ok((
+                                ExecutionResult::ValidationFailed(output_result),
+                                teardown_warnings,
+                            ));
+                        }
+                    }
+
+                    let is_final = stage_idx + 1 >= exercise.stages.len();
+                    return Ok((
+                        ExecutionResult::StageComplete {
+                            stage_id: stage.id.clone(),
+                            stage_idx,
+                            is_final,
+                        },
+                        teardown_warnings,
+                    ));
+                }
+            }
+
+            let validation_result = validate::validate_output(validation, &output.last_output);
+
+            if validation_result.is_success() {
+                let is_final = stage_idx + 1 >= exercise.stages.len();
+                Ok((
+                    ExecutionResult::StageComplete {
+                        stage_id: stage.id.clone(),
+                        stage_idx,
+                        is_final,
+                    },
+                    teardown_warnings,
+                ))
+            } else {
+                Ok((
+                    ExecutionResult::ValidationFailed(validation_result),
+                    teardown_warnings,
+                ))
+            }
+        }
+        Err(LifecycleError::SetupFailed {
+            step_name,
+            stderr,
+            exit_code,
+            teardown_warnings,
+            ..
+        }) => Ok((
+            ExecutionResult::SetupFailed {
+                step_name,
+                stderr,
+                exit_code,
+            },
+            teardown_warnings,
+        )),
+        Err(LifecycleError::ServiceFailed {
+            service_name,
+            error,
+            teardown_warnings,
+        }) => Ok((
+            ExecutionResult::ServiceFailed {
+                service_name,
+                error,
+            },
+            teardown_warnings,
+        )),
+        Err(LifecycleError::StepFailed {
+            step_name,
+            stderr,
+            exit_code,
+            teardown_warnings,
+        }) => Ok((
+            ExecutionResult::StepFailed {
+                step_name,
+                stderr,
+                exit_code,
+            },
+            teardown_warnings,
+        )),
+        Err(LifecycleError::Timeout {
+            step_name,
+            teardown_warnings,
+            ..
+        }) => Ok((ExecutionResult::Timeout { step_name }, teardown_warnings)),
+    }
 }
 
 pub fn execute_exercise_with_sandbox(

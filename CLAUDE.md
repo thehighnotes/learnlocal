@@ -50,6 +50,18 @@ Before any push to remote, always run:
 - Dynamic ports: `ports: N` allocates ephemeral ports, injected as `LEARNLOCAL_PORT_0..N` env vars.
 - `course.yaml` can set `platform: linux|macos|windows` to restrict which OS can run the course.
 
+## Staged Exercises
+
+- `stages:` array on Exercise YAML — each stage has its own `validation`, `hints`, `solution`, `explanation`.
+- `stages` defaults to empty vec (`#[serde(default)]`) — fully backward compatible.
+- Student code carries forward between stages. No `starter` in stages.
+- Progress tracks `current_stage: Option<usize>` and `completed_stages: Vec<String>` on ExerciseProgress.
+- Draft paths for staged exercises: `~/.local/share/learnlocal/drafts/{course}@{major}/{lesson}/{exercise}/stage-{idx}/`
+- Exercise completion requires ALL stages to pass.
+- `execute_exercise_staged()` in runner validates against the current stage's validation config.
+- TUI: `AppState::StageComplete` intermediate screen between stages, breadcrumb trail in exercise prompt.
+- Validator: stage IDs must be unique, each stage must have hints + solution + valid validation.
+
 ## Testing
 
 - `learnlocal validate <course-dir>` must work in Phase 1. Course authors depend on it.
@@ -104,7 +116,9 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 - **Deferred — Community:** #58-65 (CONTRIBUTING, COC, SECURITY, CHANGELOG, issue/PR templates, discussions)
 - **Deferred — Future-Proofing:** #70-75 (plugins, update checker, a11y statement, i18n prep, analytics)
 
-**Current sprint:** Sprint 6 — TUI & Accessibility (pending review, Sprint 7 next)
+- **Sprint 10 — Course Designer, Staged Exercises & Community:** Design doc at `docs/design/sprint-10-author-and-stages.md`. Three features: staged exercises (done Phase 1+2), course designer (web GUI), community platform. Seven implementation phases.
+
+**Current sprint:** Sprint 10 — Phase 1+2 (Staged Exercises) complete on `feature/staged-exercises`. Phase 3 (Author CLI) next.
 
 ## Public Release Checklist
 

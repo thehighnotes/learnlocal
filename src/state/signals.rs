@@ -1,5 +1,6 @@
 use crate::course::types::ExerciseFile;
 use crate::exec::runner::ExecutionResult;
+use std::collections::HashMap;
 use std::time::Instant;
 
 /// In-memory session state, not persisted.
@@ -13,11 +14,17 @@ pub struct SessionState {
     /// When this exercise was first shown
     pub exercise_started_at: Instant,
 
-    /// How many hints have been revealed
+    /// How many hints have been revealed (for non-staged or current stage)
     pub hints_revealed: usize,
 
     /// Last execution result
     pub last_execution: Option<ExecutionResult>,
+
+    /// Current stage index for staged exercises (None for non-staged)
+    pub current_stage_idx: Option<usize>,
+
+    /// Per-stage hint tracking: stage_index → hints revealed count
+    pub stage_hints_revealed: HashMap<usize, usize>,
 }
 
 impl SessionState {
@@ -28,6 +35,8 @@ impl SessionState {
             exercise_started_at: Instant::now(),
             hints_revealed: 0,
             last_execution: None,
+            current_stage_idx: None,
+            stage_hints_revealed: HashMap::new(),
         }
     }
 
@@ -41,6 +50,39 @@ impl SessionState {
         self.exercise_started_at = Instant::now();
         self.hints_revealed = 0;
         self.last_execution = None;
+        self.current_stage_idx = None;
+        self.stage_hints_revealed.clear();
+    }
+
+    /// Advance to the next stage. Preserves current_code (the defining mechanic).
+    /// Resets hints for the new stage, increments stage index.
+    pub fn advance_stage(&mut self) {
+        // Save current stage's hint count
+        if let Some(idx) = self.current_stage_idx {
+            self.stage_hints_revealed.insert(idx, self.hints_revealed);
+        }
+
+        let next_idx = self.current_stage_idx.map_or(1, |idx| idx + 1);
+        self.current_stage_idx = Some(next_idx);
+
+        // Restore hint count for this stage if we've been here before, else reset
+        self.hints_revealed = self
+            .stage_hints_revealed
+            .get(&next_idx)
+            .copied()
+            .unwrap_or(0);
+        self.last_execution = None;
+        // NOTE: current_code is NOT reset — code carries forward
+    }
+
+    /// Initialize session for a staged exercise starting at a specific stage.
+    pub fn init_staged(&mut self, stage_idx: usize) {
+        self.current_stage_idx = Some(stage_idx);
+        self.hints_revealed = self
+            .stage_hints_revealed
+            .get(&stage_idx)
+            .copied()
+            .unwrap_or(0);
     }
 }
 

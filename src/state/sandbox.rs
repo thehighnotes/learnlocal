@@ -111,6 +111,33 @@ pub fn clear_draft_files(dir: &Path) -> Result<()> {
     Ok(())
 }
 
+/// Returns the persistent draft directory for a staged exercise at a specific stage.
+/// `~/.local/share/learnlocal/drafts/{course_id}@{major}/{lesson_id}/{exercise_id}/stage-{idx}/`
+pub fn stage_draft_dir(
+    course_id: &str,
+    version: &str,
+    lesson_id: &str,
+    exercise_id: &str,
+    stage_idx: usize,
+) -> Result<PathBuf> {
+    let base = draft_dir(course_id, version, lesson_id, exercise_id)?;
+    Ok(base.join(format!("stage-{}", stage_idx)))
+}
+
+/// Remove all stage draft directories for a given exercise (called on full exercise completion).
+pub fn clear_all_stage_drafts(
+    course_id: &str,
+    version: &str,
+    lesson_id: &str,
+    exercise_id: &str,
+) -> Result<()> {
+    let base = draft_dir(course_id, version, lesson_id, exercise_id)?;
+    if base.exists() {
+        std::fs::remove_dir_all(&base)?;
+    }
+    Ok(())
+}
+
 /// Quick check: does a sandbox directory exist with files in it?
 pub fn has_sandbox_files(course_id: &str, version: &str, lesson_id: &str) -> bool {
     sandbox_dir(course_id, version, lesson_id)
@@ -247,5 +274,60 @@ mod tests {
         let dir = tmp.path().join("nonexistent");
         // Should not error when clearing a directory that doesn't exist
         clear_draft_files(&dir).unwrap();
+    }
+
+    #[test]
+    fn test_stage_draft_dir_format() {
+        let dir = stage_draft_dir("cpp-fundamentals", "2.0.0", "variables", "ex-01", 0).unwrap();
+        let dir_str = dir.to_string_lossy();
+        assert!(dir_str.contains("drafts"));
+        assert!(dir_str.contains("cpp-fundamentals@2"));
+        assert!(dir_str.contains("variables"));
+        assert!(dir_str.contains("ex-01"));
+        assert!(dir_str.contains("stage-0"));
+    }
+
+    #[test]
+    fn test_stage_draft_dir_different_indices() {
+        let dir0 = stage_draft_dir("test", "1.0.0", "lesson", "ex", 0).unwrap();
+        let dir1 = stage_draft_dir("test", "1.0.0", "lesson", "ex", 1).unwrap();
+        let dir2 = stage_draft_dir("test", "1.0.0", "lesson", "ex", 2).unwrap();
+        assert_ne!(dir0, dir1);
+        assert_ne!(dir1, dir2);
+        assert!(dir0.to_string_lossy().contains("stage-0"));
+        assert!(dir1.to_string_lossy().contains("stage-1"));
+        assert!(dir2.to_string_lossy().contains("stage-2"));
+    }
+
+    #[test]
+    fn test_stage_draft_save_load_roundtrip() {
+        let tmp = TempDir::new().unwrap();
+        let stage_dir = tmp.path().join("draft").join("stage-0");
+
+        let files = vec![("main.rs".to_string(), "fn main() {}".to_string())];
+        save_draft_files(&stage_dir, &files).unwrap();
+        let loaded = load_draft_files(&stage_dir).unwrap();
+
+        assert_eq!(loaded.len(), 1);
+        assert_eq!(loaded[0].0, "main.rs");
+        assert_eq!(loaded[0].1, "fn main() {}");
+    }
+
+    #[test]
+    fn test_clear_all_stage_drafts() {
+        let tmp = TempDir::new().unwrap();
+        let base = tmp.path().join("draft");
+
+        // Create stage subdirectories with files
+        let stage0 = base.join("stage-0");
+        let stage1 = base.join("stage-1");
+        save_draft_files(&stage0, &[("main.rs".to_string(), "v0".to_string())]).unwrap();
+        save_draft_files(&stage1, &[("main.rs".to_string(), "v1".to_string())]).unwrap();
+        assert!(stage0.exists());
+        assert!(stage1.exists());
+
+        // clear_draft_files on the base removes everything
+        clear_draft_files(&base).unwrap();
+        assert!(!base.exists());
     }
 }

@@ -585,6 +585,80 @@ fn check_exercise(exercise: &Exercise, lesson_id: &str) -> Vec<ValidationCheck> 
         }
     }
 
+    // Check staged exercise constraints
+    if !exercise.stages.is_empty() {
+        // Stage IDs must be unique
+        let mut seen_ids = HashSet::new();
+        for stage in &exercise.stages {
+            if !seen_ids.insert(&stage.id) {
+                checks.push(ValidationCheck {
+                    name: format!("{}: stage IDs unique", prefix),
+                    passed: false,
+                    message: format!("Duplicate stage ID '{}'", stage.id),
+                });
+            }
+        }
+        if seen_ids.len() == exercise.stages.len() {
+            checks.push(ValidationCheck {
+                name: format!("{}: stage IDs unique", prefix),
+                passed: true,
+                message: format!("{} unique stage IDs", exercise.stages.len()),
+            });
+        }
+
+        // Validate each stage
+        for (i, stage) in exercise.stages.iter().enumerate() {
+            let stage_prefix = format!("{}/stage[{}:{}]", prefix, i, stage.id);
+
+            // Stage must have hints
+            checks.push(if stage.hints.is_empty() {
+                ValidationCheck {
+                    name: format!("{}: has hints", stage_prefix),
+                    passed: false,
+                    message: "Stage has no hints".to_string(),
+                }
+            } else {
+                ValidationCheck {
+                    name: format!("{}: has hints", stage_prefix),
+                    passed: true,
+                    message: format!("{} hints", stage.hints.len()),
+                }
+            });
+
+            // Stage must have solution
+            let has_solution = stage.solution.is_some() || !stage.solution_files.is_empty();
+            checks.push(if has_solution {
+                ValidationCheck {
+                    name: format!("{}: solution provided", stage_prefix),
+                    passed: true,
+                    message: "Solution present".to_string(),
+                }
+            } else {
+                ValidationCheck {
+                    name: format!("{}: solution provided", stage_prefix),
+                    passed: false,
+                    message: "No solution provided for stage".to_string(),
+                }
+            });
+
+            // Stage state validation must have assertions
+            if stage.validation.method == ValidationMethod::State {
+                let has_assertions = stage
+                    .validation
+                    .assertions
+                    .as_ref()
+                    .is_some_and(|a| !a.is_empty());
+                if !has_assertions {
+                    checks.push(ValidationCheck {
+                        name: format!("{}: state validation has assertions", stage_prefix),
+                        passed: false,
+                        message: "method 'state' requires non-empty 'assertions' list".to_string(),
+                    });
+                }
+            }
+        }
+    }
+
     checks
 }
 
@@ -797,5 +871,128 @@ mod tests {
             .find(|c| c.name.contains("provision"))
             .unwrap();
         assert!(check.passed);
+    }
+
+    fn make_valid_staged_exercise() -> Exercise {
+        Exercise {
+            id: "staged-ex".to_string(),
+            title: "Staged Exercise".to_string(),
+            exercise_type: ExerciseType::Write,
+            prompt: "Do it in stages".to_string(),
+            starter: Some("// code".to_string()),
+            files: vec![],
+            main_file: None,
+            input: None,
+            validation: Validation {
+                method: ValidationMethod::Output,
+                expected_output: Some("base".to_string()),
+                pattern: None,
+                script: None,
+                assertions: None,
+            },
+            hints: vec!["base hint".to_string()],
+            solution: Some("base solution".to_string()),
+            solution_files: vec![],
+            explanation: None,
+            environment: None,
+            golf: false,
+            stages: vec![
+                ExerciseStage {
+                    id: "basic".to_string(),
+                    title: "Basic".to_string(),
+                    prompt: Some("Basic version".to_string()),
+                    validation: Validation {
+                        method: ValidationMethod::Output,
+                        expected_output: Some("basic".to_string()),
+                        pattern: None,
+                        script: None,
+                        assertions: None,
+                    },
+                    hints: vec!["basic hint".to_string()],
+                    solution: Some("basic solution".to_string()),
+                    solution_files: vec![],
+                    explanation: Some("Explanation".to_string()),
+                    additional_files: vec![],
+                },
+                ExerciseStage {
+                    id: "advanced".to_string(),
+                    title: "Advanced".to_string(),
+                    prompt: Some("Advanced version".to_string()),
+                    validation: Validation {
+                        method: ValidationMethod::Regex,
+                        expected_output: None,
+                        pattern: Some("done".to_string()),
+                        script: None,
+                        assertions: None,
+                    },
+                    hints: vec!["advanced hint".to_string()],
+                    solution: Some("advanced solution".to_string()),
+                    solution_files: vec![],
+                    explanation: None,
+                    additional_files: vec![],
+                },
+            ],
+        }
+    }
+
+    #[test]
+    fn test_valid_staged_exercise_passes() {
+        let exercise = make_valid_staged_exercise();
+        let checks = check_exercise(&exercise, "lesson-1");
+        assert!(
+            checks.iter().all(|c| c.passed),
+            "Failed checks: {:?}",
+            checks.iter().filter(|c| !c.passed).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn test_staged_exercise_duplicate_ids() {
+        let mut exercise = make_valid_staged_exercise();
+        exercise.stages[1].id = "basic".to_string(); // duplicate
+        let checks = check_exercise(&exercise, "lesson-1");
+        let dup_check = checks
+            .iter()
+            .find(|c| c.name.contains("stage IDs unique") && !c.passed)
+            .expect("Should have a failing unique ID check");
+        assert!(dup_check.message.contains("Duplicate"));
+    }
+
+    #[test]
+    fn test_staged_exercise_missing_hints() {
+        let mut exercise = make_valid_staged_exercise();
+        exercise.stages[0].hints.clear();
+        let checks = check_exercise(&exercise, "lesson-1");
+        let hint_check = checks
+            .iter()
+            .find(|c| c.name.contains("stage[0:basic]") && c.name.contains("hints") && !c.passed);
+        assert!(hint_check.is_some(), "Should flag missing stage hints");
+    }
+
+    #[test]
+    fn test_staged_exercise_missing_solution() {
+        let mut exercise = make_valid_staged_exercise();
+        exercise.stages[1].solution = None;
+        exercise.stages[1].solution_files.clear();
+        let checks = check_exercise(&exercise, "lesson-1");
+        let sol_check = checks.iter().find(|c| {
+            c.name.contains("stage[1:advanced]") && c.name.contains("solution") && !c.passed
+        });
+        assert!(sol_check.is_some(), "Should flag missing stage solution");
+    }
+
+    #[test]
+    fn test_staged_exercise_state_validation_needs_assertions() {
+        let mut exercise = make_valid_staged_exercise();
+        exercise.stages[0].validation.method = ValidationMethod::State;
+        exercise.stages[0].validation.assertions = None;
+        let checks = check_exercise(&exercise, "lesson-1");
+        let assertion_check = checks.iter().find(|c| {
+            c.name.contains("stage[0:basic]") && c.name.contains("state validation") && !c.passed
+        });
+        assert!(
+            assertion_check.is_some(),
+            "Should flag missing assertions for state validation"
+        );
     }
 }

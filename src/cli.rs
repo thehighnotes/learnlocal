@@ -110,4 +110,68 @@ pub enum Command {
         #[arg(long, default_value = "json")]
         format: String,
     },
+
+    /// Course authoring tools
+    #[command(
+        after_help = "EXAMPLES:\n  learnlocal author run-solution courses/cpp-fundamentals --lesson variables --exercise declare\n  learnlocal author run-all-solutions courses/cpp-fundamentals --update"
+    )]
+    Author {
+        #[command(subcommand)]
+        subcommand: AuthorCommand,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum AuthorCommand {
+    /// Run a specific exercise's solution and show output
+    #[command(
+        after_help = "EXAMPLES:\n  learnlocal author run-solution courses/cpp-fundamentals --lesson variables --exercise declare\n  learnlocal author run-solution courses/cpp-fundamentals --lesson variables --exercise declare --update"
+    )]
+    RunSolution {
+        /// Path to the course directory
+        path: PathBuf,
+
+        /// Lesson ID
+        #[arg(long)]
+        lesson: String,
+
+        /// Exercise ID
+        #[arg(long)]
+        exercise: String,
+
+        /// Auto-update expected_output in the exercise YAML
+        #[arg(long)]
+        update: bool,
+    },
+
+    /// Run ALL solutions and report results
+    #[command(
+        after_help = "EXAMPLES:\n  learnlocal author run-all-solutions courses/cpp-fundamentals\n  learnlocal author run-all-solutions courses/cpp-fundamentals --update"
+    )]
+    RunAllSolutions {
+        /// Path to the course directory
+        path: PathBuf,
+
+        /// Auto-update expected_output in exercise YAML files
+        #[arg(long)]
+        update: bool,
+    },
+
+    /// Open the interactive course designer (web UI)
+    #[cfg(feature = "author")]
+    #[command(
+        after_help = "EXAMPLES:\n  learnlocal author design\n  learnlocal author design courses/cpp-fundamentals\n  learnlocal author design --port 8080"
+    )]
+    Design {
+        /// Course directory path (omit to start with welcome screen)
+        path: Option<PathBuf>,
+
+        /// Port for the local server (0 = auto-select)
+        #[arg(long, default_value = "0")]
+        port: u16,
+
+        /// Don't open browser automatically
+        #[arg(long)]
+        no_open: bool,
+    },
 }

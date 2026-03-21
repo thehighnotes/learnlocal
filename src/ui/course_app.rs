@@ -44,6 +44,7 @@ pub enum AppState {
     Executing,
     RunResult,
     ResultSuccess,
+    StageComplete,
     ResultFail,
     LessonRecap,
     CourseComplete,
@@ -70,6 +71,19 @@ pub enum FailureDetail {
         phase: String,
         detail: String,
     },
+}
+
+/// Context for the StageComplete intermediate screen.
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+pub struct CompletedStageInfo {
+    pub stage_id: String,
+    pub stage_idx: usize,
+    pub stage_title: String,
+    pub is_final: bool,
+    pub next_stage_title: Option<String>,
+    pub explanation: Option<String>,
+    pub total_stages: usize,
 }
 
 pub struct CourseApp {
@@ -106,6 +120,8 @@ pub struct CourseApp {
     pub shell_state: Option<ShellState>,
     // Assertion results from last execution (for post-run checklist)
     pub last_assertion_results: Option<Vec<crate::exec::environment::AssertionResult>>,
+    // Staged exercise completion context
+    pub completed_stage_info: Option<CompletedStageInfo>,
     // Progressive reveal fields
     pub reveal_sections: Vec<String>,
     pub revealed_count: usize,
@@ -189,7 +205,7 @@ impl CourseApp {
             }
         }
 
-        Self {
+        let mut app = Self {
             course,
             current_lesson_idx: lesson_idx,
             current_exercise_idx: exercise_idx,
@@ -220,6 +236,7 @@ impl CourseApp {
             sandbox_watching: false,
             shell_state: None,
             last_assertion_results: None,
+            completed_stage_info: None,
             reveal_sections: Vec::new(),
             revealed_count: 0,
             reveal_lesson_idx: None,
@@ -237,7 +254,9 @@ impl CourseApp {
             chat_visible: false,
             #[cfg(feature = "llm")]
             ai_status: "off".to_string(),
-        }
+        };
+        app.init_stage_from_progress(progress_store);
+        app
     }
 
     #[cfg(feature = "llm")]
@@ -331,7 +350,23 @@ impl CourseApp {
                 .map(|l| l.loaded_exercises.len())
                 .unwrap_or(0);
             let bar = celebration::mini_progress_bar(self.current_exercise_idx + 1, total, 7);
-            format!(" | Ex {}/{} {}", self.current_exercise_idx + 1, total, bar)
+            let stage_info = if let Some(exercise) = self.current_exercise() {
+                if exercise.is_staged() {
+                    let si = self.session.current_stage_idx.unwrap_or(0);
+                    format!(" Stg {}/{}", si + 1, exercise.stages.len())
+                } else {
+                    String::new()
+                }
+            } else {
+                String::new()
+            };
+            format!(
+                " | Ex {}/{} {}{}",
+                self.current_exercise_idx + 1,
+                total,
+                bar,
+                stage_info
+            )
         } else {
             String::new()
         };
@@ -460,6 +495,7 @@ impl CourseApp {
             AppState::Executing => self.render_executing(frame, exercise_area, theme),
             AppState::RunResult => self.render_run_result(frame, exercise_area, theme),
             AppState::ResultSuccess => self.render_result_success(frame, exercise_area, theme),
+            AppState::StageComplete => self.render_stage_complete(frame, exercise_area, theme),
             AppState::ResultFail => self.render_result_fail(frame, exercise_area, theme),
             AppState::LessonRecap => self.render_lesson_recap(frame, exercise_area, theme),
             AppState::CourseComplete => self.render_course_complete(frame, exercise_area, theme),
@@ -854,6 +890,48 @@ impl CourseApp {
             ));
         }
         lines.push(Line::from(title_spans));
+
+        // Stage indicator for staged exercises
+        if exercise.is_staged() {
+            let stage_idx = self.session.current_stage_idx.unwrap_or(0);
+            let total = exercise.stages.len();
+            let current_title = exercise
+                .stages
+                .get(stage_idx)
+                .map(|s| s.title.as_str())
+                .unwrap_or("?");
+
+            lines.push(Line::from(Span::styled(
+                format!("  Stage {} of {}: {}", stage_idx + 1, total, current_title),
+                Style::default()
+                    .fg(theme.cursor)
+                    .add_modifier(Modifier::BOLD),
+            )));
+
+            // Breadcrumb trail: ✓ Basic  → Unicode  In-Place
+            let mut breadcrumbs: Vec<Span> = vec![Span::raw("  ")];
+            for (i, stage) in exercise.stages.iter().enumerate() {
+                if i < stage_idx {
+                    breadcrumbs.push(Span::styled(
+                        format!("\u{2713} {}  ", stage.title),
+                        Style::default().fg(theme.success),
+                    ));
+                } else if i == stage_idx {
+                    breadcrumbs.push(Span::styled(
+                        format!("\u{2192} {}  ", stage.title),
+                        Style::default()
+                            .fg(theme.cursor)
+                            .add_modifier(Modifier::BOLD),
+                    ));
+                } else {
+                    breadcrumbs.push(Span::styled(
+                        format!("{}  ", stage.title),
+                        Style::default().fg(theme.muted),
+                    ));
+                }
+            }
+            lines.push(Line::from(breadcrumbs));
+        }
         lines.push(Line::from(""));
 
         let (type_str, type_color) = match exercise.exercise_type {
@@ -887,6 +965,31 @@ impl CourseApp {
                 format!("  {}", line),
                 Style::default().fg(theme.body_text),
             )));
+        }
+
+        // Stage-specific prompt (additional context for this stage)
+        if exercise.is_staged() {
+            if let Some(stage) = self
+                .session
+                .current_stage_idx
+                .and_then(|idx| exercise.stages.get(idx))
+            {
+                if let Some(ref stage_prompt) = stage.prompt {
+                    lines.push(Line::from(""));
+                    lines.push(Line::from(Span::styled(
+                        "  \u{25b6} Stage Goal:",
+                        Style::default()
+                            .fg(theme.cursor)
+                            .add_modifier(Modifier::BOLD),
+                    )));
+                    for line in stage_prompt.lines() {
+                        lines.push(Line::from(Span::styled(
+                            format!("  {}", line),
+                            Style::default().fg(theme.body_text),
+                        )));
+                    }
+                }
+            }
         }
         lines.push(Line::from(""));
 
@@ -1076,7 +1179,8 @@ impl CourseApp {
                     .fg(theme.keyword)
                     .add_modifier(Modifier::BOLD),
             )));
-            for (i, hint) in exercise.hints.iter().enumerate() {
+            let hints = exercise.hints_for_stage(self.session.current_stage_idx);
+            for (i, hint) in hints.iter().enumerate() {
                 if i < self.session.hints_revealed {
                     lines.push(Line::from(format!("  {}. {}", i + 1, hint)));
                 }
@@ -1232,6 +1336,103 @@ impl CourseApp {
         self.render_scrollable(frame, area, lines);
     }
 
+    fn render_stage_complete(&mut self, frame: &mut ratatui::Frame, area: Rect, theme: &Theme) {
+        let info = match &self.completed_stage_info {
+            Some(info) => info.clone(),
+            None => {
+                self.state = AppState::ExercisePrompt;
+                return;
+            }
+        };
+
+        // Short animation flash (same 400ms pattern as ResultSuccess)
+        if let Some(start) = self.animation_start {
+            if start.elapsed() < Duration::from_millis(400) {
+                let art = celebration::stage_complete_art(info.stage_idx, info.total_stages, theme);
+                self.content_line_count = 0;
+                let paragraph = Paragraph::new(art).alignment(Alignment::Center);
+                frame.render_widget(paragraph, area);
+                return;
+            }
+        }
+
+        let mut lines = celebration::stage_complete_art(info.stage_idx, info.total_stages, theme);
+
+        // "Stage 2 of 3 complete!"
+        lines.push(Line::from(Span::styled(
+            format!(
+                "       Stage {} of {} complete!",
+                info.stage_idx + 1,
+                info.total_stages
+            ),
+            Style::default()
+                .fg(theme.success)
+                .add_modifier(Modifier::BOLD),
+        )));
+        lines.push(Line::from(Span::styled(
+            format!("       {}", info.stage_title),
+            Style::default().fg(theme.body_text),
+        )));
+        lines.push(Line::from(""));
+
+        // Explanation for this stage
+        if let Some(ref explanation) = info.explanation {
+            lines.push(Line::from(Span::styled(
+                "  Explanation:",
+                Style::default()
+                    .fg(theme.keyword)
+                    .add_modifier(Modifier::BOLD),
+            )));
+            for line in explanation.lines() {
+                lines.push(Line::from(Span::styled(
+                    format!("  {}", line),
+                    Style::default().fg(theme.body_text),
+                )));
+            }
+            lines.push(Line::from(""));
+        }
+
+        // Preview of next stage
+        if let Some(ref next_title) = info.next_stage_title {
+            lines.push(Line::from(Span::styled(
+                format!(
+                    "  Next up: Stage {} \u{2014} {}",
+                    info.stage_idx + 2,
+                    next_title
+                ),
+                Style::default()
+                    .fg(theme.cursor)
+                    .add_modifier(Modifier::BOLD),
+            )));
+            lines.push(Line::from(Span::styled(
+                "  Your code carries forward. Press Enter to continue.",
+                Style::default().fg(theme.muted),
+            )));
+        }
+
+        lines.push(Line::from(""));
+        lines.push(Line::from("  Press Enter to continue"));
+
+        self.render_scrollable(frame, area, lines);
+    }
+
+    fn handle_stage_complete_input(&mut self, key: KeyCode) -> CourseAction {
+        self.animation_start = None;
+        match key {
+            KeyCode::Char('q') => CourseAction::Quit,
+            KeyCode::Esc => CourseAction::GoHome,
+            KeyCode::Enter => {
+                // Advance to next stage
+                self.session.advance_stage();
+                self.completed_stage_info = None;
+                self.scroll_offset = 0;
+                self.enter_exercise_state();
+                CourseAction::Continue
+            }
+            _ => CourseAction::Continue,
+        }
+    }
+
     fn render_result_success(&mut self, frame: &mut ratatui::Frame, area: Rect, theme: &Theme) {
         let total_exercises = self
             .current_lesson()
@@ -1373,6 +1574,29 @@ impl CourseApp {
             Line::from(""),
         ];
 
+        // Show which stage failed for staged exercises
+        if let Some(exercise) = self.current_exercise() {
+            if exercise.is_staged() {
+                if let Some(stage) = self
+                    .session
+                    .current_stage_idx
+                    .and_then(|idx| exercise.stages.get(idx))
+                {
+                    let stage_idx = self.session.current_stage_idx.unwrap_or(0);
+                    lines.push(Line::from(Span::styled(
+                        format!(
+                            "  Stage {} of {}: {}",
+                            stage_idx + 1,
+                            exercise.stages.len(),
+                            stage.title
+                        ),
+                        Style::default().fg(theme.warning),
+                    )));
+                    lines.push(Line::from(""));
+                }
+            }
+        }
+
         if let Some(ref step_name) = self.last_step_name {
             lines.push(Line::from(format!("  Failed at step: {}", step_name)));
         }
@@ -1473,7 +1697,11 @@ impl CourseApp {
 
         let hints_left = self
             .current_exercise()
-            .map(|e| e.hints.len().saturating_sub(self.session.hints_revealed))
+            .map(|e| {
+                e.hints_for_stage(self.session.current_stage_idx)
+                    .len()
+                    .saturating_sub(self.session.hints_revealed)
+            })
             .unwrap_or(0);
         if hints_left > 0 {
             lines.push(Line::from(""));
@@ -1697,6 +1925,7 @@ impl CourseApp {
                 "[Enter] Back  [e] Edit  [t] Test  [Esc] Home  [?] Help".to_string()
             }
             AppState::ResultSuccess => "[Enter] Continue  [Esc] Home  [q] Quit".to_string(),
+            AppState::StageComplete => "[Enter] Next Stage  [Esc] Home  [q] Quit".to_string(),
             AppState::ResultFail => {
                 "[Enter] Back  [e] Edit  [t] Retest  [h] Hint  [Esc] Home  [?] Help".to_string()
             }
@@ -2039,6 +2268,7 @@ impl CourseApp {
                     | AppState::ExercisePrompt
                     | AppState::RunResult
                     | AppState::ResultSuccess
+                    | AppState::StageComplete
                     | AppState::ResultFail
                     | AppState::LessonRecap
                     | AppState::Watching
@@ -2092,6 +2322,7 @@ impl CourseApp {
                 sandbox_level,
             ),
             AppState::ResultSuccess => Ok(self.handle_success_input(key, progress_store)),
+            AppState::StageComplete => Ok(self.handle_stage_complete_input(key)),
             AppState::ResultFail => self.handle_fail_input(
                 key,
                 key_event.modifiers,
@@ -2809,6 +3040,7 @@ impl CourseApp {
                 run_exit_code: Some(0),
                 output_matched: Some(true),
                 hints_revealed: self.session.hints_revealed,
+                stage_id: None,
             };
             self.record_attempt(&attempt, progress_store);
             self.exit_shell_mode();
@@ -3003,7 +3235,8 @@ impl CourseApp {
                     .fg(theme.keyword)
                     .add_modifier(Modifier::BOLD),
             )));
-            for (i, hint) in exercise.hints.iter().enumerate() {
+            let hints = exercise.hints_for_stage(self.session.current_stage_idx);
+            for (i, hint) in hints.iter().enumerate() {
                 if i < self.session.hints_revealed {
                     lines.push(Line::from(format!("  {}. {}", i + 1, hint)));
                 }
@@ -3253,12 +3486,25 @@ impl CourseApp {
         let exercise = self.current_exercise().ok_or_else(|| {
             LearnLocalError::Execution("No current exercise to submit".to_string())
         })?;
-        let (result, teardown_warnings) = runner::execute_exercise_with_sandbox(
-            &self.course,
-            exercise,
-            &self.session.current_code,
-            sandbox_level,
-        )?;
+        let is_staged = exercise.is_staged();
+        let stage_idx = self.session.current_stage_idx;
+        let (result, teardown_warnings) = if is_staged {
+            let idx = stage_idx.unwrap_or(0);
+            runner::execute_exercise_staged(
+                &self.course,
+                exercise,
+                &self.session.current_code,
+                idx,
+                sandbox_level,
+            )?
+        } else {
+            runner::execute_exercise_with_sandbox(
+                &self.course,
+                exercise,
+                &self.session.current_code,
+                sandbox_level,
+            )?
+        };
 
         let time_spent = self.session.time_spent_seconds();
         let (compile_success, run_exit_code, output_matched) = match &result {
@@ -3270,6 +3516,7 @@ impl CourseApp {
             ExecutionResult::SetupFailed { exit_code, .. } => (false, Some(*exit_code), None),
             ExecutionResult::ServiceFailed { .. } => (false, None, None),
             ExecutionResult::Error(_) => (false, None, None),
+            ExecutionResult::StageComplete { .. } => (true, Some(0), Some(true)),
         };
 
         let attempt = AttemptRecord {
@@ -3279,6 +3526,14 @@ impl CourseApp {
             run_exit_code,
             output_matched,
             hints_revealed: self.session.hints_revealed,
+            stage_id: if is_staged {
+                let exercise = self.current_exercise();
+                stage_idx
+                    .and_then(|idx| exercise.and_then(|e| e.stages.get(idx)))
+                    .map(|s| s.id.clone())
+            } else {
+                None
+            },
         };
 
         self.record_attempt(&attempt, progress_store);
@@ -3379,6 +3634,47 @@ impl CourseApp {
                 self.failure_detail = Some(FailureDetail::Plain(msg.clone()));
                 self.state = AppState::ResultFail;
             }
+            ExecutionResult::StageComplete {
+                stage_id,
+                stage_idx,
+                is_final,
+            } => {
+                let exercise = self.current_exercise();
+                let stage_title = exercise
+                    .and_then(|e| e.stages.get(*stage_idx))
+                    .map(|s| s.title.clone())
+                    .unwrap_or_default();
+                let explanation = exercise
+                    .and_then(|e| e.stages.get(*stage_idx))
+                    .and_then(|s| s.explanation.clone());
+                let next_stage_title = if !is_final {
+                    exercise
+                        .and_then(|e| e.stages.get(stage_idx + 1))
+                        .map(|s| s.title.clone())
+                } else {
+                    None
+                };
+                let total_stages = exercise.map(|e| e.stages.len()).unwrap_or(0);
+
+                self.completed_stage_info = Some(CompletedStageInfo {
+                    stage_id: stage_id.clone(),
+                    stage_idx: *stage_idx,
+                    stage_title,
+                    is_final: *is_final,
+                    next_stage_title,
+                    explanation,
+                    total_stages,
+                });
+
+                self.mark_stage_completed(progress_store, stage_id, *stage_idx, *is_final);
+
+                if *is_final {
+                    self.mark_exercise_completed(progress_store);
+                    self.state = AppState::ResultSuccess;
+                } else {
+                    self.state = AppState::StageComplete;
+                }
+            }
         }
 
         self.session.last_execution = Some(result);
@@ -3390,7 +3686,10 @@ impl CourseApp {
     }
 
     fn reveal_hint(&mut self) {
-        let max_hints = self.current_exercise().map(|e| e.hints.len()).unwrap_or(0);
+        let max_hints = self
+            .current_exercise()
+            .map(|e| e.hints_for_stage(self.session.current_stage_idx).len())
+            .unwrap_or(0);
         if self.session.hints_revealed < max_hints {
             self.session.hints_revealed += 1;
         }
@@ -3428,6 +3727,7 @@ impl CourseApp {
         if self.current_exercise_idx + 1 < total_exercises {
             self.current_exercise_idx += 1;
             self.reset_session_for_current_exercise();
+            self.init_stage_from_progress(progress_store);
             self.enter_exercise_state();
         } else {
             self.mark_lesson_completed(progress_store);
@@ -3504,6 +3804,56 @@ impl CourseApp {
                 chat.reset();
             }
             self.chat_visible = false;
+        }
+    }
+
+    /// Initialize stage tracking from persisted progress for staged exercises.
+    /// Call after `reset_session_for_current_exercise()` when a progress store is available.
+    fn init_stage_from_progress(&mut self, progress_store: &ProgressStore) {
+        let exercise = match self.current_exercise() {
+            Some(e) if e.is_staged() => e,
+            _ => return,
+        };
+
+        let course_id = self.course_id();
+        let key = crate::state::types::progress_key(&course_id, &self.course.version);
+        let lesson_id = self
+            .current_lesson()
+            .map(|l| l.id.clone())
+            .unwrap_or_default();
+        let exercise_id = exercise.id.clone();
+
+        let stage_idx = progress_store
+            .data
+            .courses
+            .get(&key)
+            .and_then(|cp| cp.lessons.get(&lesson_id))
+            .and_then(|lp| lp.exercises.get(&exercise_id))
+            .and_then(|ep| ep.current_stage)
+            .unwrap_or(0);
+
+        self.session.init_staged(stage_idx);
+
+        // Load stage-specific draft instead of base draft
+        if let Ok(dir) = crate::state::sandbox::stage_draft_dir(
+            &course_id,
+            &self.course.version,
+            &lesson_id,
+            &exercise_id,
+            stage_idx,
+        ) {
+            if let Ok(drafts) = crate::state::sandbox::load_draft_files(&dir) {
+                for (name, content) in &drafts {
+                    if let Some(f) = self
+                        .session
+                        .current_code
+                        .iter_mut()
+                        .find(|f| f.editable && f.name == *name)
+                    {
+                        f.content = content.clone();
+                    }
+                }
+            }
         }
     }
 
@@ -3599,12 +3949,33 @@ impl CourseApp {
             return;
         }
 
-        let dir = match crate::state::sandbox::draft_dir(
-            &course_id,
-            &self.course.version,
-            &lesson_id,
-            &exercise_id,
-        ) {
+        let dir = if self.current_exercise().is_some_and(|e| e.is_staged()) {
+            if let Some(stage_idx) = self.session.current_stage_idx {
+                crate::state::sandbox::stage_draft_dir(
+                    &course_id,
+                    &self.course.version,
+                    &lesson_id,
+                    &exercise_id,
+                    stage_idx,
+                )
+            } else {
+                crate::state::sandbox::draft_dir(
+                    &course_id,
+                    &self.course.version,
+                    &lesson_id,
+                    &exercise_id,
+                )
+            }
+        } else {
+            crate::state::sandbox::draft_dir(
+                &course_id,
+                &self.course.version,
+                &lesson_id,
+                &exercise_id,
+            )
+        };
+
+        let dir = match dir {
             Ok(d) => d,
             Err(_) => return,
         };
@@ -4441,6 +4812,8 @@ impl CourseApp {
                     .or_insert_with(|| ExerciseProgress {
                         status: ProgressStatus::InProgress,
                         attempts: Vec::new(),
+                        current_stage: None,
+                        completed_stages: Vec::new(),
                     });
 
             exercise_progress.attempts.push(attempt.clone());
@@ -4448,6 +4821,36 @@ impl CourseApp {
 
         if let Err(e) = progress_store.save() {
             log::error!("Failed to save progress: {}", e);
+        }
+    }
+
+    fn mark_stage_completed(
+        &self,
+        progress_store: &mut ProgressStore,
+        stage_id: &str,
+        stage_idx: usize,
+        is_final: bool,
+    ) {
+        self.ensure_course_progress(progress_store);
+        let (key, lesson_id, exercise_id) = self.get_current_ids();
+
+        if let Some(cp) = progress_store.data.courses.get_mut(&key) {
+            if let Some(lp) = cp.lessons.get_mut(&lesson_id) {
+                if let Some(ep) = lp.exercises.get_mut(&exercise_id) {
+                    if !ep.completed_stages.contains(&stage_id.to_string()) {
+                        ep.completed_stages.push(stage_id.to_string());
+                    }
+                    if is_final {
+                        ep.current_stage = None;
+                    } else {
+                        ep.current_stage = Some(stage_idx + 1);
+                    }
+                }
+            }
+        }
+
+        if let Err(e) = progress_store.save() {
+            log::error!("Failed to save stage progress: {}", e);
         }
     }
 
@@ -4466,7 +4869,27 @@ impl CourseApp {
         if let Err(e) = progress_store.save() {
             log::error!("Failed to save progress: {}", e);
         }
-        self.clear_current_draft();
+
+        // For staged exercises, clear all stage drafts; otherwise clear the base draft
+        if self.current_exercise().is_some_and(|e| e.is_staged()) {
+            let course_id = self.course_id();
+            let lesson_id = self
+                .current_lesson()
+                .map(|l| l.id.clone())
+                .unwrap_or_default();
+            let exercise_id = self
+                .current_exercise()
+                .map(|e| e.id.clone())
+                .unwrap_or_default();
+            let _ = crate::state::sandbox::clear_all_stage_drafts(
+                &course_id,
+                &self.course.version,
+                &lesson_id,
+                &exercise_id,
+            );
+        } else {
+            self.clear_current_draft();
+        }
     }
 
     fn mark_exercise_skipped(&self, progress_store: &mut ProgressStore) {
@@ -4491,6 +4914,8 @@ impl CourseApp {
                     .or_insert_with(|| ExerciseProgress {
                         status: ProgressStatus::InProgress,
                         attempts: Vec::new(),
+                        current_stage: None,
+                        completed_stages: Vec::new(),
                     });
 
             exercise_progress.status = ProgressStatus::Skipped;
@@ -4992,6 +5417,10 @@ fn get_tips_for_state(state: &AppState) -> &'static [&'static str] {
             "[w] watch mode — edit externally, see output live",
             "No grading here — just experiment freely",
             "Your code is saved automatically on exit",
+        ],
+        AppState::StageComplete => &[
+            "Your code carries forward to the next stage",
+            "Each stage adds new requirements to the same code",
         ],
         _ => &[],
     }

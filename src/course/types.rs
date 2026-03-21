@@ -172,9 +172,90 @@ pub struct Exercise {
     /// Code golf mode: track character count, show par from solution
     #[serde(default)]
     pub golf: bool,
+    /// Staged exercise progression — each stage builds on the student's previous code
+    #[serde(default)]
+    pub stages: Vec<ExerciseStage>,
+}
+
+/// A single stage in a staged exercise. Each stage has its own validation,
+/// hints, solution, and explanation. Student code carries forward between stages.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExerciseStage {
+    pub id: String,
+    pub title: String,
+    #[serde(default)]
+    pub prompt: Option<String>,
+    pub validation: Validation,
+    #[serde(default)]
+    pub hints: Vec<String>,
+    pub solution: Option<String>,
+    #[serde(default)]
+    pub solution_files: Vec<SolutionFile>,
+    pub explanation: Option<String>,
+    /// Additional files introduced by this stage (e.g. new test files)
+    #[serde(default)]
+    pub additional_files: Vec<ExerciseFile>,
 }
 
 impl Exercise {
+    /// Returns true if this exercise uses staged progression.
+    pub fn is_staged(&self) -> bool {
+        !self.stages.is_empty()
+    }
+
+    /// Get the validation for a specific stage index, or the base validation if not staged.
+    #[allow(dead_code)] // Used by validator --run-solutions in Phase 3
+    pub fn validation_for_stage(&self, stage_idx: Option<usize>) -> &Validation {
+        match stage_idx {
+            Some(idx) if idx < self.stages.len() => &self.stages[idx].validation,
+            _ => &self.validation,
+        }
+    }
+
+    /// Get hints for a specific stage index, or the base hints if not staged.
+    pub fn hints_for_stage(&self, stage_idx: Option<usize>) -> &[String] {
+        match stage_idx {
+            Some(idx) if idx < self.stages.len() => &self.stages[idx].hints,
+            _ => &self.hints,
+        }
+    }
+
+    /// Get the solution files for a specific stage, or the base solution if not staged.
+    #[allow(dead_code)] // Used by validator --run-solutions in Phase 3
+    pub fn get_stage_solution_files(&self, stage_idx: usize, extension: &str) -> Vec<ExerciseFile> {
+        if stage_idx < self.stages.len() {
+            let stage = &self.stages[stage_idx];
+            let ext = self.effective_extension(extension);
+            if let Some(ref solution) = stage.solution {
+                let filename = format!("main{}", ext);
+                vec![ExerciseFile {
+                    name: filename,
+                    editable: true,
+                    content: solution.clone(),
+                }]
+            } else if !stage.solution_files.is_empty() {
+                self.files
+                    .iter()
+                    .map(|f| {
+                        if let Some(sf) = stage.solution_files.iter().find(|sf| sf.name == f.name) {
+                            ExerciseFile {
+                                name: f.name.clone(),
+                                editable: f.editable,
+                                content: sf.content.clone(),
+                            }
+                        } else {
+                            f.clone()
+                        }
+                    })
+                    .collect()
+            } else {
+                vec![]
+            }
+        } else {
+            self.get_solution_files(extension)
+        }
+    }
+
     /// Returns ".sh" for Command exercises, the language extension otherwise.
     /// This lets all callers pass `&course.language.extension` without knowing
     /// about the override — the method handles it internally.
@@ -1169,6 +1250,7 @@ dirs:
             explanation: None,
             environment: None,
             golf: false,
+            stages: vec![],
         };
 
         // Even though we pass ".cpp", command exercises use ".sh"
@@ -1207,6 +1289,7 @@ dirs:
             explanation: None,
             environment: None,
             golf: false,
+            stages: vec![],
         };
 
         // Write exercises use the language extension as normal
@@ -1238,5 +1321,164 @@ solution: |
         assert_eq!(ex.exercise_type, ExerciseType::Command);
         assert_eq!(ex.id, "git-init");
         assert!(ex.starter.is_some());
+    }
+
+    #[test]
+    fn test_staged_exercise_yaml_roundtrip() {
+        let yaml = r#"
+id: reverse-string
+title: "Reverse a String"
+type: write
+prompt: "Write a function that reverses a string."
+starter: |
+  fn main() {
+      // Reverse the string and print it
+  }
+validation:
+  method: output
+  expected_output: "olleh"
+hints:
+  - "Use chars().rev().collect()"
+solution: |
+  fn main() { println!("{}", "hello".chars().rev().collect::<String>()); }
+stages:
+  - id: basic
+    title: "Basic Solution"
+    prompt: "Make it work for ASCII strings."
+    validation:
+      method: output
+      expected_output: "olleh"
+    hints:
+      - "Use a loop or built-in reverse"
+    solution: |
+      fn main() { println!("{}", "hello".chars().rev().collect::<String>()); }
+    explanation: "chars().rev().collect() reverses character-by-character."
+  - id: unicode
+    title: "Handle Unicode"
+    prompt: "Now handle multi-byte characters correctly."
+    validation:
+      method: output
+      expected_output: "🌍olleh"
+    hints:
+      - "chars() already handles Unicode in Rust"
+    solution: |
+      fn main() { println!("{}", "hello🌍".chars().rev().collect::<String>()); }
+  - id: in-place
+    title: "Do It In-Place"
+    prompt: "Reverse without allocating a new String."
+    validation:
+      method: regex
+      pattern: "unsafe|as_bytes_mut|swap"
+    hints:
+      - "You'll need unsafe or byte-level manipulation"
+    solution: |
+      fn main() {
+          let mut s = String::from("hello");
+          let bytes = unsafe { s.as_bytes_mut() };
+          bytes.reverse();
+          println!("{}", s);
+      }
+"#;
+        let ex: Exercise = serde_yaml::from_str(yaml).unwrap();
+        assert_eq!(ex.id, "reverse-string");
+        assert!(ex.is_staged());
+        assert_eq!(ex.stages.len(), 3);
+        assert_eq!(ex.stages[0].id, "basic");
+        assert_eq!(ex.stages[1].id, "unicode");
+        assert_eq!(ex.stages[2].id, "in-place");
+        assert_eq!(ex.stages[0].validation.method, ValidationMethod::Output);
+        assert_eq!(ex.stages[2].validation.method, ValidationMethod::Regex);
+        assert!(ex.stages[0].explanation.is_some());
+        assert!(ex.stages[1].explanation.is_none());
+        assert_eq!(ex.stages[0].hints.len(), 1);
+    }
+
+    #[test]
+    fn test_non_staged_exercise_backward_compat() {
+        let yaml = r#"
+id: hello
+title: "Hello"
+type: write
+prompt: "Say hello"
+starter: "// code"
+validation:
+  method: output
+  expected_output: "hello"
+hints:
+  - "hint"
+solution: "answer"
+"#;
+        let ex: Exercise = serde_yaml::from_str(yaml).unwrap();
+        assert!(!ex.is_staged());
+        assert!(ex.stages.is_empty());
+    }
+
+    #[test]
+    fn test_exercise_stage_helpers() {
+        let yaml = r#"
+id: staged
+title: "Staged"
+type: write
+prompt: "Do it"
+starter: "// code"
+validation:
+  method: output
+  expected_output: "base"
+hints:
+  - "base hint"
+solution: "base answer"
+stages:
+  - id: s1
+    title: "Stage 1"
+    validation:
+      method: output
+      expected_output: "stage1"
+    hints:
+      - "stage 1 hint"
+    solution: "stage 1 answer"
+  - id: s2
+    title: "Stage 2"
+    validation:
+      method: regex
+      pattern: "done"
+    hints:
+      - "stage 2 hint a"
+      - "stage 2 hint b"
+    solution: "stage 2 answer"
+"#;
+        let ex: Exercise = serde_yaml::from_str(yaml).unwrap();
+
+        // validation_for_stage
+        assert_eq!(
+            ex.validation_for_stage(None).expected_output,
+            Some("base".to_string())
+        );
+        assert_eq!(
+            ex.validation_for_stage(Some(0)).expected_output,
+            Some("stage1".to_string())
+        );
+        assert_eq!(
+            ex.validation_for_stage(Some(1)).method,
+            ValidationMethod::Regex
+        );
+        // Out of bounds falls back to base
+        assert_eq!(
+            ex.validation_for_stage(Some(99)).expected_output,
+            Some("base".to_string())
+        );
+
+        // hints_for_stage
+        assert_eq!(ex.hints_for_stage(None), &["base hint".to_string()]);
+        assert_eq!(ex.hints_for_stage(Some(0)), &["stage 1 hint".to_string()]);
+        assert_eq!(ex.hints_for_stage(Some(1)).len(), 2);
+
+        // get_stage_solution_files
+        let sol0 = ex.get_stage_solution_files(0, ".rs");
+        assert_eq!(sol0.len(), 1);
+        assert!(sol0[0].content.contains("stage 1 answer"));
+
+        let sol1 = ex.get_stage_solution_files(1, ".rs");
+        assert_eq!(sol1.len(), 1);
+        assert!(sol1[0].content.contains("stage 2 answer"));
     }
 }

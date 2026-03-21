@@ -39,6 +39,12 @@ pub struct ExerciseProgress {
     pub status: ProgressStatus,
     #[serde(default)]
     pub attempts: Vec<AttemptRecord>,
+    /// Current stage index (0-based) for staged exercises, None for non-staged
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub current_stage: Option<usize>,
+    /// Stage IDs that have been completed
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub completed_stages: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -59,6 +65,9 @@ pub struct AttemptRecord {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub output_matched: Option<bool>,
     pub hints_revealed: usize,
+    /// Which stage this attempt was for (None for non-staged exercises)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stage_id: Option<String>,
 }
 
 /// Key used for progress storage: {course_id}@{major_version}
@@ -115,10 +124,83 @@ mod tests {
             run_exit_code: Some(0),
             output_matched: Some(true),
             hints_revealed: 1,
+            stage_id: None,
         };
         let json = serde_json::to_string(&record).unwrap();
         let loaded: AttemptRecord = serde_json::from_str(&json).unwrap();
         assert_eq!(loaded.time_spent_seconds, 45);
         assert_eq!(loaded.hints_revealed, 1);
+        assert!(loaded.stage_id.is_none());
+    }
+
+    #[test]
+    fn test_attempt_record_with_stage() {
+        let record = AttemptRecord {
+            timestamp: "2026-03-21T10:00:00Z".to_string(),
+            time_spent_seconds: 30,
+            compile_success: true,
+            run_exit_code: Some(0),
+            output_matched: Some(true),
+            hints_revealed: 0,
+            stage_id: Some("basic".to_string()),
+        };
+        let json = serde_json::to_string(&record).unwrap();
+        assert!(json.contains("basic"));
+        let loaded: AttemptRecord = serde_json::from_str(&json).unwrap();
+        assert_eq!(loaded.stage_id, Some("basic".to_string()));
+    }
+
+    #[test]
+    fn test_exercise_progress_backward_compat() {
+        // Old progress.json without stage fields should deserialize fine
+        let json = r#"{"status":"in_progress","attempts":[]}"#;
+        let ep: ExerciseProgress = serde_json::from_str(json).unwrap();
+        assert_eq!(ep.status, ProgressStatus::InProgress);
+        assert!(ep.current_stage.is_none());
+        assert!(ep.completed_stages.is_empty());
+    }
+
+    #[test]
+    fn test_exercise_progress_with_stages() {
+        let ep = ExerciseProgress {
+            status: ProgressStatus::InProgress,
+            attempts: vec![],
+            current_stage: Some(1),
+            completed_stages: vec!["basic".to_string()],
+        };
+        let json = serde_json::to_string(&ep).unwrap();
+        assert!(json.contains("current_stage"));
+        assert!(json.contains("basic"));
+        let loaded: ExerciseProgress = serde_json::from_str(&json).unwrap();
+        assert_eq!(loaded.current_stage, Some(1));
+        assert_eq!(loaded.completed_stages, vec!["basic".to_string()]);
+    }
+
+    #[test]
+    fn test_exercise_progress_stage_fields_omitted_when_empty() {
+        let ep = ExerciseProgress {
+            status: ProgressStatus::Completed,
+            attempts: vec![],
+            current_stage: None,
+            completed_stages: vec![],
+        };
+        let json = serde_json::to_string(&ep).unwrap();
+        // Stage fields should be omitted via skip_serializing_if
+        assert!(!json.contains("current_stage"));
+        assert!(!json.contains("completed_stages"));
+    }
+
+    #[test]
+    fn test_old_attempt_record_without_stage_id() {
+        // Old attempt records without stage_id should deserialize fine
+        let json = r#"{
+            "timestamp": "2026-02-07T10:00:00Z",
+            "time_spent_seconds": 45,
+            "compile_success": true,
+            "hints_revealed": 1
+        }"#;
+        let record: AttemptRecord = serde_json::from_str(json).unwrap();
+        assert!(record.stage_id.is_none());
+        assert_eq!(record.time_spent_seconds, 45);
     }
 }

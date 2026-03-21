@@ -269,6 +269,49 @@ pub fn exercise_success_art(
     ]
 }
 
+/// Stage completion celebration art (shorter than exercise success).
+pub fn stage_complete_art(
+    stage_idx: usize,
+    total_stages: usize,
+    theme: &Theme,
+) -> Vec<Line<'static>> {
+    let bar = mini_progress_bar(stage_idx + 1, total_stages, 10);
+    let progress_str = format!("Stage {}/{} {}", stage_idx + 1, total_stages, bar);
+    let green = if theme.no_color {
+        Color::Reset
+    } else {
+        theme.success
+    };
+
+    vec![
+        Line::from(""),
+        Line::from(""),
+        Line::from(Span::styled(
+            "    \u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}",
+            Style::default().fg(green),
+        )),
+        Line::from(Span::styled(
+            "     \u{2713}  STAGE PASS",
+            Style::default()
+                .fg(green)
+                .add_modifier(Modifier::BOLD),
+        )),
+        Line::from(Span::styled(
+            "    \u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}\u{2501}",
+            Style::default().fg(green),
+        )),
+        Line::from(Span::styled(
+            format!("       {}", progress_str),
+            Style::default().fg(if theme.no_color {
+                Color::Reset
+            } else {
+                theme.muted
+            }),
+        )),
+        Line::from(""),
+    ]
+}
+
 /// Lesson complete art with progress bar.
 pub fn lesson_complete_art(
     lesson_title: &str,
@@ -565,7 +608,10 @@ mod tests {
                     run_exit_code: Some(0),
                     output_matched: Some(true),
                     hints_revealed: 0,
+                    stage_id: None,
                 }],
+                current_stage: None,
+                completed_stages: vec![],
             },
         );
         exercises.insert(
@@ -580,6 +626,7 @@ mod tests {
                         run_exit_code: None,
                         output_matched: None,
                         hints_revealed: 1,
+                        stage_id: None,
                     },
                     AttemptRecord {
                         timestamp: "2026-01-15T10:02:00Z".to_string(),
@@ -588,8 +635,11 @@ mod tests {
                         run_exit_code: Some(0),
                         output_matched: Some(true),
                         hints_revealed: 0,
+                        stage_id: None,
                     },
                 ],
+                current_stage: None,
+                completed_stages: vec![],
             },
         );
         lessons.insert(
