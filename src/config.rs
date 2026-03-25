@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+pub use crate::community::types::CommunityConfig;
+
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ThemePreset {
@@ -60,6 +62,8 @@ pub struct Config {
     #[cfg(not(feature = "llm"))]
     #[serde(default)]
     pub llm: serde_yaml::Value,
+    #[serde(default)]
+    pub community: CommunityConfig,
 }
 
 impl Default for Config {
@@ -73,6 +77,7 @@ impl Default for Config {
             llm: crate::llm::config::LlmConfig::default(),
             #[cfg(not(feature = "llm"))]
             llm: serde_yaml::Value::Null,
+            community: CommunityConfig::default(),
         }
     }
 }

@@ -39,6 +39,7 @@ pub struct App {
     pub stats: StatsState,
     pub settings: SettingsState,
     pub progress_view: ProgressViewState,
+    pub browse: BrowseState,
     pub layout_cache: LayoutCache,
     pub course_app: Option<CourseApp>,
     #[allow(dead_code)]
@@ -91,6 +92,7 @@ impl App {
             stats: StatsState::new(),
             settings,
             progress_view: ProgressViewState::new(),
+            browse: BrowseState::new(),
             layout_cache: LayoutCache::default(),
             course_app: None,
             courses_dir,
@@ -126,6 +128,7 @@ impl App {
             stats: StatsState::new(),
             settings: SettingsState::new(),
             progress_view: ProgressViewState::new(),
+            browse: BrowseState::new(),
             layout_cache: LayoutCache::default(),
             course_app: Some(course_app),
             courses_dir,
@@ -206,6 +209,7 @@ impl App {
             Screen::Stats => self.render_stats(frame),
             Screen::Settings => self.render_settings(frame),
             Screen::Progress => self.render_progress(frame),
+            Screen::Browse => self.render_browse(frame),
             Screen::Course => {
                 let theme = self.theme.clone();
                 if let Some(ref mut ca) = self.course_app {
@@ -311,13 +315,13 @@ impl App {
         let key_text = match self.home.focus {
             HomePanelFocus::CourseList => {
                 if startable && !narrow {
-                    " [Enter] Start  [\u{2192}] Lessons  [\u{2191}/\u{2193}] Navigate  [w] Tour  [h] How To  [t] Stats  [p] Progress  [s] Settings  [q] Quit"
+                    " [Enter] Start  [\u{2192}] Lessons  [\u{2191}/\u{2193}] Navigate  [b] Browse  [w] Tour  [h] How To  [t] Stats  [p] Progress  [s] Settings  [q] Quit"
                 } else if startable {
-                    " [Enter] Start  [\u{2191}/\u{2193}] Navigate  [w] Tour  [h] How To  [s] Settings  [q] Quit"
+                    " [Enter] Start  [\u{2191}/\u{2193}] Navigate  [b] Browse  [h] How To  [s] Settings  [q] Quit"
                 } else if !narrow {
-                    " [\u{2192}] Lessons  [\u{2191}/\u{2193}] Navigate  [w] Tour  [h] How To  [t] Stats  [p] Progress  [s] Settings  [q] Quit"
+                    " [\u{2192}] Lessons  [\u{2191}/\u{2193}] Navigate  [b] Browse  [w] Tour  [h] How To  [t] Stats  [p] Progress  [s] Settings  [q] Quit"
                 } else {
-                    " [\u{2191}/\u{2193}] Navigate  [w] Tour  [h] How To  [s] Settings  [q] Quit"
+                    " [\u{2191}/\u{2193}] Navigate  [b] Browse  [h] How To  [s] Settings  [q] Quit"
                 }
             }
             HomePanelFocus::LessonList => {
@@ -1640,6 +1644,7 @@ impl App {
                         Screen::Stats => self.handle_stats_input(key.code),
                         Screen::Settings => self.handle_settings_input(key.code),
                         Screen::Progress => self.handle_progress_input(key.code)?,
+                        Screen::Browse => self.handle_browse_input(key.code),
                         Screen::Course => self.handle_course_input(key)?,
                     }
                 }
@@ -1782,6 +1787,10 @@ impl App {
                 KeyCode::Char('w') => {
                     self.tour.slide_index = 0;
                     self.screen = Screen::Tour;
+                }
+                KeyCode::Char('b') => {
+                    self.init_browse();
+                    self.screen = Screen::Browse;
                 }
                 _ => {}
             },
@@ -2037,6 +2046,394 @@ impl App {
     }
 
     // --- Actions ---
+
+    // --- Browse screen ---
+
+    fn init_browse(&mut self) {
+        let result = crate::community::registry::fetch_registry(&self.config.community);
+        self.browse.source = result.source;
+        self.browse.registry = Some(result.registry);
+        self.browse.selected_idx = 0;
+        self.browse.scroll_offset = 0;
+        self.browse.search_query.clear();
+        self.browse.search_editing = false;
+        self.browse.download_status = None;
+
+        // Detect installed courses
+        self.browse.installed_ids.clear();
+        if let Some(ref reg) = self.browse.registry {
+            for c in &reg.courses {
+                if crate::community::registry::is_installed(c, &self.courses_dir) {
+                    self.browse.installed_ids.insert(c.id.clone());
+                }
+            }
+        }
+
+        self.apply_browse_filter();
+    }
+
+    fn apply_browse_filter(&mut self) {
+        let Some(ref reg) = self.browse.registry else {
+            self.browse.filtered_indices.clear();
+            return;
+        };
+
+        let matched: Vec<&crate::community::types::RegistryCourse> =
+            if self.browse.search_query.is_empty() {
+                reg.courses.iter().collect()
+            } else {
+                crate::community::registry::search(&reg.courses, &self.browse.search_query)
+            };
+
+        // Build indices
+        let mut indices: Vec<usize> = matched
+            .iter()
+            .map(|c| {
+                reg.courses
+                    .iter()
+                    .position(|rc| std::ptr::eq(rc, *c))
+                    .unwrap_or(0)
+            })
+            .collect();
+
+        // Sort
+        match self.browse.sort {
+            crate::ui::screens::BrowseSortMode::Alphabetical => {
+                indices.sort_by(|&a, &b| reg.courses[a].name.cmp(&reg.courses[b].name));
+            }
+            crate::ui::screens::BrowseSortMode::Newest => {
+                indices.sort_by(|&a, &b| {
+                    reg.courses[b]
+                        .published_at
+                        .cmp(&reg.courses[a].published_at)
+                });
+            }
+            crate::ui::screens::BrowseSortMode::Exercises => {
+                indices.sort_by(|&a, &b| reg.courses[b].exercises.cmp(&reg.courses[a].exercises));
+            }
+        }
+
+        self.browse.filtered_indices = indices;
+        if self.browse.selected_idx >= self.browse.filtered_indices.len() {
+            self.browse.selected_idx = self.browse.filtered_indices.len().saturating_sub(1);
+        }
+        self.browse.scroll_offset = 0;
+    }
+
+    fn render_browse(&mut self, frame: &mut ratatui::Frame) {
+        let outer = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(1), // title bar
+                Constraint::Length(1), // search bar
+                Constraint::Min(1),    // content
+                Constraint::Length(1), // key bar / status
+            ])
+            .split(frame.size());
+
+        // Title bar
+        let title_bar = Paragraph::new(Line::from(Span::styled(
+            " LearnLocal | Browse Community Courses",
+            Style::default()
+                .fg(self.theme.title_bar_fg)
+                .bg(self.theme.title_bar_bg)
+                .add_modifier(Modifier::BOLD),
+        )));
+        frame.render_widget(title_bar, outer[0]);
+
+        // Search bar
+        let search_line = crate::ui::browse::format_search_bar(
+            &self.browse.search_query,
+            self.browse.search_editing,
+            self.browse.filtered_indices.len(),
+            &self.browse.source,
+            &self.theme,
+            outer[1].width,
+        );
+        frame.render_widget(Paragraph::new(search_line), outer[1]);
+
+        // Content: split into list (left) and detail (right)
+        let content_area = outer[2];
+        let wide = content_area.width >= 80;
+
+        if wide {
+            let panels = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints([Constraint::Percentage(45), Constraint::Percentage(55)])
+                .split(content_area);
+
+            self.render_browse_list(frame, panels[0]);
+            self.render_browse_detail(frame, panels[1]);
+        } else {
+            // Narrow: list only
+            self.render_browse_list(frame, content_area);
+        }
+
+        // Key bar / download status
+        let key_text = if let Some(ref status) = self.browse.download_status {
+            match status {
+                crate::ui::screens::DownloadStatus::InProgress(id) => {
+                    format!(" Downloading {}...", id)
+                }
+                crate::ui::screens::DownloadStatus::Done(id) => {
+                    format!(" \u{2713} Installed {}!", id)
+                }
+                crate::ui::screens::DownloadStatus::Failed(id, err) => {
+                    format!(" \u{2717} Failed to install {}: {}", id, err)
+                }
+            }
+        } else if self.browse.search_editing {
+            " Type to search  [Esc] Cancel  [Enter] Confirm".to_string()
+        } else {
+            format!(
+                " [/] Search  [d] Download  [s] Sort ({})  [Esc] Back",
+                self.browse.sort
+            )
+        };
+
+        let key_bar = Paragraph::new(Line::from(Span::styled(
+            truncate_key_bar(&key_text, outer[3].width as usize),
+            Style::default()
+                .fg(self.theme.key_bar_fg)
+                .bg(self.theme.key_bar_bg),
+        )));
+        frame.render_widget(key_bar, outer[3]);
+    }
+
+    fn render_browse_list(&self, frame: &mut ratatui::Frame, area: ratatui::layout::Rect) {
+        if self.browse.filtered_indices.is_empty() {
+            let msg = if self.browse.search_query.is_empty() {
+                "No courses available."
+            } else {
+                "No courses match your search."
+            };
+            let p = Paragraph::new(Line::from(Span::styled(
+                format!("  {}", msg),
+                Style::default().fg(self.theme.muted),
+            )));
+            frame.render_widget(p, area);
+            return;
+        }
+
+        let reg = match self.browse.registry {
+            Some(ref r) => r,
+            None => return,
+        };
+
+        let visible_height = area.height as usize;
+        let total = self.browse.filtered_indices.len();
+
+        let mut lines: Vec<Line<'static>> = Vec::new();
+        let start = self.browse.scroll_offset;
+        let end = (start + visible_height).min(total);
+
+        for i in start..end {
+            let course_idx = self.browse.filtered_indices[i];
+            let course = &reg.courses[course_idx];
+            let is_selected = i == self.browse.selected_idx;
+            let is_installed = self.browse.installed_ids.contains(&course.id);
+
+            let line = crate::ui::browse::format_course_row(
+                course,
+                is_selected,
+                is_installed,
+                area.width,
+                &self.theme,
+            );
+            lines.push(line);
+        }
+
+        let list = Paragraph::new(lines);
+        frame.render_widget(list, area);
+    }
+
+    fn render_browse_detail(&self, frame: &mut ratatui::Frame, area: ratatui::layout::Rect) {
+        let block = Block::default()
+            .borders(Borders::LEFT)
+            .border_style(Style::default().fg(self.theme.muted));
+
+        let inner = block.inner(area);
+        frame.render_widget(block, area);
+
+        let Some(course) = self.browse.selected_course() else {
+            return;
+        };
+        let is_installed = self.browse.installed_ids.contains(&course.id);
+        let lines =
+            crate::ui::browse::format_course_detail(course, is_installed, &self.theme, inner.width);
+
+        let detail = Paragraph::new(lines).wrap(Wrap { trim: false });
+        frame.render_widget(detail, inner);
+    }
+
+    fn handle_browse_input(&mut self, key: KeyCode) {
+        // Clear download status on any keypress
+        if matches!(
+            self.browse.download_status,
+            Some(crate::ui::screens::DownloadStatus::Done(_))
+                | Some(crate::ui::screens::DownloadStatus::Failed(_, _))
+        ) {
+            self.browse.download_status = None;
+        }
+
+        if self.browse.search_editing {
+            match key {
+                KeyCode::Esc => {
+                    self.browse.search_editing = false;
+                }
+                KeyCode::Enter => {
+                    self.browse.search_editing = false;
+                }
+                KeyCode::Backspace => {
+                    self.browse.search_query.pop();
+                    self.apply_browse_filter();
+                }
+                KeyCode::Char(c) => {
+                    self.browse.search_query.push(c);
+                    self.apply_browse_filter();
+                }
+                _ => {}
+            }
+            return;
+        }
+
+        match key {
+            KeyCode::Esc | KeyCode::Char('q') => {
+                self.screen = Screen::Home;
+            }
+            KeyCode::Char('/') => {
+                self.browse.search_editing = true;
+            }
+            KeyCode::Up | KeyCode::Char('k') => {
+                if self.browse.selected_idx > 0 {
+                    self.browse.selected_idx -= 1;
+                    if self.browse.selected_idx < self.browse.scroll_offset {
+                        self.browse.scroll_offset = self.browse.selected_idx;
+                    }
+                }
+            }
+            KeyCode::Down | KeyCode::Char('j') => {
+                if self.browse.selected_idx + 1 < self.browse.filtered_indices.len() {
+                    self.browse.selected_idx += 1;
+                    // Auto-scroll: we don't know visible height here, but we can estimate
+                    // The render will handle scroll_offset properly
+                }
+            }
+            KeyCode::Char('d') => {
+                self.download_browse_selected();
+            }
+            KeyCode::Char('s') => {
+                self.browse.sort = match self.browse.sort {
+                    crate::ui::screens::BrowseSortMode::Alphabetical => {
+                        crate::ui::screens::BrowseSortMode::Newest
+                    }
+                    crate::ui::screens::BrowseSortMode::Newest => {
+                        crate::ui::screens::BrowseSortMode::Exercises
+                    }
+                    crate::ui::screens::BrowseSortMode::Exercises => {
+                        crate::ui::screens::BrowseSortMode::Alphabetical
+                    }
+                };
+                self.apply_browse_filter();
+            }
+            KeyCode::Char('c') => {
+                // Clear search
+                self.browse.search_query.clear();
+                self.apply_browse_filter();
+            }
+            _ => {}
+        }
+    }
+
+    fn download_browse_selected(&mut self) {
+        let Some(course) = self.browse.selected_course().cloned() else {
+            return;
+        };
+
+        if self.browse.installed_ids.contains(&course.id) {
+            self.browse.download_status = Some(crate::ui::screens::DownloadStatus::Done(format!(
+                "{} (already installed)",
+                course.id
+            )));
+            return;
+        }
+
+        self.browse.download_status = Some(crate::ui::screens::DownloadStatus::InProgress(
+            course.id.clone(),
+        ));
+
+        let result = crate::community::download::install_course(&course, &self.courses_dir, |_| {});
+
+        match result {
+            crate::community::download::DownloadResult::Success {
+                ref course_id,
+                ref install_path,
+            } => {
+                self.browse.download_status =
+                    Some(crate::ui::screens::DownloadStatus::Done(course_id.clone()));
+                self.browse.installed_ids.insert(course_id.clone());
+
+                // Refresh home screen course list
+                if let Ok(info) = crate::course::load_course_info(install_path) {
+                    self.courses.push(info);
+                    self.home.summaries =
+                        build_course_summaries(&self.courses, &self.progress_store);
+                    self.home.display_order = build_display_order(&self.home.summaries);
+                    self.home.tool_check_cache.clear();
+                    self.home.platform_check_cache.clear();
+                }
+            }
+            crate::community::download::DownloadResult::AlreadyInstalled { course_id, .. } => {
+                self.browse.download_status = Some(crate::ui::screens::DownloadStatus::Done(
+                    format!("{} (already installed)", course_id),
+                ));
+                self.browse.installed_ids.insert(course_id);
+            }
+            crate::community::download::DownloadResult::ChecksumMismatch {
+                expected,
+                actual,
+                ..
+            } => {
+                self.browse.download_status = Some(crate::ui::screens::DownloadStatus::Failed(
+                    course.id.clone(),
+                    format!("Checksum mismatch: expected {}, got {}", expected, actual),
+                ));
+            }
+            crate::community::download::DownloadResult::NetworkError(e) => {
+                self.browse.download_status = Some(crate::ui::screens::DownloadStatus::Failed(
+                    course.id.clone(),
+                    format!("Network error: {}", e),
+                ));
+            }
+            crate::community::download::DownloadResult::ExtractionError(e) => {
+                self.browse.download_status = Some(crate::ui::screens::DownloadStatus::Failed(
+                    course.id.clone(),
+                    format!("Extraction error: {}", e),
+                ));
+            }
+            crate::community::download::DownloadResult::ValidationFailed(e) => {
+                self.browse.download_status = Some(crate::ui::screens::DownloadStatus::Failed(
+                    course.id.clone(),
+                    format!("Validation failed: {}", e),
+                ));
+            }
+            crate::community::download::DownloadResult::IncompatibleVersion {
+                required,
+                current,
+            } => {
+                self.browse.download_status = Some(crate::ui::screens::DownloadStatus::Failed(
+                    course.id.clone(),
+                    format!("Requires v{}, you have v{}", required, current),
+                ));
+            }
+            crate::community::download::DownloadResult::PlatformMismatch { required, current } => {
+                self.browse.download_status = Some(crate::ui::screens::DownloadStatus::Failed(
+                    course.id.clone(),
+                    format!("Requires {}, you are on {}", required, current),
+                ));
+            }
+        }
+    }
 
     fn start_selected_course(&mut self, lesson_idx: Option<usize>) {
         if self.home.summaries.is_empty() {

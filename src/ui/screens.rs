@@ -1,3 +1,6 @@
+use std::collections::HashSet;
+
+use crate::community::types::{Registry, RegistrySource};
 use crate::course::types::{Course, CourseInfo};
 use crate::exec::toolcheck::{PlatformStatus, ToolStatus};
 
@@ -9,6 +12,7 @@ pub enum Screen {
     Progress,
     Stats,
     Tour,
+    Browse,
     Course,
 }
 
@@ -253,5 +257,76 @@ impl ProgressViewState {
             selected_lesson_idx: 0,
             confirm_reset: false,
         }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum BrowseSortMode {
+    Alphabetical,
+    Newest,
+    Exercises,
+}
+
+impl std::fmt::Display for BrowseSortMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BrowseSortMode::Alphabetical => write!(f, "A-Z"),
+            BrowseSortMode::Newest => write!(f, "Newest"),
+            BrowseSortMode::Exercises => write!(f, "Exercises"),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum DownloadStatus {
+    InProgress(String),
+    Done(String),
+    Failed(String, String),
+}
+
+pub struct BrowseState {
+    /// The fetched registry.
+    pub registry: Option<Registry>,
+    /// How the registry was obtained.
+    pub source: RegistrySource,
+    /// Indices into registry.courses matching the current filter/sort.
+    pub filtered_indices: Vec<usize>,
+    /// Selected index into filtered_indices.
+    pub selected_idx: usize,
+    /// Search query text.
+    pub search_query: String,
+    /// Whether the search bar is in editing mode.
+    pub search_editing: bool,
+    /// Scroll offset for the course list (first visible item).
+    pub scroll_offset: usize,
+    /// Sort mode.
+    pub sort: BrowseSortMode,
+    /// Download status for display.
+    pub download_status: Option<DownloadStatus>,
+    /// Locally installed course IDs.
+    pub installed_ids: HashSet<String>,
+}
+
+impl BrowseState {
+    pub fn new() -> Self {
+        Self {
+            registry: None,
+            source: RegistrySource::Empty,
+            filtered_indices: Vec::new(),
+            selected_idx: 0,
+            search_query: String::new(),
+            search_editing: false,
+            scroll_offset: 0,
+            sort: BrowseSortMode::Alphabetical,
+            download_status: None,
+            installed_ids: HashSet::new(),
+        }
+    }
+
+    /// Get the currently selected registry course, if any.
+    pub fn selected_course(&self) -> Option<&crate::community::types::RegistryCourse> {
+        let reg = self.registry.as_ref()?;
+        let &idx = self.filtered_indices.get(self.selected_idx)?;
+        reg.courses.get(idx)
     }
 }

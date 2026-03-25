@@ -29,6 +29,9 @@ pub enum LearnLocalError {
 
     #[error("Semver error: {0}")]
     Semver(#[from] semver::Error),
+
+    #[error("Community error: {0}")]
+    Community(String),
 }
 
 pub type Result<T> = std::result::Result<T, LearnLocalError>;

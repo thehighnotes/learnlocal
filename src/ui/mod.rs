@@ -1,4 +1,5 @@
 pub mod app;
+pub mod browse;
 pub mod celebration;
 pub mod course_app;
 pub mod diagnostics;

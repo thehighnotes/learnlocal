@@ -9,7 +9,8 @@ Spec: `docs/SPECIFICATION.md`.
 
 - **Rust** for the runtime. Course authors write YAML + Markdown, not Rust.
 - **$EDITOR-first** for code editing. Inline TUI editor as convenience (`[e]`), external $EDITOR via `[E]` (Shift+e).
-- **LLM is feature-gated.** Behind `--features llm` at compile time, `config.llm.enabled` at runtime. Core binary has zero async/HTTP dependencies without this feature.
+- **LLM is feature-gated.** Behind `--features llm` at compile time, `config.llm.enabled` at runtime.
+- **Server is feature-gated.** Behind `--features server`. Community API server (axum + SQLite) deployed to `learnlocal.aiquest.info`.
 - **State layer stores raw signals, not interpretations.** Record attempt counts, time spent, hints revealed, compile/run results. Never compute "struggling" or "mastery" in the core — that's the LLM's job.
 - **Execution uses a step list**, not a fixed compile/run pair. See `course.yaml` `language.steps` in the spec.
 - **Sandboxing is tiered:** basic (timeout + tmpdir) always; firejail/bwrap if detected.
@@ -21,9 +22,12 @@ src/
   main.rs           # Entry point, CLI parsing
   course/           # YAML loading, course/lesson/exercise types, validation
   exec/             # Step-based execution engine, sandbox, environment engine, tool checking
-  ui/               # ratatui TUI, markdown renderer, $EDITOR integration
+  ui/               # ratatui TUI, markdown renderer, $EDITOR integration, browse screen
   state/            # Progress (persisted JSON) + session signals (in-memory)
   llm/              # Optional: context view, backends (behind feature flag)
+  author/           # Solution runner, Course Designer web UI (behind --features author)
+  community/        # Registry client, download/install, package creation, types
+  server/           # Community API server (behind --features server)
 courses/            # Course packs (YAML + MD)
 ```
 
@@ -33,6 +37,7 @@ Before any push to remote, always run:
 - `cargo fmt --all -- --check` (CI will reject unformatted code)
 - `cargo clippy --all-targets -- -D warnings`
 - `cargo clippy --all-targets --features llm -- -D warnings`
+- `cargo clippy --all-targets --features server -- -D warnings`
 
 ## Conventions
 
@@ -87,7 +92,7 @@ Building in phases:
 2. **Phase 2:** UX polish, colored diffs, inline editor, run/submit separation, diagnostics -- **DONE**
 3. **Phase 3:** LLM integration (Ollama, streaming, AI chat, context assembly) -- **DONE**
 4. **Phase 4:** More courses (Python, JS, AI, Linux Fundamentals), progressive reveal, AI chat during lesson reading, environment engine v3, platform blocking -- **IN PROGRESS**
-5. **Phase 5:** Distribution, packaging, community tooling
+5. **Phase 5:** Distribution, packaging, community tooling -- **DONE** (community server live at learnlocal.aiquest.info)
 
 ## Public Release Workflow
 
@@ -118,7 +123,19 @@ Work through the checklist in **Sprints**. Each sprint bundles related items for
 
 - **Sprint 10 — Course Designer, Staged Exercises & Community:** Design doc at `docs/design/sprint-10-author-and-stages.md`. Three features: staged exercises (done Phase 1+2), course designer (web GUI), community platform. Seven implementation phases.
 
-**Current sprint:** Sprint 10 — Phase 1+2 (Staged Exercises) complete on `feature/staged-exercises`. Phase 3 (Author CLI) next.
+**Current sprint:** Sprint 10 — All phases complete on `feature/staged-exercises`. Staged exercises, Author CLI, Course Designer, and Community Platform all implemented.
+
+## Community Platform
+
+- **Server**: axum + SQLite at `https://learnlocal.aiquest.info`, deployed on VPS with systemd sandboxing
+- **API**: `GET /api/v1/courses` (registry), `GET /api/v1/courses/:id` (detail + reviews), `POST /api/v1/publish` (upload), ratings, reviews, GitHub OAuth device flow
+- **Auth**: GitHub OAuth device flow via `learnlocal login`. Token stored in `~/.config/learnlocal/config.yaml` under `community.auth_token`
+- **Provenance**: Courses have `owner_github` (first publisher owns the ID), `forked_from` (id/version/author chain). Version updates via composite `(id, version)` key. Only owner can push new versions; forks must use a new course ID.
+- **Browse**: `learnlocal browse` (CLI) or `[b]` from home screen (TUI). Search, sort, ratings, fork lineage visible.
+- **Install**: `learnlocal install <id>` downloads from server, verifies SHA-256, extracts, validates, installs.
+- **Publish**: `learnlocal author publish <path>` — preflight checks, tar.gz packaging, upload to server. Courses start as "pending", approved manually.
+- **Rate/Review**: `learnlocal rate <id> <stars>`, `learnlocal review <id> "text"`. One per user per course.
+- **Config**: `community.registry_url` (default: `https://learnlocal.aiquest.info/api/v1/courses`), overridable for self-hosted servers.
 
 ## Public Release Checklist
 

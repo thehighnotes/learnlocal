@@ -1,12 +1,14 @@
 mod author;
 mod cli;
 mod cli_fmt;
+mod community;
 mod config;
 mod course;
 mod error;
 mod exec;
 mod exit_codes;
 mod llm;
+mod server;
 mod state;
 mod ui;
 
@@ -75,7 +77,25 @@ fn run(cli: Cli) -> anyhow::Result<i32> {
         Some(Command::Export { course, format }) => {
             cmd_export(course.as_deref(), &format).map(|()| exit_codes::SUCCESS)
         }
-        Some(Command::Author { subcommand }) => cmd_author(subcommand, verbose),
+        Some(Command::Browse { search }) => {
+            cmd_browse(&cli.courses_dir, search.as_deref(), &config).map(|()| exit_codes::SUCCESS)
+        }
+        Some(Command::Install { course_id }) => cmd_install(&cli.courses_dir, &course_id, &config),
+        Some(Command::Login) => cmd_login(&config).map(|()| exit_codes::SUCCESS),
+        Some(Command::Logout) => cmd_logout().map(|()| exit_codes::SUCCESS),
+        Some(Command::Rate { course_id, stars }) => {
+            cmd_rate(&course_id, stars, &config).map(|()| exit_codes::SUCCESS)
+        }
+        Some(Command::Review { course_id, body }) => {
+            cmd_review(&course_id, &body, &config).map(|()| exit_codes::SUCCESS)
+        }
+        Some(Command::Author { subcommand }) => cmd_author(subcommand, verbose, &config),
+        #[cfg(feature = "server")]
+        Some(Command::Server {
+            port,
+            data_dir,
+            packages_dir,
+        }) => server::run::start(port, &data_dir, &packages_dir).map(|()| exit_codes::SUCCESS),
     }
 }
 
@@ -1053,7 +1073,516 @@ fn cmd_export(course_filter: Option<&str>, format: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn cmd_author(subcommand: AuthorCommand, verbose: bool) -> anyhow::Result<i32> {
+fn cmd_browse(
+    courses_dir: &Option<PathBuf>,
+    search: Option<&str>,
+    config: &config::Config,
+) -> anyhow::Result<()> {
+    let result = community::registry::fetch_registry(&config.community);
+
+    // Show source indicator
+    match &result.source {
+        community::types::RegistrySource::Remote => {
+            println!(
+                "{} Registry fetched ({})",
+                cli_fmt::green("\u{2713}"),
+                result.registry.courses.len()
+            );
+        }
+        community::types::RegistrySource::Cached { age_secs } => {
+            let hours = age_secs / 3600;
+            let age_str = if hours < 1 {
+                "< 1 hour ago".to_string()
+            } else if hours < 24 {
+                format!("{} hours ago", hours)
+            } else {
+                format!("{} days ago", hours / 24)
+            };
+            println!(
+                "{} Using cached registry ({}, {} courses)",
+                cli_fmt::yellow("!"),
+                age_str,
+                result.registry.courses.len()
+            );
+        }
+        community::types::RegistrySource::Empty => {
+            println!(
+                "{} No registry available (no network, no cache)",
+                cli_fmt::red("\u{2717}")
+            );
+            println!("Try again when connected to the internet.");
+            return Ok(());
+        }
+    }
+
+    let courses: Vec<&community::types::RegistryCourse> = if let Some(q) = search {
+        community::registry::search(&result.registry.courses, q)
+    } else {
+        result.registry.courses.iter().collect()
+    };
+
+    if courses.is_empty() {
+        if let Some(q) = search {
+            println!("\nNo courses matching '{}'", q);
+        } else {
+            println!("\nNo courses available.");
+        }
+        return Ok(());
+    }
+
+    let dir = discover_courses_dir(courses_dir);
+
+    println!();
+    println!(
+        "  {:<26} {:<12} {:>7} {:>5}  Author",
+        "ID", "Language", "Lessons", "Ex."
+    );
+    println!("  {}", "-".repeat(74));
+
+    for c in &courses {
+        let installed = community::registry::is_installed(c, &dir);
+        let compat = community::registry::is_version_compatible(c);
+
+        let prefix = if installed {
+            cli_fmt::green("\u{2713}")
+        } else if !compat {
+            cli_fmt::yellow("!")
+        } else {
+            " ".to_string()
+        };
+
+        println!(
+            "{} {:<26} {:<12} {:>7} {:>5}  {}",
+            prefix, c.id, c.language_display, c.lessons, c.exercises, c.author,
+        );
+    }
+
+    println!();
+    println!(
+        "  {} = installed, {} = needs newer LearnLocal",
+        cli_fmt::green("\u{2713}"),
+        cli_fmt::yellow("!")
+    );
+    println!("  Install with: learnlocal install <course-id>");
+
+    Ok(())
+}
+
+fn cmd_install(
+    courses_dir: &Option<PathBuf>,
+    course_id: &str,
+    config: &config::Config,
+) -> anyhow::Result<i32> {
+    // Fetch registry
+    let result = community::registry::fetch_registry(&config.community);
+    if matches!(result.source, community::types::RegistrySource::Empty) {
+        eprintln!(
+            "{} Cannot install: no registry available (no network, no cache)",
+            cli_fmt::red("Error:")
+        );
+        return Ok(exit_codes::ERROR);
+    }
+
+    // Find course
+    let course = result.registry.courses.iter().find(|c| c.id == course_id);
+    let Some(course) = course else {
+        eprintln!(
+            "{} Course '{}' not found in registry",
+            cli_fmt::red("Error:"),
+            course_id
+        );
+        eprintln!("Use 'learnlocal browse' to see available courses.");
+        return Ok(exit_codes::ERROR);
+    };
+
+    let dir = discover_courses_dir(courses_dir);
+
+    // Install with progress output
+    let download_result =
+        community::download::install_course(course, &dir, |progress| match progress {
+            community::download::DownloadProgress::Downloading => {
+                print!(
+                    "  {} Downloading {}...",
+                    cli_fmt::dim("\u{25CB}"),
+                    course_id
+                );
+                use std::io::Write;
+                std::io::stdout().flush().ok();
+            }
+            community::download::DownloadProgress::Verifying => {
+                println!(" {}", cli_fmt::green("\u{2713}"));
+                print!("  {} Verifying checksum...", cli_fmt::dim("\u{25CB}"));
+                use std::io::Write;
+                std::io::stdout().flush().ok();
+            }
+            community::download::DownloadProgress::Extracting => {
+                println!(" {}", cli_fmt::green("\u{2713}"));
+                print!("  {} Extracting...", cli_fmt::dim("\u{25CB}"));
+                use std::io::Write;
+                std::io::stdout().flush().ok();
+            }
+            community::download::DownloadProgress::Validating => {
+                println!(" {}", cli_fmt::green("\u{2713}"));
+                print!("  {} Validating course...", cli_fmt::dim("\u{25CB}"));
+                use std::io::Write;
+                std::io::stdout().flush().ok();
+            }
+            community::download::DownloadProgress::Installing => {
+                println!(" {}", cli_fmt::green("\u{2713}"));
+                print!("  {} Installing...", cli_fmt::dim("\u{25CB}"));
+                use std::io::Write;
+                std::io::stdout().flush().ok();
+            }
+            community::download::DownloadProgress::Complete => {
+                println!(" {}", cli_fmt::green("\u{2713}"));
+            }
+        });
+
+    match download_result {
+        community::download::DownloadResult::Success {
+            course_id,
+            install_path,
+        } => {
+            println!();
+            println!(
+                "{} Installed '{}' to {}",
+                cli_fmt::green("\u{2713}"),
+                course_id,
+                install_path.display()
+            );
+            println!("  Start with: learnlocal start {}", course_id);
+            Ok(exit_codes::SUCCESS)
+        }
+        community::download::DownloadResult::AlreadyInstalled {
+            course_id,
+            install_path,
+        } => {
+            println!(
+                "{} '{}' is already installed at {}",
+                cli_fmt::yellow("!"),
+                course_id,
+                install_path.display()
+            );
+            Ok(exit_codes::SUCCESS)
+        }
+        community::download::DownloadResult::ChecksumMismatch { expected, actual } => {
+            println!();
+            eprintln!(
+                "{} Checksum mismatch!\n  Expected: {}\n  Actual:   {}",
+                cli_fmt::red("Error:"),
+                expected,
+                actual
+            );
+            Ok(exit_codes::ERROR)
+        }
+        community::download::DownloadResult::NetworkError(e) => {
+            println!();
+            eprintln!("{} Download failed: {}", cli_fmt::red("Error:"), e);
+            Ok(exit_codes::ERROR)
+        }
+        community::download::DownloadResult::ExtractionError(e) => {
+            println!();
+            eprintln!("{} Extraction failed: {}", cli_fmt::red("Error:"), e);
+            Ok(exit_codes::ERROR)
+        }
+        community::download::DownloadResult::ValidationFailed(e) => {
+            println!();
+            eprintln!("{} Course failed validation: {}", cli_fmt::red("Error:"), e);
+            Ok(exit_codes::ERROR)
+        }
+        community::download::DownloadResult::IncompatibleVersion { required, current } => {
+            eprintln!(
+                "{} Course requires LearnLocal v{} but you have v{}",
+                cli_fmt::red("Error:"),
+                required,
+                current
+            );
+            eprintln!("Update LearnLocal to install this course.");
+            Ok(exit_codes::ERROR)
+        }
+        community::download::DownloadResult::PlatformMismatch { required, current } => {
+            eprintln!(
+                "{} Course requires {} but you are on {}",
+                cli_fmt::red("Error:"),
+                required,
+                current
+            );
+            Ok(exit_codes::ERROR)
+        }
+    }
+}
+
+fn derive_server_url(registry_url: &str) -> String {
+    registry_url.trim_end_matches("/courses").to_string()
+}
+
+fn cmd_login(config: &config::Config) -> anyhow::Result<()> {
+    let server_url = derive_server_url(&config.community.registry_url);
+
+    // Start device flow
+    println!("Starting GitHub login...");
+    let output = std::process::Command::new("curl")
+        .args(["-fsSL", "-X", "POST", "-H", "Accept: application/json"])
+        .arg(format!("{}/auth/device", server_url))
+        .output()?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("Failed to start login: {}", stderr.trim());
+    }
+
+    let resp: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+
+    if let Some(err) = resp.get("error") {
+        anyhow::bail!("Server error: {}", err);
+    }
+
+    let user_code = resp["user_code"]
+        .as_str()
+        .ok_or_else(|| anyhow::anyhow!("No user_code in response"))?;
+    let verification_uri = resp["verification_uri"]
+        .as_str()
+        .unwrap_or("https://github.com/login/device");
+    let device_code = resp["device_code"]
+        .as_str()
+        .ok_or_else(|| anyhow::anyhow!("No device_code in response"))?;
+    let interval = resp["interval"].as_u64().unwrap_or(5);
+
+    println!();
+    println!("  Open: {}", cli_fmt::bold(verification_uri));
+    println!("  Enter code: {}", cli_fmt::bold(user_code));
+    println!();
+    println!("Waiting for authorization...");
+
+    // Poll for completion
+    let poll_body = serde_json::json!({ "device_code": device_code });
+    for _ in 0..180 {
+        // Max ~15 min
+        std::thread::sleep(std::time::Duration::from_secs(interval));
+
+        let poll_output = std::process::Command::new("curl")
+            .args([
+                "-fsSL",
+                "-X",
+                "POST",
+                "-H",
+                "Content-Type: application/json",
+                "-d",
+            ])
+            .arg(poll_body.to_string())
+            .arg(format!("{}/auth/device/poll", server_url))
+            .output()?;
+
+        if !poll_output.status.success() {
+            continue;
+        }
+
+        let poll_resp: serde_json::Value = serde_json::from_slice(&poll_output.stdout)?;
+
+        if let Some(token) = poll_resp.get("access_token").and_then(|v| v.as_str()) {
+            // Save token
+            let mut new_config = config.clone();
+            new_config.community.auth_token = Some(token.to_string());
+            new_config.save()?;
+
+            // Get username
+            let user_output = std::process::Command::new("curl")
+                .args([
+                    "-fsSL",
+                    "-H",
+                    &format!("Authorization: Bearer {}", token),
+                    "-H",
+                    "Accept: application/json",
+                ])
+                .arg(format!("{}/auth/me", server_url))
+                .output()?;
+
+            let username = if user_output.status.success() {
+                let user_resp: serde_json::Value =
+                    serde_json::from_slice(&user_output.stdout).unwrap_or_default();
+                user_resp["github_user"]
+                    .as_str()
+                    .unwrap_or("unknown")
+                    .to_string()
+            } else {
+                "unknown".to_string()
+            };
+
+            println!(
+                "\n{} Logged in as {}",
+                cli_fmt::green("\u{2713}"),
+                cli_fmt::bold(&username)
+            );
+            return Ok(());
+        }
+
+        if let Some(err) = poll_resp.get("error").and_then(|v| v.as_str()) {
+            if err == "authorization_pending" || err == "slow_down" {
+                continue;
+            }
+            anyhow::bail!("Login failed: {}", err);
+        }
+    }
+
+    anyhow::bail!("Login timed out. Please try again.");
+}
+
+fn cmd_logout() -> anyhow::Result<()> {
+    let mut config = config::Config::load();
+    config.community.auth_token = None;
+    config.save()?;
+    println!("{} Logged out.", cli_fmt::green("\u{2713}"));
+    Ok(())
+}
+
+fn cmd_rate(course_id: &str, stars: u8, config: &config::Config) -> anyhow::Result<()> {
+    if !(1..=5).contains(&stars) {
+        anyhow::bail!("Stars must be between 1 and 5");
+    }
+    let token = config
+        .community
+        .auth_token
+        .as_ref()
+        .ok_or_else(|| anyhow::anyhow!("Not logged in. Run 'learnlocal login' first."))?;
+    let server_url = derive_server_url(&config.community.registry_url);
+    let body = serde_json::json!({ "stars": stars });
+
+    let output = std::process::Command::new("curl")
+        .args([
+            "-fsSL",
+            "-X",
+            "POST",
+            "-H",
+            "Content-Type: application/json",
+            "-H",
+            &format!("Authorization: Bearer {}", token),
+            "-d",
+        ])
+        .arg(body.to_string())
+        .arg(format!("{}/courses/{}/ratings", server_url, course_id))
+        .output()?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("Failed to submit rating: {}", stderr.trim());
+    }
+
+    println!(
+        "{} Rated {} with {} star{}",
+        cli_fmt::green("\u{2713}"),
+        course_id,
+        stars,
+        if stars == 1 { "" } else { "s" }
+    );
+    Ok(())
+}
+
+fn cmd_review(course_id: &str, body: &str, config: &config::Config) -> anyhow::Result<()> {
+    let trimmed = body.trim();
+    if trimmed.is_empty() || trimmed.len() > 2000 {
+        anyhow::bail!("Review must be between 1 and 2000 characters");
+    }
+    let token = config
+        .community
+        .auth_token
+        .as_ref()
+        .ok_or_else(|| anyhow::anyhow!("Not logged in. Run 'learnlocal login' first."))?;
+    let server_url = derive_server_url(&config.community.registry_url);
+    let json_body = serde_json::json!({ "body": trimmed });
+
+    let output = std::process::Command::new("curl")
+        .args([
+            "-fsSL",
+            "-X",
+            "POST",
+            "-H",
+            "Content-Type: application/json",
+            "-H",
+            &format!("Authorization: Bearer {}", token),
+            "-d",
+        ])
+        .arg(json_body.to_string())
+        .arg(format!("{}/courses/{}/reviews", server_url, course_id))
+        .output()?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("Failed to submit review: {}", stderr.trim());
+    }
+
+    println!(
+        "{} Review submitted for {}",
+        cli_fmt::green("\u{2713}"),
+        course_id
+    );
+    Ok(())
+}
+
+fn cmd_publish(
+    path: &std::path::Path,
+    dry_run: bool,
+    config: &config::Config,
+) -> anyhow::Result<()> {
+    println!("Running pre-flight checks...");
+    let preflight = community::package::preflight_check(path)?;
+    for check in &preflight.checks {
+        let icon = if check.passed {
+            cli_fmt::green("\u{2713}")
+        } else {
+            cli_fmt::red("\u{2717}")
+        };
+        println!("  {} {}: {}", icon, check.name, check.message);
+    }
+    if !preflight.checks.iter().all(|c| c.passed) {
+        anyhow::bail!("Pre-flight checks failed. Fix the issues above before publishing.");
+    }
+
+    println!("\nCreating package...");
+    let tmp = tempfile::tempdir()?;
+    let package = community::package::create_package(path, tmp.path())?;
+    let size = std::fs::metadata(&package.archive_path)
+        .map(|m| m.len())
+        .unwrap_or(0);
+    println!(
+        "  Package: {} ({:.1} KB)",
+        package.archive_path.display(),
+        size as f64 / 1024.0
+    );
+    println!("  Checksum: sha256:{}", package.checksum);
+
+    if dry_run {
+        println!(
+            "\n{} Dry run complete. Package not uploaded.",
+            cli_fmt::green("\u{2713}")
+        );
+        return Ok(());
+    }
+
+    let token = config
+        .community
+        .auth_token
+        .as_ref()
+        .ok_or_else(|| anyhow::anyhow!("Not logged in. Run 'learnlocal login' first."))?;
+    let server_url = derive_server_url(&config.community.registry_url);
+
+    println!("\nUploading...");
+    community::package::upload_package(&server_url, token, &package, |msg| {
+        println!("  {}", msg);
+    })
+    .map_err(|e| anyhow::anyhow!(e))?;
+
+    println!(
+        "\n{} Published! Course will appear after review.",
+        cli_fmt::green("\u{2713}")
+    );
+    Ok(())
+}
+
+fn cmd_author(
+    subcommand: AuthorCommand,
+    verbose: bool,
+    config: &config::Config,
+) -> anyhow::Result<i32> {
     match subcommand {
         AuthorCommand::RunSolution {
             path,
@@ -1064,6 +1593,9 @@ fn cmd_author(subcommand: AuthorCommand, verbose: bool) -> anyhow::Result<i32> {
             .map(|()| exit_codes::SUCCESS),
         AuthorCommand::RunAllSolutions { path, update } => {
             author::run_all_solutions(&path, update, verbose)
+        }
+        AuthorCommand::Publish { path, dry_run } => {
+            cmd_publish(&path, dry_run, config).map(|()| exit_codes::SUCCESS)
         }
         #[cfg(feature = "author")]
         AuthorCommand::Design {

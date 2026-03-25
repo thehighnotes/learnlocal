@@ -111,6 +111,53 @@ pub enum Command {
         format: String,
     },
 
+    /// Browse available community courses
+    #[command(
+        after_help = "EXAMPLES:\n  learnlocal browse\n  learnlocal browse --search python\n  learnlocal browse --search beginner"
+    )]
+    Browse {
+        /// Filter courses by name, language, or tag
+        #[arg(long, short = 's')]
+        search: Option<String>,
+    },
+
+    /// Download and install a community course
+    #[command(
+        after_help = "EXAMPLES:\n  learnlocal install python-fundamentals\n  learnlocal install cpp-fundamentals"
+    )]
+    Install {
+        /// Course ID from the community registry
+        course_id: String,
+    },
+
+    /// Log in with GitHub for community features (rate, review, publish)
+    #[command(after_help = "EXAMPLES:\n  learnlocal login")]
+    Login,
+
+    /// Log out and remove stored token
+    #[command(after_help = "EXAMPLES:\n  learnlocal logout")]
+    Logout,
+
+    /// Rate a community course (1-5 stars)
+    #[command(after_help = "EXAMPLES:\n  learnlocal rate cpp-fundamentals 5")]
+    Rate {
+        /// Course ID
+        course_id: String,
+        /// Star rating (1-5)
+        stars: u8,
+    },
+
+    /// Review a community course
+    #[command(
+        after_help = "EXAMPLES:\n  learnlocal review cpp-fundamentals \"Great course for beginners!\""
+    )]
+    Review {
+        /// Course ID
+        course_id: String,
+        /// Review text
+        body: String,
+    },
+
     /// Course authoring tools
     #[command(
         after_help = "EXAMPLES:\n  learnlocal author run-solution courses/cpp-fundamentals --lesson variables --exercise declare\n  learnlocal author run-all-solutions courses/cpp-fundamentals --update"
@@ -118,6 +165,23 @@ pub enum Command {
     Author {
         #[command(subcommand)]
         subcommand: AuthorCommand,
+    },
+
+    /// Run the community server
+    #[cfg(feature = "server")]
+    #[command(after_help = "EXAMPLES:\n  learnlocal server\n  learnlocal server --port 3001")]
+    Server {
+        /// Port to listen on
+        #[arg(long, default_value = "3001")]
+        port: u16,
+
+        /// Data directory for SQLite database
+        #[arg(long, default_value = "/opt/learnlocal/data")]
+        data_dir: PathBuf,
+
+        /// Package storage directory
+        #[arg(long, default_value = "/opt/learnlocal/packages")]
+        packages_dir: PathBuf,
     },
 }
 
@@ -155,6 +219,19 @@ pub enum AuthorCommand {
         /// Auto-update expected_output in exercise YAML files
         #[arg(long)]
         update: bool,
+    },
+
+    /// Package and publish a course to the community server
+    #[command(
+        after_help = "EXAMPLES:\n  learnlocal author publish courses/cpp-fundamentals\n  learnlocal author publish courses/cpp-fundamentals --dry-run"
+    )]
+    Publish {
+        /// Path to the course directory
+        path: PathBuf,
+
+        /// Run checks and package only, don't upload
+        #[arg(long)]
+        dry_run: bool,
     },
 
     /// Open the interactive course designer (web UI)

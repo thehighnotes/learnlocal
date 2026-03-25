@@ -36,6 +36,8 @@ That's it. You're learning.
 - **Built-in SQLite** — SQL courses work out of the box, no database setup needed
 - **Optional AI hints** — connect to a local [Ollama](https://ollama.com) instance for AI-powered help (no data leaves your machine)
 - **Course authoring** — create your own courses with YAML + Markdown
+- **Community platform** — browse, download, rate, and review community courses
+- **Publish courses** — share your courses with the community via `learnlocal author publish`
 
 ## Course Catalog
 
@@ -128,6 +130,20 @@ learnlocal validate <dir>            # Validate a course directory (for authors)
 learnlocal init <name>               # Scaffold a new course directory
 learnlocal export <course-id>        # Export progress as JSON or CSV
 learnlocal completions <shell>       # Generate shell completions (bash/zsh/fish)
+
+# Community
+learnlocal browse                    # Browse community courses (or press [b] in TUI)
+learnlocal install <course-id>       # Download and install a community course
+learnlocal login                     # Log in with GitHub for community features
+learnlocal logout                    # Log out
+learnlocal rate <course-id> <1-5>    # Rate a course
+learnlocal review <course-id> "..."  # Write a review
+
+# Authoring
+learnlocal author publish <dir>      # Package and publish a course
+learnlocal author publish <dir> --dry-run  # Pre-flight checks only
+learnlocal author run-solution <dir> --lesson <id> --exercise <id>
+learnlocal author run-all-solutions <dir>
 ```
 
 | Flag | Purpose |
@@ -205,6 +221,42 @@ my-course/
 ```
 
 See the built-in courses in `courses/` for real examples.
+
+## Community
+
+LearnLocal has a built-in community platform for discovering and sharing courses.
+
+### Browse & Install
+
+```bash
+learnlocal browse                    # See what's available
+learnlocal browse --search python    # Filter by language or topic
+learnlocal install python-advanced   # Download and install
+```
+
+Or press `[b]` on the TUI home screen for an interactive browse experience with search, sort, and course details.
+
+### Publish Your Course
+
+```bash
+learnlocal login                                 # Authenticate with GitHub
+learnlocal author publish courses/my-course      # Package + upload
+```
+
+Published courses go through a review process before appearing in the catalog. The pre-flight check validates your course structure, and the server verifies the package integrity on upload.
+
+### Rate & Review
+
+```bash
+learnlocal rate python-advanced 5
+learnlocal review python-advanced "Clear explanations, great exercises!"
+```
+
+Ratings and reviews help other learners find quality content. One rating and one review per course per user.
+
+### Fork Attribution
+
+When you create a course based on someone else's work, set `forked_from` in your manifest. The full authorship chain is preserved and visible to students — original authors always get credit.
 
 ## Contributing
 
