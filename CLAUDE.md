@@ -69,6 +69,8 @@ Before any push to remote, always run:
 
 ## Testing
 
+Full manual testing guide: `docs/testing-guide.md` — covers TUI, courses, staged exercises, shell mode, browse, install, login, rate, review, publish, server, provenance, offline, and edge cases.
+
 - `learnlocal validate <course-dir>` must work in Phase 1. Course authors depend on it.
 - Every exercise solution in `courses/` must pass its own validation. Integration tests verify this.
 - Unit tests for: course loading, placeholder substitution, output validation, progress serialization, semver progress keying.
