@@ -28,7 +28,7 @@ tempfile = "3.26"
 semver = { version = "1.0", features = ["serde"] }
 regex = "1.10"
 notify = "8.2"
-rusqlite = { version = "0.31", features = ["bundled"] }
+rusqlite = { version = "0.39", features = ["bundled"] }
 clap_complete = "4.4"
 clap_mangen = "0.2"
 log = "0.4"
